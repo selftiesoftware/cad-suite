@@ -29,7 +29,7 @@ class Default extends Module {
   var previousModule : Option[Symbol] = None
 
   lazy val stateMachine = Map( 'Start -> ((events : List[Event]) => {
-      nearestShape = None
+      nearestShape = Model(mousePosition)
       events match {
         case MouseMove(point, _, _) :: tail                         => mousePosition = point
         case MouseDown(point, MouseButtonLeft, _) :: tail           => ForwardTo('Select)
@@ -61,7 +61,7 @@ class Default extends Module {
             case _ =>
           }
         }
-        case _ =>
+        case m => Log.debug("Default module received unknown input: " + m)
       }
     }))
 

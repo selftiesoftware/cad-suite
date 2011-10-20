@@ -48,7 +48,7 @@ class Menu extends Module {
           center = Some(point)
           initializeTime = System.currentTimeMillis
           isInitialized = false
-          interface.disableNavigation // Make sure the rest of the program doesn't move
+          interface.disableNavigation() // Make sure the rest of the program doesn't move
           eventParser.disable // Disable tracking and snapping
           currentCategory = Start
         }
@@ -58,15 +58,14 @@ class Menu extends Module {
     }),
     'InteractionTest -> ((events : List[Event]) => {
       events match {
+        case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
         case MouseUp(point, _, _) :: tail => {
           val direction = this.direction(point)
           val level     = if (this.distance < 68) 3 else if (this.distance < 102) 2 else 1
 
           // Make the interaction!
           interact(currentCategory, direction, 1, level) match {
-            case Some(category : MenuCategory) => {
-                currentCategory = category
-            }
+            case Some(category : MenuCategory) => currentCategory = category
             case Some(item : MenuItem)         => {
                 if (item.module != 'None) {
                   Goto('End)
@@ -87,9 +86,7 @@ class Menu extends Module {
 
           // Make the interaction!
           interact(currentCategory, direction, 1, deltaLevel) match {
-            case Some(category : MenuCategory) => {
-                currentCategory = category
-            }
+            case Some(category : MenuCategory) => currentCategory = category
             case Some(item : MenuItem)         => {
                 if (item.module != 'None) {
                   Goto('End)
@@ -112,8 +109,9 @@ class Menu extends Module {
     }),
     'End -> ((events : List[Event]) => {
       // Set everything back to normal
-      interface.enableNavigation
+      interface.enableNavigation()
       isInitialized = false
+      center = None
     })
   )
 
@@ -121,7 +119,7 @@ class Menu extends Module {
    * Paints the menu. If the menu is being initalized we multiply the transformationMatrix with a <code>distanceScale</code> to show an animation
    * of the icons, origining from the center.
    */
-  override def paint(g : Graphics, transformation : TransformationMatrix) = {
+  override def paint(g : Graphics, transformation : TransformationMatrix) {
     // Sets the distanceScale from the current system time. We use time and not paint-iterations to determine the
     // value of the scale, since time is more reliable than frames per second (think slow/unstable computers).
     if (!isInitialized) {
@@ -145,7 +143,7 @@ class Menu extends Module {
       var tooltip : Option[MenuItem] = None
 
       // Draws a Category at a given level
-      def drawCategory(category : MenuCategory, scale : Double = 1) : Unit = {
+      def drawCategory(category : MenuCategory, scale : Double = 1) {
         // Determines whether the given menu-event is active.
         def isActive(event : MenuEvent) = (distance > (100 * scale) && distance < (160 * scale) && this.direction(mousePosition) == event)
 

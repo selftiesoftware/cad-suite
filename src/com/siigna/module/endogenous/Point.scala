@@ -115,8 +115,9 @@ class Point extends Module {
         }
         case MouseDown(pointDown, _, _) :: tail => {
           if (isGizmoCheckNeeded) {
-            Preload('AngleGizmo, "point.AngleGizmo")
+            Preload('AngleGizmo, "com.siigna.module.endogenous.point.AngleGizmo")
             ForwardTo('AngleGizmo)
+            isGizmoCheckNeeded = false
           } else {
             isGizmoCheckNeeded = true
             Goto('End)

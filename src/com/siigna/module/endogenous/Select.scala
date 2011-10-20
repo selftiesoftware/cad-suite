@@ -15,7 +15,7 @@ class Select extends Module {
   //TODO: Temporary! Create a dynamic model...!
   var selectedShape : Option[Shape] = None
 
-  var boxedShapes : Seq[Shape] = Seq()
+  var boxedShapes : Iterable[Shape] = Iterable()
 
   def isEnclosed : Boolean = (box.p1.x <= box.p2.x)
 
@@ -53,8 +53,7 @@ class Select extends Module {
         }
         case _ =>
       }
-      boxedShapes = Model(box.toMBR)
-      None
+      boxedShapes = Model(box)
     }),
     'End   -> ((events : List[Event]) => {
       events match {
@@ -78,11 +77,10 @@ class Select extends Module {
           //  else
           //    DOM.getShapesInsideEnclosed(box).foreach(_ deselect)
           //}
-          None
         }
         case MouseUp(point, _, ModifierKeys(shift, _, _)) :: tail => {
           // Deselect everything if shift isn't pressed
-          if (!shift) Model deselect
+          //if (!shift) Model deselect
 
 //          if ((box.p1 - box.p2).length < 1) {
 //            val closestShape = DOM.getShapeFrom(point)
@@ -93,12 +91,11 @@ class Select extends Module {
 //          } else {
 //            Some(UpdateShapes(DOM.getShapesInsideEnclosed(box), DOM.getShapesInsideEnclosed(box).map(_ select)))
 //          }
-          val shapes = Model.queryForShapesWithId(box)
-          if (!shapes.isEmpty)
-            Select(shapes.keys)
-          None
+          //val shapes = Model.queryForShapesWithId(box)
+          //if (!shapes.isEmpty)
+          //  Select(shapes.keys)
         }
-        case _ => None
+        case _ =>
       }
     })
   )
