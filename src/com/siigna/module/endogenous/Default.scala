@@ -32,13 +32,16 @@ class Default extends Module {
       nearestShape = Model(mousePosition)
       events match {
         case MouseMove(point, _, _) :: tail                         => mousePosition = point
-        case MouseDown(point, MouseButtonLeft, _) :: tail           => ForwardTo('Select)
+        case MouseDown(point, MouseButtonLeft, _) :: tail           => {
+
+          ForwardTo('Select)
+        }
         case MouseDown(point, MouseButtonRight, _) :: tail          => ForwardTo('Menu)
         case KeyDown(('z' | 'Z'), ModifierKeys(_, true, _)) :: tail => Model.undo
         case KeyDown(('y' | 'Y'), ModifierKeys(_, true, _)) :: tail => Model.redo
         case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => Model.selectAll
         case KeyDown(key, _) :: tail => {
-          key match {
+          key.toChar match {
             case Key.Backspace | Key.Delete => {
               if (Model.isSelected) {
                 val selected = Model.selected
@@ -100,6 +103,13 @@ class Default extends Module {
     //g draw separator
     g.draw(scale.transform(transformation))
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
+
+    drawFullScreen(g, t)
+  }
+
+  private def drawFullScreen(g : Graphics, t : TransformationMatrix) {
+    val screen = Siigna.screen
+    g draw LineShape(screen.topRight, screen.topRight - Vector(10, -10))
   }
 
 }
