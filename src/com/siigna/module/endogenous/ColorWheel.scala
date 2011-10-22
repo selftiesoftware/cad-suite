@@ -85,7 +85,7 @@ class ColorWheel extends Module {
         if (calculatedAngle > 360)
           activeAngle = calculatedAngle - 360
         else activeAngle = calculatedAngle
-          activeAngle = (activeAngle/15).toInt * 15
+          activeAngle = ((activeAngle +7.5)/15).toInt * 15
       }
     }),
 
@@ -98,8 +98,8 @@ class ColorWheel extends Module {
       val t  = TransformationMatrix(sp,1.3)
 
       lazy val colorFill = Array(Vector(-8.93,75.5),Vector(-5.96,75.8),Vector(-2.55,76),Vector(0,76),Vector(2.47,76),Vector(6.52,75.7),Vector(8.93,75.5),Vector(11.9,98.3),Vector(9.06,98.6),Vector(4.35,98.9),Vector(0,99),Vector(-4.35,98.9),Vector(-9.04,98.6),Vector(-11.9,98.3),Vector(-8.93,75.5))
-      lazy val colorIcon = PolylineShape.fromPoints(Vector(-8.93,75.5),Vector(-5.96,75.8),Vector(-2.55,76),Vector(0,76),Vector(2.47,76),Vector(6.52,75.7),Vector(8.93,75.5),Vector(11.9,98.3),Vector(9.06,98.6),Vector(4.35,98.9),Vector(0,99),Vector(-4.35,98.9),Vector(-9.04,98.6),Vector(-11.9,98.3),Vector(-8.93,75.5))
-
+      lazy val colorIcon = PolylineShape.fromPoints(Vector(-8.93,75.5),Vector(-5.96,75.8),Vector(-2.55,76.2),Vector(0,76.4),Vector(2.47,76.2),Vector(6.52,75.8),Vector(8.93,75.5),Vector(11.9,98.3),Vector(9.06,98.6),Vector(4.35,99.01),Vector(0,99.2),Vector(-4.35,99.1),Vector(-9.04,98.6),Vector(-11.9,98.3),Vector(-8.93,75.5))
+      lazy val colorActive = PolylineShape.fromPoints(Vector(-10.93,73.5),Vector(-7.96,73.8),Vector(-4.55,74),Vector(-2,74),Vector(4.47,74),Vector(8.52,73.7),Vector(10.93,73.5),Vector(13.9,100.3),Vector(11.06,100.6),Vector(6.35,100.9),Vector(-2,101),Vector(-6.35,100.9),Vector(-11.04,100.6),Vector(-13.9,100.3),Vector(-10.93,73.5))
 
       def drawFill (color : Color, rotation : Int) {
 
@@ -141,8 +141,11 @@ class ColorWheel extends Module {
       //draw a border around the active color
       val distanceToCentre = startPoint.get - relativeMousePosition.get
 
-      if (distanceToCentre.length > 180 && distanceToCentre.length < 220 )  {
+      if (distanceToCentre.length > 80 && distanceToCentre.length < 130 )  {
+
       g draw colorIcon.transform(t.rotate(activeAngle-180))
+      g draw colorActive.transform(t.rotate(activeAngle-180))
+
       }
       //draw the color wheel icon outlines
       //TODO: add attribute to make border thicker
