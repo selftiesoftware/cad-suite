@@ -6,7 +6,7 @@ import com.siigna.module.Module
 
 import com.siigna._
 
-class Move extends Module {
+object Move extends Module {
 
   var basePoint : Option[Vector] = None
   var endPoint  : Option[Vector] = None

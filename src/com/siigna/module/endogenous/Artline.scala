@@ -8,7 +8,7 @@ import scala.Predef._
 A freehand Artline pen
  */
 
-class Artline extends Module{
+object Artline extends Module{
 
     val eventHandler = EventHandler(stateMap, stateMachine)
     var dotshape = Vector(10,10)

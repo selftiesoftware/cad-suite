@@ -15,7 +15,7 @@ import category._
  * The menu module. This module shows the menu as radial items and categories in 13 places (directions):
  * N, NNE, ENE, E, ESE, SSE, S, SSW, WSW, W, WNW and NNW. There is also a center (C) place.
  */
-class Menu extends Module {
+object Menu extends Module {
 
   // The event handler
   lazy val eventHandler = new EventHandler(RadialMenuStateMap, stateMachine)
@@ -31,30 +31,38 @@ class Menu extends Module {
   var initializeTime : Double = System.currentTimeMillis
 
   // The time the initial animation should take.
-  var animationTime : Double = 100
+  var animationTime : Double = 300
 
   // The distance to draw the icons; Used in the initiation of the menu module to animate the icons.
   private var distanceScale : Double = 0.0001
-  
-  var menuMap        = DirectedGraph[MenuElement, MenuEvent]()
-  var mousePosition  = Vector(0, 0)
-  var transformation = TransformationMatrix(Vector(0, 0), 1)
+
+  /**
+   * The position of the mouse at any given time
+   */
+  private var mousePosition  = Vector(0, 0)
+
+  /**
+   *
+   */
+  private var transformation = TransformationMatrix(Vector(0, 0), 1)
 
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {
         case MouseDown(point, MouseButtonRight, _) :: tail => {
           // Initialize the menu
-          center = Some(point)
-          initializeTime = System.currentTimeMillis
-          isInitialized = false
-          interface.disableNavigation() // Make sure the rest of the program doesn't move
-          eventParser.disable // Disable tracking and snapping
+          center          = Some(point)
           currentCategory = Start
+          initializeTime  = System.currentTimeMillis
+
+          // Make sure the rest of the program doesn't move
+          interface.disableNavigation()
+
+          // Disable tracking and snapping
+          eventParser.disable
         }
         case _ => Goto('InteractionTest, false)
       }
-      None
     }),
     'InteractionTest -> ((events : List[Event]) => {
       events match {
@@ -111,6 +119,7 @@ class Menu extends Module {
       // Set everything back to normal
       interface.enableNavigation()
       isInitialized = false
+      distanceScale = 0.00001
       center = None
     })
   )
@@ -124,8 +133,9 @@ class Menu extends Module {
     // value of the scale, since time is more reliable than frames per second (think slow/unstable computers).
     if (!isInitialized) {
       val delta = System.currentTimeMillis - initializeTime
-      if (delta < animationTime && distanceScale != 1) {
-        distanceScale = delta / animationTime + 0.0001 // Safety-mechanism, so the number isn't zero)
+      if (delta < animationTime && distanceScale < 1) {
+        distanceScale *= 2 // Safety-mechanism, so the number isn't zero)
+        println(distanceScale)
       } else if (distanceScale != 1) {
         distanceScale = 1
         isInitialized = true

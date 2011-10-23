@@ -4,7 +4,7 @@ package com.siigna.module.endogenous
 
 import com.siigna._
 
-class Copy extends Module {
+object Copy extends Module {
 
   var basePoint : Option[Vector] = None
   var endPoint : Option[Vector] = None

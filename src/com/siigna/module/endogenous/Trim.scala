@@ -5,7 +5,7 @@ package com.siigna.module.endogenous
 
 import com.siigna._
 
-class Trim extends Module {
+object Trim extends Module {
 
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 

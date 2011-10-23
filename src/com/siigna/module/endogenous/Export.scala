@@ -8,7 +8,7 @@ import java.io.{BufferedWriter, FileWriter}
 import com.siigna._
 import com.siigna.util.dxf._
 
-class Export extends Module {
+object Export extends Module {
 
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 

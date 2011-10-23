@@ -7,7 +7,7 @@ import com.siigna._
 /**
  * TODO: points => p1 and p2
  */
-class Lineardim extends Module {
+object Lineardim extends Module {
 
   val color = "Color" -> "#AAAAAA".color
 

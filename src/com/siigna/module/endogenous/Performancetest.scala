@@ -7,7 +7,7 @@ import com.siigna._
 /**
  * A performance test module which creates 1000*1000 lines.
  */
-class Performancetest extends Module {
+object Performancetest extends Module {
 
   var shapes = scala.collection.immutable.Vector[Shape]()
   val eventHandler = EventHandler(stateMap, stateMachine)

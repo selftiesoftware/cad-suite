@@ -4,7 +4,7 @@ package com.siigna.module.endogenous
 
 import com.siigna._
 
-class Circle extends Module {
+object Circle extends Module {
 
   val eventHandler = EventHandler(stateMap, stateMachine)
 

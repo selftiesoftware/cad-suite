@@ -9,7 +9,7 @@ import java.awt.print.{PageFormat, Paper, Printable, PrinterJob}
 
 import com.siigna._
 
-class Print extends Module {
+object Print extends Module {
 
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 

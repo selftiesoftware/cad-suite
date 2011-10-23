@@ -12,7 +12,7 @@
 //import com.siigna.util.event._
 //import com.siigna.util.geom._
 //
-//class Rectangle extends Module {
+//object Rectangle extends Module {
 //
 //  lazy val eventHandler = new EventHandler(stateMap, stateMachine)
 //

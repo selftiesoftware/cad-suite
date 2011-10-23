@@ -4,7 +4,7 @@ package com.siigna.module.endogenous
 
 import com.siigna._
 
-class Polyline extends Module {
+object Polyline extends Module {
 
   val eventHandler = EventHandler(stateMap, stateMachine)
 
@@ -61,7 +61,7 @@ class Polyline extends Module {
         case Message(_) :: MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
         case Message(point : PointShape) :: tail => {
           if (points.length == 1) {
-            shape = shape + LineShape(points(0), point.point)
+            shape = shape.+:(LineShape(points(0), point.point))
             points = List(point.point)
           } else if (points.length == 0) {
             points = point.point :: points
@@ -69,7 +69,7 @@ class Polyline extends Module {
           Goto('GetPoint)
         }
         case Message(arc : ArcShape) :: tail => {
-          shape = shape + ArcShape(arc.start, arc.middle, arc.end)
+          shape = shape.+:(ArcShape(arc.start, arc.middle, arc.end))
           points = List(arc.end)
         }
         case _ => {

@@ -4,7 +4,7 @@ package com.siigna.module.endogenous
 
 import com.siigna._
 
-class Select extends Module {
+object Select extends Module {
 
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 

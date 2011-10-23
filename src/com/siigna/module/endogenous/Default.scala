@@ -10,7 +10,7 @@ import com.siigna._
 * The default module for the endogenous module pack. Works as access point to
 * the rest of the modules.
 */
-class Default extends Module {
+object Default extends Module {
 
   var mousePosition = Vector(0, 0)
 

@@ -5,7 +5,7 @@ import com.siigna._
 /**
  * Toggles Anti-aliasing on/off.
  */
-class AntiAliasingToggle extends Module {
+object AntiAliasingToggle extends Module {
 
   val eventHandler = EventHandler(stateMap, stateMachine)
 

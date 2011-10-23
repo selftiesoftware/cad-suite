@@ -4,7 +4,7 @@ package com.siigna.module.endogenous
 
 import com.siigna._
 
-class Arc extends Module {
+object Arc extends Module {
 
   val eventHandler = EventHandler(stateMap, stateMachine)
 

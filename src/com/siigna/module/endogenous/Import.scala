@@ -10,7 +10,7 @@ import java.io.File
 import com.siigna._
 import com.siigna.util.dxf._
 
-class Import extends Module {
+object Import extends Module {
 
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 

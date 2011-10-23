@@ -7,7 +7,7 @@ import java.awt.Color
 import com.siigna._
 import app.controller.ModuleBank
 
-class Point extends Module {
+object Point extends Module {
 
   var isGizmoCheckNeeded = false
 

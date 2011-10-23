@@ -2,6 +2,6 @@
 
 package com.siigna.module.endogenous
 
-//class Rotate extends Module {
+//object Rotate extends Module {
 
 //}

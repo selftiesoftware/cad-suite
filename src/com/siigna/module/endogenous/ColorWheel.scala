@@ -12,7 +12,7 @@ import radialmenu.{RadialMenuIcon, MenuEvent, MenuItem}
    //TODO: the color wheel only shows after mouse move???
  */
 
-class ColorWheel extends Module {
+object ColorWheel extends Module {
 
   val transp = 1.00f
 

@@ -15,7 +15,7 @@
 //import com.siigna.util.event._
 //import com.siigna.util.geom._
 //
-//class Text extends Module {
+//object Text extends Module {
 //
 //  lazy val eventHandler = new EventHandler(stateMap, stateMachine)
 //

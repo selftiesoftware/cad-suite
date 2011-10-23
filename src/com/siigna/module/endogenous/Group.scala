@@ -6,7 +6,7 @@ import com.siigna.module.Module
 
 import com.siigna._
 
-class Group extends Module {
+object Group extends Module {
 
   lazy val eventHandler = new EventHandler(stateMap, stateMachine)
 

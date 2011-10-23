@@ -8,7 +8,7 @@ import actors.{Actor, DaemonActor}
  * An object that handles the angle-gizmo.
  */
 //TODO: multiply with zoomscale to get a fixed size gizmo
-class AngleGizmo extends Module {
+object AngleGizmo extends Module {
 
   var activeAngle : Double = 0
 
