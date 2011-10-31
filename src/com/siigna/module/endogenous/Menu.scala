@@ -56,7 +56,7 @@ object Menu extends Module {
           initializeTime  = System.currentTimeMillis
 
           // Make sure the rest of the program doesn't move
-          interface.disableNavigation()
+          Siigna.navigation = false
 
           // Disable tracking and snapping
           eventParser.disable
@@ -117,7 +117,7 @@ object Menu extends Module {
     }),
     'End -> ((events : List[Event]) => {
       // Set everything back to normal
-      interface.enableNavigation()
+      Siigna.navigation = true
       isInitialized = false
       distanceScale = 0.00001
       center = None

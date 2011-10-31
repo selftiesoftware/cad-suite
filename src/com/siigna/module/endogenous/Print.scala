@@ -101,7 +101,7 @@ class MyPrintable extends Printable {
 
       // Paint filters and interfaces accesible by the modules.
       // TODO: Test matrixes
-      Siigna.interface.paint(bufferedGraphics, t1.concatenate(t2))
+      Siigna.paint(bufferedGraphics, t1.concatenate(t2))
 
       //val outline = PolylineShape.fromRectangle(boundary)
 

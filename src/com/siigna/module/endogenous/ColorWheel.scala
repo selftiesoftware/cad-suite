@@ -72,7 +72,7 @@ object ColorWheel extends Module {
     'Start -> ((events : List[Event]) => {
       events match {
         case MouseUp(point, _, _) :: tail => startPoint = Some(point)
-          interface.disableNavigation // Make sure the rest of the program doesn't move
+          Siigna.navigation = false // Make sure the rest of the program doesn't move
           eventParser.disable // Disable tracking and snapping
         case MouseMove(point, _, _) :: tail => relativeMousePosition = Some(point)
         case _ => Goto('End)
@@ -90,6 +90,7 @@ object ColorWheel extends Module {
     }),
 
     'End -> ((events : List[Event]) => {
+      Siigna.navigation = true
     })
   )
   override def paint(g : Graphics, transform : TransformationMatrix) = {
