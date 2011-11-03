@@ -27,7 +27,7 @@ object Point extends Module {
   /**
    * Clear variables
    */
-  def clearVariables : Unit = {
+  def clearVariables() {
     mousePosition = None
     previousPoint = None
     pointGuide = None

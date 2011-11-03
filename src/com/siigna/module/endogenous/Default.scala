@@ -17,12 +17,6 @@ object Default extends Module {
 
   def fullScreenBox = Rectangle(Siigna.screen.bottomRight - Vector(20, -5), Siigna.screen.bottomRight - Vector(40, -25))
 
-  def asInstanceOfOpt[B : scala.reflect.AnyValManifest](obj: Any) : Option[B] =
-        if (obj.isInstanceOf[B])
-          Some(obj.asInstanceOf[B])
-        else
-          None
-
   /**
    * The nearest shape to the current mouse position.
    */

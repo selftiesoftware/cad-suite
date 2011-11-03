@@ -4,7 +4,7 @@ package com.siigna.module.endogenous.radialmenu
 
 import com.siigna.app.model.shape.Shape
 import com.siigna.app.model.shape.LineShape
-import com.siigna.util.event.Event
+import com.siigna.app.view.event.Event
 import com.siigna.util.geom.Vector
 
 /**

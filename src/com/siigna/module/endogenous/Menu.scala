@@ -20,30 +20,19 @@ object Menu extends Module {
   // The event handler
   lazy val eventHandler = new EventHandler(RadialMenuStateMap, stateMachine)
 
-  var categories : List[MenuCategory] = List()
-  var center : Option[Vector]         = None
-  var currentCategory : MenuCategory  = Start
+  // The center of the wheel
+  private var center : Option[Vector]         = None
 
-  // A boolean value to test whether the menu should draw the initial animation
-  var isInitialized = false
-
-  // The system-time the module started
-  var initializeTime : Double = System.currentTimeMillis
-
-  // The time the initial animation should take.
-  var animationTime : Double = 300
+  // The current active category
+  private var currentCategory : MenuCategory  = Start
 
   // The distance to draw the icons; Used in the initiation of the menu module to animate the icons.
-  private var distanceScale : Double = 0.0001
+  private var distanceScale : Double = 1
 
-  /**
-   * The position of the mouse at any given time
-   */
+  // The position of the mouse at any given time
   private var mousePosition  = Vector(0, 0)
 
-  /**
-   *
-   */
+  // The transformation to use throughout the paint
   private var transformation = TransformationMatrix(Vector(0, 0), 1)
 
   lazy val stateMachine = Map(
@@ -53,7 +42,6 @@ object Menu extends Module {
           // Initialize the menu
           center          = Some(point)
           currentCategory = Start
-          initializeTime  = System.currentTimeMillis
 
           // Make sure the rest of the program doesn't move
           Siigna.navigation = false
@@ -89,7 +77,6 @@ object Menu extends Module {
           val direction = this.direction(point)
           val level     = if (this.distance < 68) 3 else if (this.distance < 102) 2 else 1
 
-          val d = delta / delta
           val deltaLevel = if (level + delta < 1) 1 else if (level + delta > 3) 3 else delta + level
 
           // Make the interaction!
@@ -106,7 +93,6 @@ object Menu extends Module {
         }
         case _ =>
       }
-      None
     }),
     'InteractionTestDrag -> ((events : List[Event]) => {
       events match {
@@ -118,8 +104,6 @@ object Menu extends Module {
     'End -> ((events : List[Event]) => {
       // Set everything back to normal
       Siigna.navigation = true
-      isInitialized = false
-      distanceScale = 0.00001
       center = None
     })
   )
@@ -129,19 +113,6 @@ object Menu extends Module {
    * of the icons, origining from the center.
    */
   override def paint(g : Graphics, transformation : TransformationMatrix) {
-    // Sets the distanceScale from the current system time. We use time and not paint-iterations to determine the
-    // value of the scale, since time is more reliable than frames per second (think slow/unstable computers).
-    if (!isInitialized) {
-      val delta = System.currentTimeMillis - initializeTime
-      if (delta < animationTime && distanceScale < 1) {
-        distanceScale *= 2 // Safety-mechanism, so the number isn't zero)
-        println(distanceScale)
-      } else if (distanceScale != 1) {
-        distanceScale = 1
-        isInitialized = true
-      }
-    }
-
     // Saves a transformationMatrix, that is fixed to the center and
     // independent of the zoom-level, since we don't want our menu
     // to scale up and down.
@@ -149,8 +120,6 @@ object Menu extends Module {
       this.transformation = transformation
       val menuCenter = if (center.isDefined) transformation.scale(1).transform(center.get) else Vector(0, 0)
       val t = TransformationMatrix(menuCenter, 1 * distanceScale).flipY
-      val direction = this.direction(mousePosition)
-      var tooltip : Option[MenuItem] = None
 
       // Draws a Category at a given level
       def drawCategory(category : MenuCategory, scale : Double = 1) {
