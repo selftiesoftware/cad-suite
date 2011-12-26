@@ -21,7 +21,7 @@
 //
 //  def shape    = TextShape(text, position, scale)
 //  var text     = ""
-//  var position = Vector(0, 0)
+//  var position = Vector2D(0, 0)
 //  var scale    = 10
 //  var currentState = 0
 //  var number   = 0

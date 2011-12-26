@@ -10,10 +10,10 @@ object Distance extends Module {
 
   lazy val eventHandler = new EventHandler(stateMap, stateMachine)
 
-  var points = List[Vector]()
-  var p1 : Option[Vector] = None
-  var p2 : Option[Vector] = None
-  var mousePosition  = Vector(0, 0)
+  var points = List[Vector2D]()
+  var p1 : Option[Vector2D] = None
+  var p2 : Option[Vector2D] = None
+  var mousePosition  = Vector2D(0, 0)
 
 
   lazy val stateMap = DirectedGraph(

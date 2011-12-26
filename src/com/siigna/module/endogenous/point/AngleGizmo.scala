@@ -21,8 +21,8 @@ object AngleGizmo extends Module {
 
   var guideLength = 0
 
-  var startPoint : Option[Vector] = None
-  var mousePosition : Option[Vector] = None
+  var startPoint : Option[Vector2D] = None
+  var mousePosition : Option[Vector2D] = None
 
   def round(angle : Double) = {
     ((angle)/gizmoMode).round*gizmoMode
@@ -127,17 +127,17 @@ object AngleGizmo extends Module {
       else if (gizmoMode == 10) {guideLength = 95 }
       else guideLength = 45
 
-      val guide  = LineShape(startPoint.get,Vector(startPoint.get.x, startPoint.get.y+guideLength))
+      val guide  = LineShape(startPoint.get,Vector2D(startPoint.get.x, startPoint.get.y+guideLength))
 
-      //g draw CircleShape(startPoint.get, Vector(startPoint.get.x + gizmoRadius, startPoint.get.y)).transform(t)
-      g draw TextShape((correct360(round(activeAngle).toInt)).toString, Vector(startPoint.get.x, startPoint.get.y + 240).transform(t.rotate(round(-activeAngle), startPoint.get)), 12, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector(0.5,0.5)))
+      //g draw CircleShape(startPoint.get, Vector2D(startPoint.get.x + gizmoRadius, startPoint.get.y)).transform(t)
+      g draw TextShape((correct360(round(activeAngle).toInt)).toString, Vector2D(startPoint.get.x, startPoint.get.y + 240).transform(t.rotate(round(-activeAngle), startPoint.get)), 12, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector2D(0.5,0.5)))
       g draw guide.transform(t.rotate((((round(activeAngle)* -1)+360).toInt), startPoint.get))
 
       //draw inactive Angle Gizmo shapes
-      val inactive45 = LineShape(Vector(startPoint.get.x, startPoint.get.y+50), Vector(startPoint.get.x, startPoint.get.y+100), Attributes("Color" -> "#CDCDCD".color))
-      val inactive10 = LineShape(Vector(startPoint.get.x, startPoint.get.y+100), Vector(startPoint.get.x, startPoint.get.y+170), Attributes("Color" -> "#CDCDCD".color))
-      val inactive5  = LineShape(Vector(startPoint.get.x, startPoint.get.y+170), Vector(startPoint.get.x, startPoint.get.y+200), Attributes("Color" -> "#CDCDCD".color))
-      val inactive1  = LineShape(Vector(startPoint.get.x, startPoint.get.y+200), Vector(startPoint.get.x, startPoint.get.y+220), Attributes("Color" -> "#CDCDCD".color))
+      val inactive45 = LineShape(Vector2D(startPoint.get.x, startPoint.get.y+50), Vector2D(startPoint.get.x, startPoint.get.y+100), Attributes("Color" -> "#CDCDCD".color))
+      val inactive10 = LineShape(Vector2D(startPoint.get.x, startPoint.get.y+100), Vector2D(startPoint.get.x, startPoint.get.y+170), Attributes("Color" -> "#CDCDCD".color))
+      val inactive5  = LineShape(Vector2D(startPoint.get.x, startPoint.get.y+170), Vector2D(startPoint.get.x, startPoint.get.y+200), Attributes("Color" -> "#CDCDCD".color))
+      val inactive1  = LineShape(Vector2D(startPoint.get.x, startPoint.get.y+200), Vector2D(startPoint.get.x, startPoint.get.y+220), Attributes("Color" -> "#CDCDCD".color))
 
       radians(45).foreach(radian => {
         g draw inactive45.transform(t.rotate(radian, startPoint.get))
@@ -153,10 +153,10 @@ object AngleGizmo extends Module {
       })
 
       //Draw the active Angle Gizmo shapes
-      val line45 = LineShape(Vector(startPoint.get.x, startPoint.get.y+50), Vector(startPoint.get.x, startPoint.get.y+100), Attributes("Color" -> "#999999".color))
-      val line10 = LineShape(Vector(startPoint.get.x, startPoint.get.y+100), Vector(startPoint.get.x, startPoint.get.y+170), Attributes("Color" -> "#999999".color))
-      val line5  = LineShape(Vector(startPoint.get.x, startPoint.get.y+170), Vector(startPoint.get.x, startPoint.get.y+200), Attributes("Color" -> "#999999".color))
-      val line1  = LineShape(Vector(startPoint.get.x, startPoint.get.y+200), Vector(startPoint.get.x, startPoint.get.y+220), Attributes("Color" -> "#999999".color))
+      val line45 = LineShape(Vector2D(startPoint.get.x, startPoint.get.y+50), Vector2D(startPoint.get.x, startPoint.get.y+100), Attributes("Color" -> "#999999".color))
+      val line10 = LineShape(Vector2D(startPoint.get.x, startPoint.get.y+100), Vector2D(startPoint.get.x, startPoint.get.y+170), Attributes("Color" -> "#999999".color))
+      val line5  = LineShape(Vector2D(startPoint.get.x, startPoint.get.y+170), Vector2D(startPoint.get.x, startPoint.get.y+200), Attributes("Color" -> "#999999".color))
+      val line1  = LineShape(Vector2D(startPoint.get.x, startPoint.get.y+200), Vector2D(startPoint.get.x, startPoint.get.y+220), Attributes("Color" -> "#999999".color))
 
       radians(gizmoMode).foreach(radian => {
         if (gizmoMode == 45)

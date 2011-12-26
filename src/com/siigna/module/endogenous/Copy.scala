@@ -6,11 +6,11 @@ import com.siigna._
 
 object Copy extends Module {
 
-  var basePoint : Option[Vector] = None
-  var endPoint : Option[Vector] = None
+  var basePoint : Option[Vector2D] = None
+  var endPoint : Option[Vector2D] = None
   var shapes : Iterable[DynamicShape] = Iterable()
 
-  def delta : Option[Vector] = if (basePoint.isDefined && endPoint.isDefined) Some(endPoint.get - basePoint.get) else None
+  def delta : Option[Vector2D] = if (basePoint.isDefined && endPoint.isDefined) Some(endPoint.get - basePoint.get) else None
 
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 

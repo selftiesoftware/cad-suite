@@ -2,9 +2,8 @@
 
 package com.siigna.module.endogenous
 
-import java.awt.Color
-
 import com.siigna._
+import java.awt.{Toolkit, GraphicsEnvironment, Color}
 
 /**
 * The default module for the endogenous module pack. Works as access point to
@@ -12,11 +11,11 @@ import com.siigna._
 */
 object Default extends Module {
 
-  var mousePosition = Vector(0, 0)
-
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 
   lazy val stateMap     = DirectedGraph( 'Start -> 'Event -> 'Start )
+
+  def fullScreenBox = Rectangle2D(Siigna.screen.bottomRight - Vector2D(20, -5), Siigna.screen.bottomRight - Vector2D(40, -25))
 
   /**
    * The nearest shape to the current mouse position.
@@ -29,12 +28,12 @@ object Default extends Module {
   var previousModule : Option[Symbol] = None
 
   lazy val stateMachine = Map( 'Start -> ((events : List[Event]) => {
-      nearestShape = Model(mousePosition)
+      nearestShape = Model(Siigna.mousePosition)
       events match {
-        case MouseMove(point, _, _) :: tail                         => mousePosition = point
         case MouseDown(point, MouseButtonLeft, _) :: tail           => {
+          if (fullScreenBox.contains(point.transform(Siigna.physical))) {
 
-          ForwardTo('Select)
+          } else ForwardTo('Select)
         }
         case MouseDown(point, MouseButtonRight, _) :: tail          => ForwardTo('Menu)
         case KeyDown(('z' | 'Z'), ModifierKeys(_, true, _)) :: tail => Model.undo
@@ -69,11 +68,16 @@ object Default extends Module {
     }))
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    def unitX(times : Int) = Vector(times * Siigna.paperScale, 0)
-
-    if (nearestShape.isDefined && nearestShape.get.distanceTo(mousePosition) < 5) {
-      g draw nearestShape.get.attributes_+=("Color" -> "#AAAAFF".color).transform(t)
+    if (nearestShape.isDefined) {
+      g draw nearestShape.get.addAttribute("Color" -> "#AAAAFF".color).transform(t)
     }
+
+    // Draw boundary
+    drawBoundary(g, t)
+  }
+
+  private def drawBoundary(g : Graphics, t : TransformationMatrix) {
+    def unitX(times : Int) = Vector2D(times * Siigna.paperScale, 0)
 
     // Get the boundary
     val boundary = Model.boundary
@@ -83,17 +87,12 @@ object Default extends Module {
     // Paper scale
     val scale = TextShape("Scale 1:"+Siigna.paperScale, unitX(1), headerHeight * 0.7)
     // Get URL
-    //val getURL = TextShape("Get URL", Vector(0, 0), headerHeight * 0.7)
-    val getURL = TextShape(" ", Vector(0, 0), headerHeight * 0.7)
+    val getURL = TextShape(" ", Vector2D(0, 0), headerHeight * 0.7)
 
     val headerWidth  = (scale.boundary.width + getURL.boundary.width) * 1.2
-    val headerBoundary = Rectangle(boundary.bottomRight, boundary.bottomRight - Vector(headerWidth, -headerHeight))
+    val headerBoundary = Rectangle2D(boundary.bottomRight, boundary.bottomRight - Vector2D(headerWidth, -headerHeight))
 
-    val transformation : TransformationMatrix = t.concatenate(TransformationMatrix(boundary.bottomRight - Vector(headerWidth * 0.99, -headerHeight * 0.8), 1))
-
-    //val rectangle = PolylineShape.fromRectangle(headerBoundary).transform(t).setAttributes("Color" -> color)
-    val separator = LineShape(Vector(scale.transform(transformation.translate(unitX(2))).boundary.topRight.x, headerBoundary.transform(t).topLeft.y),
-                              Vector(scale.transform(transformation.translate(unitX(2))).boundary.topRight.x, headerBoundary.transform(t).bottomLeft.y))
+    val transformation : TransformationMatrix = t.concatenate(TransformationMatrix(boundary.bottomRight - Vector2D(headerWidth * 0.99, -headerHeight * 0.8), 1))
 
     // Draw header
     g draw LineShape(headerBoundary.topLeft, headerBoundary.topRight)
@@ -103,13 +102,6 @@ object Default extends Module {
     //g draw separator
     g.draw(scale.transform(transformation))
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
-
-    drawFullScreen(g, t)
-  }
-
-  private def drawFullScreen(g : Graphics, t : TransformationMatrix) {
-    val screen = Siigna.screen
-    g draw LineShape(screen.topRight, screen.topRight - Vector(10, -10))
   }
 
 }

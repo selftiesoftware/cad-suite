@@ -16,7 +16,7 @@
 //
 //  lazy val eventHandler = new EventHandler(stateMap, stateMachine)
 //
-//  var points = List[Vector]()
+//  var points = List[Vector2D]()
 //
 //  lazy val stateMap = DirectedGraph(
 //    'Start       -> 'MouseClick  -> 'FirstPoint,
@@ -62,7 +62,7 @@
 //    }
 //  }
 //
-//  def polylineFromPoints(points : List[Vector]) = {
+//  def polylineFromPoints(points : List[Vector2D]) = {
 //    val p1 = points(0)
 //    val p2 = points(1)
 //    var pointShapes = List(PointShape(p1), PointShape(p2.x, p1.y),

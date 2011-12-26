@@ -20,31 +20,20 @@ object Menu extends Module {
   // The event handler
   lazy val eventHandler = new EventHandler(RadialMenuStateMap, stateMachine)
 
-  var categories : List[MenuCategory] = List()
-  var center : Option[Vector]         = None
-  var currentCategory : MenuCategory  = Start
+  // The center of the wheel
+  private var center : Option[Vector2D]         = None
 
-  // A boolean value to test whether the menu should draw the initial animation
-  var isInitialized = false
-
-  // The system-time the module started
-  var initializeTime : Double = System.currentTimeMillis
-
-  // The time the initial animation should take.
-  var animationTime : Double = 300
+  // The current active category
+  private var currentCategory : MenuCategory  = Start
 
   // The distance to draw the icons; Used in the initiation of the menu module to animate the icons.
-  private var distanceScale : Double = 0.0001
+  private var distanceScale : Double = 1
 
-  /**
-   * The position of the mouse at any given time
-   */
-  private var mousePosition  = Vector(0, 0)
+  // The position of the mouse at any given time
+  private var mousePosition  = Vector2D(0, 0)
 
-  /**
-   *
-   */
-  private var transformation = TransformationMatrix(Vector(0, 0), 1)
+  // The transformation to use throughout the paint
+  private var transformation = TransformationMatrix(Vector2D(0, 0), 1)
 
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
@@ -53,10 +42,9 @@ object Menu extends Module {
           // Initialize the menu
           center          = Some(point)
           currentCategory = Start
-          initializeTime  = System.currentTimeMillis
 
           // Make sure the rest of the program doesn't move
-          interface.disableNavigation()
+          Siigna.navigation = false
 
           // Disable tracking and snapping
           eventParser.disable
@@ -89,7 +77,6 @@ object Menu extends Module {
           val direction = this.direction(point)
           val level     = if (this.distance < 68) 3 else if (this.distance < 102) 2 else 1
 
-          val d = delta / delta
           val deltaLevel = if (level + delta < 1) 1 else if (level + delta > 3) 3 else delta + level
 
           // Make the interaction!
@@ -106,7 +93,6 @@ object Menu extends Module {
         }
         case _ =>
       }
-      None
     }),
     'InteractionTestDrag -> ((events : List[Event]) => {
       events match {
@@ -117,9 +103,7 @@ object Menu extends Module {
     }),
     'End -> ((events : List[Event]) => {
       // Set everything back to normal
-      interface.enableNavigation()
-      isInitialized = false
-      distanceScale = 0.00001
+      Siigna.navigation = true
       center = None
     })
   )
@@ -129,28 +113,13 @@ object Menu extends Module {
    * of the icons, origining from the center.
    */
   override def paint(g : Graphics, transformation : TransformationMatrix) {
-    // Sets the distanceScale from the current system time. We use time and not paint-iterations to determine the
-    // value of the scale, since time is more reliable than frames per second (think slow/unstable computers).
-    if (!isInitialized) {
-      val delta = System.currentTimeMillis - initializeTime
-      if (delta < animationTime && distanceScale < 1) {
-        distanceScale *= 2 // Safety-mechanism, so the number isn't zero)
-        println(distanceScale)
-      } else if (distanceScale != 1) {
-        distanceScale = 1
-        isInitialized = true
-      }
-    }
-
     // Saves a transformationMatrix, that is fixed to the center and
     // independent of the zoom-level, since we don't want our menu
     // to scale up and down.
     if (center.isDefined) {
       this.transformation = transformation
-      val menuCenter = if (center.isDefined) transformation.scale(1).transform(center.get) else Vector(0, 0)
+      val menuCenter = if (center.isDefined) transformation.scale(1).transform(center.get) else Vector2D(0, 0)
       val t = TransformationMatrix(menuCenter, 1 * distanceScale).flipY
-      val direction = this.direction(mousePosition)
-      var tooltip : Option[MenuItem] = None
 
       // Draws a Category at a given level
       def drawCategory(category : MenuCategory, scale : Double = 1) {
@@ -168,7 +137,7 @@ object Menu extends Module {
         // Gets a transformation matrix from a given event.
         // TODO: Refactor!
         def getT(event : MenuEvent) = event match {
-          case EventC => t.translate(Vector(-10000, -10000))
+          case EventC => t.translate(Vector2D(-10000, -10000))
           case _      => t.scale(scale).translate(event.vector * 129)
         }
 
@@ -177,22 +146,22 @@ object Menu extends Module {
 
           // Category Backgrounds
           val rotation = event.vector.angle + 90
-          def backfillVectors= RadialMenuIcon.BackFill.map(_.transform(newT.rotate(rotation)))
-          val backfillScreenX = backfillVectors.map(_.x.toInt).toArray
-          val backfillScreenY = backfillVectors.map(_.y.toInt).toArray
+          def backfillVector2Ds = RadialMenuIcon.BackFill.map(_.transform(newT.rotate(rotation)))
+          val backfillScreenX = backfillVector2Ds.map(_.x.toInt).toArray
+          val backfillScreenY = backfillVector2Ds.map(_.y.toInt).toArray
 
           // Draw the background for the category.
           g setColor item.color
           if (scale == 1) {
-            g.g.fillPolygon(backfillScreenX, backfillScreenY, backfillVectors.size)
+            g.g.fillPolygon(backfillScreenX, backfillScreenY, backfillVector2Ds.size)
           } else if (item == currentCategory) {
-            g.g.fillPolygon(backfillScreenX, backfillScreenY, backfillVectors.size)
+            g.g.fillPolygon(backfillScreenX, backfillScreenY, backfillVector2Ds.size)
           }
 
 
           // Fills the background-color for the categories (circle).
           if (event != EventC) {
-            val center = Vector(0,0).transform(newT.rotate(rotation))
+            val center = Vector2D(0,0).transform(newT.rotate(rotation))
             val size = (52 * scale * distanceScale).toInt
             val half = (size * 0.5).toInt
             g.g.fillArc(center.x.toInt -  half, center.y.toInt - half, size, size, 0, 360)
@@ -200,13 +169,13 @@ object Menu extends Module {
 
           // Draw Category Description (C,H,E,P letter) in inner circles.
           if (item != currentCategory) {
-            event.icon.foreach(s => g.draw(s.attributes_+=(getAttr(event)).transform(newT)))
+            event.icon.foreach(s => g.draw(s.addAttribute(getAttr(event)).transform(newT)))
             if (scale < 1)
-              g draw TextShape(item.name.substring(0, 1), Vector(0, 0), newT.scaleFactor * 24, Attributes("TextAlignment" -> Vector(0.5, 0.5))).transform(newT)
+              g draw TextShape(item.name.substring(0, 1), Vector2D(0, 0), newT.scaleFactor * 24, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))).transform(newT)
             else
-              g draw TextShape(item.name, Vector(0, 0), newT.scaleFactor * 9, Attributes("TextAlignment" -> Vector(0.5, 0.5))).transform(newT)
+              g draw TextShape(item.name, Vector2D(0, 0), newT.scaleFactor * 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))).transform(newT)
           } else {
-              g draw TextShape(item.name.substring(0, 1), Vector(0, 0), newT.scaleFactor* 44, Attributes("TextAlignment" -> Vector(0.5, 0.5))).transform(newT)
+              g draw TextShape(item.name.substring(0, 1), Vector2D(0, 0), newT.scaleFactor* 44, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))).transform(newT)
           }
 
         }
@@ -215,18 +184,18 @@ object Menu extends Module {
         def drawItem(item : MenuItem, event : MenuEvent, newT : TransformationMatrix) : Unit = {
           // Icon Background
           val rotation2 = event.vector.angle + 30
-          val fillVectors = RadialMenuIcon.IconFill.map(_.transform(newT.rotate(rotation2, Vector(0,0))))
-          val fillScreenX = fillVectors.map(_.x.toInt).toArray
-          val fillScreenY = fillVectors.map(_.y.toInt).toArray
+          val fillVector2Ds = RadialMenuIcon.IconFill.map(_.transform(newT.rotate(rotation2, Vector2D(0,0))))
+          val fillScreenX = fillVector2Ds.map(_.x.toInt).toArray
+          val fillScreenY = fillVector2Ds.map(_.y.toInt).toArray
 
           // Draw the background for the menu item
           g setColor RadialMenuIcon.itemColor
-          g.g.fillPolygon(fillScreenX, fillScreenY, fillVectors.size)
+          g.g.fillPolygon(fillScreenX, fillScreenY, fillVector2Ds.size)
 
           // Icons
           item.icon.foreach(s => g.draw(s.transform(newT)))
           event.icon.foreach(s => {
-            g.draw(s.attributes_+=(getAttr(event)).transform(newT))
+            g.draw(s.addAttribute(getAttr(event)).transform(newT))
           })
         }
 
@@ -244,7 +213,7 @@ object Menu extends Module {
               case category : MenuCategory => category.name
               case _ => " "
             }
-            g draw TextShape(tooltip, menuCenter + Vector(0, 170), 10).attributes_+=("TextAlignment" -> Vector(0.5, 0))
+            g draw TextShape(tooltip, menuCenter + Vector2D(0, 170), 10).addAttribute("TextAlignment" -> Vector2D(0.5, 0))
           }
         })
         // Draws the parent category recursively
@@ -255,8 +224,8 @@ object Menu extends Module {
 
       // Draw the center element
       if (currentCategory.C.isDefined) {
-        g draw TextShape(currentCategory.C.get.name, Vector(0, 0), 12, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector(0.5, 0.5))).transform(t)
-        g draw CircleShape(Vector(0, 0), Vector(0, 26)).transform(t)
+        g draw TextShape(currentCategory.C.get.name, Vector2D(0, 0), 12, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector2D(0.5, 0.5))).transform(t)
+        g draw CircleShape(Vector2D(0, 0), Vector2D(0, 26)).transform(t)
       }
 
       // Draws the tooltip to show the user which category/module is active
@@ -273,17 +242,17 @@ object Menu extends Module {
 //          case category : MenuCategory => category.name
 //          case _ => ""
 //        })
-//        g draw TextShape(tooltip, menuCenter + Vector(0, 170), 10).attributes_+=("TextAlignment" -> Vector(0.5, 0))
+//        g draw TextShape(tooltip, menuCenter + Vector2D(0, 170), 10).attributes_+=("TextAlignment" -> Vector2D(0.5, 0))
 //      }
 
       // Draws the first category
       drawCategory(currentCategory)
 
       // Draw the outlines of the categories in the four corners of the world
-      RadialMenuIcon.NOutline.foreach(s => g.draw(s.attributes_+=("Color" -> "#CCCCCC".color).transform(t)))
-      RadialMenuIcon.WOutline.foreach(s => g.draw(s.attributes_+=("Color" -> "#CCCCCC".color).transform(t)))
-      RadialMenuIcon.SOutline.foreach(s => g.draw(s.attributes_+=("Color" -> "#CCCCCC".color).transform(t)))
-      RadialMenuIcon.EOutline.foreach(s => g.draw(s.attributes_+=("Color" -> "#CCCCCC".color).transform(t)))
+      RadialMenuIcon.NOutline.foreach(s => g.draw(s.addAttribute("Color" -> "#CCCCCC".color).transform(t)))
+      RadialMenuIcon.WOutline.foreach(s => g.draw(s.addAttribute("Color" -> "#CCCCCC".color).transform(t)))
+      RadialMenuIcon.SOutline.foreach(s => g.draw(s.addAttribute("Color" -> "#CCCCCC".color).transform(t)))
+      RadialMenuIcon.EOutline.foreach(s => g.draw(s.addAttribute("Color" -> "#CCCCCC".color).transform(t)))
     }
   }
 
@@ -302,7 +271,7 @@ object Menu extends Module {
    * Returns the direction in terms of MenuEvents, calculated from the angle
    * of a given point to the current center of the radial menu.
    */
-  def direction(point : Vector) = {
+  def direction(point : Vector2D) = {
     if (center.isDefined) {
       val angle  = (point - center.get).angle
       if      (angle > 345 || angle < 15)   EventE

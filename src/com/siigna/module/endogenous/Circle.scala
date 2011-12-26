@@ -8,7 +8,7 @@ object Circle extends Module {
 
   val eventHandler = EventHandler(stateMap, stateMachine)
 
-  var firstPoint : Option[Vector] = None
+  var firstPoint : Option[Vector2D] = None
 
   def stateMap = DirectedGraph(
     'Start         -> 'MouseMove -> 'Start,
@@ -23,10 +23,10 @@ object Circle extends Module {
     }),
     'FirstPoint -> ((events : List[Event]) => {
       events match {
-        case Message(p : PointShape) :: tail => {
-          firstPoint = Some(p.point)
+        case Message(p : Vector2D) :: tail => {
+          firstPoint = Some(p)
           ForwardTo('Point)
-          Message(PointGuide(CircleShape(p.point, _)))
+          Message(PointGuide(CircleShape(p, _)))
         }
         case _ =>
       }
@@ -34,8 +34,8 @@ object Circle extends Module {
     }),
     'End -> ((events : List[Event]) => {
       events match {
-        case Message(p : PointShape) :: tail => {
-          Create(CircleShape(firstPoint.get, p.point))
+        case Message(p : Vector2D) :: tail => {
+          Create(CircleShape(firstPoint.get, p))
         }
         case _ => None
       }

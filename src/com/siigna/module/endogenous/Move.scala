@@ -8,12 +8,12 @@ import com.siigna._
 
 object Move extends Module {
 
-  var basePoint : Option[Vector] = None
-  var endPoint  : Option[Vector] = None
+  var basePoint : Option[Vector2D] = None
+  var endPoint  : Option[Vector2D] = None
   var doneDrawing = false
   var closeToObjectOnStart = false
 
-  def delta : Option[Vector] = if (endPoint.isDefined && basePoint.isDefined) Some(endPoint.get - basePoint.get) else None
+  def delta : Option[Vector2D] = if (endPoint.isDefined && basePoint.isDefined) Some(endPoint.get - basePoint.get) else None
 
   var shapes : Seq[Shape] = Seq()
 

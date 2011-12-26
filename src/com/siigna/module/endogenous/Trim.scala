@@ -9,14 +9,14 @@ object Trim extends Module {
 
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 
-  var selection = List[Vector]()
+  var selection = List[Vector2D]()
   var shapes : List[Shape] = List()
 
   var trimGuide : Option[ImmutableShape] = None
   var trimShapes : Iterable[ImmutableShape] = List()
 
-  var selectionBoxStart : Option[Vector] = None
-  var selectionBoxEnd : Option[Vector] = None
+  var selectionBoxStart : Option[Vector2D] = None
+  var selectionBoxEnd : Option[Vector2D] = None
 
       /*
         Function:   if lines are already selected: go to trim mode.
@@ -103,8 +103,8 @@ object Trim extends Module {
         }
         case MouseUp(p, _, _) :: tail => {
           selectionBoxEnd = Some(p)
-          val box = Rectangle(selectionBoxStart.get, selectionBoxEnd.get)
-          trimShapes = Model.queryForShapes(box).filter(s => s.geometry.intersect(box))
+          val box = Rectangle2D(selectionBoxStart.get, selectionBoxEnd.get)
+          trimShapes = Model.queryForShapes(box).filter(s => s.geometry.intersects(box))
           Goto('End)
         }
         case _ =>
@@ -129,8 +129,9 @@ object Trim extends Module {
 
   override def paint(g : Graphics, t : TransformationMatrix) {
     if (selectionBoxStart.isDefined && selectionBoxEnd.isDefined) {
-      val box = Rectangle(selectionBoxStart.get, selectionBoxEnd.get)
-      g draw PolylineShape.fromRectangle(box).attributes_+=("Color" -> "#66CC66".color).transform(t)
+      val box = Rectangle2D(selectionBoxStart.get, selectionBoxEnd.get)
+      //TODO: activate drawing once polyline is created
+      //g draw PolylineShape.fromRectangle(box).attributes_+=("Color" -> "#66CC66".color).transform(t)
     }
   }
 

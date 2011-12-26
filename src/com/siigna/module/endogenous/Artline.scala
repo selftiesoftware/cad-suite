@@ -11,10 +11,10 @@ A freehand Artline pen
 object Artline extends Module{
 
     val eventHandler = EventHandler(stateMap, stateMachine)
-    var dotshape = Vector(10,10)
+    var dotshape = Vector2D(10,10)
     var points : List[LineShape] = List[LineShape]()
-    var point : Vector = Vector(0,0)
-    var path = List[Vector]()
+    var point : Vector2D = Vector2D(0,0)
+    var path = List[Vector2D]()
 
     def hasPoint = (points.size >= 1)
 
@@ -74,7 +74,7 @@ object Artline extends Module{
           }
         }
         None
-        //Create(LineShape(ink.head,ink.head + Vector(3,0)))
+        //Create(LineShape(ink.head,ink.head + Vector2D(3,0)))
       })
     )
 }

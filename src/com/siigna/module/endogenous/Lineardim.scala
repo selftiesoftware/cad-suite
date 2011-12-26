@@ -11,8 +11,8 @@ object Lineardim extends Module {
 
   val color = "Color" -> "#AAAAAA".color
 
-  def diaMark(point : Vector) = if (hasBothPoints)
-      Some(LineShape((diaRotation1.get + point + normalUnitVector(points(0),points(1)) * scale) , (diaRotation2.get + point + normalUnitVector(points(0),points(1)) * scale)).attributes_+=(color))
+  def diaMark(point : Vector2D) = if (hasBothPoints)
+      Some(LineShape((diaRotation1.get + point + normalUnitVector2D(points(0),points(1)) * scale) , (diaRotation2.get + point + normalUnitVector2D(points(0),points(1)) * scale)).addAttribute(color))
     else
       None
 
@@ -20,7 +20,7 @@ object Lineardim extends Module {
   def diaMark2 = if (hasBothPoints) diaMark(points(1)) else None
 
   def diaRotation(degree : Double) = if (hasBothPoints)
-      Some(transformation.rotate(degree).transform(normalUnitVector(points(0),points(1)) * (scale/4)))
+      Some(transformation.rotate(degree).transform(normalUnitVector2D(points(0),points(1)) * (scale/4)))
     else
       None
 
@@ -28,7 +28,7 @@ object Lineardim extends Module {
   def diaRotation2 = diaRotation(225)
 
   def dimText : Option[Shape] = if (hasBothPoints)
-      Some(TextShape((points(1)-(points(0))).length.toInt.toString , ((points(0) + normalUnitVector(points(0),points(1)) * scale*2.5) + (points(1)-points(0))/2) , scale, Attributes("AdjustToScale" -> true)))
+      Some(TextShape((points(1)-(points(0))).length.toInt.toString , ((points(0) + normalUnitVector2D(points(0),points(1)) * scale*2.5) + (points(1)-points(0))/2) , scale, Attributes("AdjustToScale" -> true)))
     else
       None
 
@@ -36,35 +36,35 @@ object Lineardim extends Module {
 
   def hasBothPoints = (points.size >= 2)
 
-  def normalShape(point : Vector) = if (hasBothPoints)
-      Some(LineShape((point + normalUnitVector(points(0),points(1)) * (scale*1.1)) , (point + normalUnitVector(points(0),points(1)) * (scale/2))).attributes_+=(color))
+  def normalShape(point : Vector2D) = if (hasBothPoints)
+      Some(LineShape((point + normalUnitVector2D(points(0),points(1)) * (scale*1.1)) , (point + normalUnitVector2D(points(0),points(1)) * (scale/2))).addAttributes(color))
     else
       None
 
   def normalShape1 = if (hasBothPoints) normalShape(points(0)) else None
   def normalShape2 = if (hasBothPoints) normalShape(points(1)) else None
 
-  def normalUnitVector(v1 : Vector, v2 : Vector) = {
+  def normalUnitVector2D(v1 : Vector2D, v2 : Vector2D) = {
     if (offsetSide == true)
-      Vector((v2.x - v1.x) , (v2.y - v1.y)).normal.unit
+      Vector2D((v2.x - v1.x) , (v2.y - v1.y)).normal.unit
     else
-      Vector((v2.y - v1.y), -(v2.x - v1.x)).unit // Normal*3 = Vector(y, -x)
+      Vector2D((v2.y - v1.y), -(v2.x - v1.x)).unit // Normal*3 = Vector2D(y, -x)
   }
 
   var offsetSide : Boolean = false
 
   def shapeA : Option[Shape] = if (hasBothPoints)
-      Some(LineShape((points(1) + normalUnitVector(points(0),points(1)) * scale) , (points(0) + normalUnitVector(points(0),points(1)) * scale)).attributes_+=(color))
+      Some(LineShape((points(1) + normalUnitVector2D(points(0),points(1)) * scale) , (points(0) + normalUnitVector2D(points(0),points(1)) * scale)).addAttributes(color))
     else
       None
 
   var transformation = TransformationMatrix()
 
-  var norm = Vector(0, 0)
+  var norm = Vector2D(0, 0)
 
-  var points : List[Vector]   = List()
+  var points : List[Vector2D]   = List()
 
-  var previousPoint : Option[Vector] = None
+  var previousPoint : Option[Vector2D] = None
 
   var scale = com.siigna.app.model.Model.boundaryScale * 5
 
@@ -104,8 +104,8 @@ object Lineardim extends Module {
     }),
     'FirstPoint -> ((events : List[Event]) => {
       events match {
-        case Message(p : PointShape) :: tail => {
-          points = List(p.point)
+        case Message(p : Vector2D) :: tail => {
+          points = List(p)
         }
         case _ =>
       }
@@ -113,8 +113,8 @@ object Lineardim extends Module {
     }),
     'SecondPoint -> ((events : List[Event]) => {
       events match {
-        case Message(p : PointShape) :: tail => {
-          points = points.::(p.point)
+        case Message(p : Vector2D) :: tail => {
+          points = points.::(p)
          // TODO: hvordan roteres text???
         }
         case _ =>

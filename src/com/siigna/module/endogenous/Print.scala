@@ -64,11 +64,11 @@ class MyPrintable extends Printable {
 
       // Define the boundary for the print
       val boundary     = if (Model.boundary.width <= Model.boundary.height)
-          Rectangle(Vector(pageFormat.getImageableX,   pageFormat.getImageableY),
-                    Vector(pageFormat.getImageableWidth, pageFormat.getImageableHeight))
+          Rectangle2D(Vector2D(pageFormat.getImageableX,   pageFormat.getImageableY),
+                    Vector2D(pageFormat.getImageableWidth, pageFormat.getImageableHeight))
         else
-          Rectangle(Vector(pageFormat.getImageableY, pageFormat.getImageableX),
-                    Vector(pageFormat.getImageableWidth, pageFormat.getImageableHeight))
+          Rectangle2D(Vector2D(pageFormat.getImageableY, pageFormat.getImageableX),
+                    Vector2D(pageFormat.getImageableWidth, pageFormat.getImageableHeight))
 
       val bufferedImage = new BufferedImage(boundary.width.toInt, boundary.height.toInt, BufferedImage TYPE_INT_RGB)
 
@@ -94,14 +94,14 @@ class MyPrintable extends Printable {
       // TODO: Get the correct screenToPaperScale
       val screenToPaperScale = 2.845 / Model.boundaryScale
       val t1 = TransformationMatrix(-Model.boundary.topLeft, 1)
-      val t2 = TransformationMatrix(Vector(0, 0), 1).flipY.scale(screenToPaperScale)
+      val t2 = TransformationMatrix(Vector2D(0, 0), 1).flipY.scale(screenToPaperScale)
 
       // Iterate through the dom and draw the shape on the buffer graphics
       Model map( _.transform(t1).transform(t2) ) foreach( bufferedGraphics draw(_))
 
       // Paint filters and interfaces accesible by the modules.
       // TODO: Test matrixes
-      Siigna.interface.paint(bufferedGraphics, t1.concatenate(t2))
+      Siigna.paint(bufferedGraphics, t1.concatenate(t2))
 
       //val outline = PolylineShape.fromRectangle(boundary)
 

@@ -8,7 +8,7 @@ object Select extends Module {
 
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 
-  var box = Rectangle(Vector(0, 0), Vector(0, 0))
+  var box = Rectangle2D(Vector2D(0, 0), Vector2D(0, 0))
 
   var closeToObjectOnStart = false
 
@@ -17,7 +17,8 @@ object Select extends Module {
 
   var boxedShapes : Iterable[Shape] = Iterable()
 
-  def isEnclosed : Boolean = (box.p1.x <= box.p2.x)
+  // should be: def isEnclosed : Boolean = (box.p1.x <= box.p2.x)
+  def isEnclosed : Boolean = (Vector2D(0,0).x <= Vector2D(10,10).x)
 
   lazy val stateMap     = DirectedGraph('Start -> 'MouseMove -> 'Box,
                                         'Start -> 'MouseDrag -> 'Box,
@@ -35,7 +36,7 @@ object Select extends Module {
           if (selectedShape.isDefined && selectedShape.get.distanceTo(point) < 10)
             closeToObjectOnStart = true
           else
-            box = Rectangle(point, point)
+            box = Rectangle2D(point, point)
         }
         case _ =>
       }
@@ -43,13 +44,14 @@ object Select extends Module {
     }),
     'Box   -> ((events : List[Event]) => {
       events match {
-        case MouseMove(point, _, _) :: tail => box = Rectangle(box.p1, point)
+        // box = Rectangle2D(Vector2D(0, 0), point) should be box = Rectangle2D(box.p1, point) --it does not work.
+        case MouseMove(point, _, _) :: tail => box = Rectangle2D(Vector2D(0, 0), point)
         case MouseDrag(point, _, _) :: tail => {
           if (closeToObjectOnStart && selectedShape.isDefined) {
             Goto('End)
             ForwardTo('Move)
           } else
-            box = Rectangle(box.p1, point)
+            box = Rectangle2D(Vector2D(0, 0), point)
         }
         case _ =>
       }
@@ -104,7 +106,7 @@ object Select extends Module {
     val enclosed = "Color" -> "#6666DD".color
     val focused  = "Color" -> "#DD6666".color
     if (state != 'End) {
-      g draw PolylineShape.fromRectangle(box).attributes_+=("Color" -> (if (isEnclosed) "#66CC66".color else "#6666CC".color)).transform(t)
+      g draw PolylineShape.fromRectangle(box).addAttribute("Color" -> (if (isEnclosed) "#66CC66".color else "#6666CC".color)).transform(t)
     }
 
     boxedShapes.foreach{ s => s match {
@@ -115,11 +117,13 @@ object Select extends Module {
     def drawShape(s : ImmutableShape) = {
       // TODO: Draw depending on whether the shape is contained or intersected
       if (isEnclosed && box.contains(s.boundary)) { // If enclosed
-        g.draw(s.attributes_+=(enclosed).transform(t))
-      } else if (!isEnclosed && (box.contains(s.boundary) || s.geometry.intersect(box))) { // If not enclosed
-        g.draw(s.attributes_+=(enclosed).transform(t))
-      } else {
-        g.draw(s.attributes_+=(focused).transform(t))
+        g.draw(s.addAttribute(enclosed).transform(t))
+      }
+      //todo: fix this:----> else if (!isEnclosed && (box.contains(s.boundary) || s.geometry.intersections(box))) { // If not enclosed
+      //g.draw(s.addAttribute(enclosed).transform(t))
+      //}
+      else {
+        g.draw(s.addAttribute(focused).transform(t))
       }
     }
   }

@@ -12,8 +12,8 @@ object Point extends Module {
   var isGizmoCheckNeeded = false
 
   val eventHandler = EventHandler(stateMap, stateMachine)
-  var mousePosition : Option[Vector] = None
-  var previousPoint : Option[Vector] = None
+  var mousePosition : Option[Vector2D] = None
+  var previousPoint : Option[Vector2D] = None
   var pointGuide : Option[PointGuide] = None
 
   var shape : Option[Shape] = None
@@ -22,12 +22,12 @@ object Point extends Module {
   var coordinateX : Option[Double] = None
   var coordinateY : Option[Double] = None
 
-  def difference : Vector = if (previousPoint.isDefined) previousPoint.get else Vector(0, 0)
+  def difference : Vector2D = if (previousPoint.isDefined) previousPoint.get else Vector2D(0, 0)
 
   /**
    * Clear variables
    */
-  def clearVariables : Unit = {
+  def clearVariables() {
     mousePosition = None
     previousPoint = None
     pointGuide = None
@@ -56,7 +56,6 @@ object Point extends Module {
     else None
 
   def stateMap = DirectedGraph(
-    'Start         -> 'Action    -> 'End,
     'Start         -> 'MouseUp   -> 'End
   )
 
@@ -66,15 +65,17 @@ object Point extends Module {
         case (g : PointGuide) :: tail => {
           pointGuide = Some(g)
         }
-        case Message(shape : Shape) :: tail => {
+        /*case Message(shape : Shape) :: tail => {
             shape match {
               case LineShape(p1, p2, _) => previousPoint = Some(p2)
               case ArcShape(p1, p2, p3, _) => previousPoint = Some(p3)
-              case PointShape(p, _) => previousPoint = Some(p)
+              case Vector2D(p, _) => previousPoint = Some(p)
               case _ =>
+
             }
             this.shape = Some(shape)
         }
+        */
         case _ :: MouseMove(point, _, _) :: tail => {
             if (previousPoint.isDefined)
             mousePosition = Some(point)
@@ -84,7 +85,12 @@ object Point extends Module {
       }
 
       events match {
-        case MouseMove(point,_,_) :: tail => mousePosition = Some(point)
+        case MouseMove(point,_,_) :: tail => {
+          pointGuide = Some(PointGuide((p: Vector2D) => LineShape(Vector2D(0,0),p)))
+          println("pointGuide: "+pointGuide)
+          mousePosition = Some(point)
+        }
+
         case KeyDown(Key.Backspace, _) :: tail => {
           if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
           else if (coordinateX.isDefined) {
@@ -146,18 +152,21 @@ object Point extends Module {
       }
     }),
     'End -> ((events : List[Event]) => {
-      def setPoint(point : Vector) = {
+      def setPoint(point : Vector2D) = {
         // Define the result
+        /*
         val result = if (x.isDefined && y.isDefined)
-          Create(PointShape(Vector(x.get, y.get)))
+          Message(PointShape(Vector2D(x.get, y.get)))
         else if (x.isDefined)
-          Create(PointShape(Vector(x.get, point.y)))
+          Message(PointShape(Vector2D(x.get, point.y)))
         else
-          Create(PointShape(point))
+          Message(PointShape(point))
+        */
         // clear everything up
         clearVariables
         // return
-        result
+        println("ENDING POINT MODULE")
+        //result
       }
       events match {
         case action : CreateShape => clearVariables; Some(action)
@@ -170,7 +179,7 @@ object Point extends Module {
             val x = coordinateX.get
             val y = coordinateY.get
             clearVariables
-            Message(PointShape(Vector(x, y) + difference))
+            //Message(PointShape(Vector2D(x, y) + difference))
           } else {
             clearVariables
           }
@@ -183,28 +192,28 @@ object Point extends Module {
     // Draw the crosshair
     if (x.isDefined) {
       val color = new Color(0.2f, 0.2f, 0.2f, 0.65f)
-      val xToVirtual = Vector(x.get, 0).transform(t).x
+      val xToVirtual = Vector2D(x.get, 0).transform(t).x
       val screenBottomRight = Siigna.screen.bottomRight
       val screenTopLeft     = Siigna.screen.topLeft
-      g draw LineShape(Vector(xToVirtual, screenTopLeft.y), Vector(xToVirtual, screenBottomRight.y)).attributes_+=("Color" -> color)
+      //g draw LineShape(Vector2D(xToVirtual, screenTopLeft.y), Vector2D(xToVirtual, screenBottomRight.y)).addAttributes("Color" -> color)
       if (y.isDefined) {
-        val yToVirtual = Vector(0, y.get).transform(t).y
-        g draw LineShape(Vector(screenTopLeft.x, yToVirtual), Vector(screenBottomRight.x, yToVirtual)).attributes_+=("Color" -> color)
-        g draw LineShape(Vector(xToVirtual, yToVirtual), Vector(xToVirtual, yToVirtual)).transform(t)
+        val yToVirtual = Vector2D(0, y.get).transform(t).y
+        g draw LineShape(Vector2D(screenTopLeft.x, yToVirtual), Vector2D(screenBottomRight.x, yToVirtual)).addAttributes("Color" -> color)
+        g draw LineShape(Vector2D(xToVirtual, yToVirtual), Vector2D(xToVirtual, yToVirtual)).transform(t)
       }
     }
 
     // Draw a point guide with the new point as a parameter
-    val guide : Vector => ImmutableShape = if (pointGuide.isDefined)
+    val guide : Vector2D => ImmutableShape = //if (pointGuide.isDefined)
       pointGuide.get.guide
-    else if (previousPoint.isDefined)
-      LineShape(previousPoint.get, _)
-    else PointShape(_)
+    //else (previousPoint.isDefined)
+    //  LineShape(previousPoint.get, _)
+    //else PointShape(_)
 
     if (x.isDefined && y.isDefined)
-      g draw guide(Vector(x.get, y.get)).transform(t)
+      g draw guide(Vector2D(x.get, y.get)).transform(t)
     else if (x.isDefined && mousePosition.isDefined)
-      g draw guide(Vector(x.get, mousePosition.get.y)).transform(t)
+      g draw guide(Vector2D(x.get, mousePosition.get.y)).transform(t)
     else if (mousePosition.isDefined)
       g draw guide(mousePosition.get).transform(t)
   }
@@ -214,4 +223,4 @@ object Point extends Module {
 /**
  * A class used to draw guides in the point module.
  */
-case class PointGuide(guide : Vector => ImmutableShape)
+case class PointGuide(guide : Vector2D => ImmutableShape)

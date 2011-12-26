@@ -23,13 +23,13 @@ object Performancetest extends Module {
       val startSeconds = System.currentTimeMillis()
 
       do  {
-          val pointA = Vector(i, 0)
-          val pointB = Vector(i + 10, limit >> 1)
-          val pointX = Vector(i, limit)
+          val pointA = Vector2D(i, 0)
+          val pointB = Vector2D(i + 10, limit >> 1)
+          val pointX = Vector2D(i, limit)
 
-          val pointC = Vector(0, i)
-          val pointD = Vector(limit >> 1, i + 10)
-          val pointY = Vector(limit, i)
+          val pointC = Vector2D(0, i)
+          val pointD = Vector2D(limit >> 1, i + 10)
+          val pointY = Vector2D(limit, i)
 
           //val vertShape = LineShape(pointA, pointB)
           val vertShape = ArcShape(pointA, pointB, pointX)
