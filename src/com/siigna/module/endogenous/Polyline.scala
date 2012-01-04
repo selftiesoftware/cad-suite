@@ -10,10 +10,6 @@ object Polyline extends Module {
   var points   = List[Vector2D]()
   var shape : PolylineShape = PolylineShape.empty
 
-  override def paint(g : Graphics, t : TransformationMatrix) {
-    if (shape.shapes.size > 0) g draw shape.transform(t)
-  }
-
   def stateMap = DirectedGraph(
     'Start        -> 'KeyEscape  -> 'End,
     'Start        -> 'KeyDown    -> 'End
@@ -23,16 +19,31 @@ object Polyline extends Module {
     'Start -> ((events : List[Event]) => {
       events match {
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-        case MouseMove(point, _, _):: tail => {
-          println("mouse position:" +point)
-          Goto('Start)
+        case MouseDown(point, _, _):: tail => {
+          points = points :+ point
+          if (points.size > 0){
+            //draw a polyline from the points saved in shape
+            println(shape)
+            shape = PolylineShape.fromPoints(points)
+          }
+        }
+        case MouseMove(position, _, _):: tail => {
+          //draw a line from the last clicked point to the current mouse position
+          None
+
         }
       }
     }),
     'End -> ((events : List[Event]) => (
       events match {
-        case _ => None
+        case _ =>
+          None
       })
     )
   )
+  override def paint(g : Graphics, t : TransformationMatrix) {
+    println("shape: " +shape)
+    println("shapes: "+shape.shapes)
+    if (shape.shapes.size > 0) g draw shape.transform(t)
+  }
 }
