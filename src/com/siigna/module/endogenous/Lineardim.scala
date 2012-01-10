@@ -59,13 +59,9 @@ object Lineardim extends Module {
       None
 
   var transformation = TransformationMatrix()
-
   var norm = Vector2D(0, 0)
-
   var points : List[Vector2D]   = List()
-
   var previousPoint : Option[Vector2D] = None
-
   var scale = com.siigna.app.model.Model.boundaryScale * 5
 
   override def paint(g : Graphics, t : TransformationMatrix) {

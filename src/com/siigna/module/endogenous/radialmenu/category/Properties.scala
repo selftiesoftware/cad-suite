@@ -19,5 +19,6 @@ case class Properties(parent : Option[MenuCategory]) extends MenuCategory {
   override def WNW = Some(MenuItem('Polyline, TextShape("mm", Vector2D(0, 0), 10, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
   override def WSW = Some(MenuItem('Polyline, TextShape("Feet", Vector2D(0, 0), 10, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
   override def ESE = Some(MenuItem('Polyline, RadialMenuIcon.styles))
+   override def SSW = Some(new MenuItem('Polyline, RadialMenuIcon.sampleProperties))
 
 }

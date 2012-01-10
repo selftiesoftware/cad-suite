@@ -1,4 +1,4 @@
-/* 2009 (C) Copyright by Siigna, all rights reserved. */
+/* 2012 (C) Copyright by Siigna, all rights reserved. */
 
 package com.siigna.module.endogenous
 
@@ -8,6 +8,7 @@ object Polyline extends Module {
 
   val eventHandler = EventHandler(stateMap, stateMachine)
   var points   = List[Vector2D]()
+  var currentMouse = Vector2D(0,0)
   var shape : PolylineShape = PolylineShape.empty
 
   def stateMap = DirectedGraph(
@@ -23,27 +24,33 @@ object Polyline extends Module {
           points = points :+ point
           if (points.size > 0){
             //draw a polyline from the points saved in shape
-            println(shape)
             shape = PolylineShape.fromPoints(points)
           }
         }
         case MouseMove(position, _, _):: tail => {
-          //draw a line from the last clicked point to the current mouse position
+          //store the current mouse position in a var
+          currentMouse = position
           None
-
         }
+        case _ =>
       }
     }),
     'End -> ((events : List[Event]) => (
       events match {
         case _ =>
-          None
+          //create the final polyline
+          Create(shape)
+
+          //clear the points list
+          points = List[Vector2D]()
       })
     )
   )
+
   override def paint(g : Graphics, t : TransformationMatrix) {
-    println("shape: " +shape)
-    println("shapes: "+shape.shapes)
-    if (shape.shapes.size > 0) g draw shape.transform(t)
+    if (points.length > 0) {
+      g draw shape.transform(t)
+      g draw LineShape(currentMouse,points.last).transform(t)
+    }
   }
 }
