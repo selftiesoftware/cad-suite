@@ -29,7 +29,6 @@ object Artline extends Module{
       'Start -> ((events : List[Event]) => {
         events match {
           case MouseUp(_, _, _) :: tail => {
-            println("starting module")
           }
           case _ =>
         }

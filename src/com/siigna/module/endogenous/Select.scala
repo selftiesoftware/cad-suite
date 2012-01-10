@@ -14,20 +14,22 @@ object Select extends Module {
 
   //TODO: Temporary! Create a dynamic model...!
   var selectedShape : Option[Shape] = None
-
+  var startCoordinate : Option[Vector2D] = None
   var boxedShapes : Iterable[Shape] = Iterable()
 
   // should be: def isEnclosed : Boolean = (box.p1.x <= box.p2.x)
   def isEnclosed : Boolean = (Vector2D(0,0).x <= Vector2D(10,10).x)
 
-  lazy val stateMap     = DirectedGraph('Start -> 'MouseMove -> 'Box,
-                                        'Start -> 'MouseDrag -> 'Box,
-                                        'Start -> 'MouseUp   -> 'End,
-                                        'Start -> 'KeyEscape -> 'End,
-                                        'Box   -> 'KeyEscape -> 'End,
-                                        'Box   -> 'MouseUp   -> 'End)
+  def stateMap     = DirectedGraph(
+    'Start -> 'MouseMove -> 'Box,
+    'Start -> 'MouseDrag -> 'Box,
+    'Start -> 'MouseUp   -> 'End,
+    'Start -> 'KeyEscape -> 'End,
+    'Box   -> 'KeyEscape -> 'End,
+    'Box   -> 'MouseUp   -> 'End
+  )
 
-  lazy val stateMachine = Map(
+  def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {
         case (_ : MouseUp) :: (_ : MouseDown) :: tail => Goto('End)
@@ -38,6 +40,9 @@ object Select extends Module {
           else
             box = Rectangle2D(point, point)
         }
+        case MouseUp(point, _, _) :: tail => {
+          startCoordinate = Some(point)
+        }
         case _ =>
       }
       None
@@ -47,11 +52,13 @@ object Select extends Module {
         // box = Rectangle2D(Vector2D(0, 0), point) should be box = Rectangle2D(box.p1, point) --it does not work.
         case MouseMove(point, _, _) :: tail => box = Rectangle2D(Vector2D(0, 0), point)
         case MouseDrag(point, _, _) :: tail => {
-          if (closeToObjectOnStart && selectedShape.isDefined) {
-            Goto('End)
-            ForwardTo('Move)
-          } else
-            box = Rectangle2D(Vector2D(0, 0), point)
+          //if (closeToObjectOnStart && selectedShape.isDefined) {
+          //  Goto('End)
+          //  ForwardTo('Move)
+          //} else
+          //box = Rectangle2D(Vector2D(startCoordinate, point))
+          println("mouseDrag")
+          box = Rectangle2D(startCoordinate.get,Vector2D(point.x,point.y))
         }
         case _ =>
       }
