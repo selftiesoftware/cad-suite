@@ -54,11 +54,11 @@ object AngleGizmo extends Module {
         case _ => Goto('End)
       }
       //get the current radial
-      var radian = (mousePosition.get - startPoint.get).angle.toInt
-      var calculatedAngle = radian * -1 + 450
-      if (calculatedAngle > 360)
-        {activeAngle = calculatedAngle - 360} else activeAngle = calculatedAngle
-
+      //var radian = (mousePosition.get - startPoint.get).angle.toInt
+      //var calculatedAngle = radian * -1 + 450
+      //if (calculatedAngle > 360)
+      //  {activeAngle = calculatedAngle - 360} else activeAngle = calculatedAngle
+      activeAngle = 10
       //transform the mouse position based on the active radial and the gizmo mode
       //println(correct360(round(activeAngle).toInt))
 
