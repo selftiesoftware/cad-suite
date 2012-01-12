@@ -16,17 +16,19 @@ object Select extends Module {
   var selectedShape : Option[Shape] = None
   var startCoordinate : Option[Vector2D] = None
   var boxedShapes : Iterable[Shape] = Iterable()
+  var currentPoint : Option[Vector2D] = None
 
   // should be: def isEnclosed : Boolean = (box.p1.x <= box.p2.x)
-  def isEnclosed : Boolean = (Vector2D(0,0).x <= Vector2D(10,10).x)
+  def isEnclosed : Boolean = (startCoordinate.get.x <= currentPoint.get.x)
 
   def stateMap     = DirectedGraph(
     'Start -> 'MouseMove -> 'Box,
     'Start -> 'MouseDrag -> 'Box,
     'Start -> 'MouseUp   -> 'End,
     'Start -> 'KeyEscape -> 'End,
+    'Box   -> 'MouseUp -> 'End,
     'Box   -> 'KeyEscape -> 'End,
-    'Box   -> 'MouseUp   -> 'End
+    'Box   -> 'KeyEscape -> 'End
   )
 
   def stateMachine = Map(
@@ -34,6 +36,8 @@ object Select extends Module {
       events match {
         case (_ : MouseUp) :: (_ : MouseDown) :: tail => Goto('End)
         case MouseDown(point, _, _) :: tail => {
+          //set the start of the selection box
+          startCoordinate = Some(point)
           selectedShape = Model(point)
           if (selectedShape.isDefined && selectedShape.get.distanceTo(point) < 10)
             closeToObjectOnStart = true
@@ -49,20 +53,26 @@ object Select extends Module {
     }),
     'Box   -> ((events : List[Event]) => {
       events match {
-        // box = Rectangle2D(Vector2D(0, 0), point) should be box = Rectangle2D(box.p1, point) --it does not work.
-        case MouseMove(point, _, _) :: tail => box = Rectangle2D(Vector2D(0, 0), point)
         case MouseDrag(point, _, _) :: tail => {
+          currentPoint = Some(point)
+          box = Rectangle2D(startCoordinate.get, Vector2D(point.x,point.y))
+        }
+
+         //TODO: add  if KeyDown(Key.Delete, _) :: tail => delete(List[Shapes])
+
           //if (closeToObjectOnStart && selectedShape.isDefined) {
           //  Goto('End)
           //  ForwardTo('Move)
           //} else
           //box = Rectangle2D(Vector2D(startCoordinate, point))
-          println("mouseDrag")
-          box = Rectangle2D(startCoordinate.get,Vector2D(point.x,point.y))
-        }
+          //println("mouseDrag")
+          //box = Rectangle2D(startCoordinate.get,Vector2D(point.x,point.y))
+        //}
         case _ =>
       }
       boxedShapes = Model(box)
+      //Create ...
+      println(boxedShapes)
     }),
     'End   -> ((events : List[Event]) => {
       events match {
@@ -110,10 +120,10 @@ object Select extends Module {
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    val enclosed = "Color" -> "#6666DD".color
-    val focused  = "Color" -> "#DD6666".color
+    val enclosed = "Color" -> "#9999FF".color
+    val focused  = "Color" -> "#FF9999".color
     if (state != 'End) {
-      g draw PolylineShape.fromRectangle(box).addAttribute("Color" -> (if (isEnclosed) "#66CC66".color else "#6666CC".color)).transform(t)
+      g draw PolylineShape.fromRectangle(box).addAttribute("Color" -> (if (isEnclosed) "#88AA88".color else "#8888AA".color)).transform(t)
     }
 
     boxedShapes.foreach{ s => s match {
@@ -123,16 +133,18 @@ object Select extends Module {
     }}
     def drawShape(s : ImmutableShape) = {
       // TODO: Draw depending on whether the shape is contained or intersected
-      if (isEnclosed && box.contains(s.boundary)) { // If enclosed
+      if (isEnclosed && box.contains(s.boundary)) {
+        // If enclosed
         g.draw(s.addAttribute(enclosed).transform(t))
       }
-      //todo: fix this:----> else if (!isEnclosed && (box.contains(s.boundary) || s.geometry.intersections(box))) { // If not enclosed
+      //todo: fix this:----> else if (!isEnclosed && (box.contains(s.boundary) || s.geometry.intersections(box))) {
+      //If not enclosed
       //g.draw(s.addAttribute(enclosed).transform(t))
       //}
+
       else {
-        g.draw(s.addAttribute(focused).transform(t))
+        g.draw(s.addAttribute(enclosed).transform(t))
       }
     }
   }
-
 }

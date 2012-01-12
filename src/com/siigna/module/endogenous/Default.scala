@@ -27,7 +27,7 @@ object Default extends Module {
    */
   var previousModule : Option[Symbol] = None
 
-  lazy val stateMachine = Map( 'Start -> ((events : List[Event]) => {
+  def stateMachine = Map( 'Start -> ((events : List[Event]) => {
       nearestShape = Model(Siigna.mousePosition)
       events match {
         case MouseDown(point, MouseButtonLeft, _) :: tail           => {
@@ -42,7 +42,10 @@ object Default extends Module {
         case KeyDown(key, _) :: tail => {
           key.toChar match {
             case Key.Backspace | Key.Delete => {
+              println("delete pressed")
+              println(Model.selected)
               if (Model.isSelected) {
+                println("selected lines, ready for delete")
                 val selected = Model.selected
                 Model.deselect
                 Delete(selected)

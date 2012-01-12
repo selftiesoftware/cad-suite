@@ -1,7 +1,7 @@
-package com.siigna.module.endogenous.point
+package com.siigna.module.endogenous
 
 import com.siigna._
-import module.endogenous.Point
+//import module.endogenous.Point
 import actors.{Actor, DaemonActor}
 
 /**
@@ -20,6 +20,8 @@ object AngleGizmo extends Module {
   var isGizmoCheckNeeded = false
 
   var guideLength = 0
+  //type: tom fkt, som tager en liste af Events, og returnerer en message af typen string. fkt = (), returnerer hej
+  val f : (List[Event]) => Message[String] = (e) => {println("message function ran");Message("hello")}
 
   var startPoint : Option[Vector2D] = None
   var mousePosition : Option[Vector2D] = None
@@ -34,7 +36,8 @@ object AngleGizmo extends Module {
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap = DirectedGraph(
-    'Start         -> 'KeyEscape -> 'End
+    'Start         -> 'KeyEscape -> 'End,
+    'Start         -> 'MouseUp   -> 'End
   )
 
   def stateMachine = Map(
@@ -43,7 +46,9 @@ object AngleGizmo extends Module {
         case MouseUp(_, _, _) :: MouseDrag(_, _, _) :: tail => Goto('End)
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
         //case MouseUp(point, _, _) :: tail => mousePosition = Some(point)
-        case MouseDown(point, _, _) :: tail => startPoint = Some(point)
+        case MouseDown(point, _, _) :: tail => {
+          startPoint = Some(point)
+        }
         case MouseMove(point, _, _) :: tail => mousePosition = Some(point)
         case MouseDrag(point, _, _) :: tail => mousePosition = Some(point)
         case _ => Goto('End)
@@ -59,10 +64,8 @@ object AngleGizmo extends Module {
 
       None
     }),
-    'End -> ((events : List[Event]) => {
-      //println( "angle" +events)
-      None
-    })
+    //return the output of the anonymous function f, declared above the StateMachine
+    'End -> f
   )
 
   /*def angleGizmoActor(module : Point) = new Actor {

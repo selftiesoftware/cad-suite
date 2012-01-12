@@ -120,14 +120,14 @@ object Point extends Module {
             coordinateValue = "-"
         }
         case MouseDown(pointDown, _, _) :: tail => {
-          if (isGizmoCheckNeeded) {
-            Preload('AngleGizmo, "com.siigna.module.endogenous.point.AngleGizmo")
-            ForwardTo('AngleGizmo)
-            isGizmoCheckNeeded = false
-          } else {
-            isGizmoCheckNeeded = true
+          //if (isGizmoCheckNeeded) {
+            //Preload('AngleGizmo, "com.siigna.module.endogenous.point.AngleGizmo")
+            //ForwardTo('AngleGizmo)
+            //isGizmoCheckNeeded = false
+          //} else {
+          //  isGizmoCheckNeeded = true
             Goto('End)
-          }
+          //}
 
         }
         case _ =>

@@ -6,6 +6,7 @@ import com.siigna._
 
 object Polyline extends Module {
 
+  //var angleGuide : Message[Double] = None
   val eventHandler = EventHandler(stateMap, stateMachine)
   var points   = List[Vector2D]()
   var currentMouse = Vector2D(0,0)
@@ -20,13 +21,31 @@ object Polyline extends Module {
     'Start -> ((events : List[Event]) => {
       events match {
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
+        //case Message(p : Vector2D) :: tail => {
+        //  println(p)
+        //}
+        case Message(message : String):: tail => {
+          println("events:"+events)
+          println("message: "+message)
+        }
+
         case MouseDown(point, _, _):: tail => {
           points = points :+ point
+          //check if the Angle Gizmo is called
+          //ForwardTo('Angle) -> returværdi Message
+          //i angle: end -> returnér en message
+          //(hej) til sidst i sidste kode der eksekveres, returneres
+          //lade modulet returnere et event    for
+          //lægger det ned til brug
+          Preload('AngleGizmo, "com.siigna.module.endogenous.AngleGizmo")
+          ForwardTo('AngleGizmo)
+
           if (points.size > 0){
             //draw a polyline from the points saved in shape
             shape = PolylineShape.fromPoints(points)
           }
         }
+
         case MouseMove(position, _, _):: tail => {
           //store the current mouse position in a var
           currentMouse = position
