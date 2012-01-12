@@ -11,6 +11,7 @@ object Polyline extends Module {
   var points   = List[Vector2D]()
   var currentMouse = Vector2D(0,0)
   var shape : PolylineShape = PolylineShape.empty
+  var message : Option[Double] = None
 
   def stateMap = DirectedGraph(
     'Start        -> 'KeyEscape  -> 'End,
@@ -24,25 +25,29 @@ object Polyline extends Module {
         //case Message(p : Vector2D) :: tail => {
         //  println(p)
         //}
-        case Message(message : String):: tail => {
+        case Message(p: Double):: tail => {
+          message = Some(p)
           println("events:"+events)
-          println("message: "+message)
+          println("message: "+p)
         }
 
         case MouseDown(point, _, _):: tail => {
           points = points :+ point
-          //check if the Angle Gizmo is called
-          //ForwardTo('Angle) -> returværdi Message
-          //i angle: end -> returnér en message
-          //(hej) til sidst i sidste kode der eksekveres, returneres
-          //lade modulet returnere et event    for
-          //lægger det ned til brug
-          Preload('AngleGizmo, "com.siigna.module.endogenous.AngleGizmo")
-          ForwardTo('AngleGizmo)
-
-          if (points.size > 0){
-            //draw a polyline from the points saved in shape
-            shape = PolylineShape.fromPoints(points)
+          if (message.isDefined){
+            if (points.size > 0){
+              //draw a polyline from the points saved in shape
+              shape = PolylineShape.fromPoints(points)
+            }
+          }
+          else {
+                      //check if the Angle Gizmo is called
+            //ForwardTo('Angle) -> returværdi Message
+            //i angle: end -> returnér en message
+            //(hej) til sidst i sidste kode der eksekveres, returneres
+            //lade modulet returnere et event    for
+            //lægger det ned til brug
+            Preload('AngleGizmo, "com.siigna.module.endogenous.AngleGizmo")
+            ForwardTo('AngleGizmo)
           }
         }
 
@@ -62,6 +67,7 @@ object Polyline extends Module {
 
           //clear the points list
           points = List[Vector2D]()
+          message = None
       })
     )
   )

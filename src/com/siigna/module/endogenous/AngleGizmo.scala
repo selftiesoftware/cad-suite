@@ -21,7 +21,7 @@ object AngleGizmo extends Module {
 
   var guideLength = 0
   //type: tom fkt, som tager en liste af Events, og returnerer en message af typen string. fkt = (), returnerer hej
-  val f : (List[Event]) => Message[String] = (e) => {println("message function ran");Message("hello")}
+  val f : (List[Event]) => Message[Double] = (e) => {println("message function ran");Message(activeAngle)}
 
   var startPoint : Option[Vector2D] = None
   var mousePosition : Option[Vector2D] = None
