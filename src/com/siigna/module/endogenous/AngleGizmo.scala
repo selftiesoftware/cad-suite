@@ -3,21 +3,26 @@ package com.siigna.module.endogenous
 import com.siigna._
 //import module.endogenous.Point
 import actors.{Actor, DaemonActor}
-
+import scala.util.control.Breaks
+import scala.util.
 /**
  * An object that handles the angle-gizmo.
  */
 //TODO: multiply with zoomscale to get a fixed size gizmo
+
 object AngleGizmo extends Module {
 
   var activeAngle : Double = 0
 
-  val gizmoTime = 400
+  //time to press and hold the mouse button before the gizmo mode is activated
+  val gizmoTime = 600
+
+  var latestEvent : Option[Event] = None
 
   var gizmoMode = 45
   val gizmoRadius = 220
   val gizmoShapes = List[Shape]()
-  var isGizmoCheckNeeded = false
+  var runGizmo = false
 
   var guideLength = 0
   //type: tom fkt, som tager en liste af Events, og returnerer en message af typen string. fkt = (), returnerer hej
@@ -32,21 +37,28 @@ object AngleGizmo extends Module {
   def correct360(int : Int) = {
     if (int >= 360) int - 360 else int
   }
-
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap = DirectedGraph(
     'Start         -> 'KeyEscape -> 'End,
-    'Start         -> 'MouseUp   -> 'End
+    'AngleGizmo    -> 'MouseUp   -> 'End
   )
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+       val startTime = System.currentTimeMillis()
+         AngleGizmoLoop.run()
+       if(sys time - start < 400 ) {
+
+       }
+    }),
+    'AngleGizmo -> ((events : List[Event]) => {
       events match {
         case MouseUp(_, _, _) :: MouseDrag(_, _, _) :: tail => Goto('End)
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
         //case MouseUp(point, _, _) :: tail => mousePosition = Some(point)
         case MouseDown(point, _, _) :: tail => {
+          events = events.head
           startPoint = Some(point)
         }
         case MouseMove(point, _, _) :: tail => mousePosition = Some(point)
