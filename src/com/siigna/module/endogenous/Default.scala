@@ -11,12 +11,14 @@ import java.awt.{Toolkit, GraphicsEnvironment, Color}
 */
 object Default extends Module {
 
-  lazy val eventHandler = EventHandler(stateMap, stateMachine)
+  def eventHandler = EventHandler(stateMap, stateMachine)
 
-  lazy val stateMap     = DirectedGraph( 'Start -> 'Event -> 'Start )
+  def stateMap     = DirectedGraph( 'Start -> 'Event -> 'Start )
 
   def fullScreenBox = Rectangle2D(Siigna.screen.bottomRight - Vector2D(20, -5), Siigna.screen.bottomRight - Vector2D(40, -25))
 
+  var firstStart : Boolean = true
+  var firstMenuLoad : Boolean = true
   /**
    * The nearest shape to the current mouse position.
    */
@@ -29,23 +31,38 @@ object Default extends Module {
 
   def stateMachine = Map( 'Start -> ((events : List[Event]) => {
       nearestShape = Model(Siigna.mousePosition)
+      if (firstStart == true) {
+        interface.display("Press the mouse wheel and drag to pan, scroll the wheel to zoom.")
+        Thread.sleep(2200)
+        interface.display("Right click to start drawing")
+        Thread.sleep(1400)
+        interface.clearDisplay()
+        firstStart = false
+      }
       events match {
         case MouseDown(point, MouseButtonLeft, _) :: tail           => {
           if (fullScreenBox.contains(point.transform(Siigna.physical))) {
 
           } else ForwardTo('Select)
         }
-        case MouseDown(point, MouseButtonRight, _) :: tail          => ForwardTo('Menu)
+        case MouseDown(point, MouseButtonRight, _) :: tail          => {
+          if (firstMenuLoad == true) {
+            interface.display("...loading modules, please wait")
+            Thread.sleep(2000)
+            interface.clearDisplay()
+            ForwardTo('Menu)
+            firstMenuLoad = false
+          }
+          else ForwardTo('Menu)
+        }
         case KeyDown(('z' | 'Z'), ModifierKeys(_, true, _)) :: tail => Model.undo
         case KeyDown(('y' | 'Y'), ModifierKeys(_, true, _)) :: tail => Model.redo
         case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => Model.selectAll
         case KeyDown(key, _) :: tail => {
           key.toChar match {
             case Key.Backspace | Key.Delete => {
-              println("delete pressed")
               println(Model.selected)
               if (Model.isSelected) {
-                println("selected lines, ready for delete")
                 val selected = Model.selected
                 Model.deselect
                 Delete(selected)

@@ -57,9 +57,6 @@ object Select extends Module {
           currentPoint = Some(point)
           box = Rectangle2D(startCoordinate.get, Vector2D(point.x,point.y))
         }
-
-         //TODO: add  if KeyDown(Key.Delete, _) :: tail => delete(List[Shapes])
-
           //if (closeToObjectOnStart && selectedShape.isDefined) {
           //  Goto('End)
           //  ForwardTo('Move)
@@ -73,6 +70,9 @@ object Select extends Module {
       boxedShapes = Model(box)
       //Create ...
       println(boxedShapes)
+      //TODO: convert boxedShapes from a Set(shapes) to a set of (DynamicShape(id))
+      //Model.select(boxedShapes)
+      println(Model.selected)
     }),
     'End   -> ((events : List[Event]) => {
       events match {

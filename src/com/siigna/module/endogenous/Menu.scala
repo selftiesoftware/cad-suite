@@ -18,7 +18,7 @@ import category._
 object Menu extends Module {
 
   // The event handler
-  lazy val eventHandler = new EventHandler(RadialMenuStateMap, stateMachine)
+  def eventHandler = new EventHandler(RadialMenuStateMap, stateMachine)
 
   // The center of the wheel
   private var center : Option[Vector2D]         = None
@@ -35,7 +35,7 @@ object Menu extends Module {
   // The transformation to use throughout the paint
   private var transformation = TransformationMatrix(Vector2D(0, 0), 1)
 
-  lazy val stateMachine = Map(
+  def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {
         case MouseDown(point, MouseButtonRight, _) :: tail => {
