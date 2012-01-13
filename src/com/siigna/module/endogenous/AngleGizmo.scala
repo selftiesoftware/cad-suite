@@ -21,7 +21,10 @@ object AngleGizmo extends Module {
 
   var guideLength = 0
   //type: tom fkt, som tager en liste af Events, og returnerer en message af typen string. fkt = (), returnerer hej
-  val f : (List[Event]) => Message[Double] = (e) => {println("message function ran");Message(activeAngle)}
+  val f : (List[Event]) => Message[Double] = (e) => {
+    println("message function ran")
+    Message(activeAngle)
+  }
 
   var startPoint : Option[Vector2D] = None
   var mousePosition : Option[Vector2D] = None
@@ -54,15 +57,13 @@ object AngleGizmo extends Module {
         case _ => Goto('End)
       }
       //get the current radial
-      var radian = (mousePosition.get - startPoint.get).angle.toInt
+      /*var radian = (mousePosition.get - startPoint.get).angle.toInt
       var calculatedAngle = radian * -1 + 450
       if (calculatedAngle > 360)
-        {activeAngle = calculatedAngle - 360} else activeAngle = calculatedAngle
+        {activeAngle = calculatedAngle - 360} else activeAngle = calculatedAngle*/
 
       //transform the mouse position based on the active radial and the gizmo mode
       //println(correct360(round(activeAngle).toInt))
-
-      None
     }),
     //return the output of the anonymous function f, declared above the StateMachine
     'End -> f
