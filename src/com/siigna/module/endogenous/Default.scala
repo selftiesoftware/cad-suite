@@ -33,9 +33,11 @@ object Default extends Module {
       nearestShape = Model(Siigna.mousePosition)
       if (firstStart == true) {
         interface.display("Press the mouse wheel and drag to pan, scroll the wheel to zoom.")
-        Thread.sleep(2200)
+        Thread.sleep(220)
+        //Thread.sleep(2200)
         interface.display("Right click to start drawing")
-        Thread.sleep(1400)
+        Thread.sleep(400)
+        //Thread.sleep(1400)
         interface.clearDisplay()
         firstStart = false
       }
@@ -48,9 +50,16 @@ object Default extends Module {
         case MouseDown(point, MouseButtonRight, _) :: tail          => {
           if (firstMenuLoad == true) {
             interface.display("...loading modules, please wait")
-            Thread.sleep(2000)
+            Thread.sleep(200)
+            //Thread.sleep(2000)
             interface.clearDisplay()
             ForwardTo('Menu)
+            //preload commonly used modules
+            Preload('Polyline)
+            Preload('Artline)
+            Preload('Text)
+            Preload('Rectangle)
+            Preload('Lineardim)
             firstMenuLoad = false
           }
           else ForwardTo('Menu)
@@ -61,7 +70,6 @@ object Default extends Module {
         case KeyDown(key, _) :: tail => {
           key.toChar match {
             case Key.Backspace | Key.Delete => {
-              println(Model.selected)
               if (Model.isSelected) {
                 val selected = Model.selected
                 Model.deselect

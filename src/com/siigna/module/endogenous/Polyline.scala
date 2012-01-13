@@ -37,18 +37,12 @@ object Polyline extends Module {
           if (points.size > 0){
             //draw a polyline from the points saved in shape
             shape = PolylineShape.fromPoints(points)
+            Preload('AngleGizmo, "com.siigna.module.endogenous.AngleGizmo")
+            ForwardTo('AngleGizmo)
           }
-          //}
-          else {
-                      //check if the Angle Gizmo is called
-            //ForwardTo('Angle) -> returværdi Message
-            //i angle: end -> returnér en message
-            //(hej) til sidst i sidste kode der eksekveres, returneres
-            //lade modulet returnere et event    for
-            //lægger det ned til brug
-           // Preload('AngleGizmo, "com.siigna.module.endogenous.AngleGizmo")
-           // ForwardTo('AngleGizmo)
-          }
+        }
+        case Message(p : Option[Double]):: tail => {
+          println("message, "+p)
         }
         case MouseMove(position, _, _):: tail => {
           //store the current mouse position in a var
