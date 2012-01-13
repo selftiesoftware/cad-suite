@@ -1,10 +1,7 @@
 package com.siigna.module.endogenous
 
 import com.siigna._
-//import module.endogenous.Point
-import actors.{Actor, DaemonActor}
-import scala.util.control.Breaks
-import scala.util.
+
 /**
  * An object that handles the angle-gizmo.
  */
@@ -22,7 +19,7 @@ object AngleGizmo extends Module {
   var gizmoMode = 45
   val gizmoRadius = 220
   val gizmoShapes = List[Shape]()
-  var runGizmo = false
+  var runGizmo = true
 
   var guideLength = 0
   //type: tom fkt, som tager en liste af Events, og returnerer en message af typen string. fkt = (), returnerer hej
@@ -46,11 +43,9 @@ object AngleGizmo extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-       val startTime = System.currentTimeMillis()
-         AngleGizmoLoop.run()
-       if(sys time - start < 400 ) {
-
-       }
+      val a = new AngleGizmoLoop
+      a.start()
+      Goto('AngleGizmo)
     }),
     'AngleGizmo -> ((events : List[Event]) => {
       events match {
@@ -58,7 +53,7 @@ object AngleGizmo extends Module {
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
         //case MouseUp(point, _, _) :: tail => mousePosition = Some(point)
         case MouseDown(point, _, _) :: tail => {
-          events = events.head
+          latestEvent = Some(events.head)
           startPoint = Some(point)
         }
         case MouseMove(point, _, _) :: tail => mousePosition = Some(point)
