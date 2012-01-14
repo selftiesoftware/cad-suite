@@ -76,6 +76,7 @@ object Rectangle extends Module {
         else None
         //clear points
         points = List[Vector2D]()
+      Default.previousModule = Some('Rectangle)
       }
     })
   )

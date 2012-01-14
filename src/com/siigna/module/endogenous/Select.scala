@@ -69,10 +69,10 @@ object Select extends Module {
       }
       boxedShapes = Model(box)
       //Create ...
-      println(boxedShapes)
+      //println(boxedShapes)
       //TODO: convert boxedShapes from a Set(shapes) to a set of (DynamicShape(id))
       //Model.select(boxedShapes)
-      println(Model.selected)
+      //println(Model.selected)
     }),
     'End   -> ((events : List[Event]) => {
       events match {

@@ -12,7 +12,7 @@ object AngleGizmo extends Module {
   var activeAngle : Double = 0
 
   //time to press and hold the mouse button before the gizmo mode is activated
-  val gizmoTime = 600
+  val gizmoTime = 500
 
   var latestEvent : Option[Event] = None
 
@@ -37,73 +37,77 @@ object AngleGizmo extends Module {
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap = DirectedGraph(
-    'Start         -> 'KeyEscape -> 'End,
-    'AngleGizmo    -> 'MouseUp   -> 'End
+    'Start         -> 'KeyEscape -> 'End
+    //'AngleGizmo    -> 'MouseDown   -> 'End
   )
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       val a = new AngleGizmoLoop
+      //latestEvent = Some(events.head)
+
       a.start()
-      Goto('AngleGizmo)
+      println("starting 'Angle Gizmo. latest event: " +latestEvent)
+        //if (runGizmo == true) {
+        Goto('MouseCheck)
+      //}
+    }),
+    //check if a mouse up is occuring while running the angle gizmo loop, if so, the angle module will exit.
+    'MouseCheck -> ((events : List[Event]) => {
+      events match {
+        case MouseUp(point, _, _) :: tail => {
+          latestEvent = Some(events.head)
+        }
+        case MouseMove(point, _, _) :: tail => {
+          latestEvent = Some(events.head)
+          mousePosition = Some(point)
+        }
+        case MouseDrag(point, _, _) :: tail => {
+          latestEvent = Some(events.head)
+          mousePosition = Some(point)
+        }
+        case _ => None
+      }
     }),
     'AngleGizmo -> ((events : List[Event]) => {
+      //latestEvent = Some(events.head)
       events match {
-        case MouseUp(_, _, _) :: MouseDrag(_, _, _) :: tail => Goto('End)
-        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-        //case MouseUp(point, _, _) :: tail => mousePosition = Some(point)
-        case MouseDown(point, _, _) :: tail => {
+        //case MouseUp(_, _, _) :: MouseDrag(_, _, _) :: tail => Goto('End)
+        //case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
+        case MouseUp(point, _, _) :: tail => {
           latestEvent = Some(events.head)
-          startPoint = Some(point)
         }
-        case MouseMove(point, _, _) :: tail => mousePosition = Some(point)
-        case MouseDrag(point, _, _) :: tail => mousePosition = Some(point)
-        case _ => Goto('End)
+        //case MouseDown(point, _, _) :: tail => {
+        //  startPoint = Some(point)
+        //}
+        case MouseMove(point, _, _) :: tail => {
+          latestEvent = Some(events.head)
+          mousePosition = Some(point)
+        }
+        case MouseDrag(point, _, _) :: tail => {
+          latestEvent = Some(events.head)
+          mousePosition = Some(point)
+        }
+        case _=>
       }
+      println("in angleGizmo node. latest event: "+Some(events.head))
       //get the current radial
       //var radian = (mousePosition.get - startPoint.get).angle.toInt
       //var calculatedAngle = radian * -1 + 450
       //if (calculatedAngle > 360)
       //  {activeAngle = calculatedAngle - 360} else activeAngle = calculatedAngle
-      activeAngle = 10
+      //activeAngle = 10
       //transform the mouse position based on the active radial and the gizmo mode
       //println(correct360(round(activeAngle).toInt))
 
       None
     }),
     //return the output of the anonymous function f, declared above the StateMachine
-    'End -> f
+    'End -> {
+      startPoint = None
+      f
+    }
   )
-
-  /*def angleGizmoActor(module : Point) = new Actor {
-    def act {
-    val startTime = System.currentTimeMillis()
-      loop {
-        val delta = System.currentTimeMillis() - startTime
-        // If the first event is a mouse down and the gizmoTime timelimit has passed then go to the Anglegizmo
-        if (module.state == 'Start && module.getEvents.head.isInstanceOf[MouseDown] && delta >= gizmoTime) {
-          isGizmoCheckNeeded = false
-          if (module.state == 'Start)
-            module.goto('AngleGizmo)
-          exit()
-        }
-        // If the user quits or the time is exceeded then exit
-        else if ((!module.getEvents.head.isInstanceOf[MouseDown] && !module.getEvents.head.isInstanceOf[MouseDrag]) ||
-          module.state != 'Start || delta >= gizmoTime) {
-          if (module.state != 'End)
-            module.goto('End)
-          exit()
-        }
-      }
-    }
-    def initiate = {
-      if (getState == Actor.State.Terminated) {
-        restart()
-      } else {
-        start()
-      }
-    }
-  }*/
 
   //create a list including all radians in a given gizmo mode (45, 10 or 1 degrees)
   def radians(mode : Int) : List[Int] = {
@@ -123,6 +127,7 @@ object AngleGizmo extends Module {
 
   //Draw the Angle Gizmo perimeter
   override def paint(g : Graphics, t : TransformationMatrix) {
+      //println("events in angle gizmo paint: "+latestEvent)
     if (startPoint.isDefined && mousePosition.isDefined) {
       //Set Angle Gizmo mode based on distance to center
       def distanceToStart = mousePosition.get - startPoint.get

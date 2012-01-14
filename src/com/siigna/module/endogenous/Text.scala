@@ -26,7 +26,7 @@ object Text extends Module {
   var text     = ""
   var position : Option[Vector2D] = None
   var rect : Option[Rectangle2D] = None
-  var scale    = 10
+  var scale    = 6
   var attributes = Attributes( "TextSize" -> 10)
   var shape : Option[TextShape] = None
 
@@ -76,7 +76,6 @@ object Text extends Module {
           text += key.toChar.toString.toLowerCase
         }
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-
         case _ =>
       }
       None
@@ -95,6 +94,7 @@ object Text extends Module {
             text = ""
           }
           else None
+      Default.previousModule = Some('Text)
       }
     })
   )

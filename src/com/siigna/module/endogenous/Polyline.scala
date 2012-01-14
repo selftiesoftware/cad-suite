@@ -14,8 +14,8 @@ object Polyline extends Module {
   var message : Option[Double] = None
 
   def stateMap = DirectedGraph(
-    'Start        -> 'KeyEscape  -> 'End,
-    'Start        -> 'KeyDown    -> 'End
+    'Start        -> 'KeyEscape  -> 'End
+    //'Start        -> 'KeyDown    -> 'End
   )
 
   def stateMachine = Map(
@@ -30,8 +30,7 @@ object Polyline extends Module {
         //  println("events:"+events)
         //  println("message: "+p)
         //}
-
-        case MouseDown(point, _, _):: tail => {
+        case MouseDown(point, MouseButtonLeft, _):: tail => {
           points = points :+ point
           //if (message.isDefined){
           if (points.size > 0){
@@ -44,6 +43,10 @@ object Polyline extends Module {
         case Message(p : Option[Double]):: tail => {
           println("message, "+p)
         }
+        case MouseUp(_, MouseButtonRight, _):: tail => Goto ('End)
+        //TODO: enable the use of ENTER to finish a polyline. Currently this will cause an error.
+        //case KeyDown(Key.Enter, _) :: tail => Goto ('End)
+        case KeyUp(Key.Space, _) :: tail => Goto ('End)
         case MouseMove(position, _, _):: tail => {
           //store the current mouse position in a var
           currentMouse = position
@@ -61,6 +64,7 @@ object Polyline extends Module {
           //clear the points list
           points = List[Vector2D]()
           message = None
+      Default.previousModule = Some('Polyline)
       })
     )
   )

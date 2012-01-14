@@ -78,6 +78,7 @@ object Artline extends Module{
             //Create(shape)
             }
           }
+        Default.previousModule = Some('Artline)
         }
         None
       })

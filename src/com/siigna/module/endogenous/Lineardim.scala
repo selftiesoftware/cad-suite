@@ -77,7 +77,6 @@ object Lineardim extends Module {
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {
-
         //set the first point of the dim line
         case MouseDown(p, _, _):: tail => {
           points = List(p)
@@ -149,6 +148,7 @@ object Lineardim extends Module {
           Create(shapeA.get,normalShape1.get,normalShape2.get,diaMark1.get,diaMark2.get,dimText.get)
           //clear the list of points
           points = List[Vector2D]()
+      Default.previousModule = Some('Lineardim)
       }
 
     })
