@@ -11,7 +11,6 @@ object Polyline extends Module {
   var shape : PolylineShape = PolylineShape.empty
 
   def stateMap = DirectedGraph(
-    'Start        -> 'KeyEscape  -> 'End,
     'Start        -> 'KeyDown    -> 'End
   )
 
@@ -23,27 +22,23 @@ object Polyline extends Module {
           points = points :+ point
           if (points.size > 0){
             //draw a polyline from the points saved in shape
-            println(shape)
             shape = PolylineShape.fromPoints(points)
           }
         }
-        case MouseMove(position, _, _):: tail => {
-          //draw a line from the last clicked point to the current mouse position
-          None
-
-        }
+        case  _ =>
       }
     }),
-    'End -> ((events : List[Event]) => (
-      events match {
-        case _ =>
-          None
-      })
-    )
+    'End -> ((events : List[Event]) => {
+      points = Nil
+      shape = PolylineShape.empty
+    })
   )
+
   override def paint(g : Graphics, t : TransformationMatrix) {
-    println("shape: " +shape)
-    println("shapes: "+shape.shapes)
-    if (shape.shapes.size > 0) g draw shape.transform(t)
+    if (shape.shapes.size > 0)
+      g draw shape.transform(t)
+
+    if (points.size > 0)
+      g draw LineShape(points.last, Siigna.mousePosition).transform(t)
   }
 }

@@ -3,7 +3,6 @@
 package com.siigna.module.endogenous
 
 import com.siigna._
-import java.awt.{Toolkit, GraphicsEnvironment, Color}
 
 /**
 * The default module for the endogenous module pack. Works as access point to
