@@ -49,7 +49,9 @@ object Print extends Module {
 
       Goto('End)
     }),
-    'End   -> ((events : List[Event]) => { })
+    'End   -> ((events : List[Event]) => {
+      None
+    })
   )
 
 }

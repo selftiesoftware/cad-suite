@@ -1,11 +1,13 @@
-///* 2010 (C) Copyright by Siigna, all rights reserved. */
-//
-//package com.siigna.module.endogenous
-//
+/* 2012 (C) Copyright by Siigna, all rights reserved. */
+
+package com.siigna.module.endogenous
+
+import com.siigna._
+
 //import java.awt.{Font, Color, TextField}
 //import java.awt.font._
 //import java.awt.event.{KeyEvent => AWTKeyEvent}
-//
+
 //import com.siigna.app.Siigna
 //import com.siigna.app.model.shape._
 //import com.siigna.app.view.Graphics
@@ -15,67 +17,102 @@
 //import com.siigna.util.event._
 //import com.siigna.util.geom._
 //
-//object Text extends Module {
-//
-//  lazy val eventHandler = new EventHandler(stateMap, stateMachine)
-//
-//  def shape    = TextShape(text, position, scale)
-//  var text     = ""
-//  var position = Vector2D(0, 0)
-//  var scale    = 10
+object Text extends Module {
+
+  val eventHandler = new EventHandler(stateMap, stateMachine)
+
+  var boundingRectangle : Option[Rectangle2D] = None
+  var length = 1
+  var text     = ""
+  var position : Option[Vector2D] = None
+  var rect : Option[Rectangle2D] = None
+  var scale    = 6
+  var attributes = Attributes( "TextSize" -> 10)
+  var shape : Option[TextShape] = None
+
 //  var currentState = 0
 //  var number   = 0
-//
-//  lazy val stateMap = DirectedGraph(
-//    'Start      -> 'MouseUp     -> 'StartPoint,
-//    'StartPoint -> 'KeyDown     -> 'TextInput,
-//    'StartPoint -> 'KeyEscape   -> 'End,
-//    'TextInput  -> 'KeyEscape   -> 'End,
-//    'Start      -> 'KeyEscape   -> 'End
-//  )
-//
-//  lazy val stateMachine = Map(
-//    'Start -> ((events : List[Event]) => {
-//      None
-//    }),
-//    'StartPoint -> ((events : List[Event]) => {
-//      events match {
-//        case MouseUp(p, MouseButtonLeft, _) :: tail => {
-//          position = p
-//          val physicalPosition = p.transform(Siigna.physical)
-//          val field = new java.awt.TextField("")
-//          interface.addComponent(field)
-//          field.setLocation(physicalPosition.x.toInt, physicalPosition.y.toInt)
-//          field.setColumns(10)
-//          // TODO: Why isn't this working?!
-//          println(Siigna.container.contains(physicalPosition.x.toInt, physicalPosition.y.toInt))
-//          currentState = 1
-//        }
-//        case MouseUp(_, MouseButtonRight, _) :: tail => {
-//          goto('End)
-//        }
-//        case _ =>
-//      }
-//      None
-//    }),
-//    'TextInput -> ((events : List[Event]) => {
-//      events match {
-//        case KeyDown(Key.Backspace, _) :: tail => {
-//            if (text.length != 0) text = text.substring(0, text.length - 1)
-//            else goto('End)
-//        }
-//        case KeyDown(Key.Enter, _) :: tail => goto('End)
-//        case KeyDown(char, _) :: tail => text += char.toString.toLowerCase
-//        case _ =>
-//      }
-//      None
-//    }),
-//    'End -> ((events : List[Event]) => {
-//      if (text.length > 0) Some(CreateShape(shape))
-//      else None
-//    })
-//  )
-//
+
+  def stateMap = DirectedGraph(
+    'Start      -> 'MouseUp     -> 'StartPoint,
+    'StartPoint -> 'KeyDown     -> 'TextInput,
+    'StartPoint -> 'KeyEscape   -> 'End,
+    'TextInput  -> 'KeyEscape   -> 'End,
+    'Start      -> 'KeyEscape   -> 'End
+  )
+
+  def stateMachine = Map(
+    'Start -> ((events : List[Event]) => {
+      None
+    }),
+    'StartPoint -> ((events : List[Event]) => {
+      events match {
+        case MouseDown(p, _, _) :: tail => {
+          position = Some(p)
+        }
+        case MouseUp(_, _, _) :: tail => {
+          if (position.isDefined){
+
+            Goto('TextInput)
+          }
+        }
+        //}
+        case _ =>
+      }
+      None
+    }),
+    'TextInput -> ((events : List[Event]) => {
+      events match {
+        case KeyDown(Key.Backspace, _) :: tail => {
+            if (text.length != 0) text = text.substring(0, text.length - 1)
+            else Goto('End)
+        }
+        case KeyDown(Key.Enter, _) :: tail => Goto('End)
+        case KeyDown(Key.Esc, _) :: tail => {
+          text = ""
+          Goto('End)
+        }
+        case KeyDown(key, _) :: tail => {
+          text += key.toChar.toString.toLowerCase
+        }
+        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
+        case _ =>
+      }
+      None
+    }),
+    'End -> ((events : List[Event]) => {
+      events match {
+        case _ =>
+          if (text.length > 0) {
+            //move the text so that the lower left corner is located at the starting position
+            var textPosition = Vector2D((position.get.x),(position.get.y+(scale+scale/4)))
+            shape = Some(TextShape(text+" ", textPosition, scale, attributes))
+            Create(shape)
+
+            //clear the vars
+            position = None
+            text = ""
+          }
+          else None
+      Default.previousModule = Some('Text)
+      }
+    })
+  )
+  override def paint(g : Graphics, t : TransformationMatrix) {
+    //move the text so that the lower left corner is located at the starting position
+    var textPosition = Vector2D((position.get.x),(position.get.y+(scale+scale/4)))
+    shape = Some(TextShape(text+" ", textPosition, scale, attributes))
+    g draw shape.get.transform(t)
+    if (position.isDefined){
+      length = text.length
+        //draw a bounding rectangle guide for the text
+        var x2 = Some(position.get.x+(4+length*5.3))
+        var y2 = Some(position.get.y+(scale+scale/2))
+        boundingRectangle = Some(Rectangle2D(position.get,Vector2D(x2.get,y2.get)))
+      g draw PolylineShape.fromRectangle(boundingRectangle.get).addAttribute("Color" -> "#66CC66".color).transform(t)
+    }
+  }
+
 //  override def paint(g : Graphics, t : TransformationMatrix) {
 //    if (currentState == 1 ) {
 //      // Draw a cursor.
@@ -95,4 +132,4 @@
 //    }
 //  }
 //
-//}
+}

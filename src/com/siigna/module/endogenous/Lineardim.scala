@@ -4,73 +4,162 @@ package com.siigna.module.endogenous
 
 import com.siigna._
 
-/**
- * TODO: points => p1 and p2
- */
+
+//TODO: clean up this mess!!
+
 object Lineardim extends Module {
 
+  var currentMouse : Option[Vector2D] = None
   val color = "Color" -> "#AAAAAA".color
-
   def diaMark(point : Vector2D) = if (hasBothPoints)
-      Some(LineShape((diaRotation1.get + point + normalUnitVector2D(points(0),points(1)) * scale) , (diaRotation2.get + point + normalUnitVector2D(points(0),points(1)) * scale)).addAttribute(color))
+      Some(LineShape((diaRotation1.get + point + normalUnitVector2D(points(1),points(2)) * scale) , (diaRotation2.get + point + normalUnitVector2D(points(1),points(2)) * scale)).addAttribute(color))
     else
       None
-
-  def diaMark1 = if (hasBothPoints) diaMark(points(0)) else None
-  def diaMark2 = if (hasBothPoints) diaMark(points(1)) else None
-
+  def diaMark1 = if (hasBothPoints) diaMark(points(1)) else None
+  def diaMark2 = if (hasBothPoints) diaMark(points(2)) else None
   def diaRotation(degree : Double) = if (hasBothPoints)
-      Some(transformation.rotate(degree).transform(normalUnitVector2D(points(0),points(1)) * (scale/4)))
+      Some(transformation.rotate(degree).transform(normalUnitVector2D(points(1),points(2)) * (scale/4)))
     else
       None
-
   def diaRotation1 = diaRotation(45)
   def diaRotation2 = diaRotation(225)
-
   def dimText : Option[Shape] = if (hasBothPoints)
-      Some(TextShape((points(1)-(points(0))).length.toInt.toString , ((points(0) + normalUnitVector2D(points(0),points(1)) * scale*2.5) + (points(1)-points(0))/2) , scale, Attributes("AdjustToScale" -> true)))
+      Some(TextShape((points(2)-(points(1))).length.toInt.toString , ((points(1) + normalUnitVector2D(points(1),points(2)) * scale*2.5) + (points(2)-points(1))/2) , scale, Attributes("AdjustToScale" -> true)))
+    else
+      None
+
+  def dynamicDimText : Option[Shape] = if (!hasBothPoints)
+      Some(TextShape((currentMouse.get-(points(1))).length.toInt.toString , ((points(1) + normalUnitVector2D(points(1),currentMouse.get) * scale*2.5) + (currentMouse.get-points(1))/2) , scale, Attributes("AdjustToScale" -> true)))
     else
       None
 
   val eventHandler = EventHandler(stateMap, stateMachine)
-
-  def hasBothPoints = (points.size >= 2)
-
+  var finalOffset : Option[Vector2D] = None
+  def hasBothPoints = (points.size >= 3)
   def normalShape(point : Vector2D) = if (hasBothPoints)
-      Some(LineShape((point + normalUnitVector2D(points(0),points(1)) * (scale*1.1)) , (point + normalUnitVector2D(points(0),points(1)) * (scale/2))).addAttributes(color))
+      Some(LineShape((point - normalUnitVector2D(points(2),points(1)) * (scale/2)) , (point + normalUnitVector2D(points(1),points(2)) * (scale*1.3))).addAttributes(color))
     else
       None
-
-  def normalShape1 = if (hasBothPoints) normalShape(points(0)) else None
-  def normalShape2 = if (hasBothPoints) normalShape(points(1)) else None
-
+  def normalShape1 = if (hasBothPoints) normalShape(points(1)) else None
+  def normalShape2 = if (hasBothPoints) normalShape(points(2)) else None
   def normalUnitVector2D(v1 : Vector2D, v2 : Vector2D) = {
     if (offsetSide == true)
       Vector2D((v2.x - v1.x) , (v2.y - v1.y)).normal.unit
     else
       Vector2D((v2.y - v1.y), -(v2.x - v1.x)).unit // Normal*3 = Vector2D(y, -x)
   }
-
   var offsetSide : Boolean = false
-
-  def shapeA : Option[Shape] = if (hasBothPoints)
-      Some(LineShape((points(1) + normalUnitVector2D(points(0),points(1)) * scale) , (points(0) + normalUnitVector2D(points(0),points(1)) * scale)).addAttributes(color))
+  def dynamicA : Option[Shape] = if (currentMouse.isDefined)
+      Some(LineShape((currentMouse.get + normalUnitVector2D(points(1),currentMouse.get) * scale) , (points(1) + normalUnitVector2D(points(1),currentMouse.get) * scale)).addAttributes(color))
     else
       None
-
+  def simpleA : Option[Shape] = if (currentMouse.isDefined)
+      Some(LineShape(currentMouse.get,(points(1))).addAttributes(color))
+    else
+      None
+  def shapeA : Option[Shape] = if (hasBothPoints)
+      Some(LineShape((points(2) + normalUnitVector2D(points(1),points(2)) * scale) , (points(1) + normalUnitVector2D(points(1),points(2)) * scale)).addAttributes(color))
+    else
+      None
   var transformation = TransformationMatrix()
-
-  var norm = Vector2D(0, 0)
-
-  var points : List[Vector2D]   = List()
-
+  var norm = Vector2D(0,0)
+  var points : List[Vector2D] = List()
   var previousPoint : Option[Vector2D] = None
-
   var scale = com.siigna.app.model.Model.boundaryScale * 5
 
+  def stateMap = DirectedGraph(
+
+    'Start         -> 'KeyEscape -> 'End,
+    'SelectSide    -> 'KeyEscape -> 'End
+
+  )
+
+  def stateMachine = Map(
+    'Start -> ((events : List[Event]) => {
+      events match {
+        //set the first point of the dim line
+        case MouseDown(p, _, _):: tail => {
+          points = List(p)
+          println("points in start: "+points)
+          Goto('SecondPoint)
+        }
+        case _ =>
+      }
+      None
+      }),
+    'SecondPoint -> ((events : List[Event]) => {
+      events match {
+        //draw the other end dynamically
+        case MouseMove(p, _, _):: tail => {
+          currentMouse = Some(p)
+        }
+        //set the other end of the dim line
+        case MouseDown(p, _, _):: tail => {
+
+            points = points :+ p
+            println("points in second: "+points)
+
+        }
+        case MouseUp(_, _, _)::tail => {
+          if (points.size == 3)
+            Goto('SelectSide)
+        }
+        case _ =>
+      }
+      None
+      }),
+    'SelectSide -> ((events : List[Event]) => {
+      events match {
+        //point the mouse to the side the dim line should be offset
+        case MouseMove(p, _, _):: tail => {
+
+          println("in select side: "+points)
+          val line = points(2) - points(1)
+          val point = points(1) - p
+          val scalar = line.normal * point
+          if (scalar >= 0)
+            offsetSide = false
+          else
+            offsetSide = true
+        finalOffset = Some(p)
+
+        }
+        case MouseDown(_, MouseButtonRight, _):: tail => Goto('End)
+        case MouseDown(_, MouseButtonLeft, _):: tail => {
+        //println("points in select + mouse down: "+points)
+        //finalOffset = Some(p)
+          println("going to end")
+          Goto('End)
+        }
+        case _ =>
+      }
+    None
+    }),
+    'End -> ((events : List[Event]) => {
+      events match {
+        case _ =>
+          val line = points(2) - points(1)
+          val point = points(1) - finalOffset.get
+          val scalar = line.normal * point
+          if (scalar >= 0)
+            offsetSide = false
+          else
+            offsetSide = true
+          Create(shapeA.get,normalShape1.get,normalShape2.get,diaMark1.get,diaMark2.get,dimText.get)
+          //clear the list of points
+          points = List[Vector2D]()
+      Default.previousModule = Some('Lineardim)
+      }
+
+    })
+  )
   override def paint(g : Graphics, t : TransformationMatrix) {
-    if (hasBothPoints) {
-      g draw shapeA.get.transform(t)
+    if (currentMouse.isDefined && !hasBothPoints) {
+      g draw simpleA.get.transform(t)
+      g draw dynamicDimText.get.transform(t)
+    }
+    if (currentMouse.isDefined && hasBothPoints) {
+      g draw dynamicA.get.transform(t)
       g draw normalShape1.get.transform(t)
       g draw normalShape2.get.transform(t)
       g draw diaMark1.get.transform(t)
@@ -78,72 +167,4 @@ object Lineardim extends Module {
       g draw dimText.get.transform(t)
     }
   }
-
-  def stateMap = DirectedGraph(
-    'Start         -> 'MouseDown -> 'CreatingPoint,
-    'Start         -> 'MouseMove -> 'Start,
-    'Start         -> 'KeyEscape -> 'End,
-    'Start         -> 'Action    -> 'FirstPoint,
-    'FirstPoint    -> 'Action    -> 'SecondPoint,
-    'FirstPoint    -> 'KeyEscape -> 'End,
-    'SecondPoint   -> 'MouseUp   -> 'SelectSide,
-    'SelectSide    -> 'Action    -> 'End,
-    'SelectSide    -> 'KeyEscape -> 'End,
-    'SelectSide    -> 'MouseDown -> 'End
-  )
-
-  def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
-      if (previousPoint.isEmpty)
-        ForwardTo('Point)
-      else {
-        points = List(previousPoint.get)
-        Goto('FirstPoint)
-      }
-      None
-    }),
-    'FirstPoint -> ((events : List[Event]) => {
-      events match {
-        case Message(p : Vector2D) :: tail => {
-          points = List(p)
-        }
-        case _ =>
-      }
-      ForwardTo('Point)
-    }),
-    'SecondPoint -> ((events : List[Event]) => {
-      events match {
-        case Message(p : Vector2D) :: tail => {
-          points = points.::(p)
-         // TODO: hvordan roteres text???
-        }
-        case _ =>
-      }
-    }),
-    'SelectSide -> ((events : List[Event]) => {
-      events match {
-        case MouseMove(p, _, _) :: tail => {
-          if (hasBothPoints) {
-            val line = points(1) - points(0)
-            val point = points(0) - p
-            val scalar = line.normal * point
-            if (scalar >= 0)
-              offsetSide = false
-            else
-              offsetSide = true
-          }
-        }
-        case _ =>
-      }
-    }),
-    'End -> ((events : List[Event]) => {
-      events match {
-        case MouseDown(point, _, _) :: tail => {
-          Create(shapeA.get,normalShape1.get,normalShape2.get,diaMark1.get,diaMark2.get,dimText.get)
-        }
-        case _ =>
-      }
-    })
-  )
-
 }

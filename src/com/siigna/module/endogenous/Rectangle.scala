@@ -1,73 +1,89 @@
-///* 2010 (C) Copyright by Siigna, all rights reserved. */
-//
-//package com.siigna.module.endogenous
-//
-//import com.siigna.module.Module
-//
-//import com.siigna.app.model.shape._
-//import com.siigna.app.model.shape.collection._
-//import com.siigna.app.view.Graphics
-//import com.siigna.util.action._
-//import com.siigna.util.collection.DirectedGraph
-//import com.siigna.util.event._
-//import com.siigna.util.geom._
-//
-//object Rectangle extends Module {
-//
-//  lazy val eventHandler = new EventHandler(stateMap, stateMachine)
-//
-//  var points = List[Vector2D]()
-//
-//  lazy val stateMap = DirectedGraph(
-//    'Start       -> 'MouseClick  -> 'FirstPoint,
-//    'FirstPoint  -> 'MouseMove   -> 'SecondPoint,
-//    'SecondPoint -> 'MouseMove   -> 'SecondPoint,
-//    'SecondPoint -> 'KeyEscape   -> 'End,
-//    'SecondPoint -> 'MouseClick  -> 'End,
-//    'Start       -> 'KeyEscape   -> 'End
-//  )
-//
-//  lazy val stateMachine = Map(
-//    'Start -> ((events : List[Event]) => {
-//       None
-//    }),
-//    'FirstPoint -> ((events : List[Event]) => {
-//      events match {
-//        case MouseUp(point, MouseButtonLeft, _) :: tail => {
-//          points = point :: Nil
-//        }
-//        case MouseUp(_, MouseButtonRight, _) :: tail => goto ('End)
-//        case _ =>
-//      }
-//      None
-//    }),
-//    'SecondPoint -> ((events : List[Event]) => {
-//      events match {
-//        case MouseMove(point, _, _) :: tail => {
-//          points = points.head :: point :: Nil
-//        }
-//        case _ =>
-//      }
-//      None
-//    }),
-//    'End -> ((events : List[Event]) => {
-//      if (points.length == 2) Some(CreateShape(polylineFromPoints(points)))
-//      else None
-//    })
-//  )
-//
-//  override def paint(g : Graphics, t : TransformationMatrix) {
-//    if (points.length == 2) {
-//      g draw polylineFromPoints(points).transform(t)
-//    }
-//  }
-//
-//  def polylineFromPoints(points : List[Vector2D]) = {
-//    val p1 = points(0)
-//    val p2 = points(1)
-//    var pointShapes = List(PointShape(p1), PointShape(p2.x, p1.y),
-//                           PointShape(p2), PointShape(p1.x, p2.y), PointShape(p1))
-//    PolylineShape.fromPoints(pointShapes, true)
-//  }
-//
-//}
+///* 2012 (C) Copyright by Siigna, all rights reserved. */
+
+package com.siigna.module.endogenous
+
+import com.siigna._
+
+object Rectangle extends Module {
+
+  def dynamicRectangleFromPoints(points : List[Vector2D], currentMouse : Vector2D) = {
+    val p1 = Vector2D(points(1).x,points(1).y)
+    val p2 = Vector2D(points(1).x,currentMouse.y)
+    val p3 = Vector2D(currentMouse.x,currentMouse.y)
+    val p4 = Vector2D(currentMouse.x,points(1).y)
+    PolylineShape.fromPoints(p1,p2,p3,p4,p1)
+  }
+
+  val eventHandler = new EventHandler(stateMap, stateMachine)
+
+  var points = List[Vector2D]()
+
+  def rectangleFromPoints(points : List[Vector2D]) = {
+    val p1 = Vector2D(points(1).x,points(1).y)
+    val p2 = Vector2D(points(1).x,points(2).y)
+    val p3 = Vector2D(points(2).x,points(2).y)
+    val p4 = Vector2D(points(2).x,points(1).y)
+    PolylineShape.fromPoints(p1,p2,p3,p4,p1)
+  }
+
+  var shape : PolylineShape = PolylineShape.empty
+
+  def stateMap = DirectedGraph(
+    'SecondPoint -> 'KeyEscape   -> 'End,
+    'Start       -> 'KeyEscape   -> 'End
+  )
+
+  def stateMachine = Map(
+    'Start -> ((events : List[Event]) => {
+      events match {
+        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
+        case MouseUp(point, _, _):: tail => {
+          points = points :+ point
+          println("initial points: "+point)
+          if(points.length == 2) {
+            println("points in start: "+points)
+            Goto('SecondPoint)
+          }
+        }
+        case _ =>
+      }
+    }),
+    'SecondPoint -> ((events : List[Event]) => {
+      events match {
+        case MouseMove(position, _,_):: tail => {
+            //draw a polyline from the points saved in shape
+          println("in mouse move in second point")
+          shape = dynamicRectangleFromPoints(points,position)
+        }
+        case MouseDown(point, _, _) :: tail => {
+          points = points :+ point
+          if(points.length == 3) {
+            Goto('End)
+          }
+        }
+        case _ =>
+      }
+      None
+    }),
+    'End -> ((events : List[Event]) => {
+      println("in end")
+      events match {
+        case _ =>
+        if (points.length >= 2) {
+          shape = rectangleFromPoints(points)
+          Create(shape)
+        }
+        else None
+        //clear points
+        points = List[Vector2D]()
+      Default.previousModule = Some('Rectangle)
+      }
+    })
+  )
+  override def paint(g : Graphics, t : TransformationMatrix) {
+    if (points.length > 0) {
+      //println(currentMouse)
+      g draw shape.transform(t)
+    }
+  }
+}

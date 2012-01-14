@@ -10,12 +10,14 @@ import com.siigna._
 */
 object Default extends Module {
 
-  lazy val eventHandler = EventHandler(stateMap, stateMachine)
+  def eventHandler = EventHandler(stateMap, stateMachine)
 
-  lazy val stateMap     = DirectedGraph( 'Start -> 'Event -> 'Start )
+  def stateMap     = DirectedGraph( 'Start -> 'Event -> 'Start )
 
   def fullScreenBox = Rectangle2D(Siigna.screen.bottomRight - Vector2D(20, -5), Siigna.screen.bottomRight - Vector2D(40, -25))
 
+  var firstStart : Boolean = true
+  var firstMenuLoad : Boolean = true
   /**
    * The nearest shape to the current mouse position.
    */
@@ -26,15 +28,43 @@ object Default extends Module {
    */
   var previousModule : Option[Symbol] = None
 
-  lazy val stateMachine = Map( 'Start -> ((events : List[Event]) => {
+  def stateMachine = Map( 'Start -> ((events : List[Event]) => {
       nearestShape = Model(Siigna.mousePosition)
+      if (firstStart == true) {
+        interface.display("Press the mouse wheel and drag to pan, scroll the wheel to zoom.")
+        Thread.sleep(220)
+        //Thread.sleep(2200)
+        interface.display("Right click to start drawing")
+        Thread.sleep(400)
+        //Thread.sleep(1400)
+        interface.clearDisplay()
+        firstStart = false
+      }
       events match {
         case MouseDown(point, MouseButtonLeft, _) :: tail           => {
           if (fullScreenBox.contains(point.transform(Siigna.physical))) {
 
           } else ForwardTo('Select)
         }
-        case MouseDown(point, MouseButtonRight, _) :: tail          => ForwardTo('Menu)
+        case MouseDown(point, MouseButtonRight, _) :: tail          => {
+          if (firstMenuLoad == true) {
+            interface.display("...loading modules, please wait")
+            Thread.sleep(200)
+            //Thread.sleep(400)
+            interface.clearDisplay()
+            ForwardTo('Menu)
+            //preload commonly used modules
+            Preload('Polyline)
+            Preload('Artline)
+            Preload('Text)
+            Preload('Rectangle)
+            Preload('Lineardim)
+            firstMenuLoad = false
+          }
+          else ForwardTo('Menu)
+        }
+
+        //KEY INPUTS
         case KeyDown(('z' | 'Z'), ModifierKeys(_, true, _)) :: tail => Model.undo
         case KeyDown(('y' | 'Y'), ModifierKeys(_, true, _)) :: tail => Model.redo
         case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => Model.selectAll
@@ -56,9 +86,52 @@ object Default extends Module {
             case Key.Space => {
               if (previousModule.isDefined) ForwardTo(previousModule.get)
             }
-            case 'a' => ForwardTo('Arc)
-            case 'l' => ForwardTo('Polyline)
-            case 't' => ForwardTo('Text)
+            case 'a' => {
+              interface.display("draw artline")
+              Thread.sleep(300)
+              interface.clearDisplay()
+              previousModule = Some('Artline)
+              ForwardTo('Artline)
+            }
+            //TODO: fix circle shortcut (circle does not draw)
+            //case 'c' => {
+            //  interface.display("draw circle")
+            //  Thread.sleep(300)
+            //  interface.clearDisplay()
+            //  ForwardTo('Circle)
+            //}
+            case 'd' => {
+              interface.display("click to create linear dimension line")
+              Thread.sleep(300)
+              interface.clearDisplay()
+              ForwardTo('Lineardim)
+            }
+            case 'l' => {
+              interface.display("draw polyline")
+              Thread.sleep(300)
+              interface.clearDisplay()
+              ForwardTo('Polyline)
+            }
+            //TODO: fix opening print dialog with shortcut - opens again again (last event (p) continously evoked??)
+            //case 'p' => {
+            //  interface.display("opening print dialog")
+            //  Thread.sleep(500)
+            //  interface.clearDisplay()
+            //  ForwardTo('Print)
+            //}
+            case 'r' => {
+              //TODO: fix this!
+              interface.display("click (twice??) to draw rectangle")
+              Thread.sleep(500)
+              interface.clearDisplay()
+              ForwardTo('Rectangle)
+            }
+            case 't' => {
+              interface.display("click (twice??) to place text")
+              Thread.sleep(500)
+              interface.clearDisplay()
+              ForwardTo('Text)
+            }
             case _ =>
           }
         }

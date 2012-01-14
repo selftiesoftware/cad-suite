@@ -1,8 +1,6 @@
 package com.siigna.module.endogenous
 
 import com.siigna._
-import org.omg.PortableInterceptor.NON_EXISTENT
-import scala.Predef._
 
 /**
 A freehand Artline pen
@@ -10,19 +8,17 @@ A freehand Artline pen
 
 object Artline extends Module{
 
+    var currentMouse = Vector2D(0,0)
+
+    //val buffer = new scala.collection.mutable.ListBuffer[Vector2D]
     val eventHandler = EventHandler(stateMap, stateMachine)
     var dotshape = Vector2D(10,10)
-    var points : List[LineShape] = List[LineShape]()
-    var point : Vector2D = Vector2D(0,0)
-    var path = List[Vector2D]()
+    var points = List[Vector2D]()
+    var startPoint : Option[Vector2D] = None
+    var currentPoint : Option[Vector2D] = None
+    var shape : PolylineShape = PolylineShape.empty
 
     def hasPoint = (points.size >= 1)
-
-    override def paint(g : Graphics, t : TransformationMatrix) {
-      if (hasPoint) {
-        g draw points
-      }
-    }
 
     def stateMap = DirectedGraph(
       'Start         -> 'KeyEscape ->         'End,
@@ -33,7 +29,6 @@ object Artline extends Module{
       'Start -> ((events : List[Event]) => {
         events match {
           case MouseUp(_, _, _) :: tail => {
-            println("starting module")
           }
           case _ =>
         }
@@ -42,39 +37,57 @@ object Artline extends Module{
       //draw single points on mouseclick
       'Points -> ((events : List[Event]) => {
          events match {
-            case MouseDown(point, _, _) :: tail => {
-
-              points = List(LineShape(dotshape, point),LineShape(dotshape, point))
-
-              ForwardTo('Point)
-              Message(points)
-              println(points)
+            case MouseDown(p, _, _) :: tail => {
+              startPoint = Some(p)
+              //points = List(LineShape(dotshape, point),LineShape(dotshape, point))
+              //Message(points)
+              //println(points)
+            }
+            case MouseDrag(p, _, _) :: tail => {
+              currentPoint = Some(p)
+              if (startPoint.get.distanceTo(currentPoint.get) > 5) {
+                points = points :+ startPoint.get
+                startPoint = currentPoint
+               //draw a polyline from the points saved in shape
+               shape =  PolylineShape.fromPoints(points)
+              }
+            }
+            case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
+            case MouseUp(p, _, _) :: tail => {
+              points = points :+p
+              shape = PolylineShape.fromPoints(points)
+              Create(shape)
+              //clear the list
+              shape = PolylineShape.empty
+              points = List[Vector2D]()
+              println("mouseUp in Points")
+              Goto('Start)
             }
             case _ => None
          }
-        println("exit nodegenerator")
       None
-      }),
-
-      'Lines -> ((events : List[Event]) => {
-         events match {
-           case MouseDrag(_, _, _) :: tail => {
-             println("draw connected lines here")
-           }
-           case _ =>
-         }
       }),
 
       'End -> ((events : List[Event]) => {
         events match {
           case KeyDown(Key.Escape, _) :: tail => None
           case _ => {
-
-            Goto ('Points)
+            if (points.size > 0){
+            //draw a polyline from the points saved in the path
+            //shape = PolylineShape.fromPoints(points)
+            //Create(shape)
+            }
           }
+        Default.previousModule = Some('Artline)
         }
         None
-        //Create(LineShape(ink.head,ink.head + Vector2D(3,0)))
       })
     )
+    override def paint(g : Graphics, t : TransformationMatrix) {
+      if (points.length > 0) {
+        g draw shape.transform(t)
+        g draw LineShape(currentPoint.get,points.last).transform(t)
+      }
+
+    }
 }
