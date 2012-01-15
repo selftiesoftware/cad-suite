@@ -136,8 +136,8 @@ object AngleGizmo extends Module {
       if (activeAngle.isDefined) {
         message = activeAngle
       }
-      activeAngle = None
-      Message(message)
+      println("SENDING MESSAGE")
+      Message("HEJ")
     })
   )
   //Draw the Angle Gizmo perimeter

@@ -19,7 +19,8 @@ object Polyline extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println("events::" + events)
+      //TODO: when returning from Angle Gizmo, a message should be included in the event stream, but it is not??
+      //println("events::" + events)
       events match {
         case Message(p : Option[Double]) :: tail => {
           angleGuide = p.get
@@ -58,7 +59,7 @@ object Polyline extends Module {
           println("message: "+message)
           if(message.isDefined) {
             println("MM, PL, and message")
-            eventParser.snapTo(new RadianSnap(Siigna.mousePosition, AngleGizmo.message.get))
+            eventParser.snapTo(new RadianSnap(Siigna.mousePosition, message.get))
           }
         }
         case _ =>
