@@ -22,6 +22,14 @@ object Polyline extends Module {
     'Start -> ((events : List[Event]) => {
       events match {
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
+        //case Message(p : Vector2D) :: tail => {
+        //  println(p)
+        //}
+        //case Message(p: Double):: tail => {
+        //  message = Some(p)
+        //  println("events:"+events)
+        //  println("message: "+p)
+        //}
         case MouseDown(point, MouseButtonLeft, _):: tail => {
           points = points :+ point
           //if (message.isDefined){
@@ -29,12 +37,10 @@ object Polyline extends Module {
             //draw a polyline from the points saved in shape
             shape = PolylineShape.fromPoints(points)
             Preload('AngleGizmo, "com.siigna.module.endogenous.AngleGizmo")
-            //sends a point that the angleGizmo will use if the angle Gizmo needs to be drawn
-            AngleGizmo.receivedPoint = Some(point)
             ForwardTo('AngleGizmo)
           }
         }
-        case Message(p : Double) :: tail => {
+        case Message(p) :: tail => {
           println("message, "+p)
         }
         case MouseUp(_, MouseButtonRight, _):: tail => Goto ('End)
