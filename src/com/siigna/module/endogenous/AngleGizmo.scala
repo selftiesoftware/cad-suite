@@ -110,10 +110,12 @@ object AngleGizmo extends Module {
         case _=>
       }
       //get the current radial
-      var radian = (mousePosition.get - startPoint.get).angle.toInt
-      var calculatedAngle = radian * -1 + 450
-      if (calculatedAngle > 360)
-        {activeAngle = calculatedAngle - 360} else activeAngle = calculatedAngle
+      if (mousePosition.isDefined && startPoint.isDefined) {
+        var radian = (mousePosition.get - startPoint.get).angle.toInt
+        var calculatedAngle = radian * -1 + 450
+        if (calculatedAngle > 360)
+          {activeAngle = calculatedAngle - 360} else activeAngle = calculatedAngle
+      }
     }),
 
     //return the output of the anonymous function f, declared above the StateMachine
@@ -121,7 +123,7 @@ object AngleGizmo extends Module {
       points = List[Vector2D]()
       receivedPoint = None
       startPoint = None
-      println(activeAngle)
+      Message(activeAngle)
     })
   )
 
@@ -129,7 +131,6 @@ object AngleGizmo extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
       //println("events in angle gizmo paint: "+latestEvent)
     if (startPoint.isDefined && mousePosition.isDefined) {
-      println("strartpt: "+mousePosition)
       //Set Angle Gizmo mode based on distance to center
       def distanceToStart = mousePosition.get - startPoint.get
       if (distanceToStart.length < 50) gizmoMode = 90

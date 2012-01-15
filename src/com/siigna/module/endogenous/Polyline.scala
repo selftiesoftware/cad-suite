@@ -6,12 +6,14 @@ import com.siigna._
 
 object Polyline extends Module {
 
-  //var angleGuide : Message[Double] = None
+  var angleGuide : Double = 0
   val eventHandler = EventHandler(stateMap, stateMachine)
   var points   = List[Vector2D]()
   var currentMouse = Vector2D(0,0)
   var shape : PolylineShape = PolylineShape.empty
   var message : Option[Double] = None
+
+
 
   def stateMap = DirectedGraph(
     'Start        -> 'KeyEscape  -> 'End
@@ -32,10 +34,12 @@ object Polyline extends Module {
             //sends a point that the angleGizmo will use if the angle Gizmo needs to be drawn
             AngleGizmo.receivedPoint = Some(point)
             ForwardTo('AngleGizmo)
+
           }
         }
         case Message(p : Double) :: tail => {
-          println("message, "+p)
+          angleGuide = p
+          println(angleGuide)
         }
         case MouseUp(_, MouseButtonRight, _):: tail => Goto ('End)
         //TODO: enable the use of ENTER to finish a polyline. Currently this will cause an error.
@@ -44,6 +48,8 @@ object Polyline extends Module {
         case MouseMove(position, _, _):: tail => {
           //store the current mouse position in a var
           currentMouse = position
+          //parse the events with the gizmo angle
+          eventParser.snapTo(new RadianSnap(currentMouse, angleGuide))
           None
         }
         case _ =>
@@ -66,6 +72,7 @@ object Polyline extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
     if (points.length > 0) {
       g draw shape.transform(t)
+      //draw a the current mouse position, transformed by the active radian if the angle gizmo is active
       g draw LineShape(currentMouse,points.last).transform(t)
     }
   }
