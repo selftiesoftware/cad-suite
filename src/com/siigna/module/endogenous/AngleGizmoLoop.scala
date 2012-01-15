@@ -22,8 +22,8 @@ class AngleGizmoLoop extends Thread {
           throw new InterruptedException("Angle Gizmo thread stopped.")
         }
 
-        // If the latest event is defined
-        if (AngleGizmo.latestEvent.isDefined) {
+        // If the start point is defined
+        if (AngleGizmo.receivedPoint.isDefined) {
           // .. And if the event is not a mouse down
           if (!AngleGizmo.latestEvent.get.isInstanceOf[MouseDown]) {
             // Then send the angle gizmo module to end

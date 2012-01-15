@@ -16,7 +16,6 @@ class RadianSnap(p: Vector2D, radian : Double) extends EventSnap{
   def parse(event : Event, model : Iterable[ImmutableShape]) = event match {
     case MouseMove(point, a, b) => MouseMove(snapToRadian(point), a, b)
     case some => {
-      println("in parse")
       some
     }
     //transforming events with the snapToRadian function
@@ -24,9 +23,9 @@ class RadianSnap(p: Vector2D, radian : Double) extends EventSnap{
 
   //function that takes a point and returns another point
   def snapToRadian(point : Vector2D) : Vector2D = {
+    println("parsing")
     var mouseX = point.x
     var mouseY = point.y
-    println("radian: "+radian)
     point
   }
 
