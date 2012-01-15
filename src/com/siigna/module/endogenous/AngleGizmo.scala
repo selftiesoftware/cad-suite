@@ -10,6 +10,7 @@ import com.siigna._
 object AngleGizmo extends Module {
 
   var activeAngle : Double = 0
+  var finalAngle : Option[Double] = None
 
   //time to press and hold the mouse button before the gizmo mode is activated
   val gizmoTime = 500
@@ -19,12 +20,16 @@ object AngleGizmo extends Module {
   var gizmoMode = 45
   val gizmoRadius = 220
   val gizmoShapes = List[Shape]()
-  var runGizmo = true
+  //var runGizmo = true
 
   var guideLength = 0
 
   var startPoint : Option[Vector2D] = None
   var mousePosition : Option[Vector2D] = None
+
+  var points   = List[Vector2D]()
+
+  var receivedPoint : Option[Vector2D] = None
 
   def round(angle : Double) = {
     ((angle)/gizmoMode).round*gizmoMode
@@ -32,6 +37,21 @@ object AngleGizmo extends Module {
   def correct360(int : Int) = {
     if (int >= 360) int - 360 else int
   }
+
+  //create a list including all radians in a given gizmo mode (45, 10 or 1 degrees)
+  def radians(mode : Int) : List[Int] = {
+    var i = 0
+    var activeRadians = List[Int]()
+
+    //add all radians to a list
+    do {
+      activeRadians = i :: activeRadians
+      i += mode
+
+    } while (i <= 360)
+    activeRadians
+  }
+
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap = DirectedGraph(
@@ -54,74 +74,62 @@ object AngleGizmo extends Module {
     //check if a mouse up is occuring while running the angle gizmo loop, if so, the angle module will exit.
     'MouseCheck -> ((events : List[Event]) => {
       events match {
+        //if these movements are registered while the AngleGizmoLoop is running, stay in this Node
         case MouseDown(_, _, _) :: tail =>
         case MouseDrag(point, _, _) :: tail => {
           latestEvent = Some(events.head)
-          mousePosition = Some(point)
         }
+        case MouseUp(p, _, _) :: tail =>
+        //if not, goto 'End
         case _ => Goto('End)
       }
     }),
     'AngleGizmo -> ((events : List[Event]) => {
-      println("In angle gizmo")
-      //latestEvent = Some(events.head)
+      //reaching this state means the gizmo should be drawn, so
+      //the start point is set as the received point from the calling module
+      startPoint = receivedPoint
       events match {
-        //case MouseUp(_, _, _) :: MouseDrag(_, _, _) :: tail => Goto('End)
-        //case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-        case MouseUp(point, _, _) :: tail => {
-          latestEvent = Some(events.head)
+        //if the right mouse button is pressed, exit.
+        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
+        //the latest event coming from polyline has to be mouse down, so this event forms the basis for getting the current mouse position:
+        case MouseDown(point, MouseButtonLeft, _) :: MouseMove(_, _, _) :: tail => {
+          points = points :+ point
+
+          //if a new point is set, goto 'End
+          if (points.size > 1) {
+            mousePosition = Some(point)
+            Goto('End)
+          }
         }
-        //case MouseDown(point, _, _) :: tail => {
-        //  startPoint = Some(point)
-        //}
         case MouseMove(point, _, _) :: tail => {
-          latestEvent = Some(events.head)
           mousePosition = Some(point)
         }
         case MouseDrag(point, _, _) :: tail => {
-          latestEvent = Some(events.head)
           mousePosition = Some(point)
         }
         case _=>
       }
-      println("in angleGizmo node. latest event: "+Some(events.head))
       //get the current radial
-      //var radian = (mousePosition.get - startPoint.get).angle.toInt
-      //var calculatedAngle = radian * -1 + 450
-      //if (calculatedAngle > 360)
-      //  {activeAngle = calculatedAngle - 360} else activeAngle = calculatedAngle
-      //activeAngle = 10
-      //transform the mouse position based on the active radial and the gizmo mode
-      //println(correct360(round(activeAngle).toInt))
-
-      None
+      var radian = (mousePosition.get - startPoint.get).angle.toInt
+      var calculatedAngle = radian * -1 + 450
+      if (calculatedAngle > 360)
+        {activeAngle = calculatedAngle - 360} else activeAngle = calculatedAngle
     }),
+
     //return the output of the anonymous function f, declared above the StateMachine
     'End -> ((events : List[Event]) => {
+      points = List[Vector2D]()
+      receivedPoint = None
       startPoint = None
+      println(activeAngle)
     })
   )
-
-  //create a list including all radians in a given gizmo mode (45, 10 or 1 degrees)
-  def radians(mode : Int) : List[Int] = {
-
-    var i = 0
-    var activeRadians = List[Int]()
-
-    //add all radians to a list
-    do {
-
-      activeRadians = i :: activeRadians
-      i += mode
-
-    } while (i <= 360)
-    activeRadians
-  }
 
   //Draw the Angle Gizmo perimeter
   override def paint(g : Graphics, t : TransformationMatrix) {
       //println("events in angle gizmo paint: "+latestEvent)
     if (startPoint.isDefined && mousePosition.isDefined) {
+      println("strartpt: "+mousePosition)
       //Set Angle Gizmo mode based on distance to center
       def distanceToStart = mousePosition.get - startPoint.get
       if (distanceToStart.length < 50) gizmoMode = 90
@@ -147,6 +155,7 @@ object AngleGizmo extends Module {
       val inactive5  = LineShape(Vector2D(startPoint.get.x, startPoint.get.y+170), Vector2D(startPoint.get.x, startPoint.get.y+200), Attributes("Color" -> "#CDCDCD".color))
       val inactive1  = LineShape(Vector2D(startPoint.get.x, startPoint.get.y+200), Vector2D(startPoint.get.x, startPoint.get.y+220), Attributes("Color" -> "#CDCDCD".color))
 
+      //TODO: why do these lines generate an error??!!
       radians(45).foreach(radian => {
         g draw inactive45.transform(t.rotate(radian, startPoint.get))
       })

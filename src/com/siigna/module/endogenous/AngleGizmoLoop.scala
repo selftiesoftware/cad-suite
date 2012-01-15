@@ -34,9 +34,8 @@ class AngleGizmoLoop extends Thread {
           }
         }
       }
-
       // If the time has expired then draw the AngleGizmo - if the latest event is a mouse down.
-      if (AngleGizmo.latestEvent.get.isInstanceOf[MouseDown]) {
+      if (AngleGizmo.latestEvent.get.isInstanceOf[MouseDown])  {
         Goto ('AngleGizmo)
       }
     } catch {
