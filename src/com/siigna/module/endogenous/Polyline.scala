@@ -43,7 +43,7 @@ object Polyline extends Module {
         }
         case MouseUp(_, MouseButtonRight, _):: tail => Goto ('End)
         //TODO: enable the use of ENTER to finish a polyline. Currently this will cause an error.
-        //case KeyDown(Key.Enter, _) :: tail => Goto ('End)
+        case KeyDown(Key.Enter, _) :: tail => Goto ('End)
         case KeyUp(Key.Space, _) :: tail => Goto ('End)
         case MouseMove(position, _, _):: tail => {
           //store the current mouse position in a var
