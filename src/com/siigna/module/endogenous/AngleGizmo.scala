@@ -19,20 +19,20 @@ object AngleGizmo extends Module {
 
   var latestEvent : Option[Event] = None
 
+  // What's this?!!!
   var gizmoMode = 45
   val gizmoRadius = 220
   val gizmoShapes = List[Shape]()
-  //var runGizmo = true
-
   var guideLength = 0
+  
+  // A flag to determine whether the angle gizmo was activated
+  private var gizmoIsActive = false
+  private var gizmoIsMouseDown = false
 
-  var message : Option[Double] = None
-
+  // The starting point of the angle gizmo
   var startPoint : Option[Vector2D] = None
 
-  //a mouse down counter used to determine whether the module should exit
-  var pointList   = List[Vector2D]()
-
+  // What is this?!!
   var receivedPoint : Option[Vector2D] = None
 
   def round(angle : Double) = {
@@ -49,7 +49,7 @@ object AngleGizmo extends Module {
 
     //add all radians to a list
     do {
-      activeRadians = i :: activeRadians
+      activeRadians = activeRadians :+ i
       i += mode
 
     } while (i <= 360)
@@ -60,7 +60,6 @@ object AngleGizmo extends Module {
 
   def stateMap = DirectedGraph(
     'Start         -> 'KeyEscape -> 'End
-    //'AngleGizmo    -> 'MouseDown   -> 'End
   )
 
   def stateMachine = Map(
@@ -68,8 +67,12 @@ object AngleGizmo extends Module {
       // Start the loop
       val a = new AngleGizmoLoop
       a.start()
+
       // Define the latest event
       latestEvent = Some(events.head)
+
+      // Define the received point
+      receivedPoint = Some(Siigna.mousePosition)
 
       // Listen to mouse-events
       Goto('MouseCheck)
@@ -82,37 +85,29 @@ object AngleGizmo extends Module {
         case MouseDrag(point, _, _) :: tail => {
           latestEvent = Some(events.head)
         }
-        //check if mouse up is in the event stream, and rapport it to the loop so that it can end.
-        case MouseUp(p, _, _) :: tail => latestEvent = Some(events.head)
-        //
-        case MouseMove(_, _, _) :: tail =>
-        case _ => {
-          Goto('End)
-        }
+        case MouseUp(p, _, _) :: tail =>
+        case _ => Goto('End)
       }
     }),
     'AngleGizmo -> ((events : List[Event]) => {
       //reaching this state means the gizmo should be drawn, so
-      //the start point is set as a point received from the calling module
+      //the start point is set as the received point from the calling module
       startPoint = receivedPoint
-      inAngleGizmoMode = true
+
+      // Activate!
+      gizmoIsActive = true
 
       events match {
-        case MouseUp(_, _, _) :: tail => {
-        }
         //if the right mouse button is pressed, exit.
+        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
         case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
-        //the latest event coming from polyline has to be mouse down, so this event forms the basis for getting the current mouse position:
-        case MouseDown(point, MouseButtonLeft, _) :: MouseMove(_, _, _) :: tail => {
-          pointList = pointList :+ point
-          //if a new point is set, goto 'End
-          if (pointList.size > 1) {
+        //the latest event coming from polyline has to be mouse down, so
+        // this event forms the basis for getting the current mouse position:
+        case MouseDown(_, MouseButtonLeft, _) :: MouseMove(_, _, _) :: tail => {
+          if (gizmoIsMouseDown)
             Goto('End)
-          }
-        }
-        case MouseMove(point, _, _) :: tail => {
-        }
-        case MouseDrag(point, _, _) :: tail => {
+          else
+            gizmoIsMouseDown = true
         }
         case _=>
       }
@@ -126,23 +121,22 @@ object AngleGizmo extends Module {
     }),
     //return the output of the anonymous function f, declared above the StateMachine
     'End -> ((events : List[Event]) => {
-      //clear the vars
-      latestEvent = None
-      pointList = List[Vector2D]()
       receivedPoint = None
       startPoint = None
-      inAngleGizmoMode = false
-      //pass a message if the activeAngle is defined only
-      if (activeAngle.isDefined) {
-        message = activeAngle
+
+      // If the gizmo was activated, then return the message and reset the flags
+      if (gizmoIsActive) {
+        gizmoIsActive = false
+        gizmoIsMouseDown = false
+        if (activeAngle.isDefined)
+          Message(activeAngle.get)
       }
-      Message(message.get)
     })
   )
+
   //Draw the Angle Gizmo perimeter
   override def paint(g : Graphics, t : TransformationMatrix) {
-      //println("events in angle gizmo paint: "+latestEvent)
-    if (startPoint.isDefined) {
+    if (startPoint.isDefined && activeAngle.isDefined && gizmoIsActive) {
       //Set Angle Gizmo mode based on distance to center
       def distanceToStart = Siigna.mousePosition - startPoint.get
       if (distanceToStart.length < 50) gizmoMode = 90
@@ -159,15 +153,15 @@ object AngleGizmo extends Module {
       val guide  = LineShape(startPoint.get,Vector2D(startPoint.get.x, startPoint.get.y+guideLength))
 
       //g draw CircleShape(startPoint.get, Vector2D(startPoint.get.x + gizmoRadius, startPoint.get.y)).transform(t)
-      //g draw TextShape((correct360(round(activeAngle).toInt)).toString, Vector2D(startPoint.get.x, startPoint.get.y + 240).transform(t.rotate(round(-activeAngle), startPoint.get)), 12, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector2D(0.5,0.5)))
-      //g draw guide.transform(t.rotate((((round(activeAngle)* -1)+360).toInt), startPoint.get))
+      g draw TextShape((correct360(round(activeAngle.get).toInt)).toString, Vector2D(startPoint.get.x, startPoint.get.y + 240).transform(t.rotate(round(-activeAngle.get), startPoint.get)), 12, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector2D(0.5,0.5)))
+      g draw guide.transform(t.rotate((((round(activeAngle.get)* -1)+360).toInt), startPoint.get))
 
       //draw inactive Angle Gizmo shapes
       val inactive45 = LineShape(Vector2D(startPoint.get.x, startPoint.get.y+50), Vector2D(startPoint.get.x, startPoint.get.y+100), Attributes("Color" -> "#CDCDCD".color))
       val inactive10 = LineShape(Vector2D(startPoint.get.x, startPoint.get.y+100), Vector2D(startPoint.get.x, startPoint.get.y+170), Attributes("Color" -> "#CDCDCD".color))
       val inactive5  = LineShape(Vector2D(startPoint.get.x, startPoint.get.y+170), Vector2D(startPoint.get.x, startPoint.get.y+200), Attributes("Color" -> "#CDCDCD".color))
       val inactive1  = LineShape(Vector2D(startPoint.get.x, startPoint.get.y+200), Vector2D(startPoint.get.x, startPoint.get.y+220), Attributes("Color" -> "#CDCDCD".color))
-     /**
+
       //TODO: why do these lines generate an error??!!
       radians(45).foreach(radian => {
         g draw inactive45.transform(t.rotate(radian, startPoint.get))
@@ -197,7 +191,6 @@ object AngleGizmo extends Module {
           g draw line5.transform(t.rotate(radian, startPoint.get))
         else g draw line1.transform(t.rotate(radian, startPoint.get))
       })
-      **/
     }
   }
 }
