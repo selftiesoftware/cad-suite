@@ -19,8 +19,6 @@ object Polyline extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      //TODO: when returning from Angle Gizmo, a message should be included in the event stream, but it is not??
-      //println("events::" + events)
       events match {
         case Message(p : Option[Double]) :: tail => {
           angleGuide = p.get
@@ -31,7 +29,6 @@ object Polyline extends Module {
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
         case MouseDown(point, MouseButtonLeft, _):: tail => {
           // if the first point is defined, and the module is not using the angle gizmo to define a radian, set the next point
-          println("has angle msg?: "+message)
           if (!message.isDefined) {
             points = points :+ point
             //draw a polyline from the points saved in shape
@@ -47,8 +44,6 @@ object Polyline extends Module {
           //sends a point that the angleGizmo will use if the angle Gizmo needs to be drawn
           AngleGizmo.receivedPoint = Some(point)
           ForwardTo('AngleGizmo)
-
-
         }
         case MouseUp(_, MouseButtonRight, _):: tail => Goto ('End)
         case KeyDown(Key.Enter, _) :: tail => Goto ('End)
@@ -70,7 +65,6 @@ object Polyline extends Module {
         case _ =>
           //create the final polyline
           Create(shape)
-
           //clear the points list
           points = List[Vector2D]()
           angleGuide = 0
@@ -85,9 +79,9 @@ object Polyline extends Module {
       g draw shape.transform(t)
       //draw the next segment, unless the angle Gizmo is active
       //if (!AngleGizmo.inAngleGizmoMode == true) {
-        //draw a the current mouse position, transformed by the active radian if the angle gizmo is active
-        g draw LineShape(Siigna.mousePosition,points.last).transform(t)
-      //}
+      //draw a the current mouse position, transformed by the active radian if the angle gizmo is active
+      g draw LineShape(Siigna.mousePosition,points.last).transform(t)
+    //}
     }
   }
 }
