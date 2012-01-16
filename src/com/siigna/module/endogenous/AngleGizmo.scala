@@ -17,17 +17,21 @@ object AngleGizmo extends Module {
 
   var latestEvent : Option[Event] = None
 
+  // What's this?!!!
   var gizmoMode = 45
   val gizmoRadius = 220
   val gizmoShapes = List[Shape]()
-  //var runGizmo = true
-
   var guideLength = 0
+  
+  // A flag to determine whether the angle gizmo was activated
+  private var gizmoIsActive = false
 
+  // A flag to determine whether the angle gizmo has received one
+  // mouse down event already
+  private var gizmoIsMouseDown = false
+
+  // The start point of the angle gizmo
   var startPoint : Option[Vector2D] = None
-  var mousePosition : Option[Vector2D] = None
-
-  var points   = List[Vector2D]()
 
   var receivedPoint : Option[Vector2D] = None
 
@@ -45,7 +49,7 @@ object AngleGizmo extends Module {
 
     //add all radians to a list
     do {
-      activeRadians = i :: activeRadians
+      activeRadians = activeRadians :+ i
       i += mode
 
     } while (i <= 360)
@@ -68,6 +72,9 @@ object AngleGizmo extends Module {
       // Define the latest event
       latestEvent = Some(events.head)
 
+      // Define the received point
+      receivedPoint = Some(Siigna.mousePosition)
+
       // Listen to mouse-events
       Goto('MouseCheck)
     }),
@@ -88,50 +95,51 @@ object AngleGizmo extends Module {
       //reaching this state means the gizmo should be drawn, so
       //the start point is set as the received point from the calling module
       startPoint = receivedPoint
+
+      // Active!
+      gizmoIsActive = true
+
       events match {
         //if the right mouse button is pressed, exit.
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-        //the latest event coming from polyline has to be mouse down, so this event forms the basis for getting the current mouse position:
-        case MouseDown(point, MouseButtonLeft, _) :: MouseMove(_, _, _) :: tail => {
-          points = points :+ point
-
-          //if a new point is set, goto 'End
-          if (points.size > 1) {
-            mousePosition = Some(point)
+        case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
+        //the latest event coming from polyline has to be mouse down, so
+        // this event forms the basis for getting the current mouse position:
+        case MouseDown(_, MouseButtonLeft, _) :: MouseMove(_, _, _) :: tail => {
+          if (gizmoIsMouseDown)
             Goto('End)
-          }
-        }
-        case MouseMove(point, _, _) :: tail => {
-          mousePosition = Some(point)
-        }
-        case MouseDrag(point, _, _) :: tail => {
-          mousePosition = Some(point)
+          else
+            gizmoIsMouseDown = true
         }
         case _=>
       }
       //get the current radial
-      var radian = (mousePosition.get - startPoint.get).angle.toInt
-      var calculatedAngle = radian * -1 + 450
-      if (calculatedAngle > 360)
-        {activeAngle = calculatedAngle - 360} else activeAngle = calculatedAngle
+      if (startPoint.isDefined) {
+        var radian = (Siigna.mousePosition - startPoint.get).angle.toInt
+        var calculatedAngle = radian * -1 + 450
+        if (calculatedAngle > 360)
+          {activeAngle = calculatedAngle - 360} else activeAngle = calculatedAngle
+      }
     }),
-
     //return the output of the anonymous function f, declared above the StateMachine
     'End -> ((events : List[Event]) => {
-      points = List[Vector2D]()
       receivedPoint = None
       startPoint = None
-      println(activeAngle)
+
+      // If the gizmo was activated, then return the message and reset the flags
+      if (gizmoIsActive) {
+        gizmoIsActive = false
+        gizmoIsMouseDown = false
+        Message(activeAngle)
+      }
     })
   )
 
   //Draw the Angle Gizmo perimeter
   override def paint(g : Graphics, t : TransformationMatrix) {
-      //println("events in angle gizmo paint: "+latestEvent)
-    if (startPoint.isDefined && mousePosition.isDefined) {
-      println("strartpt: "+mousePosition)
+    if (startPoint.isDefined) {
       //Set Angle Gizmo mode based on distance to center
-      def distanceToStart = mousePosition.get - startPoint.get
+      def distanceToStart = Siigna.mousePosition - startPoint.get
       if (distanceToStart.length < 50) gizmoMode = 90
       else if (distanceToStart.length > 50 && distanceToStart.length < 100) gizmoMode = 45
       else if (distanceToStart.length > 100 && distanceToStart.length < 170) gizmoMode = 10
