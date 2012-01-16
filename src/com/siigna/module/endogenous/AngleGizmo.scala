@@ -9,11 +9,13 @@ import com.siigna._
 
 object AngleGizmo extends Module {
 
-  var activeAngle : Double = 0
-  var finalAngle : Option[Double] = None
+  var activeAngle : Option[Double] = None
 
   //time to press and hold the mouse button before the gizmo mode is activated
   val gizmoTime = 500
+
+  // var to check if the Angle Gizmo is running. Can be used by modules to change what is drawn when the gizmo ios active
+  var inAngleGizmoMode = false
 
   var latestEvent : Option[Event] = None
 
@@ -26,11 +28,8 @@ object AngleGizmo extends Module {
   // A flag to determine whether the angle gizmo was activated
   private var gizmoIsActive = false
 
-  // A flag to determine whether the angle gizmo has received one
-  // mouse down event already
-  private var gizmoIsMouseDown = false
+  var message : Option[Double] = None
 
-  // The start point of the angle gizmo
   var startPoint : Option[Vector2D] = None
 
   var receivedPoint : Option[Vector2D] = None
