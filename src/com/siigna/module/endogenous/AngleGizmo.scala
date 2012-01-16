@@ -27,11 +27,12 @@ object AngleGizmo extends Module {
   
   // A flag to determine whether the angle gizmo was activated
   private var gizmoIsActive = false
+  private var gizmoIsMouseDown = false
 
-  var message : Option[Double] = None
-
+  // The starting point of the angle gizmo
   var startPoint : Option[Vector2D] = None
 
+  // What is this?!!
   var receivedPoint : Option[Vector2D] = None
 
   def round(angle : Double) = {
@@ -59,7 +60,6 @@ object AngleGizmo extends Module {
 
   def stateMap = DirectedGraph(
     'Start         -> 'KeyEscape -> 'End
-    //'AngleGizmo    -> 'MouseDown   -> 'End
   )
 
   def stateMachine = Map(
@@ -86,7 +86,6 @@ object AngleGizmo extends Module {
           latestEvent = Some(events.head)
         }
         case MouseUp(p, _, _) :: tail =>
-        //if not, goto 'End
         case _ => Goto('End)
       }
     }),
@@ -95,7 +94,7 @@ object AngleGizmo extends Module {
       //the start point is set as the received point from the calling module
       startPoint = receivedPoint
 
-      // Active!
+      // Activate!
       gizmoIsActive = true
 
       events match {
@@ -117,7 +116,7 @@ object AngleGizmo extends Module {
         var radian = (Siigna.mousePosition - startPoint.get).angle.toInt
         var calculatedAngle = radian * -1 + 450
         if (calculatedAngle > 360)
-          {activeAngle = calculatedAngle - 360} else activeAngle = calculatedAngle
+          {activeAngle = Some(calculatedAngle - 360)} else activeAngle = Some(calculatedAngle)
       }
     }),
     //return the output of the anonymous function f, declared above the StateMachine
@@ -129,14 +128,15 @@ object AngleGizmo extends Module {
       if (gizmoIsActive) {
         gizmoIsActive = false
         gizmoIsMouseDown = false
-        Message(activeAngle)
+        if (activeAngle.isDefined)
+          Message(activeAngle.get)
       }
     })
   )
 
   //Draw the Angle Gizmo perimeter
   override def paint(g : Graphics, t : TransformationMatrix) {
-    if (startPoint.isDefined) {
+    if (startPoint.isDefined && activeAngle.isDefined && gizmoIsActive) {
       //Set Angle Gizmo mode based on distance to center
       def distanceToStart = Siigna.mousePosition - startPoint.get
       if (distanceToStart.length < 50) gizmoMode = 90
@@ -153,8 +153,8 @@ object AngleGizmo extends Module {
       val guide  = LineShape(startPoint.get,Vector2D(startPoint.get.x, startPoint.get.y+guideLength))
 
       //g draw CircleShape(startPoint.get, Vector2D(startPoint.get.x + gizmoRadius, startPoint.get.y)).transform(t)
-      g draw TextShape((correct360(round(activeAngle).toInt)).toString, Vector2D(startPoint.get.x, startPoint.get.y + 240).transform(t.rotate(round(-activeAngle), startPoint.get)), 12, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector2D(0.5,0.5)))
-      g draw guide.transform(t.rotate((((round(activeAngle)* -1)+360).toInt), startPoint.get))
+      g draw TextShape((correct360(round(activeAngle.get).toInt)).toString, Vector2D(startPoint.get.x, startPoint.get.y + 240).transform(t.rotate(round(-activeAngle.get), startPoint.get)), 12, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector2D(0.5,0.5)))
+      g draw guide.transform(t.rotate((((round(activeAngle.get)* -1)+360).toInt), startPoint.get))
 
       //draw inactive Angle Gizmo shapes
       val inactive45 = LineShape(Vector2D(startPoint.get.x, startPoint.get.y+50), Vector2D(startPoint.get.x, startPoint.get.y+100), Attributes("Color" -> "#CDCDCD".color))
