@@ -37,7 +37,7 @@ object Polyline extends Module {
         case MouseMove(point, _, _) :: tail => mousePosition = Some(point)
         case MouseDrag(point, _, _) :: tail => mousePosition = Some(point)
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-        case MouseDown(point, MouseButtonLeft, _):: tail => {
+        case MouseDown(point, _, _) :: tail => {
           // Add the point
           points = points :+ point
 
@@ -61,7 +61,6 @@ object Polyline extends Module {
             eventParser.snapTo(new AngleSnap(anglePoint.get, p))
           }
         }
-        case MouseUp(_, MouseButtonRight, _):: tail => Goto ('End)
         case KeyDown(Key.Enter, _) :: tail => Goto ('End)
         case KeyUp(Key.Space, _) :: tail => Goto ('End)
         case _ =>
