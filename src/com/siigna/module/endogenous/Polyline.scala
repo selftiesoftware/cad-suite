@@ -75,7 +75,7 @@ object Polyline extends Module {
         }
         case MouseDown(point, MouseButtonLeft, _):: tail => {
           //println("latest event MD: "+events.head)
-
+          println(point)
           //add the point set to the polylineShape
           points = points :+ point
 
@@ -109,11 +109,12 @@ object Polyline extends Module {
             coordinateX     = None
           }
         }
-        //goto second cooridinate if ENTER or TAB is pressed
+        //goto second coordinate if ENTER, COMMA, or TAB is pressed
         case KeyDown(Key.Enter | Key.Tab | ',', _) :: tail => {
           if (coordinateX.isEmpty && coordinateValue.length == 0) Goto('End)
           if (coordinateX.isEmpty && coordinateValue.length > 0) {
             coordinateX = Some(java.lang.Double.parseDouble(coordinateValue))
+            println("SECOND COORDINATE READY. X VALUE: "+coordinateX)
             coordinateValue = ""
           } else if (coordinateY.isEmpty && coordinateValue.length > 0) {
             coordinateY = Some(java.lang.Double.parseDouble(coordinateValue))
@@ -146,25 +147,22 @@ object Polyline extends Module {
                   else ""
           interface display "Enter coordinate (X: "+x+", Y: "+y+")."
         } else if (mousePosition.isDefined) {
-          val x = "%.3f" format (if (coordinateX.isDefined) coordinateX.get else mousePosition.get.x) - difference.x
+          val x = "%.3f" format (if (coordinateX.isDefined) coordinateX.get else mousePosition.get.x)
           val y = "%.3f" format mousePosition.get.y - difference.y
           interface display "Click to define coordinate (X: "+x+", Y: "+y+")."
         } else
           interface display "Enter (X, Y) or click to define coordinate."
         //if the next point has been typed, add it to the polyline:
+
         if (coordinateX.isDefined && coordinateY.isDefined ) {
           val x = coordinateX.get + difference.x
           val y = coordinateY.get + difference.y
-          println("X coord =: "+x)
-          println("Y coord =: "+y)
 
           //add the typed point to the polyline
           points = points :+ (Vector2D(x,y))
 
           //and store it in a var
-          println("PP before: "+previousPoint)
           previousPoint = Some(Vector2D(x,y))
-          println("PP after: "+previousPoint)
           //clear the coordinate vars
           coordinateX = None
           coordinateY = None
@@ -172,7 +170,8 @@ object Polyline extends Module {
         }
       }
       // save a PolylineShape from the points saved in shape
-      shape = PolylineShape.fromPoints(points)
+      if (points.size > 0)
+        shape = PolylineShape.fromPoints(points)
     }),
     'End -> ((events : List[Event]) => {
 
@@ -193,8 +192,14 @@ object Polyline extends Module {
       //draw a the current mouse position, transformed by the active radian if the angle gizmo is active
       if (x.isDefined && y.isDefined)
         g draw LineShape(Vector2D(x.get, y.get), previousPoint.get).transform(t)
-      else if (x.isDefined && mousePosition.isDefined)
+      else if (x.isDefined && !y.isDefined) {
+        println("relative x: "+x.get)
+        println("converted x: "+difference.x)
+        g draw LineShape(Vector2D((difference.x + x.get), mousePosition.get.y), previousPoint.get).transform(t)
+      }
+      else if (x.isDefined && mousePosition.isDefined) {
         g draw LineShape(Vector2D(x.get, mousePosition.get.y), previousPoint.get).transform(t)
+      }
       else if (mousePosition.isDefined)
         g draw LineShape(mousePosition.get, previousPoint.get).transform(t)
     g draw shape.transform(t)
