@@ -10,6 +10,8 @@ object Select extends Module {
 
   var box = Rectangle2D(Vector2D(0, 0), Vector2D(0, 0))
 
+  var hasBox : Boolean = false
+
   var closeToObjectOnStart = false
 
   //TODO: Temporary! Create a dynamic model...!
@@ -56,6 +58,7 @@ object Select extends Module {
         case MouseDrag(point, _, _) :: tail => {
           currentPoint = Some(point)
           box = Rectangle2D(startCoordinate.get, Vector2D(point.x,point.y))
+          hasBox = true
         }
           //if (closeToObjectOnStart && selectedShape.isDefined) {
           //  Goto('End)
@@ -116,6 +119,8 @@ object Select extends Module {
         }
         case _ =>
       }
+    //clear a flag used to determine whether to paint the selection box
+    hasBox = false
     })
   )
 
@@ -123,7 +128,7 @@ object Select extends Module {
     val enclosed = "Color" -> "#9999FF".color
     val focused  = "Color" -> "#FF9999".color
     if (state != 'End) {
-      g draw PolylineShape.fromRectangle(box).addAttribute("Color" -> (if (isEnclosed) "#88AA88".color else "#8888AA".color)).transform(t)
+      if (hasBox == true) g draw PolylineShape.fromRectangle(box).addAttribute("Color" -> (if (isEnclosed) "#88AA88".color else "#8888AA".color)).transform(t)
     }
 
     boxedShapes.foreach{ s => s match {

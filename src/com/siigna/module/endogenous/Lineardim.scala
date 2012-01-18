@@ -10,19 +10,25 @@ import com.siigna._
 object Lineardim extends Module {
 
   var currentMouse : Option[Vector2D] = None
+
   val color = "Color" -> "#AAAAAA".color
+
   def diaMark(point : Vector2D) = if (hasBothPoints)
       Some(LineShape((diaRotation1.get + point + normalUnitVector2D(points(1),points(2)) * scale) , (diaRotation2.get + point + normalUnitVector2D(points(1),points(2)) * scale)).addAttribute(color))
     else
       None
   def diaMark1 = if (hasBothPoints) diaMark(points(1)) else None
+
   def diaMark2 = if (hasBothPoints) diaMark(points(2)) else None
+
   def diaRotation(degree : Double) = if (hasBothPoints)
       Some(transformation.rotate(degree).transform(normalUnitVector2D(points(1),points(2)) * (scale/4)))
     else
       None
   def diaRotation1 = diaRotation(45)
+
   def diaRotation2 = diaRotation(225)
+
   def dimText : Option[Shape] = if (hasBothPoints)
       Some(TextShape((points(2)-(points(1))).length.toInt.toString , ((points(1) + normalUnitVector2D(points(1),points(2)) * scale*2.5) + (points(2)-points(1))/2) , scale, Attributes("AdjustToScale" -> true)))
     else
@@ -34,14 +40,20 @@ object Lineardim extends Module {
       None
 
   val eventHandler = EventHandler(stateMap, stateMachine)
+
   var finalOffset : Option[Vector2D] = None
+
   def hasBothPoints = (points.size >= 3)
+
   def normalShape(point : Vector2D) = if (hasBothPoints)
       Some(LineShape((point - normalUnitVector2D(points(2),points(1)) * (scale/2)) , (point + normalUnitVector2D(points(1),points(2)) * (scale*1.3))).addAttributes(color))
     else
       None
+
   def normalShape1 = if (hasBothPoints) normalShape(points(1)) else None
+
   def normalShape2 = if (hasBothPoints) normalShape(points(2)) else None
+
   def normalUnitVector2D(v1 : Vector2D, v2 : Vector2D) = {
     if (offsetSide == true)
       Vector2D((v2.x - v1.x) , (v2.y - v1.y)).normal.unit
@@ -49,18 +61,22 @@ object Lineardim extends Module {
       Vector2D((v2.y - v1.y), -(v2.x - v1.x)).unit // Normal*3 = Vector2D(y, -x)
   }
   var offsetSide : Boolean = false
+
   def dynamicA : Option[Shape] = if (currentMouse.isDefined)
       Some(LineShape((currentMouse.get + normalUnitVector2D(points(1),currentMouse.get) * scale) , (points(1) + normalUnitVector2D(points(1),currentMouse.get) * scale)).addAttributes(color))
     else
       None
-  def simpleA : Option[Shape] = if (currentMouse.isDefined)
+
+  def simpleA : Option[Shape] = if (currentMouse.isDefined && points.size > 0)
       Some(LineShape(currentMouse.get,(points(1))).addAttributes(color))
     else
       None
+
   def shapeA : Option[Shape] = if (hasBothPoints)
       Some(LineShape((points(2) + normalUnitVector2D(points(1),points(2)) * scale) , (points(1) + normalUnitVector2D(points(1),points(2)) * scale)).addAttributes(color))
     else
       None
+
   var transformation = TransformationMatrix()
   var norm = Vector2D(0,0)
   var points : List[Vector2D] = List()
@@ -80,7 +96,6 @@ object Lineardim extends Module {
         //set the first point of the dim line
         case MouseDown(p, _, _):: tail => {
           points = List(p)
-          println("points in start: "+points)
           Goto('SecondPoint)
         }
         case _ =>
@@ -97,7 +112,6 @@ object Lineardim extends Module {
         case MouseDown(p, _, _):: tail => {
 
             points = points :+ p
-            println("points in second: "+points)
 
         }
         case MouseUp(_, _, _)::tail => {
@@ -112,8 +126,6 @@ object Lineardim extends Module {
       events match {
         //point the mouse to the side the dim line should be offset
         case MouseMove(p, _, _):: tail => {
-
-          println("in select side: "+points)
           val line = points(2) - points(1)
           val point = points(1) - p
           val scalar = line.normal * point
@@ -154,7 +166,7 @@ object Lineardim extends Module {
     })
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
-    if (currentMouse.isDefined && !hasBothPoints) {
+    if (currentMouse.isDefined && !hasBothPoints && simpleA.isDefined && dynamicDimText.isDefined) {
       g draw simpleA.get.transform(t)
       g draw dynamicDimText.get.transform(t)
     }
