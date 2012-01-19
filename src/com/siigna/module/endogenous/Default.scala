@@ -124,10 +124,9 @@ object Default extends Module {
             //  ForwardTo('Print)
             //}
             case 'r' => {
-              //TODO: fix this!
-              interface.display("click (twice??) to draw rectangle")
-              Thread.sleep(500)
-              interface.clearDisplay()
+              //interface.display("click to draw rectangle")
+              //Thread.sleep(500)
+              //interface.clearDisplay()
               ForwardTo('Rectangle)
             }
             case 't' => {
