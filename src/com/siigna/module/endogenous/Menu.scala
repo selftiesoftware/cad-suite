@@ -21,7 +21,7 @@ object Menu extends Module {
   def eventHandler = new EventHandler(RadialMenuStateMap, stateMachine)
 
   // The center of the wheel
-  private var center : Option[Vector2D]         = None
+  var center : Option[Vector2D]         = None
 
   // The current active category
   private var currentCategory : MenuCategory  = Start
@@ -31,6 +31,9 @@ object Menu extends Module {
 
   // The position of the mouse at any given time
   private var mousePosition  = Vector2D(0, 0)
+
+  // the center after the radial menu is closed. Used if other modules need to know where it was (used in Color Wheel)
+  var oldCenter = Vector2D(0 ,0)
 
   // The transformation to use throughout the paint
   private var transformation = TransformationMatrix(Vector2D(0, 0), 1)
@@ -104,6 +107,7 @@ object Menu extends Module {
     'End -> ((events : List[Event]) => {
       // Set everything back to normal
       Siigna.navigation = true
+      oldCenter = center.get
       center = None
     })
   )

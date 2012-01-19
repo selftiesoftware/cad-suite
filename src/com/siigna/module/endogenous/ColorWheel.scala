@@ -71,7 +71,7 @@ object ColorWheel extends Module {
     //select a color
     'Start -> ((events : List[Event]) => {
       events match {
-        case MouseUp(point, _, _) :: tail => startPoint = Some(point)
+        case MouseUp(point, _, _) :: tail => startPoint = Some(Menu.oldCenter)
           Siigna.navigation = false // Make sure the rest of the program doesn't move
           eventParser.disable // Disable tracking and snapping
         case MouseMove(point, _, _) :: tail => relativeMousePosition = Some(point)

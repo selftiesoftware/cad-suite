@@ -62,11 +62,11 @@ object Polyline extends Module {
 
   val eventHandler = EventHandler(stateMap, stateMachine)
 
-  lazy val stateMap = DirectedGraph(
+  def stateMap = DirectedGraph(
     'Start        -> 'KeyEscape  -> 'End
   )
 
-  lazy val stateMachine = Map(
+  def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       //println("latest event ST: "+events.head)
       events match {
@@ -77,7 +77,7 @@ object Polyline extends Module {
         }
         case MouseDown(point, MouseButtonLeft, _):: tail => {
           //println("latest event MD: "+events.head)
-          println(point)
+
           //add the point set to the polylineShape
           points = points :+ point
 
