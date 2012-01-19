@@ -150,7 +150,8 @@ object Point extends Module {
       coordinateX = None
       coordinateY = None
       coordinateValue = ""
-      Message(point)
+      if(point.isDefined)
+        Message(point.get)
     }
   )
 )

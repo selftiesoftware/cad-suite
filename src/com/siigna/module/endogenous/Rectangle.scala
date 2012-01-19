@@ -34,7 +34,7 @@ object Rectangle extends Module {
         case Message(point : Vector2D) :: tail => {
           println("got message")
           points = points :+ point
-          //Goto('SecondPoint)
+          Goto('SecondPoint)
         }
         case MouseMove(position, _,_):: tail => ForwardTo('Point)
         case MouseUp(position, _,_):: tail =>
@@ -47,13 +47,9 @@ object Rectangle extends Module {
 
       events match {
         case MouseMove(position, _,_):: tail => {
-
-          if(points.length == 1)
-            shape = rectangleFromPoints(points(0),position)
-        }
-        case MouseDown(point, _, _) :: tail => {
-          if (points.length == 1)
-            ForwardTo('Point)
+          ForwardTo('Point)
+         //if(points.length == 1)
+         //   shape = rectangleFromPoints(points(0),position)
         }
         case Message(point : Vector2D) :: tail => {
           println("got second message. length: "+points.length)
