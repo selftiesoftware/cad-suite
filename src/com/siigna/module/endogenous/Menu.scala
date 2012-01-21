@@ -134,9 +134,9 @@ object Menu extends Module {
         // attributes accordingly.
         def getAttr(event : MenuEvent) =
           if (isActive(event))
-            "Color" -> "#444444".color
+            "Color" -> "#222222".color
           else
-            "Color" -> "#999999".color
+            "Color" -> "#BBBBBB".color
 
         // Gets a transformation matrix from a given event.
         // TODO: Refactor!
@@ -175,10 +175,14 @@ object Menu extends Module {
           if (item != currentCategory) {
             event.icon.foreach(s => g.draw(s.addAttribute(getAttr(event)).transform(newT)))
             if (scale < 1)
-              g draw TextShape(item.name.substring(0, 1), Vector2D(0, 0), newT.scaleFactor * 24, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))).transform(newT)
+              //draws the first letter of the inactive menus in the inner circle
+              g draw TextShape(item.name.substring(0, 1), Vector2D(0, 0), newT.scaleFactor * 44, Attributes("TextAlignment" -> Vector2D(0.5, 0.5), "Color" -> "#777777".color)).transform(newT)
             else
+              //draws menu titles for menus with a subcategory only
               g draw TextShape(item.name, Vector2D(0, 0), newT.scaleFactor * 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))).transform(newT)
-          } else {
+          }
+          else {
+              //draws the first letter of the active menu in the inner circle
               g draw TextShape(item.name.substring(0, 1), Vector2D(0, 0), newT.scaleFactor* 44, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))).transform(newT)
           }
 
@@ -217,7 +221,7 @@ object Menu extends Module {
               case category : MenuCategory => category.name
               case _ => " "
             }
-            g draw TextShape(tooltip, menuCenter + Vector2D(0, 170), 10).addAttribute("TextAlignment" -> Vector2D(0.5, 0))
+            g draw TextShape(tooltip, menuCenter + Vector2D(0, -40), 10).addAttribute("TextAlignment" -> Vector2D(0.5, 0))
           }
         })
         // Draws the parent category recursively

@@ -13,6 +13,17 @@ object Rectangle extends Module {
     val p4 = Vector2D(point2.x,point1.y)
     PolylineShape.fromPoints(p1,p2,p3,p4,p1)
   }
+  //a function that is used by the point module to draw the rectangle dynamically
+  def dynamicShape(point1 : Vector2D, point2 : Vector2D) = {
+    if(points.length > 0) {
+      val p1 = Vector2D(point1.x,point1.y)
+      val p2 = Vector2D(point1.x,point2.y)
+      val p3 = Vector2D(point2.x,point2.y)
+      val p4 = Vector2D(point2.x,point1.y)
+      PolylineShape.fromPoints(p1,p2,p3,p4,p1)
+    }
+    else None
+  }
 
   val eventHandler = new EventHandler(stateMap, stateMachine)
 
@@ -27,12 +38,9 @@ object Rectangle extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println("START in RECT")
-      println(events.head)
       events match {
         //if the point module returns a valid point, use this as the first corner of the rectangle.
         case Message(point : Vector2D) :: tail => {
-          println("got message")
           points = points :+ point
           Goto('SecondPoint)
         }
@@ -52,7 +60,6 @@ object Rectangle extends Module {
          //   shape = rectangleFromPoints(points(0),position)
         }
         case Message(point : Vector2D) :: tail => {
-          println("got second message. length: "+points.length)
           if(points.length == 2) {
             points = points :+ point
             shape = rectangleFromPoints(points(0),points(1))
@@ -65,15 +72,13 @@ object Rectangle extends Module {
       None
     }),
     'End -> ((events : List[Event]) => {
-      println(events.head)
-      println("in End points length: "+points.length)
       if (points.length == 3)
         Create(shape)
 
       points = List[Vector2D]()
       shape = PolylineShape.empty
-      println(events.head)
-      //Default.previousModule = Some('Rectangle)
+      //tell the default module that last module was rect, so that it can be recalled with SPACE
+      Default.previousModule = Some('Rectangle)
     })
   )
   override def paint(g : Graphics, t : TransformationMatrix) {

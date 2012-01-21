@@ -9,9 +9,6 @@ import app.controller.ModuleBank
 
 object Point extends Module {
 
-  var isGizmoCheckNeeded = false
-
-  var pointGuide : Option[PointGuide] = None
 
   // The AngleGuide is the guide that comes from the AngleGizmo
   private var angleGuide : Option[Double] = None
@@ -29,16 +26,24 @@ object Point extends Module {
   //input string for distances
   private var coordinateValue : String = ""
 
+  def difference : Vector2D = if (previousPoint.isDefined) previousPoint.get else Vector2D(0, 0)
+
+  var isGizmoCheckNeeded = false
+
   // Store the mousePosition, so we get the snap-coordinates
   private var mousePosition : Option[Vector2D] = None
 
   // The point
   private var point : Option[Vector2D] = None
 
+  var pointGuide : Option[PointGuide] = None
+
+  var previousPoint : Option[Vector2D] = None
+
   private var unfilteredX : Option[Double] = None
 
   // The polylineshape so far
-  private var shape : PolylineShape = PolylineShape.empty
+  private var shape : Option[Shape] = None
 
   // Preload AngleGizmo
   //Preload('AngleGizmo, "com.siigna.module.endogenous.AngleGizmo")
@@ -46,11 +51,19 @@ object Point extends Module {
   // Save the X value, if any
   def x : Option[Double] = if (!coordinateX.isEmpty)
       coordinateX
+    else if (coordinateValue.length > 0 && coordinateValue != "-")
+      Some(java.lang.Double.parseDouble(coordinateValue) + difference.x)
+    else if (coordinateX.isDefined)
+      Some(coordinateX.get + difference.x)
     else None
 
   // Save the Y value, if any
   def y : Option[Double] = if (coordinateY.isDefined)
       coordinateY
+    else if (coordinateX.isDefined && coordinateValue.length > 0 && coordinateValue != "-")
+      Some(java.lang.Double.parseDouble(coordinateValue) + difference.y)
+    else if (coordinateY.isDefined)
+      Some(coordinateY.get + difference.y)
     else None
 
   val eventHandler = EventHandler(stateMap, stateMachine)
@@ -61,13 +74,41 @@ object Point extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println("in point")
       events match {
-        case MouseMove(point, _, _) :: tail => mousePosition = Some(point)
+        //if the module receives a point guide, assign this to the var pointGuide
+        case (g : PointGuide) :: tail => {
+          pointGuide = Some(g)
+          println("guide: "+pointGuide)
+        }
+        case Message(shape : Shape) :: tail => {
+            shape match {
+              case LineShape(p1, p2, _) => previousPoint = Some(p2)
+              case _ =>
+            }
+            this.shape = Some(shape)
+        }
+        case MouseMove(point, _, _) :: tail => mousePosition = {
+          Some(point)
+        // Set the angle point
+        //anglePoint = Some(Siigna.mousePosition)
+
+        // Forward to angle gizmo
+        //ForwardTo('AngleGizmo)
+
+        //case Message(p : Double) :: tail => {
+        //  if (anglePoint.isDefined) {
+        //    angleGuide = Some(p)
+
+        // Since we got the angle we can now snap to the center point and the angle
+        //    eventParser.snapTo(new AngleSnap(anglePoint.get, p))
+        //  }
+        //}
+        }
         case MouseDrag(point, _, _) :: tail => mousePosition = Some(point)
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
         case MouseDown(p, MouseButtonLeft, _):: tail => {
           point = Some(p)
+
         }
         case KeyDown(Key.Backspace, _) :: tail => {
           if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
@@ -135,17 +176,14 @@ object Point extends Module {
         coordinateX = None
         coordinateY = None
         coordinateValue = ""
+
       }
     }
   ),
     'End -> ((events : List[Event]) => {
 
-      println("ENDING POINT MODULE")
-
-
-
       //Clear the variables
-      shape = PolylineShape.empty
+      shape = None
       //point = None
       coordinateX = None
       coordinateY = None
@@ -153,42 +191,38 @@ object Point extends Module {
       if(point.isDefined)
         Message(point.get)
     }
-  )
-)
+  ))
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    // Draw the crosshair
-    //if (coordinateX.isDefined) {
-    //  val color = new Color(0.2f, 0.2f, 0.2f, 0.65f)
-    //  val xToVirtual = Vector2D(x.get, 0).transform(t).x
-    //  val screenBottomRight = Siigna.screen.bottomRight
-    //  val screenTopLeft     = Siigna.screen.topLeft
-      //g draw LineShape(Vector2D(xToVirtual, screenTopLeft.y), Vector2D(xToVirtual, screenBottomRight.y)).addAttributes("Color" -> color)
-    //  if (y.isDefined) {
-    //   val yToVirtual = Vector2D(0, y.get).transform(t).y
-    //    g draw LineShape(Vector2D(screenTopLeft.x, yToVirtual), Vector2D(screenBottomRight.x, yToVirtual)).addAttributes("Color" -> color)
-    //    g draw LineShape(Vector2D(xToVirtual, yToVirtual), Vector2D(xToVirtual, yToVirtual)).transform(t)
-    //  }
+    // Draw a point guide with the new point as a parameter
+
+    //input:
+    //   Vector2D. A guide (the current point / mouse position
+
+    //return:
+    // Immutable Shape : if the calling module has passed a shape it is drawn, including the dynamic part.
+
+
+    val guide : Vector2D => ImmutableShape = {
+      //if there is no previous point, use
+      if (pointGuide.isDefined)
+        pointGuide.get.guide
+      else if (previousPoint.isDefined)
+        //the last field _ is replacable depending on how the point is constructed
+        LineShape(previousPoint.get, _)
     }
 
-    // Draw a point guide with the new point as a parameter
-    //val guide : Vector2D => ImmutableShape = if (pointGuide.isDefined)
-    //  pointGuide.get.guide
-    //else (previousPoint.isDefined)
-    //  LineShape(previousPoint.get, _)
-    //else PointShape(_)
-
-    //if (x.isDefined && y.isDefined)
-    //  g draw guide(Vector2D(x.get, y.get)).transform(t)
-    //else if (x.isDefined && mousePosition.isDefined)
-    //  g draw guide(Vector2D(x.get, mousePosition.get.y)).transform(t)
-    //else if (mousePosition.isDefined)
-    //  g draw guide(mousePosition.get).transform(t)
+    if (x.isDefined && y.isDefined)
+      g draw guide(Vector2D(x.get, y.get)).transform(t)
+    else if (x.isDefined && mousePosition.isDefined)
+      g draw guide(Vector2D(x.get, mousePosition.get.y)).transform(t)
+    else if (mousePosition.isDefined)
+      g draw guide(mousePosition.get).transform(t)
   }
 
-
+}
 
 /**
  * A class used to draw guides in the point module.
  */
-case class PointGuide(guide : Vector2D => ImmutableShape)
+case class PointGuide(guide : Vector => ImmutableShape)

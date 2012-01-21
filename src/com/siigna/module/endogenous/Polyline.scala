@@ -83,24 +83,8 @@ object Polyline extends Module {
 
           //and store it in a var.
           previousPoint = Some(point)
-
-          // Stop snapping
-          //eventParser.clearSnap()
-
-          // Set the angle point
-          //anglePoint = Some(Siigna.mousePosition)
-
-          // Forward to angle gizmo
-          //ForwardTo('AngleGizmo)
         }
-        //case Message(p : Double) :: tail => {
-        //  if (anglePoint.isDefined) {
-        //    angleGuide = Some(p)
 
-            // Since we got the angle we can now snap to the center point and the angle
-        //    eventParser.snapTo(new AngleSnap(anglePoint.get, p))
-        //  }
-        //}
         case MouseUp(_, MouseButtonRight, _):: tail => {
           Goto ('End)
         }
