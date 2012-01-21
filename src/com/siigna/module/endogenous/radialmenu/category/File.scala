@@ -19,6 +19,7 @@ case class File(parent : Option[MenuCategory]) extends MenuCategory {
     override def SSE = Some(MenuItem('Print, RadialMenuIcon.print))
     override def ESE = Some(MenuItem('Export, TextShape("Export", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
     override def ENE = Some(MenuItem('Import, TextShape("Import", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
-    override def SSW = Some(MenuItem('Open, TextShape("Open", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
+    override def WSW = Some(MenuItem('Open, TextShape("Open", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
+    override def WNW = Some(MenuItem('Save, TextShape("Save", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
 
 }

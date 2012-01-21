@@ -66,11 +66,13 @@ object Point extends Module {
   val eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap = DirectedGraph(
-    'Start         -> 'MouseUp   -> 'End
+    'Start         -> 'MouseUp   -> 'End,
+    'Start         -> 'KeyEscape   -> 'End
   )
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      println(events.head)
       events match {
         //if the module receives a point guide, assign this to the var pointGuide
         case Message(g : PointGuide) :: tail => {
@@ -160,7 +162,6 @@ object Point extends Module {
       // Display the message
       interface display message
 
-
       //if the next point has been typed, add it to the polyline:
 
       if (coordinateX.isDefined && coordinateY.isDefined ) {
@@ -170,7 +171,6 @@ object Point extends Module {
 
         //add the typed point to the polyline
         point = Some(Vector2D(x,y))
-
         // Save the previous point as the last given point
         //previousPoint = point
 
@@ -178,7 +178,7 @@ object Point extends Module {
         coordinateX = None
         coordinateY = None
         coordinateValue = ""
-
+        Goto('End)
       }
     }
   ),
