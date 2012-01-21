@@ -14,10 +14,11 @@ case class File(parent : Option[MenuCategory]) extends MenuCategory {
 
     def name = "File"
 
-    override def NNE = Some(MenuItem('Export, TextShape("Embed", Vector2D(0, 0), 10, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
-    override def NNW = Some(MenuItem('Export, TextShape("Get URL", Vector2D(0, 0), 10, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
+    override def NNE = Some(MenuItem('Export, TextShape("Embed", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
+    override def NNW = Some(MenuItem('Export, TextShape("Get URL", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
     override def SSE = Some(MenuItem('Print, RadialMenuIcon.print))
-    override def ESE = Some(MenuItem('Export, TextShape("Export", Vector2D(0, 0), 10, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
-    override def ENE = Some(MenuItem('Import, TextShape("Import", Vector2D(0, 0), 10, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
+    override def ESE = Some(MenuItem('Export, TextShape("Export", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
+    override def ENE = Some(MenuItem('Import, TextShape("Import", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
+    override def SSW = Some(MenuItem('Open, TextShape("Open", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
 
 }

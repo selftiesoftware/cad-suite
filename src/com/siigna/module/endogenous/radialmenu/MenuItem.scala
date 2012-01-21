@@ -14,4 +14,4 @@ object MenuItem {
   def apply(module : Symbol, icon : Shape) = new MenuItem(module, Iterable[Shape](icon))
 }
 
-case class MenuItemEmpty(text : String) extends MenuItem('None, Iterable(TextShape(text, Vector2D(0, 0), 10, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
+case class MenuItemEmpty(text : String) extends MenuItem('None, Iterable(TextShape(text, Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))

@@ -44,8 +44,8 @@ object Arc extends Module {
         val middle = normalVector2D + ((points(0) + point) / 2)
         ArcShape(points(0), middle, point)
       }
-      ForwardTo('Point)
-      Message(PointGuide(guide))
+      //ForwardTo('Point)
+      //Message(PointGuide(guide))
     }),
     'SecondPoint -> ((events : List[Event]) => {
       events match {
@@ -62,8 +62,8 @@ object Arc extends Module {
         val middle = normalVector2D + ((points(0) + points(1)) / 2)
         ArcShape(points(0), point, points(1))
       }
-      ForwardTo('Point)
-      Message(PointGuide(guide))
+      //ForwardTo('Point)
+      //Message(PointGuide(guide))
       None
     }),
     'End -> ((events : List[Event]) => {
