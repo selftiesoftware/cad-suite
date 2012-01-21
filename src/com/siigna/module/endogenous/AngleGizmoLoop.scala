@@ -43,6 +43,4 @@ class AngleGizmoLoop extends Thread {
     }
   }
 
-
-
 }
