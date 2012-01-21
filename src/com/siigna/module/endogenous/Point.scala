@@ -2,10 +2,7 @@
 
 package com.siigna.module.endogenous
 
-import java.awt.Color
-
 import com.siigna._
-import app.controller.ModuleBank
 
 object Point extends Module {
 
@@ -76,19 +73,11 @@ object Point extends Module {
     'Start -> ((events : List[Event]) => {
       events match {
         //if the module receives a point guide, assign this to the var pointGuide
-        case (g : PointGuide) :: tail => {
+        case Message(g : PointGuide) :: tail => {
           pointGuide = Some(g)
-          println("guide: "+pointGuide)
         }
-        case Message(shape : Shape) :: tail => {
-            shape match {
-              case LineShape(p1, p2, _) => previousPoint = Some(p2)
-              case _ =>
-            }
-            this.shape = Some(shape)
-        }
-        case MouseMove(point, _, _) :: tail => mousePosition = {
-          Some(point)
+        case MouseMove(point, _, _) :: tail => {
+          mousePosition = Some(point)
         // Set the angle point
         //anglePoint = Some(Siigna.mousePosition)
 
@@ -149,19 +138,29 @@ object Point extends Module {
       }
       // END CASE MATCHES.
 
-      if (coordinateValue.length > 0) {
+      // Format the x and y coordinate and store the message in a value
+      val message = if (coordinateValue.length > 0) {
         val x = if (coordinateX.isDefined) "%.3f" format coordinateX.get
                 else coordinateValue
         val y = if (coordinateY.isDefined) "%.3f" format coordinateY.get
                 else if (coordinateX.isDefined) coordinateValue
                 else ""
-        interface display "point (X: "+x+", Y: "+y+")."
+
+        // Save the message
+        "point (X: "+x+", Y: "+y+")."
       } else if (mousePosition.isDefined) {
         val x = "%.3f" format (if (coordinateX.isDefined) coordinateX.get else mousePosition.get.x)
         val y = "%.3f" format mousePosition.get.y
-        interface display "point (X: "+x+", Y: "+y+")."
-      } else
-        interface display "click or type point"
+
+        "point (X: "+x+", Y: "+y+")."
+      } else {
+        "click or type point"
+      }
+
+      // Display the message
+      interface display message
+
+
       //if the next point has been typed, add it to the polyline:
 
       if (coordinateX.isDefined && coordinateY.isDefined ) {
@@ -171,6 +170,9 @@ object Point extends Module {
 
         //add the typed point to the polyline
         point = Some(Vector2D(x,y))
+
+        // Save the previous point as the last given point
+        //previousPoint = point
 
         //clear the coordinate vars
         coordinateX = None
@@ -202,22 +204,26 @@ object Point extends Module {
     //return:
     // Immutable Shape : if the calling module has passed a shape it is drawn, including the dynamic part.
 
+    // Draw a point guide if a previous point (or guide) is found.
+    if (pointGuide.isDefined || previousPoint.isDefined) {
+      val guide : Vector2D => ImmutableShape = {
+        //if there is no previous point, use
+        if (pointGuide.isDefined) {
+          pointGuide.get.guide
+        } else {
+          //the last field _ is replacable depending on how the point is constructed
+          LineShape(previousPoint.get, _)
+        }
+      }
 
-    val guide : Vector2D => ImmutableShape = {
-      //if there is no previous point, use
-      if (pointGuide.isDefined)
-        pointGuide.get.guide
-      else if (previousPoint.isDefined)
-        //the last field _ is replacable depending on how the point is constructed
-        LineShape(previousPoint.get, _)
+      // Draw the point guide depending on which information is available
+      if (x.isDefined && y.isDefined)
+        g draw guide(Vector2D(x.get, y.get)).transform(t)
+      else if (x.isDefined && mousePosition.isDefined)
+        g draw guide(Vector2D(x.get, mousePosition.get.y)).transform(t)
+      else if (mousePosition.isDefined)
+        g draw guide(mousePosition.get).transform(t)
     }
-
-    if (x.isDefined && y.isDefined)
-      g draw guide(Vector2D(x.get, y.get)).transform(t)
-    else if (x.isDefined && mousePosition.isDefined)
-      g draw guide(Vector2D(x.get, mousePosition.get.y)).transform(t)
-    else if (mousePosition.isDefined)
-      g draw guide(mousePosition.get).transform(t)
   }
 
 }

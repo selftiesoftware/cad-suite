@@ -21,7 +21,7 @@ object Select extends Module {
   var currentPoint : Option[Vector2D] = None
 
   // should be: def isEnclosed : Boolean = (box.p1.x <= box.p2.x)
-  def isEnclosed : Boolean = (startCoordinate.get.x <= currentPoint.get.x)
+  def isEnclosed : Boolean = startCoordinate.isDefined && currentPoint.isDefined && (startCoordinate.get.x <= currentPoint.get.x)
 
   def stateMap     = DirectedGraph(
     'Start -> 'MouseMove -> 'Box,
