@@ -17,6 +17,10 @@ object Save extends Module {
 
   def dbShape (shapeId: Int, point1Id: Int, point2Id: Int) = new PgsqlSaveShapeLine().postgresSaveShapeLine(_, _, _, _, _, _)
 
+ // def getPointFromShape(shape : Shape) : List[Vector2D] = shape match {
+ //   case p : PolylineShape => p.shapes.foldLeft(List[Vector2D]()) (list, shape)
+ // }
+
   //definition of the coordinates
   var x1 : Option[Int] = None
   var y1 : Option[Int] = None
@@ -65,11 +69,14 @@ object Save extends Module {
       }
       //save the data
       else {
-        val list = selectedShape.toList
-        var p1 : Vector2D = Vector2D(0,0)
-        val polylineShape = list.head
-
-        println("first item: "+polylineShape)
+        //the result is a set that need to be converted:
+        selectedShape foreach (_ match {
+          case l : PolylineShape => {
+            println(l)
+            //println(l.shapes.foldLeft(List[Vector2D]()) ((list, shape) => list ++ getPointFromShape(shape)))
+          }
+          case _ => println("incompatible shape")
+        })
 
         x1 = Some(10)
         y1 = Some(50)

@@ -217,12 +217,12 @@ object Point extends Module {
       }
 
       // Draw the point guide depending on which information is available
-      if (x.isDefined && y.isDefined)
-        g draw guide(Vector2D(x.get, y.get)).transform(t)
-      else if (x.isDefined && mousePosition.isDefined)
-        g draw guide(Vector2D(x.get, mousePosition.get.y)).transform(t)
-      else if (mousePosition.isDefined)
-        g draw guide(mousePosition.get).transform(t)
+      //if (x.isDefined && y.isDefined)
+      //  g draw guide(Vector2D(x.get, y.get)).transform(t)
+      //else if (x.isDefined && mousePosition.isDefined)
+      //  g draw guide(Vector2D(x.get, mousePosition.get.y)).transform(t)
+      //else if (mousePosition.isDefined)
+      //  g draw guide(mousePosition.get).transform(t)
     }
   }
 
