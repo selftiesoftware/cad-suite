@@ -14,34 +14,6 @@ import radialmenu.{RadialMenuIcon, MenuEvent, MenuItem}
 
 object Weight extends Module {
 
-  val transp = 1.00f
-
-  //colors, inspired by crayola crayons: http://en.wikipedia.org/wiki/List_of_Crayola_crayon_colors
-  lazy val black       = new Color(0.00f, 0.00f, 0.00f, transp)
-  lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, transp)
-  lazy val dimgrey     = new Color(0.40f, 0.40f, 0.40f, transp)
-  lazy val grey        = new Color(0.60f, 0.60f, 0.60f, transp)
-  lazy val darkGrey    = new Color(0.75f, 0.75f, 0.75f, transp)
-  lazy val lightGrey   = new Color(0.90f, 0.90f, 0.90f, transp)
-  lazy val yellow      = new Color(1.00f, 1.00f, 0.40f, transp)
-  lazy val orange      = new Color(1.00f, 0.75f, 0.30f, transp)
-  lazy val orangeRed   = new Color(0.95f, 0.45f, 0.22f, transp)
-  lazy val red         = new Color(0.95f, 0.12f, 0.30f, transp)
-  lazy val radicalRed  = new Color(0.95f, 0.14f, 0.46f, transp)
-  lazy val violetRed   = new Color(0.95f, 0.15f, 0.58f, transp)
-  lazy val magenta     = new Color(0.95f, 0.15f, 0.80f, transp)
-  lazy val plum        = new Color(0.64f, 0.18f, 0.85f, transp)
-  lazy val purple      = new Color(0.35f, 0.22f, 0.90f, transp)
-  lazy val blue        = new Color(0.12f, 0.25f, 0.95f, transp)
-  lazy val navyBlue    = new Color(0.10f, 0.45f, 0.95f, transp)
-  lazy val pasificBlue = new Color(0.10f, 0.65f, 0.95f, transp)
-  lazy val cyan        = new Color(0.10f, 0.95f, 0.95f, transp)
-  lazy val turquise    = new Color(0.10f, 0.95f, 0.75f, transp)
-  lazy val caribbean   = new Color(0.10f, 0.95f, 0.50f, transp)
-  lazy val green       = new Color(0.10f, 0.95f, 0.10f, transp)
-  lazy val lime        = new Color(0.50f, 0.95f, 0.15f, transp)
-  lazy val yellowGreen = new Color(0.65f, 0.95f, 0.15f, transp)
-
   var activeAngle : Double = 0
   var relativeMousePosition : Option[Vector2D] = None
   var startPoint : Option[Vector2D] = None
@@ -83,31 +55,7 @@ object Weight extends Module {
         case MouseDown(point, _, _) :: tail => {
           relativeMousePosition = Some(point)
 
-          //set the color
-          if (activeAngle == 0) {activeColor = Some(black)}
-          else if (activeAngle == 15) {activeColor = Some(yellowGreen)}
-          else if (activeAngle == 30) {activeColor = Some(lime)}
-          else if (activeAngle == 45) {activeColor = Some(green)}
-          else if (activeAngle == 60) {activeColor = Some(caribbean)}
-          else if (activeAngle == 75) {activeColor = Some(turquise)}
-          else if (activeAngle == 90) {activeColor = Some(cyan)}
-          else if (activeAngle == 105) {activeColor = Some(pasificBlue)}
-          else if (activeAngle == 120) {activeColor = Some(navyBlue)}
-          else if (activeAngle == 135) {activeColor = Some(blue)}
-          else if (activeAngle == 150) {activeColor = Some(purple)}
-          else if (activeAngle == 165) {activeColor = Some(plum)}
-          else if (activeAngle == 180) {activeColor = Some(magenta)}
-          else if (activeAngle == 195) {activeColor = Some(violetRed)}
-          else if (activeAngle == 210) {activeColor = Some(radicalRed)}
-          else if (activeAngle == 225) {activeColor = Some(red)}
-          else if (activeAngle == 240) {activeColor = Some(orangeRed)}
-          else if (activeAngle == 255) {activeColor = Some(orange)}
-          else if (activeAngle == 270) {activeColor = Some(yellow)}
-          else if (activeAngle == 285) {activeColor = Some(lightGrey)}
-          else if (activeAngle == 300) {activeColor = Some(darkGrey)}
-          else if (activeAngle == 315) {activeColor = Some(grey)}
-          else if (activeAngle == 330) {activeColor = Some(dimgrey)}
-          else if (activeAngle == 345) {activeColor = Some(anthracite)}
+
           Goto('End)
         }
         case _ =>
@@ -151,38 +99,23 @@ object Weight extends Module {
       }
 
       // Draw the color icons
-      drawFill(black,0)
-      drawFill(anthracite,345)
-      drawFill(dimgrey,330)
-      drawFill(grey,315)
-      drawFill(darkGrey,300)
-      drawFill(lightGrey,285)
-      drawFill(yellow,270)
-      drawFill(orange,255)
-      drawFill(orangeRed,240)
-      drawFill(red,225)
-      drawFill(radicalRed,210)
-      drawFill(violetRed,195)
-      drawFill(magenta,180)
-      drawFill(plum,165)
-      drawFill(purple,150)
-      drawFill(blue,135)
-      drawFill(navyBlue,120)
-      drawFill(pasificBlue,105)
-      drawFill(cyan,90)
-      drawFill(turquise,75)
-      drawFill(caribbean,60)
-      drawFill(green,45)
-      drawFill(lime,30)
-      drawFill(yellowGreen,15)
+      drawFill(zero,0)
+      drawFill(pointOhNine,345)
+      drawFill(pointOneFive,330)
+      drawFill(pointOneEight,315)
+      drawFill(pointTwo,300)
+      drawFill(pointTwoFive,285)
+      drawFill(pointThree,270)
+      drawFill(pointThreeFive,255)
+      drawFill(pointFour,240)
 
       //draw a border around the active color
       val distanceToCentre = startPoint.get - relativeMousePosition.get
 
       if (distanceToCentre.length > 80 && distanceToCentre.length < 130 )  {
 
-      g draw colorIcon.transform(t.rotate(activeAngle-180))
-      g draw colorActive.transform(t.rotate(activeAngle-180))
+      //g draw colorIcon.transform(t.rotate(activeAngle-180))
+      //g draw colorActive.transform(t.rotate(activeAngle-180))
 
       }
       //draw the color wheel icon outlines

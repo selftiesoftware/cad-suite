@@ -37,6 +37,21 @@ object Save extends Module {
     'Start -> ((events : List[Event]) => {
       //display a message instructing to drag a selection around the lines that should e saved to the database
       interface display("select lines to save to database")
+
+
+
+    var pointPlId : Seq[Int] = Seq()
+    pointPlId = pointPlId :+ 7 :+ 8 :+ 0 :+ 89 :+ 86 :+ 0 :+ 2 :+ 3 :+ 0 :+ 7 :+ 6 :+ 0 :+ 2 :+ 4 :+ 0 :+ 33 :+ 1 :+ 0
+    val (shapeId1: Int, pointPlIdReturn) = new pgsqlSaveShapePolyline().postgresSaveShapePolyline(pointPlId)
+    println(shapeId1)
+    println(pointPlIdReturn)
+
+      //test:
+      //siigna.php
+      //selectedShape * from shape
+      //select * from shape_point
+      //select * from shape_point_relation
+
       events match {
         //if a message is returned from the select module, use the geometry that has been passed
         case Message(shapes : Set[Shape]) :: tail => {
