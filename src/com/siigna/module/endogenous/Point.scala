@@ -95,10 +95,7 @@ object Point extends Module {
         }
         case MouseDrag(point, _, _) :: tail => mousePosition = Some(point)
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-        case MouseDown(p, MouseButtonLeft, _):: tail => {
-          point = Some(p)
-
-        }
+        case MouseDown(p, MouseButtonLeft, _):: tail => point = Some(p)
         case KeyDown(Key.Backspace, _) :: tail => {
           if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
           else if (coordinateX.isDefined) {
@@ -181,15 +178,18 @@ object Point extends Module {
     }
   ),
     'End -> ((events : List[Event]) => {
-
       //Clear the variables
       shape = None
       //point = None
       coordinateX = None
       coordinateY = None
       coordinateValue = ""
-      if(point.isDefined)
-        Message(point.get)
+
+      // Reset the point guide
+      pointGuide = None
+
+      // Return a point if it was defined
+      if(point.isDefined) Message(point.get)
     }
   ))
 
@@ -209,18 +209,18 @@ object Point extends Module {
         if (pointGuide.isDefined) {
           pointGuide.get.guide
         } else {
-          //the last field _ is replacable depending on how the point is constructed
+          //the last field _ is replaceable depending on how the point is constructed
           LineShape(previousPoint.get, _)
         }
       }
 
       // Draw the point guide depending on which information is available
-      //if (x.isDefined && y.isDefined)
-      //  g draw guide(Vector2D(x.get, y.get)).transform(t)
-      //else if (x.isDefined && mousePosition.isDefined)
-      //  g draw guide(Vector2D(x.get, mousePosition.get.y)).transform(t)
-      //else if (mousePosition.isDefined)
-      //  g draw guide(mousePosition.get).transform(t)
+      if (x.isDefined && y.isDefined)
+        g draw guide(Vector2D(x.get, y.get)).transform(t)
+      else if (x.isDefined && mousePosition.isDefined)
+        g draw guide(Vector2D(x.get, mousePosition.get.y)).transform(t)
+      else if (mousePosition.isDefined)
+        g draw guide(mousePosition.get).transform(t)
     }
   }
 
@@ -229,4 +229,4 @@ object Point extends Module {
 /**
  * A class used to draw guides in the point module.
  */
-case class PointGuide(guide : Vector => ImmutableShape)
+case class PointGuide(guide : Vector2D => ImmutableShape)

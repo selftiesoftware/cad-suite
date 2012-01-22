@@ -99,7 +99,7 @@ object Weight extends Module {
       }
 
       // Draw the color icons
-      drawFill(zero,0)
+      /*drawFill(zero,0)
       drawFill(pointOhNine,345)
       drawFill(pointOneFive,330)
       drawFill(pointOneEight,315)
@@ -107,7 +107,7 @@ object Weight extends Module {
       drawFill(pointTwoFive,285)
       drawFill(pointThree,270)
       drawFill(pointThreeFive,255)
-      drawFill(pointFour,240)
+      drawFill(pointFour,240)    */
 
       //draw a border around the active color
       val distanceToCentre = startPoint.get - relativeMousePosition.get
