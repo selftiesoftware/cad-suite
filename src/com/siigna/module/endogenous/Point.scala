@@ -158,7 +158,7 @@ object Point extends Module {
       }
 
       // Display the message
-      interface display message
+      Siigna display message
 
       //if the next point has been typed, add it to the polyline:
 

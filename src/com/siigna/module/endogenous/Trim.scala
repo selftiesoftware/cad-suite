@@ -46,7 +46,7 @@ object Trim extends Module {
           trimGuide = Some(Model.selected.head.shape)
           Goto('StartSelection)
         } else {
-          interface.display("Select an object to trim objects by")
+          Siigna.display("Select an object to trim objects by")
           ForwardTo('Select)
         }
       }
@@ -74,7 +74,7 @@ object Trim extends Module {
 
   //StartSelection: Start selecting line(s).
   'StartSelection -> ((events : List[Event]) => {
-      interface.display("click or drag mouse to trim lines")
+    Siigna.display("click or drag mouse to trim lines")
       events match {
         case MouseUp(p2, _, _) :: _ :: MouseDown(p1, _, _) :: tail => {
           if ((p2 - p1).length <= 2) {

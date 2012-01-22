@@ -29,16 +29,16 @@ object Export extends Module {
           case "dxf" => exportToDXF(filename, directory)
           case ""    => {
               exportToDXF(filename+".dxf", directory) // TODO: Change default?
-              interface display "No fileextension found. Exporting DXF as default to "+filename+".dxf."
+            Siigna display "No fileextension found. Exporting DXF as default to "+filename+".dxf."
           }
-          case t => interface display "Unsupported file extension. Export cancelled."
+          case t => Siigna display "Unsupported file extension. Export cancelled."
         }
 
         dialog.dispose
         frame.dispose
 
       } catch {
-        case e => interface display "Export cancelled."
+        case e => Siigna display "Export cancelled."
       }
       Goto('End)
       None

@@ -34,7 +34,7 @@ object Default extends Module {
   def stateMachine = Map( 'Start -> ((events : List[Event]) => {
     nearestShape = Model(Siigna.mousePosition)
       if (firstStart == true) {
-        interface.display("Siigna modules ver. 0.1.11.6 (421 kb")
+        Siigna.display("Siigna modules ver. 0.1.11.6 (421 kb")
         firstStart = false
       }
       events match {
@@ -45,9 +45,9 @@ object Default extends Module {
         }
         case MouseDown(point, MouseButtonRight, _) :: tail          => {
           if (firstMenuLoad == true) {
-            interface.display("...loading modules, please wait")
+            Siigna.display("...loading modules, please wait")
             Thread.sleep(500)
-            interface.clearDisplay()
+            Siigna.clearDisplay()
 
             ForwardTo('Menu)
 
@@ -91,9 +91,9 @@ object Default extends Module {
             }
             case 'a' => {
               if (previousKey == Some('c')) {
-                interface.display("artline")
+                Siigna.display("artline")
                 Thread.sleep(100)
-                interface.clearDisplay()
+                Siigna.clearDisplay()
                 ForwardTo('Artline)
                 previousKey = Some('a')
               }
@@ -102,9 +102,9 @@ object Default extends Module {
             //TODO: fix circle shortcut (circle does not draw)
             case 'c' => {
               if(previousKey == 'c') {
-                interface.display("draw circle")
+                Siigna.display("draw circle")
                 Thread.sleep(300)
-                interface.clearDisplay()
+                Siigna.clearDisplay()
                 ForwardTo('Circle)
               }
               //open the CREATE menu
@@ -117,9 +117,9 @@ object Default extends Module {
             }
             case 'd' => {
               if (previousKey == Some('c')) {
-                interface.display("dimension")
+                Siigna.display("dimension")
                 Thread.sleep(100)
-                interface.clearDisplay()
+                Siigna.clearDisplay()
                 ForwardTo('Lineardim)
                 previousKey = Some('d')
               }
@@ -148,9 +148,9 @@ object Default extends Module {
             }
             case 'l' => {
               if (previousKey == Some('c')) {
-                interface.display("polyline")
+                Siigna.display("polyline")
                 Thread.sleep(100)
-                interface.clearDisplay()
+                Siigna.clearDisplay()
                 ForwardTo('Polyline)
                 previousKey = Some('l')
               }
@@ -165,9 +165,9 @@ object Default extends Module {
             //}
             case 'r' => {
               if (previousKey == Some('c')) {
-                interface.display("rectangle")
+                Siigna.display("rectangle")
                 Thread.sleep(100)
-                interface.clearDisplay()
+                Siigna.clearDisplay()
                 ForwardTo('Rectangle)
                 previousKey = Some('r')
               }
@@ -176,9 +176,9 @@ object Default extends Module {
             //open the PROPERTIES menu
             case 'p' => {
               if(previousKey == Some('f')) {
-                interface.display("print")
+                Siigna.display("print")
                 Thread.sleep(300)
-                interface.clearDisplay()
+                Siigna.clearDisplay()
                 previousKey = Some('p')
                 ForwardTo('Print)
               }
@@ -192,9 +192,9 @@ object Default extends Module {
             }
             case 't' => {
               if (previousKey == Some('c')) {
-                interface.display("text")
+                Siigna.display("text")
                 Thread.sleep(100)
-                interface.clearDisplay()
+                Siigna.clearDisplay()
                 ForwardTo('Text)
                 previousKey = Some('t')
               }

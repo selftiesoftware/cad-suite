@@ -49,7 +49,7 @@ object Rectangle extends Module {
     }),
     'SecondPoint -> ((events : List[Event]) => {
       //clear any messages that might be visible
-      interface.clearDisplay()
+      Siigna.clearDisplay()
 
       events match {
         case MouseMove(position, _, _):: tail => {
