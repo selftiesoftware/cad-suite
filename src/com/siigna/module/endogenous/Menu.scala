@@ -104,13 +104,13 @@ object Menu extends Module {
           interact(currentCategory, direction, 1, level) match {
             case Some(category : MenuCategory) => currentCategory = category
             case Some(item : MenuItem)         => {
-                if (item.module != 'None) {
-                  Goto('End)
-                  ForwardTo(item.module)
+              if (item.module != 'None) {
+                Goto('End)
+                ForwardTo(item.module)
 
-                  // Save the previous module
-                  Default.previousModule = Some(item.module)
-                }
+                // Save the previous module
+                Default.previousModule = Some(item.module)
+              }
             }
             case None => if (level == 3) currentCategory = Start
           }
