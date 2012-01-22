@@ -1,13 +1,13 @@
 /* 2010 (C) Copyright by Siigna, all rights reserved. */
 
-package com.siigna.module.endogenous
+//package com.siigna.module.endogenous
 
-import com.siigna.app.controller.pgsql_handler._
+//import com.siigna.app.controller.pgsql_handler._
 
 
 
 //siigna
-import com.siigna._
+/*import com.siigna._
 
 object Save extends Module {
 
@@ -96,3 +96,4 @@ object Save extends Module {
     })
   )
 }
+     */
