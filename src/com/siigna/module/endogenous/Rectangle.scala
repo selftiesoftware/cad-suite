@@ -67,19 +67,16 @@ object Rectangle extends Module {
             Goto('End)
           }
         }
-        case MouseUp(_, _, _) :: tail =>
-        case _ =>
+        case _ => ForwardTo('Point)
       }
-      None
     }),
     'End -> ((events : List[Event]) => {
       if (points.length == 3)
         Create(shape)
 
+      // Clear variables
       points = List[Vector2D]()
       shape = PolylineShape.empty
-      //tell the default module that last module was rect, so that it can be recalled with SPACE
-      Default.previousModule = Some('Rectangle)
     })
   )
   override def paint(g : Graphics, t : TransformationMatrix) {

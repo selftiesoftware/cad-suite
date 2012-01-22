@@ -108,6 +108,9 @@ object Menu extends Module {
                 if (item.module != 'None) {
                   Goto('End)
                   ForwardTo(item.module)
+
+                  // Save the previous module
+                  Default.previousModule = Some(item.module)
                 }
             }
             case None => if (level == 3) currentCategory = Start

@@ -34,17 +34,7 @@ object Default extends Module {
   def stateMachine = Map( 'Start -> ((events : List[Event]) => {
     nearestShape = Model(Siigna.mousePosition)
       if (firstStart == true) {
-        interface.display("Siigna modules ver. 0.1.11.7 (421 kb")
-        Thread.sleep(130)
-        interface.display("Zoom: scroll the mouse wheel")
-        Thread.sleep(180)
-        interface.display("Pan: Press the mouse wheel and drag")
-        //Thread.sleep(220)
-        Thread.sleep(180)
-        interface.display("Right click to start")
-        //Thread.sleep(400)
-        Thread.sleep(160)
-        interface.clearDisplay()
+        interface.display("Siigna modules ver. 0.1.11.6 (421 kb")
         firstStart = false
       }
       events match {
@@ -56,10 +46,11 @@ object Default extends Module {
         case MouseDown(point, MouseButtonRight, _) :: tail          => {
           if (firstMenuLoad == true) {
             interface.display("...loading modules, please wait")
-            //Thread.sleep(200)
             Thread.sleep(500)
             interface.clearDisplay()
+
             ForwardTo('Menu)
+
             //preload commonly used modules
             Preload('Polyline)
             Preload('Artline)
