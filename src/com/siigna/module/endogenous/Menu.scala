@@ -90,8 +90,9 @@ object Menu extends Module {
     'InteractionTest -> ((events : List[Event]) => {
       events match {
         //forward to the 'End and then Default menu if a key is pressed
-        case KeyDown(key, _) :: tail => {
-          lastKey = Some(key)
+        case KeyUp(key, _) :: (e : KeyDown) :: tail => {
+          (println("got last key: "+e))
+          lastKey = Some(e)
           Goto('End)
         }
 
@@ -148,7 +149,8 @@ object Menu extends Module {
       oldCenter = center.get
       center = None
       if(lastKey.isDefined)
-        Send(Message(some(lastKey)))
+        println("sending message: "+lastKey)
+        Send(lastKey.get)
     })
   )
 

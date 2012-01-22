@@ -32,7 +32,6 @@ object Default extends Module {
   var previousKey :Option[Char] = None
 
   def stateMachine = Map( 'Start -> ((events : List[Event]) => {
-    println("in Default: "+events.head)
     nearestShape = Model(Siigna.mousePosition)
       if (firstStart == true) {
         interface.display("Siigna modules ver. 0.1.11.7 (421 kb")
@@ -72,10 +71,15 @@ object Default extends Module {
           else ForwardTo('Menu)
         }
 
-        //KEY INPUTS
+        //special key inputs
         case KeyDown(('z' | 'Z'), ModifierKeys(_, true, _)) :: tail => Model.undo
         case KeyDown(('y' | 'Y'), ModifierKeys(_, true, _)) :: tail => Model.redo
         case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => Model.selectAll
+
+        //ignore mouse up events
+        case KeyUp(key, _) :: tail =>
+
+        //match key down events
         case KeyDown(key, _) :: tail => {
           println(key)
           key.toChar match {
