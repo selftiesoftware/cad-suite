@@ -44,21 +44,15 @@ object Rectangle extends Module {
           points = points :+ point
           Goto('SecondPoint)
         }
-        case MouseMove(position, _,_):: tail => ForwardTo('Point)
-        case MouseUp(position, _,_):: tail =>
-        case _ =>
+        case _ => ForwardTo('Point)
       }
+      //Message(PointGuide(PolylineShape()))
     }),
     'SecondPoint -> ((events : List[Event]) => {
       //clear any messages that might be visible
       interface.clearDisplay()
 
       events match {
-        case MouseMove(position, _,_):: tail => {
-          ForwardTo('Point)
-         //if(points.length == 1)
-         //   shape = rectangleFromPoints(points(0),position)
-        }
         case Message(point : Vector2D) :: tail => {
           if(points.length == 2) {
             points = points :+ point
@@ -66,19 +60,16 @@ object Rectangle extends Module {
             Goto('End)
           }
         }
-        case MouseUp(_, _, _) :: tail =>
-        case _ =>
+        case _ => ForwardTo('Point)
       }
-      None
     }),
     'End -> ((events : List[Event]) => {
       if (points.length == 3)
         Create(shape)
 
+      // Clear variables
       points = List[Vector2D]()
       shape = PolylineShape.empty
-      //tell the default module that last module was rect, so that it can be recalled with SPACE
-      Default.previousModule = Some('Rectangle)
     })
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
