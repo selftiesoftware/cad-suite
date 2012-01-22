@@ -13,7 +13,7 @@ trait MenuCategory extends MenuElement {
   /**
    * The color used for background-filling.
    */
-  val color : java.awt.Color
+  def color : java.awt.Color
 
   /**
    * The name of the category.
@@ -23,7 +23,7 @@ trait MenuCategory extends MenuElement {
   /**
    * The parent of the category if any.
    */
-  val parent : Option[MenuCategory]
+  def parent : Option[MenuCategory]
 
   def C   : Option[MenuCategory] = Some(Start)
 
