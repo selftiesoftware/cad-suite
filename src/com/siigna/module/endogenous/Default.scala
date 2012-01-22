@@ -3,7 +3,9 @@
 package com.siigna.module.endogenous
 
 import com.siigna._
-import com.siigna.module.endogenous.radialmenu._
+import com.siigna.module.endogenous.radialmenu.category._
+import com.siigna.module.endogenous.radialmenu.category.{Create => MenuCreate}
+import sys.Prop
 
 /**
 * The default module for the endogenous module pack. Works as access point to
@@ -92,8 +94,6 @@ object Default extends Module {
             case 'a' => {
               if (previousKey == Some('c')) {
                 Siigna.display("artline")
-                Thread.sleep(100)
-                Siigna.clearDisplay()
                 ForwardTo('Artline)
                 previousKey = Some('a')
               }
@@ -103,14 +103,11 @@ object Default extends Module {
             case 'c' => {
               if(previousKey == 'c') {
                 Siigna.display("draw circle")
-                Thread.sleep(300)
-                Siigna.clearDisplay()
                 ForwardTo('Circle)
               }
               //open the CREATE menu
               else {
-                message = "Create"
-                Send(Message(message))
+                Send(Message(MenuCreate(Some(Start))))
                 ForwardTo('Menu)
                 previousKey = Some('c')
               }
@@ -118,8 +115,6 @@ object Default extends Module {
             case 'd' => {
               if (previousKey == Some('c')) {
                 Siigna.display("dimension")
-                Thread.sleep(100)
-                Siigna.clearDisplay()
                 ForwardTo('Lineardim)
                 previousKey = Some('d')
               }
@@ -127,30 +122,25 @@ object Default extends Module {
             }
             //open the FILE menu
             case 'f' => {
-                message = "File"
-                Send(Message(message))
+                Send(Message(File(Some(Start))))
                 ForwardTo('Menu)
                 previousKey = Some('f')
             }
             //open the HELPERS menu
             case 'h' => {
-                message = "Helpers"
-                Send(Message(message))
+                Send(Message(Helpers(Some(Start))))
                 ForwardTo('Menu)
                 previousKey = Some('f')
             }
             //open the MODIFY menu
             case 'm' => {
-                message = "Modify"
-                Send(Message(message))
+                Send(Message(Modify(Some(Start))))
                 ForwardTo('Menu)
                 previousKey = Some('m')
             }
             case 'l' => {
               if (previousKey == Some('c')) {
                 Siigna.display("polyline")
-                Thread.sleep(100)
-                Siigna.clearDisplay()
                 ForwardTo('Polyline)
                 previousKey = Some('l')
               }
@@ -166,8 +156,6 @@ object Default extends Module {
             case 'r' => {
               if (previousKey == Some('c')) {
                 Siigna.display("rectangle")
-                Thread.sleep(100)
-                Siigna.clearDisplay()
                 ForwardTo('Rectangle)
                 previousKey = Some('r')
               }
@@ -177,15 +165,12 @@ object Default extends Module {
             case 'p' => {
               if(previousKey == Some('f')) {
                 Siigna.display("print")
-                Thread.sleep(300)
-                Siigna.clearDisplay()
                 previousKey = Some('p')
                 ForwardTo('Print)
               }
-              //open the CREATE menu
+              //open the PROPERTIES menu
               else {
-                message = "Properties"
-                Send(Message(message))
+                Send(Message(Properties(Some(Start))))
                 ForwardTo('Menu)
                 previousKey = Some('p')
               }
@@ -193,8 +178,6 @@ object Default extends Module {
             case 't' => {
               if (previousKey == Some('c')) {
                 Siigna.display("text")
-                Thread.sleep(100)
-                Siigna.clearDisplay()
                 ForwardTo('Text)
                 previousKey = Some('t')
               }

@@ -56,27 +56,10 @@ object Menu extends Module {
     'Start -> ((events : List[Event]) => {
       events match {
         //if a Menu Category is received as a message from the Default module, display that category
-        case Message(message : String) :: tail => {
-          if(message == "Create")
-            center = Some(Vector2D(0,0))
-            initializeMenu()
-          if(message == "Helpers")
-            center = Some(Vector2D(0,0))
-            currentCategory = Helpers(Some(Start))
-            initializeMenu()
-          if(message == "Modify")
-            center = Some(Vector2D(0,0))
-          //pas på, har ingen parent bliver måske tegnet mærkeligt
-            currentCategory = Modify(Some(Start))
-            initializeMenu()
-          if(message == "Properties")
-            center = Some(Vector2D(0,0))
-            currentCategory = Properties(Some(Start))
-            initializeMenu()
-          if(message == "File")
-            center = Some(Vector2D(0,0))
-            currentCategory = File(Some(Start))
-            initializeMenu()
+        case Message(category : MenuCategory) :: tail => {
+          center = Some(Vector2D(0, 0))
+          currentCategory = category
+          initializeMenu()
         }
         case MouseDown(point, MouseButtonRight, _) :: tail => {
           center = Some(point)
@@ -164,7 +147,6 @@ object Menu extends Module {
    * of the icons, origining from the center.
    */
   override def paint(g : Graphics, transformation : TransformationMatrix) {
-    println("Paint: " + currentCategory)
     // Saves a transformationMatrix, that is fixed to the center and
     // independent of the zoom-level, since we don't want our menu
     // to scale up and down.
