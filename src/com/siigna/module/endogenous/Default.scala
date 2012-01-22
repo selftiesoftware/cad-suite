@@ -3,6 +3,8 @@
 package com.siigna.module.endogenous
 
 import com.siigna._
+import com.siigna.module.endogenous.radialmenu._
+import category.{Modify, MenuCategory}
 
 /**
 * The default module for the endogenous module pack. Works as access point to
@@ -19,15 +21,16 @@ object Default extends Module {
   var firstStart : Boolean = true
   var firstMenuLoad : Boolean = true
 
-  /**
-   * The nearest shape to the current mouse position.
-   */
+   //The nearest shape to the current mouse position.
   var nearestShape : Option[Shape] = None
 
-  /**
-   * The last module this module forwarded to, if any.
-   */
+  private var message : String = ""
+
+  //The last module this module forwarded to, if any.
   var previousModule : Option[Symbol] = None
+
+  //store the latest Key Event to be able to see whether a category (C,H,E,P, or F) was chosen before
+  var previousKey :Option[Char] = None
 
   def stateMachine = Map( 'Start -> ((events : List[Event]) => {
       nearestShape = Model(Siigna.mousePosition)
@@ -87,28 +90,64 @@ object Default extends Module {
               Thread.sleep(300)
               interface.clearDisplay()
               previousModule = Some('Artline)
+              previousKey = Some('a')
               ForwardTo('Artline)
             }
             //TODO: fix circle shortcut (circle does not draw)
-            //case 'c' => {
-            //  interface.display("draw circle")
-            //  Thread.sleep(300)
-            //  interface.clearDisplay()
-            //  ForwardTo('Circle)
-            //}
+            case 'c' => {
+              if(previousKey == 'c') {
+                interface.display("draw circle")
+                Thread.sleep(300)
+                interface.clearDisplay()
+                ForwardTo('Circle)
+              }
+              //open the CREATE menu
+              else {
+                message = "Create"
+                Send(Message(message))
+                ForwardTo('Menu)
+                previousKey = Some('c')
+              }
+            }
             case 'd' => {
               interface.display("click to create linear dimension line")
               Thread.sleep(300)
               interface.clearDisplay()
+              previousKey = Some('d')
               ForwardTo('Lineardim)
             }
-            case 'l' => {
-              interface.display("draw polyline")
-              Thread.sleep(300)
-              interface.clearDisplay()
-              ForwardTo('Polyline)
+            //open the FILE menu
+            case 'f' => {
+                message = "File"
+                Send(Message(message))
+                ForwardTo('Menu)
+                previousKey = Some('f')
             }
-            //TODO: fix opening print dialog with shortcut - opens again again (last event (p) continously evoked??)
+            //open the HELPERS menu
+            case 'h' => {
+                message = "Helpers"
+                Send(Message(message))
+                ForwardTo('Menu)
+                previousKey = Some('f')
+            }
+            //open the MODIFY menu
+            case 'm' => {
+                message = "Modify"
+                Send(Message(message))
+                ForwardTo('Menu)
+                previousKey = Some('m')
+            }
+            case 'l' => {
+              println(previousKey)
+              if (previousKey == 'c') {
+                interface.display("draw polyline")
+                Thread.sleep(300)
+                interface.clearDisplay()
+                ForwardTo('Polyline)
+              }
+              else previousKey = Some('l')
+            }
+            //TODO: fix opening print dialog with shortcut - opens again & again (last event (p) continously evoked??)
             //case 'p' => {
             //  interface.display("opening print dialog")
             //  Thread.sleep(500)
@@ -119,12 +158,21 @@ object Default extends Module {
               //interface.display("click to draw rectangle")
               //Thread.sleep(500)
               //interface.clearDisplay()
+              previousKey = Some('r')
               ForwardTo('Rectangle)
+            }
+            //open the PROPERTIES menu
+            case 'p' => {
+                message = "Properties"
+                Send(Message(message))
+                ForwardTo('Menu)
+                previousKey = Some('p')
             }
             case 't' => {
               interface.display("click (twice??) to place text")
               Thread.sleep(500)
               interface.clearDisplay()
+              previousKey = Some('t')
               ForwardTo('Text)
             }
             case _ =>

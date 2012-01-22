@@ -6,7 +6,7 @@ import com.siigna._
 
 object Rectangle extends Module {
 
-  def rectangleFromPoints(point1 : Vector2D, point2 : Vector2D) = {
+  def rectangleFromPoints(point1 : Vector2D, point2 : Vector2D) : PolylineShape = {
     val p1 = Vector2D(point1.x,point1.y)
     val p2 = Vector2D(point1.x,point2.y)
     val p3 = Vector2D(point2.x,point2.y)
@@ -14,15 +14,12 @@ object Rectangle extends Module {
     PolylineShape.fromPoints(p1,p2,p3,p4,p1)
   }
   //a function that is used by the point module to draw the rectangle dynamically
-  def dynamicShape(point1 : Vector2D, point2 : Vector2D) = {
-    if(points.length > 0) {
+  def pointGuide(point1 : Vector2D, point2 : Vector2D) = {
       val p1 = Vector2D(point1.x,point1.y)
       val p2 = Vector2D(point1.x,point2.y)
       val p3 = Vector2D(point2.x,point2.y)
       val p4 = Vector2D(point2.x,point1.y)
       PolylineShape.fromPoints(p1,p2,p3,p4,p1)
-    }
-    else None
   }
 
   val eventHandler = new EventHandler(stateMap, stateMachine)
@@ -32,8 +29,10 @@ object Rectangle extends Module {
   var shape : PolylineShape = PolylineShape.empty
 
   def stateMap = DirectedGraph(
-    'SecondPoint -> 'KeyEscape   -> 'End,
-    'Start       -> 'KeyEscape   -> 'End
+
+    'Start       -> 'KeyEscape   -> 'End,
+    //'SecondPoint -> 'KeyDown     -> 'Point,
+    'SecondPoint -> 'KeyEscape   -> 'End
   )
 
   def stateMachine = Map(
@@ -44,15 +43,23 @@ object Rectangle extends Module {
           points = points :+ point
           Goto('SecondPoint)
         }
+        //if there is no point, go to the point module
         case _ => ForwardTo('Point)
       }
-      //Message(PointGuide(PolylineShape()))
     }),
     'SecondPoint -> ((events : List[Event]) => {
       //clear any messages that might be visible
       interface.clearDisplay()
 
       events match {
+        case MouseMove(position, _, _):: tail => {
+          //make a function here that passes a rectangleShape to the point module to be drawn dynamically
+          //from the first point to the mouse position
+          Send(Message(pointGuide(_ ,_)))
+          ForwardTo('Point)
+         //if(points.length == 1)
+         //   shape = rectangleFromPoints(points(0),position)
+        }
         case Message(point : Vector2D) :: tail => {
           if(points.length == 2) {
             points = points :+ point

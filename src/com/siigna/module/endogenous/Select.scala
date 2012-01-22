@@ -58,7 +58,6 @@ object Select extends Module {
         case MouseDrag(point, _, _) :: tail => {
           currentPoint = Some(point)
           box = Rectangle2D(startCoordinate.get, Vector2D(point.x,point.y))
-          hasBox = true
         }
           //if (closeToObjectOnStart && selectedShape.isDefined) {
           //  Goto('End)
@@ -121,6 +120,7 @@ object Select extends Module {
       }
     //clear a flag used to determine whether to paint the selection box
     hasBox = false
+    Send(Message(boxedShapes))
     })
   )
 

@@ -29,6 +29,16 @@ object Menu extends Module {
   // The distance to draw the icons; Used in the initiation of the menu module to animate the icons.
   private var distanceScale : Double = 1
 
+  //defining the parameters needed to start the menu
+  def initializeMenu() {
+
+    // Make sure the rest of the program doesn't move
+    Siigna.navigation = false
+
+    // Disable tracking and snapping
+    eventParser.disable
+  }
+
   // The position of the mouse at any given time
   private var mousePosition  = Vector2D(0, 0)
 
@@ -41,22 +51,45 @@ object Menu extends Module {
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {
+        //if a Menu Category is received as a message from the Default module, display that category
+        case Message(message : String) :: tail => {
+          if(message == "Create")
+            center = Some(Vector2D(0,0))
+            currentCategory = Start
+            initializeMenu()
+          if(message == "Helpers")
+            center = Some(Vector2D(0,0))
+            currentCategory = Start
+            initializeMenu()
+          if(message == "Modify")
+            center = Some(Vector2D(0,0))
+            currentCategory = Start
+            initializeMenu()
+          if(message == "Properties")
+            center = Some(Vector2D(0,0))
+            currentCategory = Start
+            initializeMenu()
+          if(message == "File")
+            center = Some(Vector2D(0,0))
+            currentCategory = Start
+            initializeMenu()
+        }
         case MouseDown(point, MouseButtonRight, _) :: tail => {
-          // Initialize the menu
-          center          = Some(point)
+          center = Some(point)
           currentCategory = Start
-
-          // Make sure the rest of the program doesn't move
-          Siigna.navigation = false
-
-          // Disable tracking and snapping
-          eventParser.disable
+          initializeMenu()
         }
         case _ => Goto('InteractionTest, false)
       }
     }),
     'InteractionTest -> ((events : List[Event]) => {
       events match {
+        //forward to the 'End and then Default menu if a key is pressed
+        case KeyDown(key, _) :: tail => {
+          println(key)
+          Goto('End)
+        }
+
         case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
         case MouseUp(point, _, _) :: tail => {
           val direction = this.direction(point)
@@ -112,6 +145,7 @@ object Menu extends Module {
       Siigna.navigation = true
       oldCenter = center.get
       center = None
+
     })
   )
 
