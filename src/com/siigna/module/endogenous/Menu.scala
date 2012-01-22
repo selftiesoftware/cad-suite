@@ -59,7 +59,6 @@ object Menu extends Module {
         case Message(message : String) :: tail => {
           if(message == "Create")
             center = Some(Vector2D(0,0))
-            currentCategory = MenuCreate(Some(Start))
             initializeMenu()
           if(message == "Helpers")
             center = Some(Vector2D(0,0))
@@ -106,6 +105,7 @@ object Menu extends Module {
             case Some(item : MenuItem)         => {
                 if (item.module != 'None) {
                   Goto('End)
+                  Preload(item.module)
                   ForwardTo(item.module)
 
                   // Save the previous module
@@ -125,7 +125,9 @@ object Menu extends Module {
 
           // Make the interaction!
           interact(currentCategory, direction, 1, deltaLevel) match {
-            case Some(category : MenuCategory) => currentCategory = category
+            case Some(category : MenuCategory) => {
+              currentCategory = category
+            }
             case Some(item : MenuItem)         => {
                 if (item.module != 'None) {
                   Goto('End)
@@ -162,6 +164,7 @@ object Menu extends Module {
    * of the icons, origining from the center.
    */
   override def paint(g : Graphics, transformation : TransformationMatrix) {
+    println("Paint: " + currentCategory)
     // Saves a transformationMatrix, that is fixed to the center and
     // independent of the zoom-level, since we don't want our menu
     // to scale up and down.

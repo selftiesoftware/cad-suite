@@ -27,20 +27,20 @@ object Import extends Module {
         val fileDir = dialog.getDirectory
         val file = new File(fileDir + fileName)
 
-        interface display "Loading file... Please wait."
+        Siigna display "Loading file... Please wait."
 
         val sections : List[DXFSection] = sanitize(file)
 
         val shapes : List[Shape] = sections.map(_.toShape.getOrElse(None)).filterNot(_ == None).asInstanceOf[List[Shape]]
 
-        interface display "Loading completed."
+        Siigna display "Loading completed."
 
         Goto('End)
         frame.dispose() // Dispose of the frame so the thread can close down.
         Create(shapes) // Create the shapes
       } catch {
         case e => {
-          interface display "Import cancelled."
+          Siigna display "Import cancelled."
           Goto('End)
         }
       }

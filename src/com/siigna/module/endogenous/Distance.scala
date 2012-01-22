@@ -49,7 +49,7 @@ object Distance extends Module {
 
     'Draw -> ((events : List[Event]) => {
       if (p1.isDefined && p2.isDefined) {
-        interface.display("distance:  " + ((p2.get-p1.get).length.round) + " millimeters")
+        Siigna.display("distance:  " + ((p2.get-p1.get).length.round) + " millimeters")
       }
     }),
 

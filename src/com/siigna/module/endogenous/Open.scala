@@ -22,7 +22,7 @@ object Open extends Module {
       try {
 
         //val shapes : Iterable[Shape] = lines
-        interface display "Loading not possible yet."
+        Siigna display "Loading not possible yet."
 
         Goto('End)
 
@@ -30,7 +30,7 @@ object Open extends Module {
         //Create(shapes)
       } catch {
         case e => {
-          interface display "Open cancelled."
+          Siigna display "Open cancelled."
           Goto('End)
         }
       }
