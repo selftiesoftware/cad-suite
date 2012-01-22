@@ -6,7 +6,6 @@ import com.siigna._
 
 object Point extends Module {
 
-
   // The AngleGuide is the guide that comes from the AngleGizmo
   private var angleGuide : Option[Double] = None
 
@@ -72,7 +71,6 @@ object Point extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println(events.head)
       events match {
         //if the module receives a point guide, assign this to the var pointGuide
         case Message(g : PointGuide) :: tail => {

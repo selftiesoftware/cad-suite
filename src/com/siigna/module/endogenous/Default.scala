@@ -72,7 +72,6 @@ object Default extends Module {
 
         //match key down events
         case KeyDown(key, _) :: tail => {
-          println(key)
           key.toChar match {
             case Key.Backspace | Key.Delete => {
               if (Model.isSelected) {
@@ -91,12 +90,14 @@ object Default extends Module {
               if (previousModule.isDefined) ForwardTo(previousModule.get)
             }
             case 'a' => {
-              interface.display("draw artline")
-              Thread.sleep(300)
-              interface.clearDisplay()
-              previousModule = Some('Artline)
-              previousKey = Some('a')
-              ForwardTo('Artline)
+              if (previousKey == Some('c')) {
+                interface.display("artline")
+                Thread.sleep(100)
+                interface.clearDisplay()
+                ForwardTo('Artline)
+                previousKey = Some('a')
+              }
+              else previousKey = Some('a')
             }
             //TODO: fix circle shortcut (circle does not draw)
             case 'c' => {
@@ -115,11 +116,14 @@ object Default extends Module {
               }
             }
             case 'd' => {
-              interface.display("click to create linear dimension line")
-              Thread.sleep(300)
-              interface.clearDisplay()
-              previousKey = Some('d')
-              ForwardTo('Lineardim)
+              if (previousKey == Some('c')) {
+                interface.display("dimension")
+                Thread.sleep(100)
+                interface.clearDisplay()
+                ForwardTo('Lineardim)
+                previousKey = Some('d')
+              }
+              else previousKey = Some('d')
             }
             //open the FILE menu
             case 'f' => {
@@ -143,11 +147,12 @@ object Default extends Module {
                 previousKey = Some('m')
             }
             case 'l' => {
-              if (previousKey == 'c') {
-                interface.display("draw polyline")
-                Thread.sleep(300)
+              if (previousKey == Some('c')) {
+                interface.display("polyline")
+                Thread.sleep(100)
                 interface.clearDisplay()
                 ForwardTo('Polyline)
+                previousKey = Some('l')
               }
               else previousKey = Some('l')
             }
@@ -159,16 +164,17 @@ object Default extends Module {
             //  ForwardTo('Print)
             //}
             case 'r' => {
-              //interface.display("click to draw rectangle")
-              //Thread.sleep(500)
-              //interface.clearDisplay()
-              previousKey = Some('r')
-              ForwardTo('Rectangle)
+              if (previousKey == Some('c')) {
+                interface.display("rectangle")
+                Thread.sleep(100)
+                interface.clearDisplay()
+                ForwardTo('Rectangle)
+                previousKey = Some('r')
+              }
+              else previousKey = Some('l')
             }
             //open the PROPERTIES menu
             case 'p' => {
-              println("got p")
-              println("previous: "+previousKey)
               if(previousKey == Some('f')) {
                 interface.display("print")
                 Thread.sleep(300)
@@ -185,11 +191,14 @@ object Default extends Module {
               }
             }
             case 't' => {
-              interface.display("click (twice??) to place text")
-              Thread.sleep(500)
-              interface.clearDisplay()
-              previousKey = Some('t')
-              ForwardTo('Text)
+              if (previousKey == Some('c')) {
+                interface.display("text")
+                Thread.sleep(100)
+                interface.clearDisplay()
+                ForwardTo('Text)
+                previousKey = Some('t')
+              }
+              else previousKey = Some('t')
             }
             case _ =>
           }

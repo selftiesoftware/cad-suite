@@ -4,6 +4,8 @@ package com.siigna.module.endogenous
 
 import com.siigna.app.controller.pgsql_handler._
 
+
+
 //siigna
 import com.siigna._
 
@@ -11,7 +13,7 @@ object Save extends Module {
 
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 
-  private var hasShape = false
+  private var hasShape  = false
 
   lazy val stateMap     = DirectedGraph  ('Start     -> 'KeyEscape -> 'End)
 

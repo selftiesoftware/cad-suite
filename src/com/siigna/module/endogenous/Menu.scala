@@ -59,24 +59,24 @@ object Menu extends Module {
         case Message(message : String) :: tail => {
           if(message == "Create")
             center = Some(Vector2D(0,0))
-            currentCategory = MenuCreate(None)
+            currentCategory = MenuCreate(Some(Start))
             initializeMenu()
           if(message == "Helpers")
             center = Some(Vector2D(0,0))
-            currentCategory = Helpers(None)
+            currentCategory = Helpers(Some(Start))
             initializeMenu()
           if(message == "Modify")
             center = Some(Vector2D(0,0))
           //pas på, har ingen parent bliver måske tegnet mærkeligt
-            currentCategory = Modify(None)
+            currentCategory = Modify(Some(Start))
             initializeMenu()
           if(message == "Properties")
             center = Some(Vector2D(0,0))
-            currentCategory = Properties(None)
+            currentCategory = Properties(Some(Start))
             initializeMenu()
           if(message == "File")
             center = Some(Vector2D(0,0))
-            currentCategory = File(None)
+            currentCategory = File(Some(Start))
             initializeMenu()
         }
         case MouseDown(point, MouseButtonRight, _) :: tail => {
@@ -91,7 +91,6 @@ object Menu extends Module {
       events match {
         //forward to the 'End and then Default menu if a key is pressed
         case KeyUp(key, _) :: (e : KeyDown) :: tail => {
-          (println("got last key: "+e))
           lastKey = Some(e)
           Goto('End)
         }
@@ -149,11 +148,12 @@ object Menu extends Module {
     'End -> ((events : List[Event]) => {
       // Set everything back to normal
       Siigna.navigation = true
-      oldCenter = center.get
+      if(center.isDefined)
+        oldCenter = center.get
       center = None
       if(lastKey.isDefined)
-        println("sending message: "+lastKey)
         Send(lastKey.get)
+      lastKey = None
     })
   )
 
