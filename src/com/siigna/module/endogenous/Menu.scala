@@ -10,6 +10,7 @@ import com.siigna.module.endogenous.radialmenu._
 import com.siigna._
 
 import category._
+import com.siigna.module.endogenous.radialmenu.category.{Create => MenuCreate}
 
 /**
  * The menu module. This module shows the menu as radial items and categories in 13 places (directions):
@@ -39,6 +40,9 @@ object Menu extends Module {
     eventParser.disable
   }
 
+  //a var to pass on the last key down back to Default, to check if it is needed to activate a shortcut
+  var lastKey : Option[KeyDown] = None
+
   // The position of the mouse at any given time
   private var mousePosition  = Vector2D(0, 0)
 
@@ -55,23 +59,24 @@ object Menu extends Module {
         case Message(message : String) :: tail => {
           if(message == "Create")
             center = Some(Vector2D(0,0))
-            currentCategory = Start
+            currentCategory = MenuCreate(None)
             initializeMenu()
           if(message == "Helpers")
             center = Some(Vector2D(0,0))
-            currentCategory = Start
+            currentCategory = Helpers(None)
             initializeMenu()
           if(message == "Modify")
             center = Some(Vector2D(0,0))
-            currentCategory = Start
+          //pas på, har ingen parent bliver måske tegnet mærkeligt
+            currentCategory = Modify(None)
             initializeMenu()
           if(message == "Properties")
             center = Some(Vector2D(0,0))
-            currentCategory = Start
+            currentCategory = Properties(None)
             initializeMenu()
           if(message == "File")
             center = Some(Vector2D(0,0))
-            currentCategory = Start
+            currentCategory = File(None)
             initializeMenu()
         }
         case MouseDown(point, MouseButtonRight, _) :: tail => {
@@ -86,7 +91,7 @@ object Menu extends Module {
       events match {
         //forward to the 'End and then Default menu if a key is pressed
         case KeyDown(key, _) :: tail => {
-          println(key)
+          lastKey = Some(key)
           Goto('End)
         }
 
@@ -142,7 +147,8 @@ object Menu extends Module {
       Siigna.navigation = true
       oldCenter = center.get
       center = None
-
+      if(lastKey.isDefined)
+        Send(Message(some(lastKey)))
     })
   )
 

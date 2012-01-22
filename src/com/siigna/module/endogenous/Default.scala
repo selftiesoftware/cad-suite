@@ -4,7 +4,6 @@ package com.siigna.module.endogenous
 
 import com.siigna._
 import com.siigna.module.endogenous.radialmenu._
-import category.{Modify, MenuCategory}
 
 /**
 * The default module for the endogenous module pack. Works as access point to
@@ -33,7 +32,8 @@ object Default extends Module {
   var previousKey :Option[Char] = None
 
   def stateMachine = Map( 'Start -> ((events : List[Event]) => {
-      nearestShape = Model(Siigna.mousePosition)
+    println("in Default: "+events.head)
+    nearestShape = Model(Siigna.mousePosition)
       if (firstStart == true) {
         interface.display("Siigna modules ver. 0.1.11.7 (421 kb")
         Thread.sleep(130)
@@ -77,6 +77,7 @@ object Default extends Module {
         case KeyDown(('y' | 'Y'), ModifierKeys(_, true, _)) :: tail => Model.redo
         case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => Model.selectAll
         case KeyDown(key, _) :: tail => {
+          println(key)
           key.toChar match {
             case Key.Backspace | Key.Delete => {
               if (Model.isSelected) {
@@ -147,7 +148,6 @@ object Default extends Module {
                 previousKey = Some('m')
             }
             case 'l' => {
-              println(previousKey)
               if (previousKey == 'c') {
                 interface.display("draw polyline")
                 Thread.sleep(300)
@@ -172,10 +172,22 @@ object Default extends Module {
             }
             //open the PROPERTIES menu
             case 'p' => {
+              println("got p")
+              println("previous: "+previousKey)
+              if(previousKey == Some('f')) {
+                interface.display("print")
+                Thread.sleep(300)
+                interface.clearDisplay()
+                previousKey = Some('p')
+                ForwardTo('Print)
+              }
+              //open the CREATE menu
+              else {
                 message = "Properties"
                 Send(Message(message))
                 ForwardTo('Menu)
                 previousKey = Some('p')
+              }
             }
             case 't' => {
               interface.display("click (twice??) to place text")
