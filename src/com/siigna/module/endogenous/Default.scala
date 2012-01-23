@@ -102,7 +102,7 @@ object Default extends Module {
             //TODO: fix circle shortcut (circle does not draw)
             case 'c' => {
               if(previousKey == 'c') {
-                Siigna.display("draw circle")
+                Siigna.display("circle")
                 ForwardTo('Circle)
               }
               //open the CREATE menu
@@ -113,9 +113,15 @@ object Default extends Module {
               }
             }
             case 'd' => {
-              if (previousKey == Some('c')) {
+              println("previous: "+previousKey)
+              if(previousKey == Some('c')) {
                 Siigna.display("dimension")
                 ForwardTo('Lineardim)
+                previousKey = Some('d')
+              }
+              else if(previousKey == Some('h')) {
+                Siigna.display("distance?")
+                ForwardTo('Distance)
                 previousKey = Some('d')
               }
               else previousKey = Some('d')
@@ -130,7 +136,7 @@ object Default extends Module {
             case 'h' => {
                 Send(Message(Helpers(Some(Start))))
                 ForwardTo('Menu)
-                previousKey = Some('f')
+                previousKey = Some('h')
             }
             //open the MODIFY menu
             case 'm' => {
