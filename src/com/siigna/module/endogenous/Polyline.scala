@@ -24,17 +24,23 @@ object Polyline extends Module {
   )
 
   def stateMachine = Map(
+
     'Start -> ((events : List[Event]) => {
+      events match {
+        case _ => Goto('Point)
+      }
+    }),
+    'Point -> ((events : List[Event]) => {
       events match {
         //if the point module returns a valid point, use this as the first corner of the rectangle.
         case Message(point : Vector2D) :: tail => {
           points = points :+ point
-        }
-        case MouseMove(position, _,_):: tail => {
           ForwardTo('Point)
         }
-        case MouseUp(position, _,_):: tail =>
-        //case KeyDown(key, _) :: tail => ForwardTo('Point)
+        case MouseUp(position, MouseButtonLeft,_):: tail => ForwardTo('Point)
+        case MouseDown(position, _,_):: tail => ForwardTo('Point)
+        case MouseUp(_, MouseButtonRight,_):: tail => Goto('End)
+
         case _ => Goto('End)
       }
 

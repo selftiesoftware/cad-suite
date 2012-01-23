@@ -78,7 +78,6 @@ object Point extends Module {
         }
         case MouseMove(point, _, _) :: tail => {
           mousePosition = Some(point)
-
         // Set the angle point
         //anglePoint = Some(Siigna.mousePosition)
 
@@ -95,7 +94,11 @@ object Point extends Module {
         //}
         }
         case MouseDrag(point, _, _) :: tail => mousePosition = Some(point)
-        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
+        case MouseDown(_, MouseButtonRight, _) :: tail => {
+          //exit without sending on a point
+          point = None
+          Goto('End)
+        }
         case MouseDown(p, MouseButtonLeft, _):: tail => {
           point = Some(p)
 
@@ -170,8 +173,6 @@ object Point extends Module {
         //convert the relative coordinates a global point by adding the latest point
         val x = coordinateX.get + difference.x
         val y = coordinateY.get + difference.y
-
-        println("difference: "+difference.x)
 
         //add the typed point to the polyline
         point = Some(Vector2D(x,y))

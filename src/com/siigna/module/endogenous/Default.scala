@@ -113,7 +113,6 @@ object Default extends Module {
               }
             }
             case 'd' => {
-              println("previous: "+previousKey)
               if(previousKey == Some('c')) {
                 Siigna.display("dimension")
                 ForwardTo('Lineardim)
