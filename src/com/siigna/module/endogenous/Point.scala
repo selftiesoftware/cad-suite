@@ -225,19 +225,15 @@ object Point extends Module {
       // Draw the point guide depending on which information is available
       if (x.isDefined && y.isDefined) {
         g draw guide(Vector2D(x.get + difference.x, y.get)).transform(t)
-      println("in first state in g draw")
       }
       else if (x.isDefined && mousePosition.isDefined && !filteredX.isDefined) {
         g draw guide(Vector2D(x.get, mousePosition.get.y)).transform(t)
-      println("in second state i g draw")
       }
       else if (x.isDefined && mousePosition.isDefined && filteredX.isDefined) {
         g draw guide(Vector2D(filteredX.get, mousePosition.get.y)).transform(t)
-      println("in third state i g draw")
       }
       else if (mousePosition.isDefined)
         g draw guide(mousePosition.get).transform(t)
-    println(x.get)
     }
   }
 
