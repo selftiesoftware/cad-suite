@@ -19,6 +19,7 @@ object Rectangle extends Module {
   )
 
   def stateMachine = Map(
+    //TODO: draw a dummy rectangle of eg. 1/15 * 1/15 of the paper height/width dynamically before first point is set
     'Start -> ((events : List[Event]) => {
       events match {
         //if the point module returns a valid point, use this as the first corner of the rectangle.

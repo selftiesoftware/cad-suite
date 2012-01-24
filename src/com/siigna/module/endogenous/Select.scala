@@ -120,7 +120,7 @@ object Select extends Module {
       }
     //clear a flag used to determine whether to paint the selection box
     hasBox = false
-      println(boxedShapes)
+      println("(Select 123) -- made a selection, :"+boxedShapes)
       Send(Message(boxedShapes))
     })
   )

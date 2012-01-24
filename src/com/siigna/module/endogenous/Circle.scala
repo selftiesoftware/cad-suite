@@ -25,11 +25,9 @@ object Circle extends Module {
       events match {
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
         case MouseMove(_, _, _) :: tail => {
-          println("moving in set Center")
         }
         case MouseDown(p, _, _) :: tail => {
           center = Some(p)
-          println("center set at: "+center)
         }
          case MouseUp(_, _, _) :: tail => {
            if (center.isDefined) {
@@ -45,12 +43,10 @@ object Circle extends Module {
     'SetRadius -> ((events : List[Event]) => {
       events match {
         case MouseMove(p, _, _) :: tail => {
-          println("moving in setRadius")
           currentMouse = Some(p)
         }
         case MouseDown(r, _, _) :: tail => {
           radius = Some(r)
-          println("Radius set at:" +radius)
         }
         case MouseUp(_, _, _) :: tail => {
            if (radius.isDefined) {
@@ -67,8 +63,6 @@ object Circle extends Module {
       events match {
         case _ =>
           //create the circle
-          println("center: "+center)
-          println("final radius: "+currentMouse)
           Create(CircleShape(center.get,radius.get))
 
           //clear the points list
