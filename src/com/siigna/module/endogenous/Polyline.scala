@@ -37,11 +37,13 @@ object Polyline extends Module {
         case Message(point : Vector2D) :: tail => {
           points = points :+ point
           ForwardTo('Point)
+          println("sending this to point: "+events.head)
         }
         case MouseUp(position, MouseButtonLeft,_):: tail => ForwardTo('Point)
         case MouseDown(position, _,_):: tail => ForwardTo('Point)
         case MouseUp(_, MouseButtonRight,_):: tail => Goto('End)
-
+        //If the angle gizmo was used Point will return with a MouseMove. In this case nothing should be done.
+        case MouseMove(_, MouseButtonRight,_):: tail =>
         case _ => Goto('End)
       }
 
