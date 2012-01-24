@@ -6,64 +6,60 @@ import com.siigna._
 
 object Polyline extends Module {
 
-    // Store the mousePosition, so we get the snap-coordinates
-  private var mousePosition : Option[Vector2D] = None
-
   // The points of the polyline
   private var points   = List[Vector2D]()
 
-  private var previousPoint : Option[Vector2D] = None
-
    // The polylineshape so far
-  private var shape : PolylineShape = PolylineShape.empty
+  private var shape : Option[PolylineShape] = None
 
   val eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap = DirectedGraph(
-    'Start        -> 'KeyEscape  -> 'End
+    'Start    ->   'Message  ->    'SetPoint
   )
 
   def stateMachine = Map(
-
     'Start -> ((events : List[Event]) => {
-      println("PL, events: "+events.head)
-      events match {
-        case _ => Goto('SetPoint)
-      }
+      ForwardTo('Point)
     }),
     'SetPoint -> ((events : List[Event]) => {
-      events match {
-        //if the point module returns a valid point, add this to the polyline.
-        case Message(point : Vector2D) :: tail => {
-          points = points :+ point
-          ForwardTo('Point)
-          println("sending this to point: "+events.head)
-        }
-        case MouseUp(position, MouseButtonLeft,_):: tail => ForwardTo('Point)
-        case MouseDown(position, _,_):: tail => ForwardTo('Point)
-        case MouseUp(_, MouseButtonRight,_):: tail => Goto('End)
-        //If the angle gizmo was used Point will return with a MouseMove. In this case nothing should be done.
-        case MouseMove(_, MouseButtonRight,_):: tail =>
-        case _ => Goto('End)
+      def getPointGuide = {
+        (p : Vector2D) => PolylineShape.fromPoints(points :+ p)
       }
 
-    if(points.size > 0)
-      shape = PolylineShape.fromPoints(points)
+      events match {
+        case Message(p : Vector2D) :: tail => {
+          // Save the point
+          points = points :+ p
+
+          // Define shape if there is enough points
+          if (points.size > 1) {
+            shape = Some(PolylineShape.fromPoints(points))
+          }
+
+          Send(Message(getPointGuide))
+          ForwardTo('Point)
+        }
+        // Exit mechanisms
+        case (MouseDown(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => {
+          Goto('End)
+        }
+        // Match on everything else
+        case _ => {
+          Send(Message(getPointGuide))
+          ForwardTo('Point)
+        }
+      }
     }),
     'End -> ((events : List[Event]) => {
-      println(events.head)
-      println("ending polyline")
-      Create(shape)
-
-      //Clear the variables
-      shape = PolylineShape.empty
-      points = List[Vector2D]()
-      previousPoint = None
+      // If the shape is defined, then create it!
+      if (shape.isDefined)
+        Create(shape.get)
     })
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    if (points.length > 0)
-      g draw shape.transform(t)
+    if (shape.isDefined)
+      g draw shape.get.transform(t)
   }
 }

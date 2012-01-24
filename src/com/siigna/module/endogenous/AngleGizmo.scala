@@ -11,28 +11,27 @@ object AngleGizmo extends Module {
 
   var activeAngle : Option[Double] = None
 
-  //time to press and hold the mouse button before the gizmo mode is activated
-  val gizmoTime = 500
-
   // var to check if the Angle Gizmo is running. Can be used by modules to change what is drawn when the gizmo is active
   var inAngleGizmoMode = false
 
-  var latestEvent : Option[Event] = None
-
-  // What's this?!!!
+  var guideLength = 0
   var gizmoMode = 45
   val gizmoRadius = 220
   val gizmoShapes = List[Shape]()
-  var guideLength = 0
+
+  //time to press and hold the mouse button before the gizmo mode is activated
+  val gizmoTime = 500
   
   // A flag to determine whether the angle gizmo was activated
   private var gizmoIsActive = false
 
+  /**
+   * The latest event the module received.
+   */
+  var latestEvent : Option[Event] = None
+
   // The starting point of the angle gizmo
   var startPoint : Option[Vector2D] = None
-
-  // What is this?!!
-  var receivedPoint : Option[Vector2D] = None
 
   def round(angle : Double) = {
     ((angle)/gizmoMode).round*gizmoMode
@@ -68,35 +67,33 @@ object AngleGizmo extends Module {
       // Start the loop
       val a = new AngleGizmoLoop
       a.start()
-      // Define the latest event CHECK THIS
-      latestEvent = Some(events.head)
-      // Define the received point
-      receivedPoint = Some(Siigna.mousePosition)
 
       // Listen to mouse-events
       Goto('MouseCheck)
     }),
     //check if a mouse up is happening while running the angle gizmo loop, if so, the angle module will exit.
     'MouseCheck -> ((events : List[Event]) => {
+      // Store the latest event
+      latestEvent = Some(events.head)
+
       //if these movements are registered while the AngleGizmoLoop is running, stay in Mouse Check
       events match {
         //if the latest event is still MouseDown, stay.
-        case MouseDown(_, MouseButtonLeft, _) :: tail =>
-        case MouseDrag(point, _, _) :: tail => {
-          latestEvent = Some(events.head)
+        case MouseDown(p, MouseButtonLeft, _) :: tail => startPoint = Some(p)
+        case MouseDrag(p, _, _) :: tail => {
+          startPoint = Some(p)
         }
-        //if anything else is received, end the gizmo without any angle gunide
+        //if anything else is received, end the gizmo without any angle guide
         case _ => {
+          if (startPoint.isEmpty)
+            startPoint = Some(Siigna.mousePosition)
+
           Goto('End)
           //send a message that tell no angle is given
         }
       }
     }),
     'AngleGizmo -> ((events : List[Event]) => {
-      //reaching this state means the gizmo should be drawn, so
-      //the start point is set as the received point from the calling module
-      startPoint = receivedPoint
-
       // Activate!
       gizmoIsActive = true
       events match {
@@ -116,28 +113,28 @@ object AngleGizmo extends Module {
       if (startPoint.isDefined) {
         var radian = (Siigna.mousePosition - startPoint.get).angle.toInt
         var calculatedAngle = radian * -1 + 450
-        if (calculatedAngle > 360)
-          {activeAngle = Some(calculatedAngle - 360)} else activeAngle = Some(calculatedAngle)
+        if (calculatedAngle > 360) {
+          activeAngle = Some(calculatedAngle - 360)
+        } else {
+          activeAngle = Some(calculatedAngle)
+        }
       }
     }),
     //return the output of the anonymous function f, declared above the StateMachine
     'End -> ((events : List[Event]) => {
-      receivedPoint = None
-      startPoint = None
-
       // If the gizmo was activated, then return the message and reset the vars
       if (gizmoIsActive) {
-        println("Gizmo Was Active")
-        receivedPoint = None
-        startPoint = None
         gizmoIsActive = false
         if (activeAngle.isDefined)
-          Send(Message(activeAngle.get))
+          Send(Message(new AngleSnap(startPoint.get, activeAngle.get)))
+      } else {
+        // If the gizmo was not activated, then return the point so the
+        // point module can utilize it to whatever
+        Send(Message(startPoint.get))
       }
-      else {
-        println("return from AG with none")
-        Send(Message(400d))
-      }
+
+      // Reset variables
+      startPoint = None
     })
   )
 
