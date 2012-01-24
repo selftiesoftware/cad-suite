@@ -127,6 +127,8 @@ object Weight extends Module {
           g draw line.transform(t.rotate(activeAngle-180))
         }
 
+      //TODO: add differentiated lineweight
+      //draw the lines
       drawLine(0)
       drawLine(30)
       drawLine(60)
