@@ -12,7 +12,7 @@ object AngleGizmo extends Module {
   var activeAngle : Option[Double] = None
 
   //time to press and hold the mouse button before the gizmo mode is activated
-  val gizmoTime = 1800
+  val gizmoTime = 500
 
   // var to check if the Angle Gizmo is running. Can be used by modules to change what is drawn when the gizmo is active
   var inAngleGizmoMode = false
@@ -68,7 +68,7 @@ object AngleGizmo extends Module {
       // Start the loop
       val a = new AngleGizmoLoop
       a.start()
-      // Define the latest event : MouseDown
+      // Define the latest event CHECK THIS
       latestEvent = Some(events.head)
       // Define the received point
       receivedPoint = Some(Siigna.mousePosition)
@@ -99,7 +99,6 @@ object AngleGizmo extends Module {
 
       // Activate!
       gizmoIsActive = true
-
       events match {
         //if the right mouse button is pressed, exit.
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
@@ -107,7 +106,10 @@ object AngleGizmo extends Module {
         case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End, false)
         //the latest event coming from polyline has to be mouse down, so
         // this event forms the basis for getting the current mouse position:
-        case MouseDown(_, MouseButtonLeft, _) :: MouseMove(_, _, _) :: tail =>
+
+        case MouseDown(_, MouseButtonLeft, _) :: MouseMove(_, _, _) :: tail =>  {
+          Goto('End)
+        }
         case _=>
       }
       //get the current radial
@@ -132,9 +134,10 @@ object AngleGizmo extends Module {
         if (activeAngle.isDefined)
           Send(Message(activeAngle.get))
       }
-      else
+      else {
         println("return from AG with none")
         Send(Message(400d))
+      }
     })
   )
 

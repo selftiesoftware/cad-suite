@@ -28,10 +28,10 @@ object Polyline extends Module {
     'Start -> ((events : List[Event]) => {
       println("PL, events: "+events.head)
       events match {
-        case _ => Goto('Point)
+        case _ => Goto('SetPoint)
       }
     }),
-    'Point -> ((events : List[Event]) => {
+    'SetPoint -> ((events : List[Event]) => {
       events match {
         //if the point module returns a valid point, add this to the polyline.
         case Message(point : Vector2D) :: tail => {
@@ -51,7 +51,8 @@ object Polyline extends Module {
       shape = PolylineShape.fromPoints(points)
     }),
     'End -> ((events : List[Event]) => {
-
+      println(events.head)
+      println("ending polyline")
       Create(shape)
 
       //Clear the variables

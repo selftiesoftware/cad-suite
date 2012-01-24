@@ -26,6 +26,9 @@ object Point extends Module {
 
   private var filteredX : Option[Double] = None
 
+  //a flag to descide whether to go to the Angle Gizmo
+  // when the module receives the same event both before and after the Angle gizmo is used.
+
   // Store the mousePosition, so we get the snap-coordinates
   private var mousePosition : Option[Vector2D] = None
 
@@ -63,61 +66,57 @@ object Point extends Module {
   val eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap = DirectedGraph(
-    'Start         -> 'MouseUp   -> 'End,
+
     'Start         -> 'KeyEscape   -> 'End
   )
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println("starting point. with event; ")
-      println(events.head)
+      println("IS POINT DEFINED? "+ point)
+      println("start events: "+events.head)
       events match {
         //FIRST ENTRY IS HERE, unless:
-        // -returning from Angle Gizmo, in which case the module will get a Message(Double) and forward to 'SetPoint
+        // -returning from Angle Gizmo with an active angle guide, in which case the module will get a Message(Double) and forward to 'SetPoint
 
         case MouseDown(p, MouseButtonLeft, _):: tail => {
-          println("MD in start")
-          //get the point
-          point = Some(p)
-          anglePoint = Some(Siigna.mousePosition)
-          ForwardTo('AngleGizmo, false)
+            println("MOUSEDOWN")
+            point = Some(p)
+            anglePoint = Some(Siigna.mousePosition)
+            ForwardTo('AngleGizmo)
         }
-        //calling module is passing a pointGuide, this should be activated
-        case Message(p : Vector2D) :: tail => {
-          point = Some(p)
-          anglePoint = Some(Siigna.mousePosition)
-          ForwardTo('AngleGizmo, false)
-        }
-
+        //if calling module is passing a point this should be used as a guide
+        case Message(p : Vector2D) :: tail => previousPoint = Some(p)
+        case MouseDrag(p, _, _):: tail => mousePosition = Some(p)
+        case MouseMove(p, _, _):: tail => mousePosition = Some(p)
         case _ => Goto('SetPoint)
       }
     }),
     'SetPoint -> ((events : List[Event]) => {
+      println("in setpoint")
       events match {
 
-        //ENTRYPOINT MOUSE DOWN, (unless returning from Angle Gizmo, in which case the module will start in 'Message (returning a Double)
         // The latest event (MouseDown) from the calling module is executed now:
         case MouseDown(p, MouseButtonLeft, _):: tail => {
-          //get the point
-          point = Some(p)
-          //goto End, but do not return the last MouseDown, as it would exit the calling module
-          Goto('End, false)
-        }
+            Goto('End, false)
+          }
 
         case MouseMove(p, _, _) :: tail => mousePosition = Some(p)
 
         //check to see if the gizmo successfully returned an angle
         case Message(p : Double) :: tail => {
-          println("IN AG MESSAGE")
-          //if no message was returned and the point is set, do nothing:
-          if(p == 400 && point.isDefined)
-            println("no gúide.")
-          else {
+
+          //if the message was NOT the "no active angle flag" message (400), then it was an angle to snap to:
+          if(p != 400) {
             angleGuide = Some(p)
 
             //Since we got the angle we can now snap to the center point and the angle
             eventParser.snapTo(new AngleSnap(anglePoint.get, p))
-            //Goto('End)
+            Goto('End, false)
+          }
+          //if the gizmo returned the "no active angle " message (400), do nothing.
+          else if(p == 400) {
+          // set a flag to tell that the angle gizmo has finis
+           None
           }
         }
 
@@ -199,7 +198,7 @@ object Point extends Module {
 
         //add the typed point to the polyline
         point = Some(Vector2D(x,y))
-
+        println("SET  THe POINT IN END")
         //clear the coordinate vars
         coordinateX = None
         coordinateY = None
@@ -217,6 +216,7 @@ object Point extends Module {
       coordinateX = None
       coordinateY = None
       coordinateValue = ""
+      eventParser.clearSnap()
       filteredX = None
 
       // Reset the point guide
@@ -225,8 +225,10 @@ object Point extends Module {
 
       // Return a point if it was defined
       println("END: point: "+point)
+      println("PT END: "+point)
       if(point.isDefined)
         Message(point.get)
+
     }
   ))
 
