@@ -6,21 +6,38 @@ import java.awt.Color
 import radialmenu.{RadialMenuIcon, MenuEvent, MenuItem}
 
 /**
- * a wheel to select colors for lines, surfaces and text
- * //TODO: draw the color wheel where the radial menu center is instead centered around the last mouse click.
- * //TODO add color selection functionality
-   //TODO: the color wheel only shows after mouse move???
+ * a wheel to select weights (and styles?) for lines
+ *
  */
 
 object Weight extends Module {
 
   var activeAngle : Double = 0
+
+  lazy val line0 = PolylineShape.fromPoints(Vector2D(-9.93,75.5),Vector2D(-6.96,75.8),Vector2D(-3.55,76.2),Vector2D(-1,76.4))
+  lazy val line30 = PolylineShape.fromPoints(Vector2D(-9.93,75.5),Vector2D(-6.96,75.8),Vector2D(-3.55,76.2),Vector2D(-1,76.4))
+  lazy val line60 = PolylineShape.fromPoints(Vector2D(-9.93,75.5),Vector2D(-6.96,75.8),Vector2D(-3.55,76.2),Vector2D(-1,76.4))
+  lazy val line90 = PolylineShape.fromPoints(Vector2D(-9.93,75.5),Vector2D(-6.96,75.8),Vector2D(-3.55,76.2),Vector2D(-1,76.4))
+  lazy val line120 = PolylineShape.fromPoints(Vector2D(-9.93,75.5),Vector2D(-6.96,75.8),Vector2D(-3.55,76.2),Vector2D(-1,76.4))
+  lazy val line150 = PolylineShape.fromPoints(Vector2D(-9.93,75.5),Vector2D(-6.96,75.8),Vector2D(-3.55,76.2),Vector2D(-1,76.4))
+  lazy val line180 = PolylineShape.fromPoints(Vector2D(-9.93,75.5),Vector2D(-6.96,75.8),Vector2D(-3.55,76.2),Vector2D(-1,76.4))
+  lazy val line210 = PolylineShape.fromPoints(Vector2D(-9.93,75.5),Vector2D(-6.96,75.8),Vector2D(-3.55,76.2),Vector2D(-1,76.4))
+  lazy val line240 = PolylineShape.fromPoints(Vector2D(-9.93,75.5),Vector2D(-6.96,75.8),Vector2D(-3.55,76.2),Vector2D(-1,76.4))
+  lazy val line270 = PolylineShape.fromPoints(Vector2D(-9.93,75.5),Vector2D(-6.96,75.8),Vector2D(-3.55,76.2),Vector2D(-1,76.4))
+  lazy val line300 = PolylineShape.fromPoints(Vector2D(-9.93,75.5),Vector2D(-6.96,75.8),Vector2D(-3.55,76.2),Vector2D(-1,76.4))
+  lazy val line330 = PolylineShape.fromPoints(Vector2D(-9.93,75.5),Vector2D(-6.96,75.8),Vector2D(-3.55,76.2),Vector2D(-1,76.4))
+
+
   var relativeMousePosition : Option[Vector2D] = None
   var startPoint : Option[Vector2D] = None
 
-  var activeColor: Option[Color] = None
+  var activeLine : PolylineShape = PolylineShape.empty
 
   def eventHandler = EventHandler(stateMap, stateMachine)
+
+  private var gotMouseDown = false
+
+  val line = LineShape(Vector2D(20,105),Vector2D(-20,85))
 
   def radians(rotation : Int) : List[Int] = {
 
@@ -53,21 +70,43 @@ object Weight extends Module {
         case MouseMove(point, _, _) :: tail => relativeMousePosition = Some(point)
         //selects the color to use
         case MouseDown(point, _, _) :: tail => {
-          relativeMousePosition = Some(point)
+          //if the mouse has been pressed once, set the color and go to 'End.
+          if (gotMouseDown == true) {
+            relativeMousePosition = Some(point)
+            //set the color
+            if (activeAngle == 0) {activeLine = line0}
+            else if (activeAngle == 30) {activeLine = line30}
+            else if (activeAngle == 60) {activeLine = line60}
+            else if (activeAngle == 90) {activeLine = line90}
+            else if (activeAngle == 120) {activeLine = line120}
+            else if (activeAngle == 150) {activeLine = line150}
+            else if (activeAngle == 180) {activeLine = line180}
+            else if (activeAngle == 210) {activeLine = line210}
+            else if (activeAngle == 240) {activeLine = line240}
+            else if (activeAngle == 270) {activeLine = line270}
+            else if (activeAngle == 300) {activeLine = line300}
+            else if (activeAngle == 330) {activeLine = line330}
+            gotMouseDown = false
+            Goto('End)
+          }
 
-
-          Goto('End)
+          else {
+            //catch the first mouse down
+            startPoint = Some(Menu.oldCenter)
+            relativeMousePosition = Some(point)
+            gotMouseDown = true
+          }
         }
         case _ =>
       }
-      //get the current angle from the mouse to the center of the color wheel
+      //get the current angle from the mouse to the center of the line weight menu
       if (relativeMousePosition.isDefined && startPoint.isDefined) {
         val radian = (relativeMousePosition.get - startPoint.get).angle.toInt
         var calculatedAngle = radian * -1 + 450
         if (calculatedAngle > 360)
           activeAngle = calculatedAngle - 360
         else activeAngle = calculatedAngle
-          activeAngle = ((activeAngle +7.5)/15).toInt * 15
+          activeAngle = ((activeAngle +7.5)/30).toInt * 30
       }
     }),
     'End -> ((events : List[Event]) => {
@@ -83,43 +122,27 @@ object Weight extends Module {
       val sp = startPoint.get.transform(transform)
       val t  = TransformationMatrix(sp,1.3)
 
-      lazy val colorFill = Array(Vector2D(-8.93,75.5),Vector2D(-5.96,75.8),Vector2D(-2.55,76),Vector2D(0,76),Vector2D(2.47,76),Vector2D(6.52,75.7),Vector2D(8.93,75.5),Vector2D(11.9,98.3),Vector2D(9.06,98.6),Vector2D(4.35,98.9),Vector2D(0,99),Vector2D(-4.35,98.9),Vector2D(-9.04,98.6),Vector2D(-11.9,98.3),Vector2D(-8.93,75.5))
-      lazy val colorIcon = PolylineShape.fromPoints(Vector2D(-8.93,75.5),Vector2D(-5.96,75.8),Vector2D(-2.55,76.2),Vector2D(0,76.4),Vector2D(2.47,76.2),Vector2D(6.52,75.8),Vector2D(8.93,75.5),Vector2D(11.9,98.3),Vector2D(9.06,98.6),Vector2D(4.35,99.01),Vector2D(0,99.2),Vector2D(-4.35,99.1),Vector2D(-9.04,98.6),Vector2D(-11.9,98.3),Vector2D(-8.93,75.5))
-      lazy val colorActive = PolylineShape.fromPoints(Vector2D(-10.93,73.5),Vector2D(-7.96,73.8),Vector2D(-4.55,74),Vector2D(-2,74),Vector2D(4.47,74),Vector2D(8.52,73.7),Vector2D(10.93,73.5),Vector2D(13.9,100.3),Vector2D(11.06,100.6),Vector2D(6.35,100.9),Vector2D(-2,101),Vector2D(-6.35,100.9),Vector2D(-11.04,100.6),Vector2D(-13.9,100.3),Vector2D(-10.93,73.5))
+      def drawLine (rotation : Int) {
 
-      def drawFill (color : Color, rotation : Int) {
+          g draw line.transform(t.rotate(activeAngle-180))
+        }
 
-        val fillVector2Ds = colorFill.map(_.transform(t.rotate(rotation)))
-        val fillScreenX = fillVector2Ds.map(_.x.toInt).toArray
-        val fillScreenY = fillVector2Ds.map(_.y.toInt).toArray
+      drawLine(0)
+      drawLine(30)
+      drawLine(60)
+      drawLine(90)
+      drawLine(120)
+      drawLine(150)
+      drawLine(180)
+      drawLine(210)
+      drawLine(240)
+      drawLine(270)
+      drawLine(300)
+      drawLine(330)
 
-        g setColor color
+      //draw the lines
+      radians(30).foreach(radian => { g draw line.transform(t.rotate(radian))})
 
-        g.g.fillPolygon(fillScreenX, fillScreenY, fillVector2Ds.size)
-      }
-
-      // Draw the color icons
-      /*drawFill(zero,0)
-      drawFill(pointOhNine,345)
-      drawFill(pointOneFive,330)
-      drawFill(pointOneEight,315)
-      drawFill(pointTwo,300)
-      drawFill(pointTwoFive,285)
-      drawFill(pointThree,270)
-      drawFill(pointThreeFive,255)
-      drawFill(pointFour,240)    */
-
-      //draw a border around the active color
-      val distanceToCentre = startPoint.get - relativeMousePosition.get
-
-      if (distanceToCentre.length > 80 && distanceToCentre.length < 130 )  {
-
-      //g draw colorIcon.transform(t.rotate(activeAngle-180))
-      //g draw colorActive.transform(t.rotate(activeAngle-180))
-
-      }
-      //draw the color wheel icon outlines
-      radians(45).foreach(radian => { g draw colorIcon.transform(t.rotate(radian))})
     }
   }
 }

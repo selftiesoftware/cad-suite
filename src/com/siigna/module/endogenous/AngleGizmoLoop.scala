@@ -23,7 +23,7 @@ class AngleGizmoLoop extends Thread {
         }
 
         // If the start point is defined
-        if (AngleGizmo.receivedPoint.isDefined) {
+        if (AngleGizmo.startPoint.isDefined) {
           // .. And if the event is not a mouse down
           if (!AngleGizmo.latestEvent.get.isInstanceOf[MouseDown]) {
             // Then send the angle gizmo module to end
@@ -36,7 +36,7 @@ class AngleGizmoLoop extends Thread {
       }
       // If the time has expired then draw the AngleGizmo - if the latest event is a mouse down.
       if (AngleGizmo.latestEvent.get.isInstanceOf[MouseDown])  {
-        Goto ('AngleGizmo, false)
+        Goto ('AngleGizmo)
       }
     } catch {
       case e =>
