@@ -333,7 +333,7 @@ object Menu extends Module {
    * the mouse.
    */
   def distance : Double = {
-    if (center.isDefined) (center.get - mousePosition).length * Siigna.zoom else java.lang.Double.POSITIVE_INFINITY
+    if (center.isDefined) (center.get - mousePosition).length * View.zoom else java.lang.Double.POSITIVE_INFINITY
   }
 
 }

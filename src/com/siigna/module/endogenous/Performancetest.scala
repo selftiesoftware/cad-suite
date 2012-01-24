@@ -25,16 +25,14 @@ object Performancetest extends Module {
       do  {
           val pointA = Vector2D(i, 0)
           val pointB = Vector2D(i + 10, limit >> 1)
-          val pointX = Vector2D(i, limit)
 
           val pointC = Vector2D(0, i)
           val pointD = Vector2D(limit >> 1, i + 10)
-          val pointY = Vector2D(limit, i)
 
           //val vertShape = LineShape(pointA, pointB)
-          val vertShape = ArcShape(pointA, pointB, pointX)
+          val vertShape = LineShape(pointA, pointB)
           //val horizShape = LineShape(pointC, pointD)
-          val horizShape = ArcShape(pointC, pointD, pointY)
+          val horizShape = LineShape(pointC, pointD)
 
           i += 1
 
