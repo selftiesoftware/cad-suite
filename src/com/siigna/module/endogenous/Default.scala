@@ -36,7 +36,7 @@ object Default extends Module {
   def stateMachine = Map( 'Start -> ((events : List[Event]) => {
     nearestShape = Model(Siigna.mousePosition)
       if (firstStart == true) {
-        Siigna.display("Siigna modules ver. 0.1.11.6 (421 kb")
+        Siigna.display("Siigna modules v. 0.1.12.1")
         firstStart = false
       }
       events match {
