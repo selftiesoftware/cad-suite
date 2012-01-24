@@ -12,9 +12,9 @@ object AngleGizmo extends Module {
   var activeAngle : Option[Double] = None
 
   //time to press and hold the mouse button before the gizmo mode is activated
-  val gizmoTime = 500
+  val gizmoTime = 1800
 
-  // var to check if the Angle Gizmo is running. Can be used by modules to change what is drawn when the gizmo ios active
+  // var to check if the Angle Gizmo is running. Can be used by modules to change what is drawn when the gizmo is active
   var inAngleGizmoMode = false
 
   var latestEvent : Option[Event] = None
@@ -27,7 +27,6 @@ object AngleGizmo extends Module {
   
   // A flag to determine whether the angle gizmo was activated
   private var gizmoIsActive = false
-  private var gizmoIsMouseDown = false
 
   // The starting point of the angle gizmo
   var startPoint : Option[Vector2D] = None
@@ -59,34 +58,38 @@ object AngleGizmo extends Module {
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap = DirectedGraph(
-    'Start         -> 'KeyEscape -> 'End
+    'Start         -> 'KeyEscape -> 'End,
+    'Mousecheck    -> 'KeyEscape -> 'End
   )
 
   def stateMachine = Map(
+    //arriving in GIZMO with latest event: MouseDown
     'Start -> ((events : List[Event]) => {
       // Start the loop
       val a = new AngleGizmoLoop
       a.start()
-
-      // Define the latest event
+      // Define the latest event : MouseDown
       latestEvent = Some(events.head)
-
       // Define the received point
       receivedPoint = Some(Siigna.mousePosition)
 
       // Listen to mouse-events
       Goto('MouseCheck)
     }),
-    //check if a mouse up is occuring while running the angle gizmo loop, if so, the angle module will exit.
+    //check if a mouse up is happening while running the angle gizmo loop, if so, the angle module will exit.
     'MouseCheck -> ((events : List[Event]) => {
+      //if these movements are registered while the AngleGizmoLoop is running, stay in Mouse Check
       events match {
-        //if these movements are registered while the AngleGizmoLoop is running, stay in this Node
-        case MouseDown(_, _, _) :: tail =>
+        //if the latest event is still MouseDown, stay.
+        case MouseDown(_, MouseButtonLeft, _) :: tail =>
         case MouseDrag(point, _, _) :: tail => {
           latestEvent = Some(events.head)
         }
-        case MouseUp(p, _, _) :: tail =>
-        case _ => Goto('End)
+        //if anything else is received, end the gizmo without any angle gunide
+        case _ => {
+          Goto('End)
+          //send a message that tell no angle is given
+        }
       }
     }),
     'AngleGizmo -> ((events : List[Event]) => {
@@ -100,15 +103,11 @@ object AngleGizmo extends Module {
       events match {
         //if the right mouse button is pressed, exit.
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-        case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
+        //if the mouse is clicked, go to 'End, and do not return the latest event
+        case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End, false)
         //the latest event coming from polyline has to be mouse down, so
         // this event forms the basis for getting the current mouse position:
-        case MouseDown(_, MouseButtonLeft, _) :: MouseMove(_, _, _) :: tail => {
-          if (gizmoIsMouseDown)
-            Goto('End)
-          else
-            gizmoIsMouseDown = true
-        }
+        case MouseDown(_, MouseButtonLeft, _) :: MouseMove(_, _, _) :: tail =>
         case _=>
       }
       //get the current radial
@@ -124,13 +123,18 @@ object AngleGizmo extends Module {
       receivedPoint = None
       startPoint = None
 
-      // If the gizmo was activated, then return the message and reset the flags
+      // If the gizmo was activated, then return the message and reset the vars
       if (gizmoIsActive) {
+        println("Gizmo Was Active")
+        receivedPoint = None
+        startPoint = None
         gizmoIsActive = false
-        gizmoIsMouseDown = false
         if (activeAngle.isDefined)
-          Message(activeAngle.get)
+          Send(Message(activeAngle.get))
       }
+      else
+        println("return from AG with none")
+        Send(Message(400))
     })
   )
 

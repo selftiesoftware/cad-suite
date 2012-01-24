@@ -60,7 +60,6 @@ object Artline extends Module{
               //clear the list
               shape = PolylineShape.empty
               points = List[Vector2D]()
-              println("mouseUp in Points")
               Goto('Start)
             }
             case _ => None

@@ -14,7 +14,7 @@ import radialmenu.{RadialMenuIcon, MenuEvent, MenuItem}
 
 object ColorWheel extends Module {
 
-  val transp = 1.00f
+  private val transp = 1.00f
 
   //colors, inspired by crayola crayons: http://en.wikipedia.org/wiki/List_of_Crayola_crayon_colors
   lazy val black       = new Color(0.00f, 0.00f, 0.00f, transp)
@@ -42,9 +42,12 @@ object ColorWheel extends Module {
   lazy val lime        = new Color(0.50f, 0.95f, 0.15f, transp)
   lazy val yellowGreen = new Color(0.65f, 0.95f, 0.15f, transp)
 
-  var activeAngle : Double = 0
-  var relativeMousePosition : Option[Vector2D] = None
-  var startPoint : Option[Vector2D] = None
+  private var activeAngle : Double = 0
+  //TODO: hack to prevent module from forwarding to End immediatly.
+  //flag to register the first mousedown.
+  private var gotMouseDown = false
+  private var relativeMousePosition : Option[Vector2D] = None
+  private var startPoint : Option[Vector2D] = None
 
   var activeColor: Option[Color] = None
 
@@ -77,40 +80,51 @@ object ColorWheel extends Module {
       Siigna.navigation = false // Make sure the rest of the program doesn't move
       eventParser.disable // Disable tracking and snapping
       events match {
-        case MouseUp(point, _, _) :: tail => startPoint = Some(Menu.oldCenter)
         case MouseMove(point, _, _) :: tail => relativeMousePosition = Some(point)
+
         //selects the color to use
         case MouseDown(point, _, _) :: tail => {
-          relativeMousePosition = Some(point)
+          //if the mouse has been pressed once, set the color and go to 'End.
+          if (gotMouseDown == true) {
+            relativeMousePosition = Some(point)
+            //set the color
+            if (activeAngle == 0) {activeColor = Some(black)}
+            else if (activeAngle == 15) {activeColor = Some(yellowGreen)}
+            else if (activeAngle == 30) {activeColor = Some(lime)}
+            else if (activeAngle == 45) {activeColor = Some(green)}
+            else if (activeAngle == 60) {activeColor = Some(caribbean)}
+            else if (activeAngle == 75) {activeColor = Some(turquise)}
+            else if (activeAngle == 90) {activeColor = Some(cyan)}
+            else if (activeAngle == 105) {activeColor = Some(pasificBlue)}
+            else if (activeAngle == 120) {activeColor = Some(navyBlue)}
+            else if (activeAngle == 135) {activeColor = Some(blue)}
+            else if (activeAngle == 150) {activeColor = Some(purple)}
+            else if (activeAngle == 165) {activeColor = Some(plum)}
+            else if (activeAngle == 180) {activeColor = Some(magenta)}
+            else if (activeAngle == 195) {activeColor = Some(violetRed)}
+            else if (activeAngle == 210) {activeColor = Some(radicalRed)}
+            else if (activeAngle == 225) {activeColor = Some(red)}
+            else if (activeAngle == 240) {activeColor = Some(orangeRed)}
+            else if (activeAngle == 255) {activeColor = Some(orange)}
+            else if (activeAngle == 270) {activeColor = Some(yellow)}
+            else if (activeAngle == 285) {activeColor = Some(lightGrey)}
+            else if (activeAngle == 300) {activeColor = Some(darkGrey)}
+            else if (activeAngle == 315) {activeColor = Some(grey)}
+            else if (activeAngle == 330) {activeColor = Some(dimgrey)}
+            else if (activeAngle == 345) {activeColor = Some(anthracite)}
+            gotMouseDown = false
+            Goto('End)
+          }
 
-          //set the color
-          if (activeAngle == 0) {activeColor = Some(black)}
-          else if (activeAngle == 15) {activeColor = Some(yellowGreen)}
-          else if (activeAngle == 30) {activeColor = Some(lime)}
-          else if (activeAngle == 45) {activeColor = Some(green)}
-          else if (activeAngle == 60) {activeColor = Some(caribbean)}
-          else if (activeAngle == 75) {activeColor = Some(turquise)}
-          else if (activeAngle == 90) {activeColor = Some(cyan)}
-          else if (activeAngle == 105) {activeColor = Some(pasificBlue)}
-          else if (activeAngle == 120) {activeColor = Some(navyBlue)}
-          else if (activeAngle == 135) {activeColor = Some(blue)}
-          else if (activeAngle == 150) {activeColor = Some(purple)}
-          else if (activeAngle == 165) {activeColor = Some(plum)}
-          else if (activeAngle == 180) {activeColor = Some(magenta)}
-          else if (activeAngle == 195) {activeColor = Some(violetRed)}
-          else if (activeAngle == 210) {activeColor = Some(radicalRed)}
-          else if (activeAngle == 225) {activeColor = Some(red)}
-          else if (activeAngle == 240) {activeColor = Some(orangeRed)}
-          else if (activeAngle == 255) {activeColor = Some(orange)}
-          else if (activeAngle == 270) {activeColor = Some(yellow)}
-          else if (activeAngle == 285) {activeColor = Some(lightGrey)}
-          else if (activeAngle == 300) {activeColor = Some(darkGrey)}
-          else if (activeAngle == 315) {activeColor = Some(grey)}
-          else if (activeAngle == 330) {activeColor = Some(dimgrey)}
-          else if (activeAngle == 345) {activeColor = Some(anthracite)}
-          Goto('End)
+          else {
+            //catch the first mouse down
+            startPoint = Some(Menu.oldCenter)
+            relativeMousePosition = Some(point)
+            gotMouseDown = true
+          }
         }
         case _ =>
+
       }
       //get the current angle from the mouse to the center of the color wheel
       if (relativeMousePosition.isDefined && startPoint.isDefined) {

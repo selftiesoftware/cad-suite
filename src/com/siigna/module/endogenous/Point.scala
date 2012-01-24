@@ -24,7 +24,7 @@ object Point extends Module {
 
   def difference : Vector2D = if (previousPoint.isDefined) previousPoint.get else Vector2D(0, 0)
 
-  var isGizmoCheckNeeded = false
+  private var filteredX : Option[Double] = None
 
   // Store the mousePosition, so we get the snap-coordinates
   private var mousePosition : Option[Vector2D] = None
@@ -36,13 +36,11 @@ object Point extends Module {
 
   var previousPoint : Option[Vector2D] = None
 
-  private var unfilteredX : Option[Double] = None
-
   // The polylineshape so far
   private var shape : Option[Shape] = None
 
-  // Preload AngleGizmo
-  //Preload('AngleGizmo, "com.siigna.module.endogenous.AngleGizmo")
+  //Preload AngleGizmo
+  Preload('AngleGizmo, "com.siigna.module.endogenous.AngleGizmo")
 
   // Save the X value, if any
   def x : Option[Double] = if (!coordinateX.isEmpty)
@@ -71,31 +69,49 @@ object Point extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      println("incoming events: "+events.head)
       events match {
-        //if the module receives a point guide, assign this to the var pointGuide
+
+        //FIRST ENTRY IS ALWAYS HERE, (unless returning from Angle Gizmo, in which case the module will start in 'Message
+        // The latest event (MouseDown) from the calling module is executed now:
+        case MouseDown(p, MouseButtonLeft, _):: tail => {
+          println("PT START: "+p)
+          //get the point
+          point = Some(p)
+
+          anglePoint = Some(Siigna.mousePosition)
+         //GOTO ANGLE GIZMO
+         ForwardTo('AngleGizmo)
+        }
+
         case Message(g : PointGuide) :: tail => {
+          //if the module receives a point guide, assign this to the var pointGuide
           pointGuide = Some(g)
         }
-        case MouseMove(point, _, _) :: tail => {
-          mousePosition = Some(point)
-        // Set the angle point
-        //anglePoint = Some(Siigna.mousePosition)
 
-        // Forward to angle gizmo
-        //ForwardTo('AngleGizmo)
+        case MouseMove(p, _, _) :: tail => mousePosition = Some(p)
 
-        //case Message(p : Double) :: tail => {
-        //  if (anglePoint.isDefined) {
-        //    angleGuide = Some(p)
+        //check to see if the gizmo successfully returned an angle
+        case Message(p : Double) :: tail => {
+          println("returning 400 from angle gizmo")
+          //if no message was returned and the point is set:
+          if(p == 400 && point.isDefined)
+            Goto('End)
+          else {
+            angleGuide = Some(p)
 
-        // Since we got the angle we can now snap to the center point and the angle
-        //    eventParser.snapTo(new AngleSnap(anglePoint.get, p))
-        //  }
-        //}
+            //Since we got the angle we can now snap to the center point and the angle
+            eventParser.snapTo(new AngleSnap(anglePoint.get, p))
+            //Goto('End)
+          }
         }
+
         case MouseDrag(point, _, _) :: tail => mousePosition = Some(point)
-        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-        case MouseDown(p, MouseButtonLeft, _):: tail => point = Some(p)
+        case MouseDown(_, MouseButtonRight, _) :: tail => {
+          //exit without sending on a point, without sending the latest event (mouseDown) as it would exit the calling module as well.
+          point = None
+          Goto('End)
+        }
         case KeyDown(Key.Backspace, _) :: tail => {
           if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
           else if (coordinateX.isDefined) {
@@ -110,7 +126,8 @@ object Point extends Module {
           if (coordinateX.isEmpty && coordinateValue.length > 0) {
             coordinateX = Some(java.lang.Double.parseDouble(coordinateValue))
             //a hack used in paint to get the point input used to draw the position without transformation
-            unfilteredX = coordinateX
+            filteredX = Some(coordinateX.get + difference.x)
+
             coordinateValue = ""
           } else if (coordinateY.isEmpty && coordinateValue.length > 0) {
             coordinateY = Some(java.lang.Double.parseDouble(coordinateValue))
@@ -123,8 +140,9 @@ object Point extends Module {
         //get the input from the keyboard if it is numbers, (-) or (.)
         case KeyDown(code, _) :: tail => {
           val char = code.toChar
-          if (char.isDigit)
+          if (char.isDigit) {
             coordinateValue += char
+          }
           else if ((char == '.') && !coordinateValue.contains('.'))
             coordinateValue += "."
           else if (char == '-' && coordinateValue.length < 1)
@@ -160,14 +178,13 @@ object Point extends Module {
       //if the next point has been typed, add it to the polyline:
 
       if (coordinateX.isDefined && coordinateY.isDefined ) {
+
         //convert the relative coordinates a global point by adding the latest point
-        val x = coordinateX.get
-        val y = coordinateY.get
+        val x = coordinateX.get + difference.x
+        val y = coordinateY.get + difference.y
 
         //add the typed point to the polyline
         point = Some(Vector2D(x,y))
-        // Save the previous point as the last given point
-        //previousPoint = point
 
         //clear the coordinate vars
         coordinateX = None
@@ -181,15 +198,21 @@ object Point extends Module {
       //Clear the variables
       shape = None
       //point = None
+      angleGuide = None
+      anglePoint = None
       coordinateX = None
       coordinateY = None
       coordinateValue = ""
+      filteredX = None
 
       // Reset the point guide
       pointGuide = None
+      previousPoint = point
 
       // Return a point if it was defined
-      if(point.isDefined) Message(point.get)
+      println("END: point: "+point)
+      if(point.isDefined)
+        Message(point.get)
     }
   ))
 
@@ -215,10 +238,15 @@ object Point extends Module {
       }
 
       // Draw the point guide depending on which information is available
-      if (x.isDefined && y.isDefined)
-        g draw guide(Vector2D(x.get, y.get)).transform(t)
-      else if (x.isDefined && mousePosition.isDefined)
+      if (x.isDefined && y.isDefined) {
+        g draw guide(Vector2D(x.get + difference.x, y.get)).transform(t)
+      }
+      else if (x.isDefined && mousePosition.isDefined && !filteredX.isDefined) {
         g draw guide(Vector2D(x.get, mousePosition.get.y)).transform(t)
+      }
+      else if (x.isDefined && mousePosition.isDefined && filteredX.isDefined) {
+        g draw guide(Vector2D(filteredX.get, mousePosition.get.y)).transform(t)
+      }
       else if (mousePosition.isDefined)
         g draw guide(mousePosition.get).transform(t)
     }

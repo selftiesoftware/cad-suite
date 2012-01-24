@@ -138,9 +138,7 @@ object Lineardim extends Module {
         }
         case MouseDown(_, MouseButtonRight, _):: tail => Goto('End)
         case MouseDown(_, MouseButtonLeft, _):: tail => {
-        //println("points in select + mouse down: "+points)
         //finalOffset = Some(p)
-          println("going to end")
           Goto('End)
         }
         case _ =>
