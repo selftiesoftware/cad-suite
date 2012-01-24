@@ -134,7 +134,7 @@ object AngleGizmo extends Module {
       }
       else
         println("return from AG with none")
-        Send(Message(400))
+        Send(Message(400d))
     })
   )
 

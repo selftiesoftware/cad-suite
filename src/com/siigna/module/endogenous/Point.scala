@@ -69,34 +69,49 @@ object Point extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println("incoming events: "+events.head)
+      println("starting point. with event; ")
+      println(events.head)
       events match {
+        //FIRST ENTRY IS HERE, unless:
+        // -returning from Angle Gizmo, in which case the module will get a Message(Double) and forward to 'SetPoint
 
-        //FIRST ENTRY IS ALWAYS HERE, (unless returning from Angle Gizmo, in which case the module will start in 'Message
-        // The latest event (MouseDown) from the calling module is executed now:
         case MouseDown(p, MouseButtonLeft, _):: tail => {
-          println("PT START: "+p)
+          println("MD in start")
           //get the point
           point = Some(p)
-
           anglePoint = Some(Siigna.mousePosition)
-         //GOTO ANGLE GIZMO
-         ForwardTo('AngleGizmo)
+          ForwardTo('AngleGizmo, false)
+        }
+        //calling module is passing a pointGuide, this should be activated
+        case Message(p : Vector2D) :: tail => {
+          point = Some(p)
+          anglePoint = Some(Siigna.mousePosition)
+          ForwardTo('AngleGizmo, false)
         }
 
-        case Message(g : PointGuide) :: tail => {
-          //if the module receives a point guide, assign this to the var pointGuide
-          pointGuide = Some(g)
+        case _ => Goto('SetPoint)
+      }
+    }),
+    'SetPoint -> ((events : List[Event]) => {
+      events match {
+
+        //ENTRYPOINT MOUSE DOWN, (unless returning from Angle Gizmo, in which case the module will start in 'Message (returning a Double)
+        // The latest event (MouseDown) from the calling module is executed now:
+        case MouseDown(p, MouseButtonLeft, _):: tail => {
+          //get the point
+          point = Some(p)
+          //goto End, but do not return the last MouseDown, as it would exit the calling module
+          Goto('End, false)
         }
 
         case MouseMove(p, _, _) :: tail => mousePosition = Some(p)
 
         //check to see if the gizmo successfully returned an angle
         case Message(p : Double) :: tail => {
-          println("returning 400 from angle gizmo")
-          //if no message was returned and the point is set:
+          println("IN AG MESSAGE")
+          //if no message was returned and the point is set, do nothing:
           if(p == 400 && point.isDefined)
-            Goto('End)
+            println("no gúide.")
           else {
             angleGuide = Some(p)
 
@@ -109,7 +124,6 @@ object Point extends Module {
         case MouseDrag(point, _, _) :: tail => mousePosition = Some(point)
         case MouseDown(_, MouseButtonRight, _) :: tail => {
           //exit without sending on a point, without sending the latest event (mouseDown) as it would exit the calling module as well.
-          point = None
           Goto('End)
         }
         case KeyDown(Key.Backspace, _) :: tail => {
