@@ -20,7 +20,14 @@ object Polyline extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      ForwardTo('Point)
+      println("events in PL start: "+events.head)
+      events match {
+        case MouseDown(_, MouseButtonRight, _) :: tail => {
+          println("got RM in PL")
+          Goto('End)
+        }
+        case _ => ForwardTo('Point)
+      }
     }),
     'SetPoint -> ((events : List[Event]) => {
       def getPointGuide = {
@@ -46,7 +53,7 @@ object Polyline extends Module {
         }
         // Match on everything else
         case _ => {
-          Send(Message(getPointGuide))
+          Send(Message(PointGuide(getPointGuide)))
           ForwardTo('Point)
         }
       }
@@ -55,6 +62,10 @@ object Polyline extends Module {
       // If the shape is defined, then create it!
       if (shape.isDefined)
         Create(shape.get)
+
+      //clear the vars
+      shape = None
+      points = List()
     })
   )
 

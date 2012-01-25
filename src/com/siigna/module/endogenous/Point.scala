@@ -19,6 +19,8 @@ object Point extends Module {
 
   private var filteredX : Option[Double] = None
 
+  //a flag to prevent a messge from being sent if MouseButtonRight is pressed, in which case the calling module should exit as well
+  private var gotExitCue = false
   /**
    * A flag indicating that the angle gizmo is in action.
    */
@@ -41,7 +43,7 @@ object Point extends Module {
   private var previousPoint : Option[Vector2D] = None
 
   //Preload AngleGizmo
-  Preload('AngleGizmo, "com.siigna.module.endogenous.AngleGizmo")
+  //Preload('AngleGizmo, "com.siigna.module.endogenous.AngleGizmo")
 
   // Save the X value, if any
   def x : Option[Double] = if (!coordinateX.isEmpty)
@@ -68,13 +70,22 @@ object Point extends Module {
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {
-        case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
+        case Message(p : PointGuide) :: tail => {
+          pointGuide = Some(p)
+        }
+        case MouseDown(_, MouseButtonRight, _) :: tail => {
+          gotExitCue = true
+          println(gotExitCue)
+          point = None
+          Goto('End)
+        }
         case MouseMove(p, _, _) :: tail => mousePosition = Some(p)
         case MouseDown(_, MouseButtonLeft, _):: tail => {
+
           // Forward to angle gizmo
-          if (!isAngleSnapping) {
-            ForwardTo('AngleGizmo)
-          }
+          //if (!isAngleSnapping) {
+            //ForwardTo('AngleGizmo)
+          //}
         }
         case MouseUp(p, _, _) :: tail => {
           // Define point and go to end
@@ -85,21 +96,22 @@ object Point extends Module {
         }
 
         // Check to see if the Gizmo successfully returned an angle snap
-        case Message(snap : AngleSnap) :: tail => {
+        //case Message(snap : AngleSnap) :: tail => {
           //Since we got the angle we can now snap to the center point and the angle
-          eventParser.snapTo(snap)
-        }
+        //  eventParser.snapTo(snap)
+        //}
 
         // Check to see if the Gizmo returned a unused point
-        case Message(p : Vector2D) :: tail => {
+        //case Message(p : Vector2D) :: tail => {
           // Store the point
-          point = Some(p)
+        //  point = Some(p)
 
           // Go to end to save the point
-          Goto('End)
-        }
+        //  Goto('End)
+        //}
 
         case MouseDrag(point, _, _) :: tail => mousePosition = Some(point)
+        case KeyDown(Key.Escape, _) :: tail => Goto('End)
         case KeyDown(Key.Backspace, _) :: tail => {
           if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
           else if (coordinateX.isDefined) {
@@ -173,7 +185,6 @@ object Point extends Module {
 
         //add the typed point to the polyline
         point = Some(Vector2D(x,y))
-        println("SET  THe POINT IN END")
         //clear the coordinate vars
         coordinateX = None
         coordinateY = None
@@ -187,7 +198,7 @@ object Point extends Module {
       coordinateX = None
       coordinateY = None
       coordinateValue = ""
-      eventParser.clearSnap()
+      //eventParser.clearSnap()
       filteredX = None
 
       // Reset the point guide
@@ -195,9 +206,13 @@ object Point extends Module {
       previousPoint = point
 
       // Return a point if it was defined
-      if(point.isDefined)
-        Message(point.get)
-
+      if(point.isDefined && gotExitCue == false) {
+        Send(Message(point.get))
+      }
+      else {
+        gotExitCue = false
+        Send(Message(None))
+      }
     }
   ))
 

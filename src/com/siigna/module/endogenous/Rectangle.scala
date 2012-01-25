@@ -22,33 +22,34 @@ object Rectangle extends Module {
     //TODO: draw a dummy rectangle of eg. 1/15 * 1/15 of the paper height/width dynamically before first point is set
     'Start -> ((events : List[Event]) => {
       events match {
-        //if the point module returns a valid point, use this as the first corner of the rectangle.
-        case Message(point : Vector2D) :: tail => {
-          points = points :+ point
-          Goto('SecondPoint, false)
-        }
-        case _ => {
-          // Forward to point
-          ForwardTo('Point)
-        }
+        case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
+        case Message(p : Vector2D) :: tail => Goto('SetPoint)
+        case _ => ForwardTo('Point)
+
       }
     }),
-    'SecondPoint -> ((events : List[Event]) => {
+    'SetPoint -> ((events : List[Event]) => {
+      //A function that passes a rectangleShape to the point module to be drawn dynamically
+      //from the first point to the mouse position
+      val getRectGuide : Vector2D => PolylineShape = (v : Vector2D) => {
+        PolylineShape.fromRectangle(Rectangle2D(points.head, v))
+      }
       events match {
         case Message(point : Vector2D) :: tail => {
-          points = points :+ point
-          Goto('End)
+          println("back from Point" +points)
+          if(points.length == 1) {
+
+            points = points :+ point
+            Goto('End)
+          }
+          else if(points.length == 0) {
+           points = points :+ point
+           Send(Message(PointGuide(getRectGuide)))
+           ForwardTo('Point)
+          }
         }
         case _ => {
-          //Make a function here that passes a rectangleShape to the point module to be drawn dynamically
-          //from the first point to the mouse position
-          val guide : Vector2D => PolylineShape = (v : Vector2D) => {
-            PolylineShape.fromRectangle(Rectangle2D(points.head, v))
-          }
 
-          // Send on the message
-          ForwardTo('Point)
-          Send(Message(PointGuide(guide)))
         }
       }
     }),
