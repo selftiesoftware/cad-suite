@@ -2,7 +2,7 @@
 
 //package com.siigna.module.endogenous
 
-/*import com.siigna.app.controller.pgsql_handler._
+import com.siigna.app.controller.pgsql_handler._
 
 
 
@@ -36,7 +36,7 @@ object Save extends Module {
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       //display a message instructing to drag a selection around the lines that should e saved to the database
-      interface display("select lines to save to database")
+      Siigna.display("select lines to save to database")
 
 
 
@@ -76,12 +76,12 @@ object Save extends Module {
     'End   -> ((events : List[Event]) => {
       //return without a result if there are no lines
       if (hasShape == false) {
-        interface display("found no lines")
+        Siigna.display("found no lines")
         Thread.sleep(1000)
       }
       //advice the user if the selection was empty
       else if(hasShape == true && selectedShape.isEmpty) {
-        interface display("found an empty set")
+        Siigna.display("found an empty set")
         Thread.sleep(1000)
       }
       //save the data
@@ -107,8 +107,6 @@ object Save extends Module {
 
       //clear variables
       hasShape = false
-      interface.clearDisplay()
     })
   )
 }
-              */
