@@ -26,9 +26,11 @@ object Move extends Module {
                                         'Move      -> 'MouseUp   -> 'End)
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      println("in move. events: "+events.head)
       events match {
         case KeyDown(Key.Control, _) :: tail => Goto('End); ForwardTo('Copy)
         case MouseDown(p, _, _) :: tail => {
+          println("is model selected? "+Model.isSelected)
           if (Model.isSelected) {
             shapes = shapes ++ Model.selected
           } else if (Model(p).isDefined) {

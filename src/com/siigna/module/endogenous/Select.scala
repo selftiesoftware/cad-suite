@@ -4,7 +4,7 @@ package com.siigna.module.endogenous
 
 import com.siigna._
 
-object Select extends Module {
+object Selection extends Module {
 
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 
@@ -40,7 +40,11 @@ object Select extends Module {
         case MouseDown(point, _, _) :: tail => {
           //set the start of the selection box
           startCoordinate = Some(point)
+          //save the active shape in a var
+
           selectedShape = Model(point)
+          //make the selection
+          Select(selectedShape.get)
           if (selectedShape.isDefined && selectedShape.get.distanceTo(point) < 10)
             closeToObjectOnStart = true
           else
@@ -58,6 +62,7 @@ object Select extends Module {
         case MouseDrag(point, _, _) :: tail => {
           currentPoint = Some(point)
           box = Rectangle2D(startCoordinate.get, Vector2D(point.x,point.y))
+          hasBox == true
         }
           //if (closeToObjectOnStart && selectedShape.isDefined) {
           //  Goto('End)
@@ -73,8 +78,8 @@ object Select extends Module {
       //Create ...
       //println(boxedShapes)
       //TODO: convert boxedShapes from a Set(shapes) to a set of (DynamicShape(id))
-      //Model.select(boxedShapes)
-      //println(Model.selected)
+      Select(boxedShapes)
+      println("selected shapes from Box: "+Select(boxedShapes))
     }),
     'End   -> ((events : List[Event]) => {
       events match {
@@ -118,9 +123,8 @@ object Select extends Module {
         }
         case _ =>
       }
-    //clear a flag used to determine whether to paint the selection box
-    hasBox = false
-      println("(Select 123) -- made a selection, :"+boxedShapes)
+      hasBox = false
+      println("(Select l.128) -- made a selection, :"+boxedShapes)
       Send(Message(boxedShapes))
     })
   )
@@ -128,13 +132,14 @@ object Select extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
     val enclosed = "Color" -> "#9999FF".color
     val focused  = "Color" -> "#FF9999".color
+    println(state)
     if (state != 'End) {
-      if (hasBox == true) g draw PolylineShape.fromRectangle(box).addAttribute("Color" -> (if (isEnclosed) "#88AA88".color else "#8888AA".color)).transform(t)
+        g draw PolylineShape.fromRectangle(box).addAttribute("Color" -> (if (isEnclosed) "#88AA88".color else "#8888AA".color)).transform(t)
     }
 
     boxedShapes.foreach{ s => s match {
       case s : ImmutableShape => drawShape(s)
-      case s : DynamicShape => //drawShape(s.shape)
+      case s : DynamicShape => drawShape(s.shape)
       case _ =>
     }}
     def drawShape(s : ImmutableShape) = {

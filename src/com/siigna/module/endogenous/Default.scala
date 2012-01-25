@@ -43,7 +43,7 @@ object Default extends Module {
         case MouseDown(point, MouseButtonLeft, _) :: tail           => {
           if (fullScreenBox.contains(point.transform(Siigna.physical))) {
 
-          } else ForwardTo('Select)
+          } else ForwardTo('Selection)
         }
         case MouseDown(point, MouseButtonRight, _) :: tail          => {
           if (firstMenuLoad == true) {

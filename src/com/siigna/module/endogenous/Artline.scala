@@ -83,7 +83,7 @@ object Artline extends Module{
       })
     )
     override def paint(g : Graphics, t : TransformationMatrix) {
-      if (points.length > 0) {
+      if (points.length > 0 && currentPoint.isDefined) {
         g draw shape.transform(t)
         g draw LineShape(currentPoint.get,points.last).transform(t)
       }

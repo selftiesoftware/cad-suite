@@ -75,7 +75,6 @@ object Point extends Module {
         }
         case MouseDown(_, MouseButtonRight, _) :: tail => {
           gotExitCue = true
-          println(gotExitCue)
           point = None
           Goto('End)
         }
@@ -204,14 +203,14 @@ object Point extends Module {
       // Reset the point guide
       pointGuide = None
       previousPoint = point
-
+      println("got exit cue")
       // Return a point if it was defined
       if(point.isDefined && gotExitCue == false) {
+        println("message")
         Send(Message(point.get))
       }
       else {
         gotExitCue = false
-        Send(Message(None))
       }
     }
   ))

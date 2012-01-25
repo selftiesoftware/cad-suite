@@ -20,16 +20,15 @@ object Polyline extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println("events in PL start: "+events.head)
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => {
-          println("got RM in PL")
           Goto('End)
         }
         case _ => ForwardTo('Point)
       }
     }),
     'SetPoint -> ((events : List[Event]) => {
+      println("in set point")
       def getPointGuide = {
         (p : Vector2D) => PolylineShape.fromPoints(points :+ p)
       }
