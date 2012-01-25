@@ -75,7 +75,6 @@ object Point extends Module {
         }
         case MouseDown(_, MouseButtonRight, _) :: tail => {
           gotExitCue = true
-          println(gotExitCue)
           point = None
           Goto('End)
         }
@@ -208,10 +207,8 @@ object Point extends Module {
       // Return a point if it was defined
       if(point.isDefined && gotExitCue == false) {
         Send(Message(point.get))
-      }
-      else {
+      } else {
         gotExitCue = false
-        Send(Message(None))
       }
     }
   ))

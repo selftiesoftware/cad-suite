@@ -19,17 +19,17 @@ object Polyline extends Module {
   )
 
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
-      println("events in PL start: "+events.head)
-      events match {
+  'Start -> ((events : List[Event]) => {
+    println("In start: " + events)
+    events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => {
-          println("got RM in PL")
           Goto('End)
         }
-        case _ => ForwardTo('Point)
+        case _ => ForwardTo('Point, false)
       }
     }),
-    'SetPoint -> ((events : List[Event]) => {
+  'SetPoint -> ((events : List[Event]) => {
+    println("In Set Point :  " + events)
       def getPointGuide = {
         (p : Vector2D) => PolylineShape.fromPoints(points :+ p)
       }
@@ -44,11 +44,11 @@ object Polyline extends Module {
             shape = Some(PolylineShape.fromPoints(points))
           }
 
+          ForwardTo('Point, false)
           Send(Message(getPointGuide))
-          ForwardTo('Point)
         }
         // Exit mechanisms
-        case (MouseDown(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => {
+        case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => {
           Goto('End)
         }
         // Match on everything else
