@@ -1,4 +1,13 @@
-/* 2009 (C) Copyright by Siigna, all rights reserved. */
+/* 2012 (C) Copyright by Siigna, all rights reserved. */
+
+/*
+ SIIGNA POINT MODULE
+ a module handling all situations where a point is needed.
+ TODO: correct the angle guide rotation
+ TODO: ability to using angle gizmo successively
+ TODO: ability to write distances following angle snap
+ TODO: fix a bug where the point module exits unexpectedly
+ */
 
 package com.siigna.module.endogenous
 
