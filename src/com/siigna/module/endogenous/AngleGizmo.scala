@@ -9,7 +9,11 @@ import com.siigna._
 
 object AngleGizmo extends Module {
 
+
   var activeAngle : Option[Double] = None
+
+  // a flag telling if the desired angle is set
+  var anglePointIsSet = false
 
   // var to check if the Angle Gizmo is running. Can be used by modules to change what is drawn when the gizmo is active
   var inAngleGizmoMode = false
@@ -29,6 +33,8 @@ object AngleGizmo extends Module {
    * The latest event the module received.
    */
   var latestEvent : Option[Event] = None
+
+  private var radian : Option[Int] = None
 
   // The starting point of the angle gizmo
   var startPoint : Option[Vector2D] = None
@@ -58,7 +64,8 @@ object AngleGizmo extends Module {
 
   def stateMap = DirectedGraph(
     'Start         -> 'KeyEscape -> 'End,
-    'Mousecheck    -> 'KeyEscape -> 'End
+    'Mousecheck    -> 'KeyEscape -> 'End,
+    'AngleGizmo    -> 'KeyEscape -> 'End
   )
 
   def stateMachine = Map(
@@ -73,6 +80,8 @@ object AngleGizmo extends Module {
     }),
     //check if a mouse up is happening while running the angle gizmo loop, if so, the angle module will exit.
     'MouseCheck -> ((events : List[Event]) => {
+      println(events.head)
+
       // Store the latest event
       latestEvent = Some(events.head)
 
@@ -93,6 +102,7 @@ object AngleGizmo extends Module {
         }
       }
     }),
+    //this state is activated if the Gizmo is called:
     'AngleGizmo -> ((events : List[Event]) => {
       // Activate!
       gizmoIsActive = true
@@ -104,36 +114,55 @@ object AngleGizmo extends Module {
         //the latest event coming from polyline has to be mouse down, so
         // this event forms the basis for getting the current mouse position:
 
-        case MouseDown(_, MouseButtonLeft, _) :: MouseMove(_, _, _) :: tail =>  {
-          Goto('End)
+        case MouseMove(p ,_ ,_) :: tail =>
+
+        case MouseDown(p, MouseButtonLeft, _) :: MouseMove(_, _, _) :: tail =>  {
+          if(anglePointIsSet == true)
+            Goto('End, false)
+          else anglePointIsSet = true
+
         }
         case _=>
       }
       //get the current radial
       if (startPoint.isDefined) {
-        var radian = (Siigna.mousePosition - startPoint.get).angle.toInt
-        var calculatedAngle = radian * -1 + 450
+        radian = Some((Siigna.mousePosition - startPoint.get).angle.toInt)
+        var calculatedAngle = radian.get * -1 + 450
         if (calculatedAngle > 360) {
-          activeAngle = Some(calculatedAngle - 360)
+
+          activeAngle = Some(calculatedAngle + 360)
         } else {
           activeAngle = Some(calculatedAngle)
         }
+      println("activeRad: "+radian)
       }
     }),
     //return the output of the anonymous function f, declared above the StateMachine
     'End -> ((events : List[Event]) => {
+
       // If the gizmo was activated, then return the message and reset the vars
       if (gizmoIsActive) {
+        println(radian)
+
         gizmoIsActive = false
-        if (activeAngle.isDefined)
-          Send(Message(new AngleSnap(startPoint.get, activeAngle.get)))
-      } else {
+        if (anglePointIsSet == true && startPoint.isDefined && activeAngle.isDefined)
+          //TOD: fix this! -A hack to reformat the angle to the correct rotation logic.
+          Send(Message(new AngleSnap(startPoint.get, radian.get)))
+          activeAngle = None
+
+      //if the gizmo is not needed, but a point has been set, return the point in a message, but send no angle.
+      } else if (startPoint.isDefined) {
+        gizmoIsActive = false
+        activeAngle = None
         // If the gizmo was not activated, then return the point so the
         // point module can utilize it to whatever
         Send(Message(startPoint.get))
+        //forward to the point module, leaving the last event out
+        ForwardTo('Point, false)
       }
 
       // Reset variables
+      anglePointIsSet = false
       startPoint = None
     })
   )

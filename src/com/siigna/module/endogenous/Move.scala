@@ -13,31 +13,51 @@ object Move extends Module {
   var doneDrawing = false
   var closeToObjectOnStart = false
 
-  def delta : Option[Vector2D] = if (endPoint.isDefined && basePoint.isDefined) Some(endPoint.get - basePoint.get) else None
+  def delta : Option[Vector2D] = if (displacement.isDefined && basePoint.isDefined) Some(displacement.get - basePoint.get) else None
+
+  var displacement : Option[Vector2D] = None
 
   var shapes : Seq[Shape] = Seq()
 
-  lazy val eventHandler = EventHandler(stateMap, stateMachine)
+  def eventHandler = EventHandler(stateMap, stateMachine)
 
-  lazy val stateMap     = DirectedGraph('Start     -> 'KeyEscape -> 'End,
+  def stateMap     = DirectedGraph('Start     -> 'KeyEscape -> 'End,
                                         'Start     -> 'MouseDrag -> 'Move,
-                                        'Start     -> 'MouseUp   -> 'End,
-                                        'Move      -> 'KeyEscape -> 'End,
-                                        'Move      -> 'MouseUp   -> 'End)
+                                        'Move      -> 'KeyEscape -> 'End)
+
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println("in move. events: "+events.head)
+      if(Model.isSelected) {
+        Siigna display("Select point to move from")
+        Goto('SetOrigin, false)
+      } else {
+        Siigna display("Select objects to move")
+        ForwardTo('Select)
+      }
+    }),
+    'SetOrigin -> ((events : List[Event]) => {
+      //TODO: refactor. -this is a hack to make sure 'Point gets the guide it needs.
+      val moveGuide : Vector2D => CircleShape = (v : Vector2D) => {
+      CircleShape(v, v + Vector2D(0,4))
+      }
       events match {
         case KeyDown(Key.Control, _) :: tail => Goto('End); ForwardTo('Copy)
-        case MouseDown(p, _, _) :: tail => {
-          println("is model selected? "+Model.isSelected)
+        case MouseMove(p, _, _) :: tail => {
+          //Send(Message(PointGuide(moveGuide)))
+          ForwardTo('Point, false)
+        }
+        case Message(p : Vector2D) :: tail => basePoint = Some(p)
+          println("GOT POINT MESSAGE IN SETSTART")
+
           if (Model.isSelected) {
             shapes = shapes ++ Model.selected
           } else if (Model(p).isDefined) {
             shapes = Seq(Model(p).get)
             closeToObjectOnStart = true
-          } else Goto('End)// If there aren't any active, quit the module
-          basePoint = Some(p)
+            Goto('Move)
+          } else {
+            Goto('End)
+            basePoint = Some(p)
         }
         case MouseDrag(_, _, _) :: MouseDown(p, _, _) :: tail => {
           if (Model.isSelected) {
@@ -52,9 +72,11 @@ object Move extends Module {
       if (basePoint.isEmpty) Goto('End)
       None
     }),
-    'Move -> ((events : List[Event]) => {
+    'SetDestination -> ((events : List[Event]) => {
+      println("in move")
       events match {
-        case MouseDrag(p, _, _) :: tail => {
+        case MouseMove(p, _, _) :: tail => displacement = Some(p)
+        case MouseUp(p, _, _) :: tail => {
           endPoint = Some(p)
         }
         case _ =>

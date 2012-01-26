@@ -6,6 +6,9 @@ import com.siigna._
 
 object Point extends Module {
 
+  private var angleBase : Option[Vector2D] = None
+
+  private var basePointSet = false
   //text input for X values
   private var coordinateX : Option[Double] = None
 
@@ -32,7 +35,7 @@ object Point extends Module {
    */
   private var point : Option[Vector2D] = None
 
-  // Store the mousePosition, so we get the snap-coordinates
+  //Store the mousePosition, so we get the snap-coordinates
   private var mousePosition : Option[Vector2D] = None
 
   private var pointGuide : Option[PointGuide] = None
@@ -43,7 +46,7 @@ object Point extends Module {
   private var previousPoint : Option[Vector2D] = None
 
   //Preload AngleGizmo
-  //Preload('AngleGizmo, "com.siigna.module.endogenous.AngleGizmo")
+  Preload('AngleGizmo, "com.siigna.module.endogenous.AngleGizmo")
 
   // Save the X value, if any
   def x : Option[Double] = if (!coordinateX.isEmpty)
@@ -70,21 +73,68 @@ object Point extends Module {
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {
-        case Message(p : PointGuide) :: tail => {
-          pointGuide = Some(p)
+         // Check to see if the Gizmo successfully returned an angle snap
+        case Message(snap : AngleSnap) :: tail => {
+          //Since we got the angle we can now snap to the center point and the angle
+          //TODO: the latest point needs to be used as well, not the previous point.
+
+          point = Some(snap.p)
+          angleBase = Some(snap.p)
+          isAngleSnapping = true
+          eventParser.snapTo(snap)
+          basePointSet = true
+
+          //Send the point to the calling module
+          Send(Message(point.get))
+          Goto('End)
         }
+
+        case Message(p : PointGuide) :: tail => {
+          if(!isAngleSnapping)
+            pointGuide = Some(p)
+        }
+
+        // Check to see if the Gizmo returned a unused point
+        case Message(p : Vector2D) :: tail => {
+          // Store the point unless angle snap is active
+          if (!isAngleSnapping) {
+            point = Some(p)
+            // Go to end to save the point
+            Goto('End)
+          }
+        }
+
         case MouseDown(_, MouseButtonRight, _) :: tail => {
           gotExitCue = true
           point = None
           Goto('End)
         }
-        case MouseMove(p, _, _) :: tail => mousePosition = Some(p)
-        case MouseDown(_, MouseButtonLeft, _):: tail => {
-
+        case MouseMove(p, _, _) :: tail => {
+          mousePosition = Some(p)
+        }
+        case MouseDown(p, MouseButtonLeft, _):: tail => {
           // Forward to angle gizmo
-          //if (!isAngleSnapping) {
-            //ForwardTo('AngleGizmo)
-          //}
+          if (!isAngleSnapping) {
+            ForwardTo('AngleGizmo)
+          //if angle snap is active,
+          } else {
+
+            //and the base point has been set,
+            if(basePointSet == true) {
+              //set the parsed point
+              point = Some(p)
+
+              //and clear the parser values
+              eventParser.clearSnap()
+              angleBase = None
+              basePointSet = false
+              isAngleSnapping = false
+
+              Goto('End)
+            //otherwise, just goto 'End.
+            } else Goto('End)
+
+          }
         }
         case MouseUp(p, _, _) :: tail => {
           // Define point and go to end
@@ -93,22 +143,6 @@ object Point extends Module {
           point = Some(p)
           Goto('End)
         }
-
-        // Check to see if the Gizmo successfully returned an angle snap
-        //case Message(snap : AngleSnap) :: tail => {
-          //Since we got the angle we can now snap to the center point and the angle
-        //  eventParser.snapTo(snap)
-        //}
-
-        // Check to see if the Gizmo returned a unused point
-        //case Message(p : Vector2D) :: tail => {
-          // Store the point
-        //  point = Some(p)
-
-          // Go to end to save the point
-        //  Goto('End)
-        //}
-
         case MouseDrag(point, _, _) :: tail => mousePosition = Some(point)
         case KeyDown(Key.Escape, _) :: tail => Goto('End)
         case KeyDown(Key.Backspace, _) :: tail => {
@@ -193,23 +227,21 @@ object Point extends Module {
     }),
     'End -> ((events : List[Event]) => {
       //Clear the variables
-      isAngleSnapping = false
       coordinateX = None
       coordinateY = None
       coordinateValue = ""
-      //eventParser.clearSnap()
       filteredX = None
 
       // Reset the point guide
       pointGuide = None
       previousPoint = point
-      println("got exit cue")
       // Return a point if it was defined
+      println("in END. is point defined? "+point.isDefined)
+      println("base set? "+basePointSet)
       if(point.isDefined && gotExitCue == false) {
-        println("message")
+        println("in send message if statement")
         Send(Message(point.get))
-      }
-      else {
+      } else {
         gotExitCue = false
       }
     }
@@ -246,9 +278,18 @@ object Point extends Module {
       else if (x.isDefined && mousePosition.isDefined && filteredX.isDefined) {
         g draw guide(Vector2D(filteredX.get, mousePosition.get.y)).transform(t)
       }
-      else if (mousePosition.isDefined)
+      else if (mousePosition.isDefined && !angleBase.isDefined) {
         g draw guide(mousePosition.get).transform(t)
+      }
+      else if (mousePosition.isDefined && angleBase.isDefined) {
+        g draw LineShape(angleBase.get, mousePosition.get).transform(t)
+      }
     }
+    //If angle snap is activated, draw the snap guide
+    //else if(angleBase.isDefined && mousePosition.isDefined) {
+    //  g draw LineShape(angleBase.get, mousePosition.get).transform(t)
+    //}
+    else None
   }
 
 }

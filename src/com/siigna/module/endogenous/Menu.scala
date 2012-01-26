@@ -215,7 +215,6 @@ object Menu extends Module {
               //draws the first letter of the active menu in the inner circle
               g draw TextShape(item.name.substring(0, 1), Vector2D(0, 0), newT.scaleFactor* 44, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))).transform(newT)
           }
-
         }
 
         // Draws a MenuItem and the background-icon for the given direction.

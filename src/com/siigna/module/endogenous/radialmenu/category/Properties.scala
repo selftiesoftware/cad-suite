@@ -13,13 +13,15 @@ case class Properties(parent : Option[MenuCategory]) extends MenuCategory {
 
   def name = "Properties"
 
-  override def ENE = Some(MenuItem('AntiAliasingToggle, TextShape("Anti-Alias", Vector2D(0, 0), 10, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
-  override def N   = Some(MenuItemEmpty("Weight"))
+  override def E   = Some(MenuItemEmpty("util"))
+  override def ESE = Some(MenuItem('Performancetest, TextShape("test", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
+  override def ENE = Some(MenuItem('AntiAliasingToggle, TextShape("Anti-Alias", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
+  override def N   = Some(MenuItemEmpty("style"))
   override def NNE = Some(MenuItem('Polyline, RadialMenuIcon.NNEArrow))
   override def NNW = Some(MenuItem('Polyline, RadialMenuIcon.NNWArrow))
-  override def WNW = Some(MenuItem('Polyline, TextShape("mm", Vector2D(0, 0), 10, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
-  override def WSW = Some(MenuItem('Polyline, TextShape("Feet", Vector2D(0, 0), 10, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
-  override def ESE = Some(MenuItem('Polyline, RadialMenuIcon.styles))
-   override def SSW = Some(new MenuItem('Polyline, RadialMenuIcon.sampleProperties))
-
+  override def WNW = Some(MenuItem('Polyline, TextShape("mm", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
+  override def W   = Some(MenuItemEmpty("units"))
+  override def WSW = Some(MenuItem('Polyline, TextShape("Feet", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
+  override def SSW = Some(MenuItem('Polyline, RadialMenuIcon.sampleProperties))
+  override def S   = Some(MenuItemEmpty("sampling"))
 }

@@ -15,7 +15,7 @@ case class Helpers(parent : Option[MenuCategory]) extends MenuCategory {
   override def NNW = Some(new MenuItem('Hide, RadialMenuIcon.hide))
   override def WNW = Some(new MenuItem('Polyline, RadialMenuIcon.selectSame))
   override def WSW = Some(new MenuItem('Polyline, RadialMenuIcon.selectAll))
-  override def SSW = Some(new MenuItem('Performancetest, RadialMenuIcon.area))
+  override def SSW = Some(new MenuItem('Polyline, RadialMenuIcon.area))
   override def SSE = Some(new MenuItem('Distance , RadialMenuIcon.distance))
   override def ESE = Some(new MenuItem('Polyline, RadialMenuIcon.midPointSnap))
 

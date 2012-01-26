@@ -78,8 +78,7 @@ object Selection extends Module {
       //Create ...
       //println(boxedShapes)
       //TODO: convert boxedShapes from a Set(shapes) to a set of (DynamicShape(id))
-      Select(boxedShapes)
-      println("selected shapes from Box: "+Select(boxedShapes))
+
     }),
     'End   -> ((events : List[Event]) => {
       events match {
@@ -125,6 +124,7 @@ object Selection extends Module {
       }
       hasBox = false
       println("(Select l.128) -- made a selection, :"+boxedShapes)
+      Select(boxedShapes)
       Send(Message(boxedShapes))
     })
   )

@@ -36,7 +36,7 @@ object Default extends Module {
   def stateMachine = Map( 'Start -> ((events : List[Event]) => {
     nearestShape = Model(Siigna.mousePosition)
       if (firstStart == true) {
-        Siigna.display("Loading Siigna modules ver. 0.1.20.0 (442 kb")
+        Siigna.display("Loading Siigna modules ver. 0.1.30.0 (442 kb")
         firstStart = false
       }
       events match {
@@ -99,9 +99,12 @@ object Default extends Module {
               }
               else previousKey = Some('a')
             }
-            //TODO: fix circle shortcut (circle does not draw)
+            //TODO: fix colorWheel shortcut. The menu is not called.
             case 'c' => {
-              if(previousKey == 'c') {
+              if(previousKey == 'p') {
+                ForwardTo('ColorWheel)
+              }
+              else if(previousKey == 'c') {
                 Siigna.display("circle")
                 ForwardTo('Circle)
               }
@@ -139,9 +142,16 @@ object Default extends Module {
             }
             //open the MODIFY menu
             case 'm' => {
+              if(previousKey == Some('m')) {
+                ForwardTo('Move)
+                previousKey = Some('m')
+              }
+              else
+              {
                 Send(Message(Modify(Some(Start))))
                 ForwardTo('Menu)
                 previousKey = Some('m')
+              }
             }
             case 'l' => {
               if (previousKey == Some('c')) {
