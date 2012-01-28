@@ -1,6 +1,6 @@
-/* 2011 (C) Copyright by Siigna, all rights reserved. */
+package com.siigna.module.endogenous.createCategory
 
-package com.siigna.module.endogenous
+/* 2011 (C) Copyright by Siigna, all rights reserved. */
 
 import com.siigna._
 

@@ -1,6 +1,6 @@
+package com.siigna.module.endogenous.fileCategory
+
 /* 2010 (C) Copyright by Siigna, all rights reserved. */
-/*
-package com.siigna.module.endogenous
 
 import com.siigna.app.controller.pgsql_handler._
 
@@ -111,4 +111,3 @@ object Save extends Module {
     })
   )
 }
-  */

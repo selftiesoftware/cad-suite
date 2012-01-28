@@ -1,6 +1,6 @@
-///* 2012 (C) Copyright by Siigna, all rights reserved. */
+package com.siigna.module.endogenous.createCategory
 
-package com.siigna.module.endogenous
+///* 2012 (C) Copyright by Siigna, all rights reserved. */
 
 import com.siigna._
 
@@ -21,6 +21,7 @@ object Rectangle extends Module {
   def stateMachine = Map(
     //TODO: draw a dummy rectangle of eg. 1/15 * 1/15 of the paper height/width dynamically before first point is set
     'Start -> ((events : List[Event]) => {
+      println(events.head)
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
         case Message(p : Vector2D) :: tail => Goto('SetPoint)

@@ -97,14 +97,19 @@ object Default extends Module {
                 ForwardTo('Artline)
                 previousKey = Some('a')
               }
+              else if(previousKey == Some('h')) {
+                Siigna.display("click to measure area")
+                println("start area")
+                ForwardTo('Area)
+                previousKey = Some('a')
+              }
               else previousKey = Some('a')
             }
-            //TODO: fix colorWheel shortcut. The menu is not called.
             case 'c' => {
-              if(previousKey == 'p') {
+              if(previousKey == Some('p')) {
                 ForwardTo('ColorWheel)
               }
-              else if(previousKey == 'c') {
+              else if(previousKey == Some('c')) {
                 Siigna.display("circle")
                 ForwardTo('Circle)
               }

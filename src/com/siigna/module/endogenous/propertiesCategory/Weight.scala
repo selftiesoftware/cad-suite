@@ -1,10 +1,8 @@
-package com.siigna.module.endogenous
+package com.siigna.module.endogenous.propertiesCategory
 
 import com.siigna.app.view.Graphics
 import com.siigna._
-import java.awt.Color
-import radialmenu.{RadialMenuIcon, MenuEvent, MenuItem}
-
+import com.siigna.module.endogenous.Menu
 /**
  * a wheel to select weights (and styles?) for lines
  *

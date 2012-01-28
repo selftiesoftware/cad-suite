@@ -1,3 +1,5 @@
+package com.siigna.module.endogenous.createCategory
+
 /* 2012 (C) Copyright by Siigna, all rights reserved. */
 
 /*
@@ -9,9 +11,8 @@
  TODO: fix a bug where the point module exits unexpectedly when AngleGizmoLoop finishes AFTER the Angle Gizmo.
  */
 
-package com.siigna.module.endogenous
-
 import com.siigna._
+import module.endogenous.AngleSnap
 
 object Point extends Module {
 

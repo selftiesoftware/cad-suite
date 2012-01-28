@@ -1,9 +1,9 @@
-package com.siigna.module.endogenous
+package com.siigna.module.endogenous.propertiesCategory
 
 import com.siigna.app.view.Graphics
 import com.siigna._
 import java.awt.Color
-import radialmenu.{RadialMenuIcon, MenuEvent, MenuItem}
+import com.siigna.module.endogenous.Menu
 
 /**
  * a wheel to select colors for lines, surfaces and text
@@ -77,6 +77,8 @@ object ColorWheel extends Module {
   def stateMachine = Map(
     //select a color
     'Start -> ((events : List[Event]) => {
+      println(events.head)
+
       Siigna.navigation = false // Make sure the rest of the program doesn't move
       eventParser.disable // Disable tracking and snapping
       events match {

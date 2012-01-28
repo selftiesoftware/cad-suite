@@ -1,8 +1,7 @@
+package com.siigna.module.endogenous.helpersCategory
+
 /* 2012 (C) Copyright by Siigna, all rights reserved. */
 
-package com.siigna.module.endogenous
-
-import java.awt.Color
 import com.siigna._
 
 object Area extends Module {

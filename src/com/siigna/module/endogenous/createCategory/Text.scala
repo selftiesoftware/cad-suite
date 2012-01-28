@@ -1,8 +1,9 @@
+package com.siigna.module.endogenous.createCategory
+
 /* 2012 (C) Copyright by Siigna, all rights reserved. */
 
-package com.siigna.module.endogenous
-
 import com.siigna._
+import module.endogenous.Default
 
 //import java.awt.{Font, Color, TextField}
 //import java.awt.font._

@@ -1,6 +1,6 @@
-/* 2012 (C) Copyright by Siigna, all rights reserved. */
+package com.siigna.module.endogenous.createCategory
 
-package com.siigna.module.endogenous
+/* 2012 (C) Copyright by Siigna, all rights reserved. */
 
 import java.awt.Color
 import com.siigna._

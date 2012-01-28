@@ -1,8 +1,9 @@
+package com.siigna.module.endogenous.createCategory
+
 /* 2011 (C) Copyright by Siigna, all rights reserved. */
 
-package com.siigna.module.endogenous
-
 import com.siigna._
+import com.siigna.module.endogenous.Default
 
 
 //TODO: clean up this mess!!

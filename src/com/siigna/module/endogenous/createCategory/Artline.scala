@@ -1,4 +1,4 @@
-package com.siigna.module.endogenous
+package com.siigna.module.endogenous.createCategory
 
 import com.siigna._
 
@@ -77,7 +77,7 @@ object Artline extends Module{
             //Create(shape)
             }
           }
-        Default.previousModule = Some('Artline)
+        com.siigna.module.endogenous.Default.previousModule = Some('Artline)
         }
         None
       })

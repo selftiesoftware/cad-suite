@@ -1,6 +1,6 @@
-/* 2010 (C) Copyright by Siigna, all rights reserved. */
+package com.siigna.module.endogenous.fileCategory
 
-package com.siigna.module.endogenous
+/* 2010 (C) Copyright by Siigna, all rights reserved. */
 
 //java
 import java.awt.{FileDialog, Frame}

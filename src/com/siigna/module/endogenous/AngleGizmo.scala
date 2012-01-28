@@ -153,7 +153,6 @@ object AngleGizmo extends Module {
       }
         //if the gizmo is not needed, but a point has been set, return the point in a message, but send no angle.
       else if (startPoint.isDefined) {
-        println("A")
         gizmoIsActive = false
         degrees = None
         activeAngle = None
@@ -164,7 +163,6 @@ object AngleGizmo extends Module {
         ForwardTo('Point, false)
         }
       else {
-        println("got no point in Angle Gizmo")
       }
       // Reset variables
       anglePointIsSet = false
