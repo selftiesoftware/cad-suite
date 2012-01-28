@@ -25,8 +25,10 @@ class AngleGizmoLoop extends Thread {
         // If the start point is defined
         if (AngleGizmo.startPoint.isDefined) {
           // .. And if the event is not a mouse down
+          //TODO: add a mechanism to stop AngleLoop from forwarding "Goto('End)" AFTER AngleGizmo is exited, as this will contaminate the event stream.
           if (!AngleGizmo.latestEvent.get.isInstanceOf[MouseDown]) {
             // Then send the angle gizmo module to end
+            println("loop ending")
             Goto('End)
 
             // And stop the thread

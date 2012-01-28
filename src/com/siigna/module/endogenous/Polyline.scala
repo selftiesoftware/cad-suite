@@ -21,7 +21,6 @@ object Polyline extends Module {
   def stateMachine = Map(
   'Start -> ((events : List[Event]) => {
     events match {
-
         case MouseDown(_, MouseButtonRight, _) :: tail => {
           Goto('End)
         }
@@ -35,6 +34,7 @@ object Polyline extends Module {
       events match {
         case Message(p : Vector2D) :: tail => {
           // Save the point
+          println("added point to polyline: "+p)
           points = points :+ p
           // Define shape if there is enough points
           if (points.size > 1) {
@@ -50,6 +50,7 @@ object Polyline extends Module {
         }
         // Match on everything else
         case _ => {
+          println("sending point guide from PL")
           Send(Message(PointGuide(getPointGuide)))
           ForwardTo('Point)
         }

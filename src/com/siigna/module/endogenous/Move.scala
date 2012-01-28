@@ -32,7 +32,7 @@ object Move extends Module {
         Goto('SetOrigin, false)
       } else {
         Siigna display("Select objects to move")
-        ForwardTo('Select)
+        ForwardTo('Selection)
       }
     }),
     'SetOrigin -> ((events : List[Event]) => {

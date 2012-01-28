@@ -35,6 +35,7 @@ object Selection extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      println(events.head)
       events match {
         case (_ : MouseUp) :: (_ : MouseDown) :: tail => Goto('End)
         case MouseDown(point, _, _) :: tail => {
@@ -57,7 +58,7 @@ object Selection extends Module {
       }
       None
     }),
-    'Box   -> ((events : List[Event]) => {
+    'Box -> ((events : List[Event]) => {
       events match {
         case MouseDrag(point, _, _) :: tail => {
           currentPoint = Some(point)
@@ -80,7 +81,7 @@ object Selection extends Module {
       //TODO: convert boxedShapes from a Set(shapes) to a set of (DynamicShape(id))
 
     }),
-    'End   -> ((events : List[Event]) => {
+    'End -> ((events : List[Event]) => {
       events match {
         //case (_ : MouseUp) :: (_ : MouseDown) :: MouseUp(p, _, ModifierKeys(_, true, _)) :: tail => {
         //  val parent = DOM.lookup(DOM.getShapeFrom(p))
@@ -123,7 +124,7 @@ object Selection extends Module {
         case _ =>
       }
       hasBox = false
-      println("(Select l.128) -- made a selection, :"+boxedShapes)
+      println("(Select line 127) -- made a selection, :"+boxedShapes)
       Select(boxedShapes)
       Send(Message(boxedShapes))
     })
@@ -132,7 +133,6 @@ object Selection extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
     val enclosed = "Color" -> "#9999FF".color
     val focused  = "Color" -> "#FF9999".color
-    println(state)
     if (state != 'End) {
         g draw PolylineShape.fromRectangle(box).addAttribute("Color" -> (if (isEnclosed) "#88AA88".color else "#8888AA".color)).transform(t)
     }

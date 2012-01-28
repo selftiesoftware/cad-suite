@@ -24,7 +24,7 @@ object AngleGizmo extends Module {
   val gizmoShapes = List[Shape]()
 
   //time to press and hold the mouse button before the gizmo mode is activated
-  val gizmoTime = 500
+  val gizmoTime = 700
   
   // A flag to determine whether the angle gizmo was activated
   private var gizmoIsActive = false
@@ -34,7 +34,7 @@ object AngleGizmo extends Module {
    */
   var latestEvent : Option[Event] = None
 
-  private var radian : Option[Int] = None
+  private var degrees : Option[Int] = None
 
   // The starting point of the angle gizmo
   var startPoint : Option[Vector2D] = None
@@ -80,7 +80,6 @@ object AngleGizmo extends Module {
     }),
     //check if a mouse up is happening while running the angle gizmo loop, if so, the angle module will exit.
     'MouseCheck -> ((events : List[Event]) => {
-      println(events.head)
 
       // Store the latest event
       latestEvent = Some(events.head)
@@ -126,41 +125,47 @@ object AngleGizmo extends Module {
       }
       //get the current radial
       if (startPoint.isDefined) {
-        radian = Some((Siigna.mousePosition - startPoint.get).angle.toInt)
-        var calculatedAngle = radian.get * -1 + 450
+        degrees = Some((Siigna.mousePosition - startPoint.get).angle.toInt)
+        var calculatedAngle = degrees.get * -1 + 450
         if (calculatedAngle > 360) {
 
-          activeAngle = Some(calculatedAngle + 360)
+          activeAngle = Some(calculatedAngle - 360)
         } else {
           activeAngle = Some(calculatedAngle)
         }
-      println("activeRad: "+radian)
       }
     }),
     //return the output of the anonymous function f, declared above the StateMachine
     'End -> ((events : List[Event]) => {
 
+      //convert degrees to radians
+      def radians(d : Double) : Double = {(d.toInt * (scala.math.Pi / 180))}
+
       // If the gizmo was activated, then return the message and reset the vars
       if (gizmoIsActive) {
-        println(radian)
-
+        //reset the flag
         gizmoIsActive = false
-        if (anglePointIsSet == true && startPoint.isDefined && activeAngle.isDefined)
-          //TOD: fix this! -A hack to reformat the angle to the correct rotation logic.
-          Send(Message(new AngleSnap(startPoint.get, radian.get)))
+        if (anglePointIsSet == true && startPoint.isDefined && activeAngle.isDefined) {
+          //send the active snap angle
+          Send(Message(new AngleSnap(startPoint.get, radians(degrees.get))))
           activeAngle = None
-
-      //if the gizmo is not needed, but a point has been set, return the point in a message, but send no angle.
-      } else if (startPoint.isDefined) {
+        }
+      }
+        //if the gizmo is not needed, but a point has been set, return the point in a message, but send no angle.
+      else if (startPoint.isDefined) {
+        println("A")
         gizmoIsActive = false
+        degrees = None
         activeAngle = None
         // If the gizmo was not activated, then return the point so the
         // point module can utilize it to whatever
         Send(Message(startPoint.get))
-        //forward to the point module, leaving the last event out
+        //forward to the point module, leaving the last event (mouseUp) out, as it would exit the Point module.
         ForwardTo('Point, false)
+        }
+      else {
+        println("got no point in Angle Gizmo")
       }
-
       // Reset variables
       anglePointIsSet = false
       startPoint = None

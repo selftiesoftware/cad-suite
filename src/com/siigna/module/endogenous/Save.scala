@@ -1,8 +1,8 @@
 /* 2010 (C) Copyright by Siigna, all rights reserved. */
+/*
+package com.siigna.module.endogenous
 
-//package com.siigna.module.endogenous
-
-/*import com.siigna.app.controller.pgsql_handler._
+import com.siigna.app.controller.pgsql_handler._
 
 
 
@@ -11,7 +11,7 @@ import com.siigna._
 
 object Save extends Module {
 
-  lazy val eventHandler = EventHandler(stateMap, stateMachine)
+  def eventHandler = EventHandler(stateMap, stateMachine)
 
   private var hasShape  = false
 
@@ -33,18 +33,19 @@ object Save extends Module {
 
   var selectedShape : Set[Shape] = Set()
 
-  lazy val stateMachine = Map(
+  def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       //display a message instructing to drag a selection around the lines that should e saved to the database
+      println("IN SAVE MODULE")
       Siigna.display("select lines to save to database")
 
 
 
-    var pointPlId : Seq[Int] = Seq()
-    pointPlId = pointPlId :+ 7 :+ 8 :+ 0 :+ 89 :+ 86 :+ 0 :+ 2 :+ 3 :+ 0 :+ 7 :+ 6 :+ 0 :+ 2 :+ 4 :+ 0 :+ 33 :+ 1 :+ 0
-    val (shapeId1: Int, pointPlIdReturn) = new pgsqlSaveShapePolyline().postgresSaveShapePolyline(pointPlId)
-    println(shapeId1)
-    println(pointPlIdReturn)
+    //var pointPlId : Seq[Int] = Seq()
+    //pointPlId = pointPlId :+ 7 :+ 8 :+ 0 :+ 89 :+ 86 :+ 0 :+ 2 :+ 3 :+ 0 :+ 7 :+ 6 :+ 0 :+ 2 :+ 4 :+ 0 :+ 33 :+ 1 :+ 0
+    //val (shapeId1: Int, pointPlIdReturn) = new pgsqlSaveShapePolyline().postgresSaveShapePolyline(pointPlId)
+    //println(shapeId1)
+    //println(pointPlIdReturn)
 
       //test:
       //siigna.php
@@ -68,7 +69,7 @@ object Save extends Module {
           }
           //if not, offer the possibility to try ans select again.
           else {
-            ForwardTo('Select)
+            ForwardTo('Selection)
           }
         }
       }
@@ -109,4 +110,5 @@ object Save extends Module {
       hasShape = false
     })
   )
-}*/
+}
+  */
