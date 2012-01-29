@@ -1,6 +1,6 @@
-/* 2012 (C) Copyright by Siigna, all rights reserved. */
+package com.siigna.module.endogenous.create
 
-package com.siigna.module.endogenous
+/* 2012 (C) Copyright by Siigna, all rights reserved. */
 
 import com.siigna._
 

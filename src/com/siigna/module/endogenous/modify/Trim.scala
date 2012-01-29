@@ -1,7 +1,7 @@
+package com.siigna.module.endogenous.modify
+
 /* 2010 (C) Copyright by Siigna, all rights reserved. */
 
-
-package com.siigna.module.endogenous
 
 import com.siigna._
 

@@ -1,15 +1,24 @@
-package com.siigna.module.endogenous
+package com.siigna.module.endogenous.create
 
 import com.siigna._
 import com.siigna.app.view.event.EventSnap
 
 /**
  * A radian snap module that snaps to the point and the radian given.
+ *
+ * @param center  The center point of the angle snap
+ * @param degree The degree to snap to, calculated clockwise from North
  */
-case class AngleSnap(p: Vector2D, radian : Double) extends EventSnap{
+case class AngleSnap(center: Vector2D, degree : Int) extends EventSnap{
+
+  /**
+   * Hack to make sure we use radians to calculate the correct angle.
+   * Radians are defined counter-clockwise from East
+   */
+  private val radian = (degree * -1 + 90) * math.Pi / 180
 
   // Define a line segment that we can perform calculations on
-  private val line = Line2D(p, Vector2D(math.cos(radian), math.sin(radian)))
+  private val line = Line2D(center, center + Vector2D(math.cos(radian), math.sin(radian)))
 
   /**
    * Parse events to follow the guide given in the constructor.
@@ -25,10 +34,7 @@ case class AngleSnap(p: Vector2D, radian : Double) extends EventSnap{
   /**
    * Snaps a given point to the guide given in the constructor.
    */
-  def snapToRadian(point : Vector2D) : Vector2D = {
-    val newPoint = line.closestPoint(point)
-    newPoint
-  }
+  def snapToRadian(point : Vector2D) : Vector2D = line.closestPoint(point)
 
 
 }

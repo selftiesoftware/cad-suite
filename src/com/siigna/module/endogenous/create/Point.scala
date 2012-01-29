@@ -1,3 +1,5 @@
+package com.siigna.module.endogenous.create
+
 /* 2012 (C) Copyright by Siigna, all rights reserved. */
 
 /*
@@ -6,16 +8,14 @@
  TODO: correct the angle guide rotation
  TODO: ability to using angle gizmo successively
  TODO: ability to write distances following angle snap
- TODO: fix a bug where the point module exits unexpectedly
+ TODO: fix a bug where the point module exits unexpectedly when AngleGizmoLoop finishes AFTER the Angle Gizmo.
  */
-
-package com.siigna.module.endogenous
 
 import com.siigna._
 
 object Point extends Module {
 
-  private var angleBase : Option[Vector2D] = None
+  private var angleSnap : Option[AngleSnap] = None
 
   private var basePointSet = false
   //text input for X values
@@ -33,29 +33,33 @@ object Point extends Module {
 
   //a flag to prevent a messge from being sent if MouseButtonRight is pressed, in which case the calling module should exit as well
   private var gotExitCue = false
-  /**
-   * A flag indicating that the angle gizmo is in action.
-   */
-  private var isAngleSnapping = false
 
   /**
-   * The point the module is trying to "find".
-   * TODO: Ole: Write a better description.
+   * info about the main var:
+   * var point
+   * This is point the module is trying to establish.
+   * It is found in several different in two ways.
+   * Either directly by user input (MouseDown or Keys)
+   * or by means of an Angle Gizmo that helps determining a point
+   * as a radial offset from an existing point.
+   * in all events, if a point is found,
+   * the point var is returned to the calling module
+   * using a Send(Message()) event.
    */
+
   private var point : Option[Vector2D] = None
+
+  private var pointGuide : Option[PointGuide] = None
 
   //Store the mousePosition, so we get the snap-coordinates
   private var mousePosition : Option[Vector2D] = None
-
-  private var pointGuide : Option[PointGuide] = None
 
   /**
    * The previous point saved as the relative value to the next.
    */
   private var previousPoint : Option[Vector2D] = None
 
-  //Preload AngleGizmo
-  Preload('AngleGizmo, "com.siigna.module.endogenous.AngleGizmo")
+  var snapAngle : Option[Double] = None
 
   // Save the X value, if any
   def x : Option[Double] = if (!coordinateX.isEmpty)
@@ -85,28 +89,20 @@ object Point extends Module {
          // Check to see if the Gizmo successfully returned an angle snap
         case Message(snap : AngleSnap) :: tail => {
           //Since we got the angle we can now snap to the center point and the angle
-          //TODO: the latest point needs to be used as well, not the previous point.
-
-          point = Some(snap.p)
-          angleBase = Some(snap.p)
-          isAngleSnapping = true
+          angleSnap = Some(snap)
           eventParser.snapTo(snap)
-          basePointSet = true
 
           //Send the point to the calling module
           Send(Message(point.get))
           Goto('End)
         }
 
-        case Message(p : PointGuide) :: tail => {
-          if(!isAngleSnapping)
-            pointGuide = Some(p)
-        }
+        case Message(p : PointGuide) :: tail => pointGuide = Some(p)
 
         // Check to see if the Gizmo returned a unused point
         case Message(p : Vector2D) :: tail => {
           // Store the point unless angle snap is active
-          if (!isAngleSnapping) {
+          if (angleSnap.isEmpty) {
             point = Some(p)
             // Go to end to save the point
             Goto('End)
@@ -123,21 +119,16 @@ object Point extends Module {
         }
         case MouseDown(p, MouseButtonLeft, _):: tail => {
           // Forward to angle gizmo
-          if (!isAngleSnapping) {
+          if (angleSnap.isEmpty) {
             ForwardTo('AngleGizmo)
+
           //if angle snap is active,
           } else {
-
             //and the base point has been set,
             if(basePointSet == true) {
               //set the parsed point
               point = Some(p)
-
-              //and clear the parser values
-              eventParser.clearSnap()
-              angleBase = None
               basePointSet = false
-              isAngleSnapping = false
 
               Goto('End)
             //otherwise, just goto 'End.
@@ -241,18 +232,20 @@ object Point extends Module {
       coordinateValue = ""
       filteredX = None
 
+      angleSnap = None
+      eventParser.clearSnap()
+
       // Reset the point guide
       pointGuide = None
       previousPoint = point
       // Return a point if it was defined
-      println("in END. is point defined? "+point.isDefined)
-      println("base set? "+basePointSet)
       if(point.isDefined && gotExitCue == false) {
-        println("in send message if statement")
         Send(Message(point.get))
-      } else {
+      } else if(gotExitCue == true) {
         gotExitCue = false
+        Goto('End)
       }
+      else None
     }
   ))
 
@@ -280,25 +273,21 @@ object Point extends Module {
       // Draw the point guide depending on which information is available
       if (x.isDefined && y.isDefined) {
         g draw guide(Vector2D(x.get + difference.x, y.get)).transform(t)
-      }
-      else if (x.isDefined && mousePosition.isDefined && !filteredX.isDefined) {
+      } else if (x.isDefined && mousePosition.isDefined && !filteredX.isDefined) {
         g draw guide(Vector2D(x.get, mousePosition.get.y)).transform(t)
-      }
-      else if (x.isDefined && mousePosition.isDefined && filteredX.isDefined) {
+      } else if (x.isDefined && mousePosition.isDefined && filteredX.isDefined) {
         g draw guide(Vector2D(filteredX.get, mousePosition.get.y)).transform(t)
-      }
-      else if (mousePosition.isDefined && !angleBase.isDefined) {
+      } else if (mousePosition.isDefined && !angleSnap.isDefined) {
         g draw guide(mousePosition.get).transform(t)
-      }
-      else if (mousePosition.isDefined && angleBase.isDefined) {
-        g draw LineShape(angleBase.get, mousePosition.get).transform(t)
+      } else if (mousePosition.isDefined && angleSnap.isDefined) {
+        g draw LineShape(angleSnap.get.center, mousePosition.get).transform(t)
       }
     }
+
     //If angle snap is activated, draw the snap guide
-    //else if(angleBase.isDefined && mousePosition.isDefined) {
-    //  g draw LineShape(angleBase.get, mousePosition.get).transform(t)
-    //}
-    else None
+    if(angleSnap.isDefined && mousePosition.isDefined) {
+      g draw LineShape(angleSnap.get.center, angleSnap.get.snapToRadian(mousePosition.get)).transform(t)
+    }
   }
 
 }

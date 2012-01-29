@@ -1,8 +1,7 @@
+/*
+package com.siigna.module.endogenous.modifyCategory
+
 /* 2010 (C) Copyright by Siigna, all rights reserved. */
-
-package com.siigna.module.endogenous
-
-import com.siigna.module.Module
 
 import com.siigna._
 
@@ -22,43 +21,63 @@ object Move extends Module {
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap     = DirectedGraph('Start     -> 'KeyEscape -> 'End,
-                                        'Start     -> 'MouseDrag -> 'Move,
-                                        'Move      -> 'KeyEscape -> 'End)
+                                   //'Start     -> 'MouseDrag -> 'Move,
+                                   'Move      -> 'KeyEscape -> 'End)
 
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      if(Model.isSelected) {
-        Siigna display("Select point to move from")
-        Goto('SetOrigin, false)
-      } else {
-        Siigna display("Select objects to move")
-        ForwardTo('Select)
+      println("EVENTS IN START MOVE: "+events.head)
+      events match {
+        //if 'Point returns a point and no base is set, then set it.
+        case Message(p : Vector2D) :: tail =>
+        case _ => {
+          println("START in MOVE")
+          if(Model.isSelected) {
+            //Goto('Move, false)
+          } else {
+            Siigna display("Select objects to move")
+            println("GOING TO SELECTION")
+            //ForwardTo('Selection, false)
+          }
+        }
       }
     }),
-    'SetOrigin -> ((events : List[Event]) => {
-      //TODO: refactor. -this is a hack to make sure 'Point gets the guide it needs.
+    'Move -> ((events : List[Event]) => {
+      //this is a hack to make sure 'Point gets the guide it needs.
+      Siigna.display("set point to move from")
       val moveGuide : Vector2D => CircleShape = (v : Vector2D) => {
       CircleShape(v, v + Vector2D(0,4))
       }
       events match {
-        case KeyDown(Key.Control, _) :: tail => Goto('End); ForwardTo('Copy)
-        case MouseMove(p, _, _) :: tail => {
+        //case KeyDown(Key.Control, _) :: tail => Goto('End); ForwardTo('Copy)
+        case MouseDown(p, _, _) :: tail => {
+          println("got MD in move")
           //Send(Message(PointGuide(moveGuide)))
-          ForwardTo('Point, false)
+          //ForwardTo('Point)
         }
-        case Message(p : Vector2D) :: tail => basePoint = Some(p)
-          println("GOT POINT MESSAGE IN SETSTART")
-
-          if (Model.isSelected) {
-            shapes = shapes ++ Model.selected
-          } else if (Model(p).isDefined) {
-            shapes = Seq(Model(p).get)
-            closeToObjectOnStart = true
-            Goto('Move)
-          } else {
-            Goto('End)
+        case Message(p : Vector2D) :: tail => {
+          basePoint = Some(p)
+          if(!basePoint.isDefined) {
             basePoint = Some(p)
+            //ForwardTo('Point)
+          }
+          //if the base is already set, it means the point is the displacement.
+          else {
+            displacement = Some(p)
+            //Goto('End)
+          }
         }
+
+  //        if (Model.isSelected) {
+  //          shapes = shapes ++ Model.selected
+  //        } else if (Model(p).isDefined) {
+  //          shapes = Seq(Model(p).get)
+  //          closeToObjectOnStart = true
+  //          Goto('Move)
+  //        } else {
+  //          Goto('End)
+  //          basePoint = Some(p)
+  //      }
         case MouseDrag(_, _, _) :: MouseDown(p, _, _) :: tail => {
           if (Model.isSelected) {
             shapes = shapes ++ Model.selected
@@ -70,17 +89,6 @@ object Move extends Module {
         case _ =>
       }
       if (basePoint.isEmpty) Goto('End)
-      None
-    }),
-    'SetDestination -> ((events : List[Event]) => {
-      println("in move")
-      events match {
-        case MouseMove(p, _, _) :: tail => displacement = Some(p)
-        case MouseUp(p, _, _) :: tail => {
-          endPoint = Some(p)
-        }
-        case _ =>
-      }
       None
     }),
     'End   -> ((events : List[Event]) => {
@@ -104,3 +112,6 @@ object Move extends Module {
   }
 
 }
+
+
+*/

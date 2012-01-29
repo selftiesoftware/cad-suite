@@ -1,14 +1,33 @@
+package com.siigna.module.endogenous.helpers
+
 /* 2012 (C) Copyright by Siigna, all rights reserved. */
 
-package com.siigna.module.endogenous
-
-import java.awt.Color
 import com.siigna._
 
-object Raster extends Module {
+object Area extends Module {
 
-  //raster color value
-  lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, 1.00f)
+  //a function to calculate an area defined by points.
+  def area(points : List[Vector2D]) : Int = {
+
+    var area : Double = 0
+    var i : Int = 0
+
+    //TODO: Add the first element to the end to close the polygon
+
+    while (i < points.length - 1) {
+      var pointX1 = points(i).x
+      var pointY1 = points(i).y
+
+      var pointX2 = points(i+1).x
+      var pointY2 = points(i+1).y
+
+      //area += (x.Items.Item(i) * y.Items.Item(i + 1) - x.Items.Item(i + 1) * y.Items.Item(i))
+      area += pointX1 * pointY2 - pointX2 * pointY1
+      i += 1
+    }
+    area = scala.math.abs(area * 0.5)
+    area.toInt
+  }
 
   //save the first point and used it to close the fill area.
   private var firstPoint : Option[Vector2D] = None
@@ -20,6 +39,8 @@ object Raster extends Module {
   private var points = List[Vector2D]()
 
   private var previousPoint : Option[Vector2D] = None
+  //a flag used to bypass the first MouseDown event coming from Default when the module is called
+  private var setFirstPoint = false
 
   // The closed, filled polyline so far
   private var shape : PolylineShape = PolylineShape.empty
@@ -39,10 +60,20 @@ object Raster extends Module {
           Goto('End)
         }
         case MouseDown(point, MouseButtonLeft, _):: tail => {
-          if(!firstPoint.isDefined)
+          //mechanism to bypass the MouseDown coming from Default
+          if(setFirstPoint == false) {
+            setFirstPoint = true
+            Goto('Start, false)
+          }
+          else if(!firstPoint.isDefined) {
             firstPoint = Some(point)
             points = points :+ point
             previousPoint = Some(point)
+          }
+          else {
+            points = points :+ point
+            previousPoint = Some(point)
+          }
         }
         case MouseUp(_, MouseButtonRight, _):: tail => {
           Goto ('End)
@@ -58,11 +89,15 @@ object Raster extends Module {
       //add a line segment from the last to the first point in the list to close the fill area
       if (points.size > 0 && firstPoint.isDefined) {
         points = points :+ firstPoint.get
-        shape = PolylineShape.fromPoints(points)
-        Create(shape)
+
+        Siigna.display("Area: "+area(points))
+
+        //TODO: add a textShape object displaying the area if measurement is successful.
+        //Create(shape)
       }
 
       //Clear the variables
+      setFirstPoint = false
       firstPoint = None
       points = List[Vector2D]()
       previousPoint = None
@@ -70,26 +105,12 @@ object Raster extends Module {
     })
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
-
     if (points.length > 0 && previousPoint.isDefined) {
-
-      //fill values
-      lazy val colorFill = points
-
-      val fillVector2Ds = colorFill.map(_.transform(t))
-      val fillScreenX = fillVector2Ds.map(_.x.toInt).toArray
-      val fillScreenY = fillVector2Ds.map(_.y.toInt).toArray
-
-      //set a color for the raster
-      g setColor anthracite
-
-      //fill the polygon
-      g.g.fillPolygon(fillScreenX, fillScreenY, fillVector2Ds.size)
 
       g draw LineShape(mousePosition.get, previousPoint.get).transform(t)
       g draw LineShape(mousePosition.get, firstPoint.get).transform(t)
-      g.g.fillPolygon(fillScreenX, fillScreenY, fillVector2Ds.size)
-    }
+
+    } else None
     g draw shape.transform(t)
   }
 }

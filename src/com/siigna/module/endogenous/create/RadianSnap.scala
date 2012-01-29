@@ -1,4 +1,4 @@
-package com.siigna.module.endogenous
+package com.siigna.module.endogenous.create
 
 import com.siigna._
 import com.siigna.app.view.event.EventSnap
@@ -23,7 +23,6 @@ class RadianSnap(p: Vector2D, radian : Double) extends EventSnap{
 
   //function that takes a point and returns another point
   def snapToRadian(point : Vector2D) : Vector2D = {
-    println("parsing")
     var mouseX = point.x
     var mouseY = point.y
     point

@@ -1,6 +1,6 @@
-/* 2010 (C) Copyright by Siigna, all rights reserved. */
+package com.siigna.module.endogenous.file
 
-package com.siigna.module.endogenous
+/* 2010 (C) Copyright by Siigna, all rights reserved. */
 
 import java.awt.{Color, Graphics => AWTGraphics, Graphics2D, RenderingHints}
 import java.awt.geom.AffineTransform

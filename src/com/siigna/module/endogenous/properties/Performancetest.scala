@@ -1,4 +1,4 @@
-package com.siigna.module.endogenous
+package com.siigna.module.endogenous.properties
 
 import java.awt.Color._
 

@@ -3,7 +3,6 @@
 package com.siigna.module.endogenous.radialmenu.category
 
 import com.siigna.module.endogenous.radialmenu._
-import com.siigna.module.endogenous.radialmenu.MenuItemEmpty._
 
 case class Geometry(parent : Option[MenuCategory]) extends MenuCategory {
 
@@ -11,8 +10,9 @@ case class Geometry(parent : Option[MenuCategory]) extends MenuCategory {
 
   def name = "Geometry"
 
+  override def NNW = Some(new MenuItem('Circle, RadialMenuIcon.circle))
 
-override def N = Some(MenuItemEmpty("Freehand"))
+  override def N = Some(MenuItemEmpty("Freehand"))
 
     override def NNE = Some(new MenuItem('Artline, RadialMenuIcon.circle))
 
