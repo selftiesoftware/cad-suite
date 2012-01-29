@@ -90,6 +90,7 @@ object Point extends Module {
         case Message(snap : AngleSnap) :: tail => {
           //Since we got the angle we can now snap to the center point and the angle
           angleSnap = Some(snap)
+          println("got snap: "+angleSnap)
           eventParser.snapTo(snap)
 
           //Send the point to the calling module
