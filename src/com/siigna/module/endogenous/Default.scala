@@ -33,7 +33,8 @@ object Default extends Module {
   //store the latest Key Event to be able to see whether a category (C,H,E,P, or F) was chosen before
   var previousKey :Option[Char] = None
 
-  def stateMachine = Map( 'Start -> ((events : List[Event]) => {
+  def stateMachine = Map(
+    'Start -> ((events : List[Event]) => {
     nearestShape = Model(Siigna.mousePosition)
       if (firstStart == true) {
         Siigna.display("Loading Siigna modules ver. 0.1.40.0 (442 kb")
@@ -54,11 +55,11 @@ object Default extends Module {
             ForwardTo('Menu)
 
             //preload commonly used modules
-            Preload('Polyline)
-            Preload('Artline)
-            Preload('Text)
-            Preload('Rectangle)
-            Preload('Lineardim)
+            Preload('Polyline, "com.siigna.module.endogenous.create")
+            Preload('Artline, "com.siigna.module.endogenous.create")
+            Preload('Text, "com.siigna.module.endogenous.create")
+            Preload('Rectangle, "com.siigna.module.endogenous.create")
+            Preload('Lineardim, "com.siigna.module.endogenous.create")
             firstMenuLoad = false
           }
           else ForwardTo('Menu)
@@ -99,7 +100,6 @@ object Default extends Module {
               }
               else if(previousKey == Some('h')) {
                 Siigna.display("click to measure area")
-                println("start area")
                 ForwardTo('Area)
                 previousKey = Some('a')
               }

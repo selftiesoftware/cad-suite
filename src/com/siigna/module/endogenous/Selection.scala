@@ -35,7 +35,6 @@ object Selection extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println(events.head)
       events match {
         case (_ : MouseUp) :: (_ : MouseDown) :: tail => Goto('End)
         case MouseDown(point, _, _) :: tail => {
