@@ -16,14 +16,14 @@ case class Create(parent : Option[MenuCategory]) extends MenuCategory {
   override def S = Some(MenuItemEmpty("Collection"))
   //override def S = Some(new Dimension(Some(this)))
 
-  override def ENE = Some(new MenuItem('Copy, RadialMenuIcon.copy))
-  override def NNE = Some(new MenuItem('Rectangle, RadialMenuIcon.rectangle))
+  override def ENE = Some(MenuItem('Copy, RadialMenuIcon.copy))
+  override def NNE = Some(MenuItem('Rectangle, RadialMenuIcon.rectangle))
   //override def NNW = Some(new MenuItem('Circle, RadialMenuIcon.circle))
-  override def WNW = Some(new MenuItem('Text, RadialMenuIcon.text))
-  override def NNW = Some(new MenuItem('Raster, RadialMenuIcon.raster))
-  override def SSW = Some(new MenuItem('Polyline,RadialMenuIcon.group))
-  override def SSE = Some(new MenuItem('Polyline, RadialMenuIcon.explode))
-  override def WSW = Some(new MenuItem('Lineardim, RadialMenuIcon.linearDimension))
-  override def ESE = Some(new MenuItem('Polyline, RadialMenuIcon.offset))
+  override def WNW = Some(MenuItem('Text, RadialMenuIcon.text))
+  override def NNW = Some(MenuItem('Raster, RadialMenuIcon.raster))
+  override def SSW = Some(MenuItem('Polyline,RadialMenuIcon.group))
+  override def SSE = Some(MenuItem('Polyline, RadialMenuIcon.explode))
+  override def WSW = Some(MenuItem('Lineardim, RadialMenuIcon.linearDimension))
+  override def ESE = Some(MenuItem('Polyline, RadialMenuIcon.offset))
 
 }

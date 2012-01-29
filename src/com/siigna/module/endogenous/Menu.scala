@@ -89,7 +89,7 @@ object Menu extends Module {
             case Some(item : MenuItem)         => {
                 if (item.module != 'None) {
                   Goto('End)
-                  Preload(item.module)
+                  Preload(item.module, item.modulePath)
                   ForwardTo(item.module)
 
                   // Save the previous module
