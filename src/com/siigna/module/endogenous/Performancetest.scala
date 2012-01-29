@@ -12,7 +12,7 @@ object Performancetest extends Module {
   var shapes = scala.collection.immutable.Vector[Shape]()
   val eventHandler = EventHandler(stateMap, stateMachine)
 
-  val limit = 400
+  val limit = 1000
 
   lazy val stateMap = DirectedGraph('Intermezzo -> 'KeyDown -> 'End)
 
