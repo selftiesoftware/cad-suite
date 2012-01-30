@@ -36,7 +36,7 @@ object Default extends Module {
     'Start -> ((events : List[Event]) => {
     nearestShape = Model(Siigna.mousePosition)
       if (firstStart == true) {
-        Siigna.display("Loading Siigna modules ver. 0.1.40.0 (442 kb")
+        Siigna.display("Loading Siigna modules ver. 0.1.50.0 (451 kb")
         firstStart = false
       }
       events match {
