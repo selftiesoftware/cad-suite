@@ -5,10 +5,7 @@ package com.siigna.module.base.create
 /*
  SIIGNA POINT MODULE
  a module handling all situations where a point is needed.
- TODO: correct the angle guide rotation
- TODO: ability to using angle gizmo successively
  TODO: ability to write distances following angle snap
- TODO: fix a bug where the point module exits unexpectedly when AngleGizmoLoop finishes AFTER the Angle Gizmo.
  */
 
 import com.siigna._
@@ -95,6 +92,9 @@ object Point extends Module {
         case Message(g : PointGuide) :: tail => pointGuide = Some(g)
 
         case Message(a : AngleSnap) :: tail => eventParser.snapTo(a)
+        // Avoid ending if the mouse up comes after setting the angle in the AngleGizmo
+        case MouseDown(_, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail =>
+        case MouseUp(_, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail =>
 
         // Exit strategy
         case (MouseDown(_, _, _) | MouseUp(_, _, _)) :: tail => Goto('End)
@@ -207,7 +207,7 @@ object Point extends Module {
         // Return the point
         Message(p)
       } else events match {
-        case MouseDown(p, _, _) :: tail => Message(p)
+        case MouseDown(p, MouseButtonLeft, _) :: tail => Message(p)
         case MouseUp(p, MouseButtonLeft, _) :: tail => Message(p)
         case _ =>
       }

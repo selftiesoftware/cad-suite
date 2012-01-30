@@ -23,7 +23,7 @@ object AngleGizmo extends Module {
   val gizmoShapes = List[Shape]()
 
   //time to press and hold the mouse button before the gizmo mode is activated
-  val gizmoTime = 700
+  val gizmoTime = 300
   
   // A flag to determine whether the angle gizmo was activated
   private var gizmoIsActive = false
@@ -74,29 +74,23 @@ object AngleGizmo extends Module {
     }),
     //this state is activated if the Gizmo is called:
     'AngleGizmo -> ((events : List[Event]) => {
+      println("AG: " + events)
       // Activate!
       gizmoIsActive = true
       events match {
         //if the right mouse button is pressed, exit.
-        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
+        case (MouseUp(_, MouseButtonRight, _) | MouseDown(_, MouseButtonRight, _)) :: tail => Goto('End, false)
 
-        //if the mouse is clicked, go to 'End, and do not return the latest event
-        case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End, false)
-        //the latest event coming from polyline has to be mouse down, so
-        // this event forms the basis for getting the current mouse position:
-
-        case MouseMove(p ,_ ,_) :: tail =>
-
-        case MouseUp(p, MouseButtonLeft, _) :: MouseDrag(_, _, _) :: tail => {
+        case MouseUp(_, _, _) :: MouseDrag(_, _, _) :: tail => {
           anglePointIsSet = true
           Goto('End)
         }
-        case MouseDown(p, MouseButtonLeft, _) :: MouseMove(_, _, _) :: tail =>  {
-          if(anglePointIsSet == true)
-            Goto('End)
-          else anglePointIsSet = true
 
+        case MouseDown(p, _, _) :: MouseMove(_, _, _) :: tail =>  {
+          anglePointIsSet = true
+          Goto('End)
         }
+
         case _=>
       }
 
@@ -123,7 +117,7 @@ object AngleGizmo extends Module {
       }
 
       // If the gizmo was activated, then return the message and reset the vars
-      if (gizmoIsActive && anglePointIsSet == true && startPoint.isDefined && degrees.isDefined) {
+      if (gizmoIsActive && anglePointIsSet && startPoint.isDefined && degrees.isDefined) {
         //send the active snap angle
         val point = startPoint.get
         val d = degrees.get
@@ -136,7 +130,6 @@ object AngleGizmo extends Module {
         reset()
         // If the gizmo was not activated, then return the point so the
         // point module can utilize it to whatever
-        println("ending AG")
         Message(point)
       }
     })
