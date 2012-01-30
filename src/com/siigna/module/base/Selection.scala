@@ -8,153 +8,52 @@ object Selection extends Module {
 
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 
-  var box = Rectangle2D(Vector2D(0, 0), Vector2D(0, 0))
+  private var box : Option[Rectangle2D] = None
 
-  var hasBox : Boolean = false
+  // The starting point of the rectangle
+  private var startPoint : Option[Vector2D] = None
 
-  var closeToObjectOnStart = false
-
-  //TODO: Temporary! Create a dynamic model...!
-  var selectedShape : Option[Shape] = None
-  var startCoordinate : Option[Vector2D] = None
-  var boxedShapes : Iterable[Shape] = Iterable()
-  var currentPoint : Option[Vector2D] = None
-
-  // should be: def isEnclosed : Boolean = (box.p1.x <= box.p2.x)
-  def isEnclosed : Boolean = startCoordinate.isDefined && currentPoint.isDefined && (startCoordinate.get.x <= currentPoint.get.x)
+  /**
+   * Examines whether the selection is currently enclosed or not.
+   */
+  def isEnclosed : Boolean = startPoint.isDefined && startPoint.get.x <= Siigna.mousePosition.x
 
   def stateMap     = DirectedGraph(
-    'Start -> 'MouseMove -> 'Box,
-    'Start -> 'MouseDrag -> 'Box,
-    'Start -> 'MouseUp   -> 'End,
-    'Start -> 'KeyEscape -> 'End,
-    'Box   -> 'MouseUp -> 'End,
-    'Box   -> 'KeyEscape -> 'End,
-    'Box   -> 'KeyEscape -> 'End
+    'Start -> 'MouseDrag   -> 'Box,
+    'Start -> 'MouseMove   -> 'End,
+    'Start -> 'MouseUp     -> 'End,
+    'Box   -> 'MouseMove   -> 'End,
+    'Box   -> 'MouseUp     -> 'End
   )
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {
-        case (_ : MouseUp) :: (_ : MouseDown) :: tail => Goto('End)
-        case MouseDown(point, _, _) :: tail => {
-          //set the start of the selection box
-          startCoordinate = Some(point)
-          //save the active shape in a var
-
-          selectedShape = Model(point)
-          //make the selection
-          Select(selectedShape.get)
-          if (selectedShape.isDefined && selectedShape.get.distanceTo(point) < 10)
-            closeToObjectOnStart = true
-          else
-            box = Rectangle2D(point, point)
-        }
-        case MouseUp(point, _, _) :: tail => {
-          startCoordinate = Some(point)
-        }
-        case _ =>
+        case MouseDown(p, _, _) :: tail => startPoint = Some(p)
+        case _ => Goto('End)
       }
-      None
     }),
     'Box -> ((events : List[Event]) => {
       events match {
-        case MouseDrag(point, _, _) :: tail => {
-          currentPoint = Some(point)
-          box = Rectangle2D(startCoordinate.get, Vector2D(point.x,point.y))
-          hasBox == true
+        case MouseDrag(p, _, _) :: tail => {
+          box = Some(Rectangle2D(startPoint.get, p))
         }
-          //if (closeToObjectOnStart && selectedShape.isDefined) {
-          //  Goto('End)
-          //  ForwardTo('Move)
-          //} else
-          //box = Rectangle2D(Vector2D(startCoordinate, point))
-          //println("mouseDrag")
-          //box = Rectangle2D(startCoordinate.get,Vector2D(point.x,point.y))
-        //}
-        case _ =>
+        case _ => Goto('End)
       }
-      boxedShapes = Model(box)
-      //Create ...
-      //println(boxedShapes)
-      //TODO: convert boxedShapes from a Set(shapes) to a set of (DynamicShape(id))
-
     }),
     'End -> ((events : List[Event]) => {
-      events match {
-        //case (_ : MouseUp) :: (_ : MouseDown) :: MouseUp(p, _, ModifierKeys(_, true, _)) :: tail => {
-        //  val parent = DOM.lookup(DOM.getShapeFrom(p))
-        //  if (parent.isDefined) Some(UpdateShape(parent.get, parent.get.deselect))
-        //  else None
-        //}
-        //case (_ : MouseUp) :: (_ : MouseDown) :: MouseUp(p, _, _) :: tail => {
-        //  val parent : Option[Shape] = DOM.lookup(DOM.getShapeFrom(p))
-        //  if (parent.isDefined) Some(UpdateShape(parent.get, parent.get.select))
-        //  else None
-        //}
-        case MouseUp(point, _, ModifierKeys(_, true, _)) :: tail => { // Deselect
-          //if ((box.p1 - box.p2).length < 1) {
-          //  val closestShape = DOM.getShapeFrom(point)
-          //  if (closestShape.distanceTo(point) < 10) closestShape deselect
-          //} else {
-          //  if (box.p1.x >= box.p2.x)
-          //    DOM.getShapesInside(box).foreach(_ deselect)
-          //  else
-          //    DOM.getShapesInsideEnclosed(box).foreach(_ deselect)
-          //}
-        }
-        case MouseUp(point, _, ModifierKeys(shift, _, _)) :: tail => {
-          // Deselect everything if shift isn't pressed
-          //if (!shift) Model deselect
-
-//          if ((box.p1 - box.p2).length < 1) {
-//            val closestShape = DOM.getShapeFrom(point)
-//            if (closestShape.distanceTo(point) < 10) Some(UpdateShape(closestShape, closestShape select))
-//            else None
-//          } else if (box.p1.x >= box.p2.x) {
-//            Some(UpdateShapes(DOM.getShapesInside(box), DOM.getShapesInside(box).map(_ select)))
-//          } else {
-//            Some(UpdateShapes(DOM.getShapesInsideEnclosed(box), DOM.getShapesInsideEnclosed(box).map(_ select)))
-//          }
-          //val shapes = Model.queryForShapesWithId(box)
-          //if (!shapes.isEmpty)
-          //  Select(shapes.keys)
-        }
-        case _ =>
+      if (box.isDefined) {
+        Select(Model(box.get))
+        box = None
       }
-      hasBox = false
-      println("(Select line 127) -- made a selection, :"+boxedShapes)
-      Select(boxedShapes)
-      Send(Message(boxedShapes))
     })
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
     val enclosed = "Color" -> "#9999FF".color
     val focused  = "Color" -> "#FF9999".color
-    if (state != 'End) {
-        g draw PolylineShape.fromRectangle(box).addAttribute("Color" -> (if (isEnclosed) "#88AA88".color else "#8888AA".color)).transform(t)
-    }
-
-    boxedShapes.foreach{ s => s match {
-      case s : ImmutableShape => drawShape(s)
-      case s : DynamicShape => drawShape(s.shape)
-      case _ =>
-    }}
-    def drawShape(s : ImmutableShape) = {
-      // TODO: Draw depending on whether the shape is contained or intersected
-      if (isEnclosed && box.contains(s.boundary)) {
-        // If enclosed
-        g.draw(s.addAttribute(enclosed).transform(t))
-      }
-      //todo: fix this:----> else if (!isEnclosed && (box.contains(s.boundary) || s.geometry.intersections(box))) {
-      //If not enclosed
-      //g.draw(s.addAttribute(enclosed).transform(t))
-      //}
-
-      else {
-        g.draw(s.addAttribute(enclosed).transform(t))
-      }
+    if (box.isDefined) {
+        g draw PolylineShape.fromRectangle(box.get).addAttribute("Color" -> (if (isEnclosed) enclosed else focused)).transform(t)
     }
   }
 }
