@@ -12,7 +12,8 @@ import com.siigna._
 
 object Point extends Module {
 
-  private var angleSnap : Option[AngleSnap] = None
+  //a placeholder for the active AngleSnap - needed if the user wants to type a length of a line segment
+  private var currentSnap : Option[AngleSnap] = None
 
   private var basePointSet = false
   //text input for X values
@@ -27,6 +28,14 @@ object Point extends Module {
   private def difference : Vector2D = if (previousPoint.isDefined) previousPoint.get else Vector2D(0, 0)
 
   private var filteredX : Option[Double] = None
+
+  //a function to add a typed distance to a line, after the Angle Gizmo has redined a radial.
+  private def lengthVector(length : Double) : Vector2D = {
+    //a vector that equals the length of the typed distance, rotated by the current radial snap setting.
+    var rotatedVector = Vector2D(math.sin(currentSnap.get.degree * math.Pi/180), math.cos(currentSnap.get.degree * math.Pi/180)) * length
+    //and transformed by the center point of the offset from the Angle snap gizmo.
+    rotatedVector + currentSnap.get.center
+  }
 
   /**
    * info about the main var:
@@ -76,7 +85,6 @@ object Point extends Module {
 
   def stateMap = DirectedGraph[Symbol, Symbol](
   )
-
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {
@@ -84,14 +92,17 @@ object Point extends Module {
         // Check for continued MouseDown
         case Message(g : PointGuide) :: Message(p : Vector2D) :: MouseDown(_, MouseButtonLeft, _) :: tail => {
           pointGuide = Some(g)
-
           ForwardTo('AngleGizmo)
         }
 
         // Check for PointGuide
         case Message(g : PointGuide) :: tail => pointGuide = Some(g)
 
-        case Message(a : AngleSnap) :: tail => eventParser.snapTo(a)
+        case Message(a : AngleSnap) :: tail => {
+          point = Some(a.center)
+          currentSnap = Some(a)
+          eventParser.snapTo(a)
+        }
         // Avoid ending if the mouse up comes after setting the angle in the AngleGizmo
         case MouseDown(_, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail =>
         case MouseUp(_, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail =>
@@ -114,6 +125,7 @@ object Point extends Module {
         }
         //goto second coordinate if ENTER, COMMA, or TAB is pressed
         case KeyDown(Key.Enter | Key.Tab | ',', _) :: tail => {
+
           if (coordinateX.isEmpty && coordinateValue.length == 0) Goto('End)
           //when ENTER is pressed, and a value is det, this valus is passed as the first coordinate relative to 0,0
           if (coordinateX.isEmpty && coordinateValue.length > 0) {
@@ -122,7 +134,14 @@ object Point extends Module {
             filteredX = Some(coordinateX.get + difference.x)
 
             coordinateValue = ""
-          } else if (coordinateY.isEmpty && coordinateValue.length > 0) {
+          }
+          //if the angle gizmo is used, and a length has been typed, send the resulting point
+          //else if(currentSnap.isDefined && x.isDefined) {
+          //    println("prepare to send the length vector!: "+lengthVector(x.get))
+            //point = Some(lengthVector(x.get))
+            //Goto('End)
+          //}
+          else if (coordinateY.isEmpty && coordinateValue.length > 0) {
             coordinateY = Some(java.lang.Double.parseDouble(coordinateValue))
             coordinateValue = ""
             //Goto('End)
@@ -169,7 +188,6 @@ object Point extends Module {
       Siigna display message
 
       //if the next point has been typed, add it to the polyline:
-
       if (coordinateX.isDefined && coordinateY.isDefined ) {
 
         //convert the relative coordinates a global point by adding the latest point
@@ -192,11 +210,11 @@ object Point extends Module {
       coordinateValue = ""
       filteredX = None
       eventParser.clearSnap()
-
+      currentSnap = None
       // Reset the point guide
       pointGuide = None
       previousPoint = point
-
+      println("Previous,  end: "+previousPoint)
       //clear the point.
       val p = point
       point = None
@@ -205,8 +223,10 @@ object Point extends Module {
       if (p.isDefined) {
 
         // Return the point
+        println("point: "+p)
         Message(p)
-      } else events match {
+      }
+      else events match {
         case MouseDown(p, MouseButtonLeft, _) :: tail => Message(p)
         case MouseUp(p, MouseButtonLeft, _) :: tail => Message(p)
         case _ =>
@@ -238,20 +258,15 @@ object Point extends Module {
       // Draw the point guide depending on which information is available
       if (x.isDefined && y.isDefined) {
         g draw guide(Vector2D(x.get + difference.x, y.get)).transform(t)
-      } else if (x.isDefined && mousePosition.isDefined && !filteredX.isDefined) {
+      } else if (x.isDefined && mousePosition.isDefined && !filteredX.isDefined && !currentSnap.isDefined) {
         g draw guide(Vector2D(x.get, mousePosition.get.y)).transform(t)
+      } else if (x.isDefined && mousePosition.isDefined && !filteredX.isDefined && currentSnap.isDefined) {
+        g draw guide(lengthVector(x.get)).transform(t)
       } else if (x.isDefined && mousePosition.isDefined && filteredX.isDefined) {
         g draw guide(Vector2D(filteredX.get, mousePosition.get.y)).transform(t)
-      } else if (mousePosition.isDefined && !angleSnap.isDefined) {
+      } else if (mousePosition.isDefined) {
         g draw guide(mousePosition.get).transform(t)
-      } else if (mousePosition.isDefined && angleSnap.isDefined) {
-        g draw LineShape(angleSnap.get.center, mousePosition.get).transform(t)
       }
-    }
-
-    //If angle snap is activated, draw the snap guide
-    if(angleSnap.isDefined && mousePosition.isDefined) {
-      g draw LineShape(angleSnap.get.center, angleSnap.get.snapToRadian(mousePosition.get)).transform(t)
     }
   }
 

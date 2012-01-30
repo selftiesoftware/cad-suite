@@ -74,7 +74,6 @@ object AngleGizmo extends Module {
     }),
     //this state is activated if the Gizmo is called:
     'AngleGizmo -> ((events : List[Event]) => {
-      println("AG: " + events)
       // Activate!
       gizmoIsActive = true
       events match {
