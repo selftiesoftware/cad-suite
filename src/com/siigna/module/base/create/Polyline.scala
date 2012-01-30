@@ -20,53 +20,47 @@ object Polyline extends Module {
 
   def stateMachine = Map(
   'Start -> ((events : List[Event]) => {
+    //Log.level += Log.DEBUG + Log.SUCCESS
     events match {
-        case MouseDown(_, MouseButtonRight, _) :: tail => {
-          Goto('End)
-        }
-        case _ => ForwardTo('Point, false)
+      case MouseDown(_, MouseButtonRight, _) :: tail => {
+        Goto('End)
       }
-    }),
+      case _ => ForwardTo('Point, false)
+    }
+  }),
   'SetPoint -> ((events : List[Event]) => {
-    def getPointGuide = {
-        (p : Vector2D) => PolylineShape.fromPoints(points :+ p)
+    def getPointGuide = (p : Vector2D) => PolylineShape.fromPoints(points :+ p)
+
+    events match {
+      // Exit mechanisms
+      case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
+
+      case Message(p : Vector2D) :: tail => {
+        // Save the point
+        points = points :+ p
+
+        // Define shape if there is enough points
+        if (points.size > 1) {
+          shape = Some(PolylineShape.fromPoints(points))
+        }
+        ForwardTo('Point, false)
+        Send(Message(PointGuide(getPointGuide)))
       }
-      events match {
-        case Message(p : Vector2D) :: tail => {
-          // Save the point
-          points = points :+ p
-          // Define shape if there is enough points
-          if (points.size > 1) {
-            shape = Some(PolylineShape.fromPoints(points))
-          }
 
-          ForwardTo('Point, false)
-          Send(Message(getPointGuide))
-        }
-        // Exit mechanisms
-        case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => {
-          Goto('End)
-        }
-        // Match on everything else
-        case _ => {
-          Send(Message(PointGuide(getPointGuide)))
-          ForwardTo('Point)
-        }
+      // Match on everything else
+      case _ => {
+        ForwardTo('Point, false)
+        Send(Message(PointGuide(getPointGuide)))
       }
-    }),
-    'End -> ((events : List[Event]) => {
-      // If the shape is defined, then create it!
-      if (shape.isDefined)
-        Create(shape.get)
-
-      //clear the vars
-      shape = None
-      points = List()
-    })
-  )
-
-  override def paint(g : Graphics, t : TransformationMatrix) {
+    }
+  }),
+  'End -> ((events : List[Event]) => {
+    // If the shape is defined, then create it!
     if (shape.isDefined)
-      g draw shape.get.transform(t)
-  }
+      Create(shape.get)
+
+    //clear the vars
+    shape = None
+    points = List()
+  }))
 }

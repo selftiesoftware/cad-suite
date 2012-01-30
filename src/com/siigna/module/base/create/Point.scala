@@ -31,9 +31,6 @@ object Point extends Module {
 
   private var filteredX : Option[Double] = None
 
-  //a flag to prevent a messge from being sent if MouseButtonRight is pressed, in which case the calling module should exit as well
-  private var gotExitCue = false
-
   /**
    * info about the main var:
    * var point
@@ -46,10 +43,9 @@ object Point extends Module {
    * the point var is returned to the calling module
    * using a Send(Message()) event.
    */
-
   private var point : Option[Vector2D] = None
 
-  private var pointGuide : Option[PointGuide] = None
+  var pointGuide : Option[PointGuide] = None
 
   //Store the mousePosition, so we get the snap-coordinates
   private var mousePosition : Option[Vector2D] = None
@@ -81,71 +77,34 @@ object Point extends Module {
 
   val eventHandler = EventHandler(stateMap, stateMachine)
 
-  def stateMap = DirectedGraph[Symbol, Symbol]()
+  def stateMap = DirectedGraph[Symbol, Symbol](
+  )
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {
-         // Check to see if the Gizmo successfully returned an angle snap
-        case Message(snap : AngleSnap) :: tail => {
-          //Since we got the angle we can now snap to the center point and the angle
-          angleSnap = Some(snap)
-          println("got snap: "+angleSnap)
-          eventParser.snapTo(snap)
 
-          //Send the point to the calling module
-          Send(Message(point.get))
-          Goto('End)
+        // Check for continued MouseDown
+        case Message(g : PointGuide) :: Message(p : Vector2D) :: MouseDown(_, MouseButtonLeft, _) :: tail => {
+          pointGuide = Some(g)
+
+          ForwardTo('AngleGizmo)
         }
 
-        case Message(p : PointGuide) :: tail => pointGuide = Some(p)
+        // Check for PointGuide
+        case Message(g : PointGuide) :: tail => pointGuide = Some(g)
 
-        // Check to see if the Gizmo returned a unused point
-        case Message(p : Vector2D) :: tail => {
-          // Store the point unless angle snap is active
-          if (angleSnap.isEmpty) {
-            point = Some(p)
-            // Go to end to save the point
-            Goto('End)
-          }
-        }
+        case Message(a : AngleSnap) :: tail => eventParser.snapTo(a)
 
-        case MouseDown(_, MouseButtonRight, _) :: tail => {
-          gotExitCue = true
-          point = None
-          Goto('End)
-        }
-        case MouseMove(p, _, _) :: tail => {
-          mousePosition = Some(p)
-        }
-        case MouseDown(p, MouseButtonLeft, _):: tail => {
-          // Forward to angle gizmo
-          if (angleSnap.isEmpty) {
-            ForwardTo('AngleGizmo)
+        // Exit strategy
+        case (MouseDown(_, _, _) | MouseUp(_, _, _)) :: tail => Goto('End)
 
-          //if angle snap is active,
-          } else {
-            //and the base point has been set,
-            if(basePointSet == true) {
-              //set the parsed point
-              point = Some(p)
-              basePointSet = false
+        // Mouse position
+        case MouseMove(p, _, _) :: tail => mousePosition = Some(p)
+        case MouseDrag(p, _, _) :: tail => mousePosition = Some(p)
 
-              Goto('End)
-            //otherwise, just goto 'End.
-            } else Goto('End)
-
-          }
-        }
-        case MouseUp(p, _, _) :: tail => {
-          // Define point and go to end
-          // - We would not be here if the MouseDown were caught above, so
-          // we can be certain that there is an active guide.
-          point = Some(p)
-          Goto('End)
-        }
-        case MouseDrag(point, _, _) :: tail => mousePosition = Some(point)
-        case KeyDown(Key.Escape, _) :: tail => Goto('End)
+        // Exit strategy
+        case KeyDown(Key.Esc, _) :: tail => Goto('End)
         case KeyDown(Key.Backspace, _) :: tail => {
           if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
           else if (coordinateX.isDefined) {
@@ -232,21 +191,26 @@ object Point extends Module {
       coordinateY = None
       coordinateValue = ""
       filteredX = None
-
-      angleSnap = None
       eventParser.clearSnap()
 
       // Reset the point guide
       pointGuide = None
       previousPoint = point
-      // Return a point if it was defined
-      if(point.isDefined && gotExitCue == false) {
-        Send(Message(point.get))
-      } else if(gotExitCue == true) {
-        gotExitCue = false
-        Goto('End)
+
+      //clear the point.
+      val p = point
+      point = None
+
+      // Return a point if it is defined
+      if (p.isDefined) {
+
+        // Return the point
+        Message(p)
+      } else events match {
+        case MouseDown(p, _, _) :: tail => Message(p)
+        case MouseUp(p, MouseButtonLeft, _) :: tail => Message(p)
+        case _ =>
       }
-      else None
     }
   ))
 
