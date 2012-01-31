@@ -1,12 +1,15 @@
-package com.siigna.module.base.create
-
-/* 2012 (C) Copyright by Siigna, all rights reserved. */
-
 /*
- SIIGNA POINT MODULE
- a module handling all situations where a point is needed.
- TODO: ability to write distances following angle snap
+ * Copyright (c) 2012. Siigna is released under the creative common license by-nc-sa. You are free
+ * to Share — to copy, distribute and transmit the work,
+ * to Remix — to adapt the work
+ *
+ * Under the following conditions:
+ * Attribution —  You must attribute the work to http://siigna.com in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work).
+ * Noncommercial — You may not use this work for commercial purposes.
+ * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
+
+package com.siigna.module.base.create
 
 import com.siigna._
 
@@ -99,7 +102,6 @@ object Point extends Module {
         case Message(g : PointGuide) :: tail => pointGuide = Some(g)
 
         case Message(a : AngleSnap) :: tail => {
-          point = Some(a.center)
           currentSnap = Some(a)
           eventParser.snapTo(a)
         }
@@ -227,8 +229,14 @@ object Point extends Module {
         Message(p)
       }
       else events match {
-        case MouseDown(p, MouseButtonLeft, _) :: tail => Message(p)
-        case MouseUp(p, MouseButtonLeft, _) :: tail => Message(p)
+        case MouseDown(p, MouseButtonLeft, _) :: tail => {
+          if (previousPoint.isEmpty) previousPoint = Some(p)
+          Message(p)
+        }
+        case MouseUp(p, MouseButtonLeft, _) :: tail => {
+          if (previousPoint.isEmpty) previousPoint = Some(p)
+          Message(p)
+        }
         case _ =>
       }
     }
