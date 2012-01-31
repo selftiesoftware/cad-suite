@@ -41,34 +41,31 @@ object Text extends Module {
   var scale    = 6
   var attributes = Attributes( "TextSize" -> 10)
   var shape : Option[TextShape] = None
+  var startPoint = false
 
 //  var currentState = 0
 //  var number   = 0
 
   def stateMap = DirectedGraph(
-    'Start      -> 'MouseUp     -> 'StartPoint,
-    'StartPoint -> 'KeyDown     -> 'TextInput,
-    'StartPoint -> 'KeyEscape   -> 'End,
+
+    'Start      -> 'KeyDown     -> 'TextInput,
+    'Start      -> 'KeyEscape   -> 'End,
     'TextInput  -> 'KeyEscape   -> 'End,
     'Start      -> 'KeyEscape   -> 'End
   )
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      None
-    }),
-    'StartPoint -> ((events : List[Event]) => {
+      Siigna.display("click to set text")
       events match {
         case MouseDown(p, _, _) :: tail => {
-          position = Some(p)
-        }
-        case MouseUp(_, _, _) :: tail => {
-          if (position.isDefined){
-
+          println(startPoint)
+          if(startPoint == true){
+            position = Some(p)
             Goto('TextInput)
           }
+          startPoint = true
         }
-        //}
         case _ =>
       }
       None
@@ -85,6 +82,8 @@ object Text extends Module {
           Goto('End)
         }
         case KeyDown(key, _) :: tail => {
+          println(position)
+          println(text)
           text += key.toChar.toString.toLowerCase
         }
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
@@ -95,6 +94,7 @@ object Text extends Module {
     'End -> ((events : List[Event]) => {
       events match {
         case _ =>
+          startPoint = false
           if (text.length > 0) {
             //move the text so that the lower left corner is located at the starting position
             var textPosition = Vector2D((position.get.x),(position.get.y+(scale+scale/4)))
@@ -112,15 +112,15 @@ object Text extends Module {
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
     //move the text so that the lower left corner is located at the starting position
-    var textPosition = Vector2D((position.get.x),(position.get.y+(scale+scale/4)))
-    shape = Some(TextShape(text+" ", textPosition, scale, attributes))
-    g draw shape.get.transform(t)
     if (position.isDefined){
+      var textPosition = Vector2D((position.get.x),(position.get.y+(scale+scale/4)))
+      shape = Some(TextShape(text+" ", textPosition, scale, attributes))
+      g draw shape.get.transform(t)
       length = text.length
-        //draw a bounding rectangle guide for the text
-        var x2 = Some(position.get.x+(4+length*5.3))
-        var y2 = Some(position.get.y+(scale+scale/2))
-        boundingRectangle = Some(Rectangle2D(position.get,Vector2D(x2.get,y2.get)))
+      //draw a bounding rectangle guide for the text
+      var x2 = Some(position.get.x+(4+length*3.5))
+      var y2 = Some(position.get.y+(scale+scale/2))
+      boundingRectangle = Some(Rectangle2D(position.get,Vector2D(x2.get,y2.get)))
       g draw PolylineShape.fromRectangle(boundingRectangle.get).addAttribute("Color" -> "#66CC66".color).transform(t)
     }
   }

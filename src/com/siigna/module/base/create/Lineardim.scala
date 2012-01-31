@@ -89,6 +89,8 @@ object Lineardim extends Module {
     else
       None
 
+  //a flag to discard the mouseDown event which is active when the radial menu button is pushed
+  var startPoint = false
   var transformation = TransformationMatrix()
   var norm = Vector2D(0,0)
   var points : List[Vector2D] = List()
@@ -104,11 +106,15 @@ object Lineardim extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      println(events)
       events match {
         //set the first point of the dim line
         case MouseDown(p, _, _):: tail => {
-          points = List(p)
-          Goto('SecondPoint)
+          if (startPoint == true){
+            points = List(p)
+            Goto('SecondPoint)
+          }
+          startPoint = true
         }
         case _ =>
       }
