@@ -63,14 +63,25 @@ object AngleGizmo extends Module {
         case Message(_) :: Message(_) :: MouseDown(p, _, _) :: tail => {
           startPoint = Some(p)
         }
+        case Message(p : Vector2D) :: KeyDown(Key.Control, _) :: tail => {
+          startPoint = Some(p)
+        }
         case _ =>
       }
-
       // Listen to mouse-events
       Goto('MouseCheck, false)
     }),
     //check if a mouse up is happening while running the angle gizmo loop, if so, the angle module will exit.
     'MouseCheck -> ((events : List[Event]) => {
+      //if CTRL was presed in point, activate the gizmo
+      events match {
+        case KeyUp(Key.Control, _) :: Message(_) :: tail => {
+          println("CTRL")
+          Goto('AngleGizmo)
+        }
+
+        case _ =>
+      }
       // If the gizmo check has expired then activate the gizmo,
       // if the latest event has not been set before
       if (System.currentTimeMillis() - startTime.get < gizmoTime) {
@@ -85,11 +96,16 @@ object AngleGizmo extends Module {
     }),
     //this state is activated if the Gizmo is called:
     'AngleGizmo -> ((events : List[Event]) => {
+      println("events AG: "+events)
+
       // Activate!
       gizmoIsActive = true
       events match {
         //if the right mouse button is pressed, exit.
-        case (MouseUp(_, MouseButtonRight, _) | MouseDown(_, MouseButtonRight, _)) :: tail => Goto('End, false)
+        case (MouseUp(_, MouseButtonRight, _) | MouseDown(_, MouseButtonRight, _)) :: tail => {
+          println("A")
+          Goto('End, false)
+        }
 
         case MouseUp(_, _, _) :: MouseDrag(_, _, _) :: tail => {
           anglePointIsSet = true
@@ -100,11 +116,16 @@ object AngleGizmo extends Module {
           anglePointIsSet = true
           Goto('End)
         }
+        //case KeyUp(Key.Control, _) :: tail => {
+        //  Goto('End, false)
+        //}
 
-        case _=>
+        case _=> println("NONE")
+
       }
 
       //get the current radial
+      println("SP "+startPoint.isDefined)
       if (startPoint.isDefined) {
         // Flip the degree-value to get the clockwise values
         val clockwiseDegrees = (Siigna.mousePosition - startPoint.get).angle.round.toInt * -1
@@ -117,6 +138,7 @@ object AngleGizmo extends Module {
       }
     }),
     'End -> ((events : List[Event]) => {
+      println("IN END")
       def reset() {
         // Reset variables
         degrees = None

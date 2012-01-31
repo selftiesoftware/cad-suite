@@ -106,7 +106,7 @@ object Point extends Module {
           eventParser.snapTo(a)
         }
         // Avoid ending if the mouse up comes after setting the angle in the AngleGizmo
-        case MouseDown(_, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail =>
+        case MouseDown(p, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail => previousPoint = Some(p)
         case MouseUp(_, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail =>
 
         // Exit strategy
@@ -139,7 +139,6 @@ object Point extends Module {
           }
           //if the angle gizmo is used, and a length has been typed, send the resulting point
           else if(currentSnap.isDefined && x.isDefined) {
-              println("prepare to send the length vector!: "+lengthVector(x.get))
               point = Some(lengthVector(x.get - difference.x))
             Goto('End)
           }
@@ -148,6 +147,10 @@ object Point extends Module {
             coordinateValue = ""
             //Goto('End)
           }
+        }
+        case KeyDown(Key.Control, _) :: tail => {
+          Send(Message(previousPoint.get))
+          ForwardTo('AngleGizmo)
         }
         case KeyDown(Key.Space, _) :: tail => Goto('End)
 
@@ -207,8 +210,6 @@ object Point extends Module {
     }),
     'End -> ((events : List[Event]) => {
       //Clear the variables
-      println("previous: "+previousPoint)
-      println("point: "+point)
       coordinateX = None
       coordinateY = None
       coordinateValue = ""
