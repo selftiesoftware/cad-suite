@@ -32,7 +32,7 @@ object Rectangle extends Module {
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
         case Message(p : Vector2D) :: tail => Goto('SetPoint)
-        case _ => ForwardTo('Point)
+        case _ => ForwardTo('Point, false)
 
       }
     }),

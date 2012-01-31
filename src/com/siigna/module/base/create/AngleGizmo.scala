@@ -66,7 +66,7 @@ object AngleGizmo extends Module {
         case Message(_) :: Message(_) :: MouseDown(p, _, _) :: tail => {
           startPoint = Some(p)
         }
-        case Message(p : Vector2D) :: KeyDown(Key.Control, _) :: tail => {
+        case Message(p : Vector2D) :: KeyDown(Key.Shift, _) :: tail => {
           startPoint = Some(p)
         }
         case _ =>
@@ -78,7 +78,7 @@ object AngleGizmo extends Module {
     'MouseCheck -> ((events : List[Event]) => {
       //if CTRL was presed in point, activate the gizmo
       events match {
-        case KeyUp(Key.Control, _) :: Message(_) :: tail => {
+        case KeyUp(Key.Shift, _) :: Message(_) :: tail => {
           ctrl = true
           Goto('AngleGizmo)
         }
@@ -99,8 +99,6 @@ object AngleGizmo extends Module {
     }),
     //this state is activated if the Gizmo is called:
     'AngleGizmo -> ((events : List[Event]) => {
-      println("events AG: "+events)
-      Log.level += Log.DEBUG
       // Activate!
       gizmoIsActive = true
       events match {
@@ -123,7 +121,7 @@ object AngleGizmo extends Module {
         //  Goto('End, false)
         //}
 
-        case _=> println("NONE")
+        case _=>
 
       }
 

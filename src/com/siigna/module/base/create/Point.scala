@@ -148,7 +148,7 @@ object Point extends Module {
             //Goto('End)
           }
         }
-        case KeyDown(Key.Control, _) :: tail => {
+        case KeyDown(Key.Shift, _) :: tail => {
           Send(Message(previousPoint.get))
           ForwardTo('AngleGizmo)
         }
