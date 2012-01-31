@@ -49,7 +49,6 @@ object Polyline extends Module {
       case Message(p : Vector2D) :: tail => {
         // Save the point
         points = points :+ p
-
         // Define shape if there is enough points
         if (points.size > 1) {
           shape = Some(PolylineShape.fromPoints(points))

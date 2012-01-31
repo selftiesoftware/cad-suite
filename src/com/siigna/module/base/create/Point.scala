@@ -128,9 +128,9 @@ object Point extends Module {
         //goto second coordinate if ENTER, COMMA, or TAB is pressed
         case KeyDown(Key.Enter | Key.Tab | ',', _) :: tail => {
 
-          if (coordinateX.isEmpty && coordinateValue.length == 0) Goto('End)
+          if (!currentSnap.isDefined && coordinateX.isEmpty && coordinateValue.length == 0) Goto('End)
           //when ENTER is pressed, and a value is det, this valus is passed as the first coordinate relative to 0,0
-          if (coordinateX.isEmpty && coordinateValue.length > 0) {
+          if (!currentSnap.isDefined && coordinateX.isEmpty && coordinateValue.length > 0) {
             coordinateX = Some(java.lang.Double.parseDouble(coordinateValue))
             //a hack used in paint to get the point input used to draw the position without transformation
             filteredX = Some(coordinateX.get + difference.x)
@@ -138,11 +138,11 @@ object Point extends Module {
             coordinateValue = ""
           }
           //if the angle gizmo is used, and a length has been typed, send the resulting point
-          //else if(currentSnap.isDefined && x.isDefined) {
-          //    println("prepare to send the length vector!: "+lengthVector(x.get))
-            //point = Some(lengthVector(x.get))
-            //Goto('End)
-          //}
+          else if(currentSnap.isDefined && x.isDefined) {
+              println("prepare to send the length vector!: "+lengthVector(x.get))
+              point = Some(lengthVector(x.get - difference.x))
+            Goto('End)
+          }
           else if (coordinateY.isEmpty && coordinateValue.length > 0) {
             coordinateY = Some(java.lang.Double.parseDouble(coordinateValue))
             coordinateValue = ""
@@ -207,6 +207,8 @@ object Point extends Module {
     }),
     'End -> ((events : List[Event]) => {
       //Clear the variables
+      println("previous: "+previousPoint)
+      println("point: "+point)
       coordinateX = None
       coordinateY = None
       coordinateValue = ""
@@ -216,17 +218,14 @@ object Point extends Module {
       // Reset the point guide
       pointGuide = None
       previousPoint = point
-      println("Previous,  end: "+previousPoint)
       //clear the point.
       val p = point
       point = None
 
       // Return a point if it is defined
       if (p.isDefined) {
-
         // Return the point
-        println("point: "+p)
-        Message(p)
+        Message(p.get)
       }
       else events match {
         case MouseDown(p, MouseButtonLeft, _) :: tail => {
@@ -269,12 +268,13 @@ object Point extends Module {
       } else if (x.isDefined && mousePosition.isDefined && !filteredX.isDefined && !currentSnap.isDefined) {
         g draw guide(Vector2D(x.get, mousePosition.get.y)).transform(t)
       } else if (x.isDefined && mousePosition.isDefined && !filteredX.isDefined && currentSnap.isDefined) {
-        g draw guide(lengthVector(x.get)).transform(t)
+        g draw guide(lengthVector(x.get - difference.x)).transform(t)
       } else if (x.isDefined && mousePosition.isDefined && filteredX.isDefined) {
         g draw guide(Vector2D(filteredX.get, mousePosition.get.y)).transform(t)
       } else if (mousePosition.isDefined) {
         g draw guide(mousePosition.get).transform(t)
       }
+
     }
   }
 
