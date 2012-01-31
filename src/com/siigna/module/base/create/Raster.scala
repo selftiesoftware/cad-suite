@@ -33,34 +33,28 @@ object Raster extends Module {
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {
+        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
         case MouseMove(point, _, _) :: tail => mousePosition = Some(point)
         case MouseDrag(point, _, _) :: tail => mousePosition = Some(point)
-        case MouseUp(_, MouseButtonRight, _) :: tail => {
-          Goto('End)
-        }
         case MouseDown(point, MouseButtonLeft, _):: tail => {
-          if(!firstPoint.isDefined)
+          if (firstPoint.isEmpty)
             firstPoint = Some(point)
-            points = points :+ point
-            previousPoint = Some(point)
-        }
-        case MouseUp(_, MouseButtonRight, _):: tail => {
-          Goto ('End)
+
+          points = points :+ point
+          previousPoint = Some(point)
+
+          // Set shape
+          if (points.size > 0) {
+            shape = PolylineShape.fromPoints(points).setAttribute(("raster" -> anthracite))
+          }
         }
         case _ =>
       }
-    if (points.size > 0)
-
-    shape = PolylineShape.fromPoints(points)
     }),
     'End -> ((events : List[Event]) => {
 
       //add a line segment from the last to the first point in the list to close the fill area
-      if (points.size > 0 && firstPoint.isDefined) {
-        points = points :+ firstPoint.get
-        shape = PolylineShape.fromPoints(points)
-        Create(shape)
-      }
+      if (shape.shapes.size > 0) Create(shape)
 
       //Clear the variables
       firstPoint = None
@@ -69,27 +63,8 @@ object Raster extends Module {
       shape = PolylineShape.empty
     })
   )
+
   override def paint(g : Graphics, t : TransformationMatrix) {
-
-    if (points.length > 0 && previousPoint.isDefined) {
-
-      //fill values
-      lazy val colorFill = points
-
-      val fillVector2Ds = colorFill.map(_.transform(t))
-      val fillScreenX = fillVector2Ds.map(_.x.toInt).toArray
-      val fillScreenY = fillVector2Ds.map(_.y.toInt).toArray
-
-      //set a color for the raster
-      g setColor anthracite
-
-      //fill the polygon
-      g.g.fillPolygon(fillScreenX, fillScreenY, fillVector2Ds.size)
-
-      g draw LineShape(mousePosition.get, previousPoint.get).transform(t)
-      g draw LineShape(mousePosition.get, firstPoint.get).transform(t)
-      g.g.fillPolygon(fillScreenX, fillScreenY, fillVector2Ds.size)
-    }
     g draw shape.transform(t)
   }
 }

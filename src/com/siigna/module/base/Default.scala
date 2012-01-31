@@ -5,13 +5,14 @@ package com.siigna.module.base
 import com.siigna._
 import com.siigna.module.base.radialmenu.category._
 import com.siigna.module.base.radialmenu.category.{Create => MenuCreate}
-import sys.Prop
 
 /**
 * The default module for the base module pack. Works as access point to
 * the rest of the modules.
 */
 object Default extends Module {
+
+  Preload('Selection)
 
   def eventHandler = EventHandler(stateMap, stateMachine)
 
@@ -24,8 +25,6 @@ object Default extends Module {
 
    //The nearest shape to the current mouse position.
   var nearestShape : Option[Shape] = None
-
-  private var message : String = ""
 
   //The last module this module forwarded to, if any.
   var previousModule : Option[Symbol] = None
@@ -41,17 +40,9 @@ object Default extends Module {
         firstStart = false
       }
       events match {
-        case MouseDown(point, MouseButtonLeft, _) :: tail           => {
-          if (fullScreenBox.contains(point.transform(Siigna.physical))) {
-
-          } else ForwardTo('Selection)
-        }
+        case MouseDown(point, MouseButtonLeft, _) :: tail           => ForwardTo('Selection)
         case MouseDown(point, MouseButtonRight, _) :: tail          => {
           if (firstMenuLoad == true) {
-            Siigna.display("...loading modules, please wait")
-            Thread.sleep(500)
-            Siigna.clearDisplay()
-
             ForwardTo('Menu)
 
             //preload commonly used modules

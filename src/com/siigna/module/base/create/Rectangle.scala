@@ -10,18 +10,13 @@ object Rectangle extends Module {
 
   var points = List[Vector2D]()
 
-  var shape : PolylineShape = PolylineShape.empty
-
   def stateMap = DirectedGraph(
-    'Start       -> 'KeyEscape   -> 'End,
-    //'SecondPoint -> 'KeyDown     -> 'Point,
-    'SecondPoint -> 'KeyEscape   -> 'End
+    'Start       -> 'Message   -> 'SetPoint
   )
 
   def stateMachine = Map(
     //TODO: draw a dummy rectangle of eg. 1/15 * 1/15 of the paper height/width dynamically before first point is set
     'Start -> ((events : List[Event]) => {
-      println(events.head)
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
         case Message(p : Vector2D) :: tail => Goto('SetPoint)
@@ -35,23 +30,19 @@ object Rectangle extends Module {
       val getRectGuide : Vector2D => PolylineShape = (v : Vector2D) => {
         PolylineShape.fromRectangle(Rectangle2D(points.head, v))
       }
+
       events match {
         case Message(point : Vector2D) :: tail => {
-          println("back from Point" +points)
           if(points.length == 1) {
-
             points = points :+ point
             Goto('End)
-          }
-          else if(points.length == 0) {
+          } else if (points.length == 0) {
            points = points :+ point
            Send(Message(PointGuide(getRectGuide)))
            ForwardTo('Point)
           }
         }
-        case _ => {
-
-        }
+        case _ =>
       }
     }),
     'End -> ((events : List[Event]) => {
@@ -61,7 +52,6 @@ object Rectangle extends Module {
 
       // Clear variables
       points = List[Vector2D]()
-      shape = PolylineShape.empty
     })
   )
 
