@@ -23,6 +23,9 @@ object AngleGizmo extends Module {
   // a flag telling if the desired angle is set
   var anglePointIsSet = false
 
+  //a flag to disregard the timer if CTRL is pressed
+  var ctrl = false
+
   /**
    * The degree of the angle-guide, given in degrees where 0 is North clockwise.
    */
@@ -76,7 +79,7 @@ object AngleGizmo extends Module {
       //if CTRL was presed in point, activate the gizmo
       events match {
         case KeyUp(Key.Control, _) :: Message(_) :: tail => {
-          println("CTRL")
+          ctrl = true
           Goto('AngleGizmo)
         }
 
@@ -84,7 +87,7 @@ object AngleGizmo extends Module {
       }
       // If the gizmo check has expired then activate the gizmo,
       // if the latest event has not been set before
-      if (System.currentTimeMillis() - startTime.get < gizmoTime) {
+      if (!ctrl == true && System.currentTimeMillis() - startTime.get < gizmoTime) {
         Goto('End)
 
       // If the time has run out and an event has been registered, then exit
@@ -97,7 +100,7 @@ object AngleGizmo extends Module {
     //this state is activated if the Gizmo is called:
     'AngleGizmo -> ((events : List[Event]) => {
       println("events AG: "+events)
-
+      Log.level += Log.DEBUG
       // Activate!
       gizmoIsActive = true
       events match {
@@ -138,9 +141,9 @@ object AngleGizmo extends Module {
       }
     }),
     'End -> ((events : List[Event]) => {
-      println("IN END")
       def reset() {
         // Reset variables
+        ctrl = false
         degrees = None
         gizmoIsActive = false
         anglePointIsSet = false
