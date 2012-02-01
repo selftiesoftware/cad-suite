@@ -11,80 +11,112 @@
 
 package com.siigna.module.base.create
 
-/* 2011 (C) Copyright by Siigna, all rights reserved. */
+/* 2012 (C) Copyright by Siigna, all rights reserved. */
 
 import com.siigna._
 
 object Arc extends Module {
 
+  //a flag used to determinie when to stop drawing a circle as a dynamic shape
+  private var inSetArc = false
+
+  private var secondArcPoint : Option[Vector2D] = None
+
+  // The points of the polyline
+  private var points   = List[Vector2D]()
+
   val eventHandler = EventHandler(stateMap, stateMachine)
 
-  var points : List[Vector2D] = List()
-
-  var previousPoint : Option[Vector2D] = None
+  private var secondPointSet = false
 
   def stateMap = DirectedGraph(
-    'Start         -> 'MouseMove -> 'Start,
-    'Start         -> 'KeyEscape -> 'End,
-    'Start         -> 'Action    -> 'FirstPoint,
-    'FirstPoint    -> 'Action    -> 'SecondPoint,
-    'FirstPoint    -> 'KeyEscape -> 'End,
-    'SecondPoint   -> 'KeyEscape -> 'End,
-    'SecondPoint   -> 'Action    -> 'End
+    'Start        ->   'Message   ->    'SetRadius,
+    'SetRadius    ->   'KeyEscape ->    'End,
+    'SetArc       ->   'KeyEscape ->    'End
   )
+
 
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
-      if (previousPoint.isEmpty)
-        ForwardTo('Point)
-      else {
-        points = List(previousPoint.get)
-        Goto('FirstPoint)
+  'Start -> ((events : List[Event]) => {
+    Siigna.display("Set the startpoint, then radius, and endpoint")
+    //Log.level += Log.DEBUG + Log.SUCCESS
+    events match {
+      case MouseDown(_, MouseButtonRight, _) :: tail => {
+        Goto('End)
       }
-      None
-    }),
-    'FirstPoint -> ((events : List[Event]) => {
-      events match {
-        case Message(p : Vector2D) :: tail => {
-          points = List(p)
-        }
-        case _ =>
-      }
-      val guide : Vector2D => ImmutableShape = point => {
-        val normalVector2D = (points(0) - point).normal
-        val middle = normalVector2D + ((points(0) + point) / 2)
-        ArcShape(points(0), middle, point)
-      }
-      //ForwardTo('Point)
-      //Message(PointGuide(guide))
-    }),
-    'SecondPoint -> ((events : List[Event]) => {
-      events match {
-        case Message(p : Vector2D) :: tail => {
-          if (points.size > 1)
-            Goto('End)
-          else
-            points = points.::(p)
-        }
-        case _ =>
-      }
-      val guide : Vector2D => ImmutableShape = point => {
-        val normalVector2D = (points(0) - points(1)).normal
-        val middle = normalVector2D + ((points(0) + points(1)) / 2)
-        ArcShape(points(0), point, points(1))
-      }
-      //ForwardTo('Point)
-      //Message(PointGuide(guide))
-      None
-    }),
-    'End -> ((events : List[Event]) => {
-      events match {
-        case Message(p : Vector2D) :: tail => {
-          Create(ArcShape(points(1), p, points(0)))
-        }
-        case _ => None
-      }
-    })
-  )
+      case _ => ForwardTo('Point, false)
+    }
+  }),
+  'SetRadius -> ((events : List[Event]) => {
+    //before enough information is gathered to send an arcShape as a PointGuide, a circle is sent.
+    val getCircleGuide : Vector2D => CircleShape = (v : Vector2D) => {
+       CircleShape(v, points.head)
+     }
 
+    events match {
+      // Exit mechanisms
+      case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
+
+      case Message(p : Vector2D) :: tail => {
+
+        // Send a circle as a PointGuide to Point if there is enough points set
+        if (points.length < 1) {
+          //proceed to set the Arc segment
+          points = points :+ p
+          Send(Message(PointGuide(getCircleGuide)))
+          ForwardTo('Point)
+        }
+        else if (points.length == 1) {
+          //proceed to set the Arc segment
+          points = points :+ p
+          Goto('SetArc)
+        }
+      }
+      // Match on everything else
+      case _ =>
+    }
+  }),
+  'SetArc -> ((events : List[Event]) => {
+    println(events)
+    inSetArc = true
+    val arcGuide : Vector2D => ArcShape = (v : Vector2D) => {
+       val radius = (points(0)-points(1)).length
+       val a1 = (points(0)-points(1)).angle
+       val a2 = (points(0)-v).angle
+       ArcShape(points(1), radius, a1, a2-360)
+     }
+    events match {
+      case Message(p : Vector2D) :: tail => {
+      }
+      case MouseDown(_ ,MouseButtonRight, _) :: tail => Goto('End)
+      case MouseUp(p , _, _) :: tail => {
+        if(secondPointSet == true){
+          secondArcPoint = Some(p)
+          Goto('End)
+        }
+        secondPointSet = true
+      }
+
+      case _ => {
+        Send(Message(PointGuide(arcGuide)))
+        ForwardTo('Point)
+      }
+
+
+    }
+  }),
+  'End -> ((events : List[Event]) => {
+
+    Create(ArcShape(points(1),(points(0)-points(1)).length,(points(0)-points(1)).angle,(points(0)-secondArcPoint.get).angle-360))
+
+    //clear the vars
+    inSetArc = false
+    points = List()
+    secondPointSet = false
+  }))
+  //draw a guiding circle when relevant.
+  override def paint(g : Graphics, t : TransformationMatrix) {
+    if(inSetArc == false && points.length == 2)
+      g draw CircleShape(points(1), points(0)).transform(t)
+  }
 }

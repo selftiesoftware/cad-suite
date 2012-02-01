@@ -138,7 +138,7 @@ object AngleGizmo extends Module {
     }),
     'End -> ((events : List[Event]) => {
       def reset() {
-        // Reset variables
+        //Reset variables
         ctrl = false
         degrees = None
         gizmoIsActive = false
