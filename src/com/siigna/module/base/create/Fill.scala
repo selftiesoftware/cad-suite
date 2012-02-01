@@ -14,7 +14,7 @@ package com.siigna.module.base.create
 import java.awt.Color
 import com.siigna._
 
-object Raster extends Module {
+object Fill extends Module {
 
   //raster color value
   lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, 1.00f)
@@ -46,11 +46,12 @@ object Raster extends Module {
         case MouseMove(point, _, _) :: tail => mousePosition = Some(point)
         case MouseDrag(point, _, _) :: tail => mousePosition = Some(point)
         case MouseDown(point, MouseButtonLeft, _):: tail => {
-          if (firstPoint.isEmpty)
+          if (!firstPoint.isEmpty) {
             firstPoint = Some(point)
-
-          points = points :+ point
-          previousPoint = Some(point)
+            points = points :+ point
+            previousPoint = Some(point)
+        }
+          else firstPoint = Some(point)
 
           // Set shape
           if (points.size > 0) {
@@ -74,6 +75,15 @@ object Raster extends Module {
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    g draw shape.transform(t)
+    def fillVector2Ds = points.map(_.transform(t))
+    val fillScreenX = fillVector2Ds.map(_.x.toInt).toArray
+    val fillScreenY = fillVector2Ds.map(_.y.toInt).toArray
+
+    if(!firstPoint.isEmpty && mousePosition.isDefined && previousPoint.isDefined && points.length > 0)
+      g draw shape.transform(t)
+      g.g.fillPolygon(fillScreenX, fillScreenY, fillVector2Ds.size)
+      g draw LineShape(points.head,mousePosition.get).transform(t)
+      g draw LineShape(previousPoint.get,mousePosition.get).transform(t)
+
   }
 }

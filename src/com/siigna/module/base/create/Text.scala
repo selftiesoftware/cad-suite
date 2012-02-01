@@ -59,7 +59,6 @@ object Text extends Module {
       Siigna.display("click to set text")
       events match {
         case MouseDown(p, _, _) :: tail => {
-          println(startPoint)
           if(startPoint == true){
             position = Some(p)
             Goto('TextInput)
@@ -82,8 +81,6 @@ object Text extends Module {
           Goto('End)
         }
         case KeyDown(key, _) :: tail => {
-          println(position)
-          println(text)
           text += key.toChar.toString.toLowerCase
         }
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)

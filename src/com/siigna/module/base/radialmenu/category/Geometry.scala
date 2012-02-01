@@ -19,10 +19,8 @@ case class Geometry(parent : Option[MenuCategory]) extends MenuCategory {
 
   def name = "Geometry"
 
-  override def NNW = Some(MenuItem('Circle, RadialMenuIcon.circle))
-
-  override def N = Some(MenuItemEmpty("Freehand"))
-
-    override def NNE = Some(MenuItem('Artline, RadialMenuIcon.circle))
+  override def NNE = Some(MenuItem('Circle, RadialMenuIcon.circle ,"create"))
+  //override def N = Some(MenuItemEmpty("Freehand"))
+  //override def NNE = Some(MenuItem('Artline, RadialMenuIcon.circle))
 
 }

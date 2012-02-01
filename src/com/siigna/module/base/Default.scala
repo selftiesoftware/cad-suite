@@ -55,13 +55,14 @@ object Default extends Module {
             ForwardTo('Menu)
 
             //preload commonly used modules
-            Preload('Polyline, "com.siigna.module.base.create")
+            Preload('AngleGizmo, "com.siigna.module.base.create")
             Preload('Artline, "com.siigna.module.base.create")
-            Preload('Text, "com.siigna.module.base.create")
-            Preload('Rectangle, "com.siigna.module.base.create")
+            Preload('Fill, "com.siigna.module.base.create")
             Preload('Lineardim, "com.siigna.module.base.create")
             Preload('Point, "com.siigna.module.base.create")
-            Preload('AngleGizmo, "com.siigna.module.base.create")
+            Preload('Polyline, "com.siigna.module.base.create")
+            Preload('Rectangle, "com.siigna.module.base.create")
+            Preload('Text, "com.siigna.module.base.create")
             firstMenuLoad = false
           }
           else ForwardTo('Menu)
@@ -113,7 +114,7 @@ object Default extends Module {
               }
               else if(previousKey == Some('c')) {
                 Siigna.display("circle")
-                ForwardTo('Circle)
+                ForwardTo('Circle, false)
               }
               //open the CREATE menu
               else {
@@ -137,9 +138,15 @@ object Default extends Module {
             }
             //open the FILE menu
             case 'f' => {
+            if (previousKey == Some('c')) {
+                Siigna.display("create fill")
+                ForwardTo('Fill)
+                previousKey = Some('f')
+              } else {
                 Send(Message(File(Some(Start))))
                 ForwardTo('Menu)
                 previousKey = Some('f')
+              }
             }
             //open the HELPERS menu
             case 'h' => {

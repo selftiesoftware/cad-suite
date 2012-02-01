@@ -90,12 +90,12 @@ object Lineardim extends Module {
       None
 
   //a flag to discard the mouseDown event which is active when the radial menu button is pushed
-  var startPoint = false
-  var transformation = TransformationMatrix()
-  var norm = Vector2D(0,0)
-  var points : List[Vector2D] = List()
-  var previousPoint : Option[Vector2D] = None
-  var scale = com.siigna.app.model.Model.boundaryScale * 5
+  private var startPoint = false
+  private var transformation = TransformationMatrix()
+  private var norm = Vector2D(0,0)
+  private var points : List[Vector2D] = List()
+  private var previousPoint : Option[Vector2D] = None
+  private var scale = com.siigna.app.model.Model.boundaryScale * 5
 
   def stateMap = DirectedGraph(
 
@@ -106,7 +106,6 @@ object Lineardim extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println(events)
       events match {
         //set the first point of the dim line
         case MouseDown(p, _, _):: tail => {

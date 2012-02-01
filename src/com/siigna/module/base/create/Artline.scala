@@ -52,7 +52,6 @@ object Artline extends Module{
               startPoint = Some(p)
               //points = List(LineShape(dotshape, point),LineShape(dotshape, point))
               //Message(points)
-              //println(points)
             }
             case MouseDrag(p, _, _) :: tail => {
               currentPoint = Some(p)

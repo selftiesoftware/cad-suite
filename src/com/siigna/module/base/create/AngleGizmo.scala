@@ -104,7 +104,6 @@ object AngleGizmo extends Module {
       events match {
         //if the right mouse button is pressed, exit.
         case (MouseUp(_, MouseButtonRight, _) | MouseDown(_, MouseButtonRight, _)) :: tail => {
-          println("A")
           Goto('End, false)
         }
 
@@ -126,7 +125,6 @@ object AngleGizmo extends Module {
       }
 
       //get the current radial
-      println("SP "+startPoint.isDefined)
       if (startPoint.isDefined) {
         // Flip the degree-value to get the clockwise values
         val clockwiseDegrees = (Siigna.mousePosition - startPoint.get).angle.round.toInt * -1

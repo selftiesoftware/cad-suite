@@ -20,7 +20,7 @@ case class Create(parent : Option[MenuCategory]) extends MenuCategory {
   def name = "Create"
 
   override def E = Some(MenuItemEmpty("Create from"))
-  override def N = Some(MenuItemEmpty("Geometry"))
+  override def N = Some(new Geometry(Some(this)))
   override def W = Some(MenuItemEmpty("Annotation"))
   override def S = Some(MenuItemEmpty("Collection"))
   //override def S = Some(new Dimension(Some(this)))
@@ -29,7 +29,7 @@ case class Create(parent : Option[MenuCategory]) extends MenuCategory {
   override def NNE = Some(MenuItem('Rectangle, RadialMenuIcon.rectangle))
   //override def NNW = Some(new MenuItem('Circle, RadialMenuIcon.circle))
   override def WNW = Some(MenuItem('Text, RadialMenuIcon.text))
-  override def NNW = Some(MenuItem('Raster, RadialMenuIcon.raster, "create"))
+  override def NNW = Some(MenuItem('Fill, RadialMenuIcon.raster, "create"))
   override def SSW = Some(MenuItem('Polyline, RadialMenuIcon.group))
   override def SSE = Some(MenuItem('Polyline, RadialMenuIcon.explode))
   override def WSW = Some(MenuItem('Lineardim, RadialMenuIcon.linearDimension))

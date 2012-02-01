@@ -19,13 +19,10 @@ object Circle extends Module {
 
   val eventHandler = EventHandler(stateMap, stateMachine)
 
-  var center : Option[Vector2D] = None
-  var radius : Option[Vector2D] = None
-  var currentMouse  : Option[Vector2D] = None
+  private var center : Option[Vector2D] = None
+  private var radius : Option[Vector2D] = None
 
   def stateMap = DirectedGraph(
-    //'Start        -> 'SetRadius  -> 'End,
-    //'Start        -> 'MouseUp  -> 'SetRadius,
     'Start        -> 'KeyEscape  -> 'End,
     'Start        -> 'KeyDown    -> 'End
   )
@@ -33,40 +30,37 @@ object Circle extends Module {
   def stateMachine = Map(
     //Start: Defines a centerpoint for the circle and forwards to 'SetRadius
     'Start -> ((events : List[Event]) => {
+      println(events)
       events match {
-        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-        case MouseMove(_, _, _) :: tail => {
+        case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
+        case Message(p : Vector2D) :: tail => Goto('SetRadius)
+        case _ => {
+          println("got:  "+events.head)
+          ForwardTo('Point, false)
         }
-        case MouseDown(p, _, _) :: tail => {
-          center = Some(p)
-        }
-         case MouseUp(_, _, _) :: tail => {
-           if (center.isDefined) {
-           Goto('SetRadius)
-           }
-         }
-        case _ =>
       }
       None
     }),
 
     //SetRadius: Listens for the radius of the circle and forwards to 'End
     'SetRadius -> ((events : List[Event]) => {
-      events match {
-        case MouseMove(p, _, _) :: tail => {
-          currentMouse = Some(p)
-        }
-        case MouseDown(r, _, _) :: tail => {
-          radius = Some(r)
-        }
-        case MouseUp(_, _, _) :: tail => {
-           if (radius.isDefined) {
-           Goto('End)
-           }
-         }
 
-        //case MouseUp(_, _, _) :: tail => Goto('End)
-        case _ => None
+     val getCircleGuide : Vector2D => CircleShape = (v : Vector2D) => {
+       CircleShape(center.get, v)
+     }
+
+      events match {
+        case Message(p : Vector2D) :: tail => {
+          if(center.isDefined) {
+            radius = Some(p)
+            Goto('End)
+          } else if (!center.isDefined) {
+           center = Some(p)
+           Send(Message(PointGuide(getCircleGuide)))
+           ForwardTo('Point)
+          }
+        }
+        case _ =>
       }
     }),
 
@@ -82,9 +76,5 @@ object Circle extends Module {
       })
     )
   )
-override def paint(g : Graphics, t : TransformationMatrix) {
 
-      g draw CircleShape(center.get, currentMouse.get).transform(t)
-
-  }
 }
