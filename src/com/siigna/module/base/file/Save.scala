@@ -13,9 +13,20 @@ package com.siigna.module.base.file
 
 /* 2010 (C) Copyright by Siigna, all rights reserved. */
 
-/*import com.siigna.app.controller.pgsql_handler._
+import com.siigna.app.controller.pgsql_handler._
 
-
+ /*
+   a test module for Database connection:
+     selects all (Poly)LineShapes in the model and saves them to the database.
+     to test for a successful save operation:
+     goto siigna.php
+     in the field 'Direkte PostgreSQL-query':
+     type:
+        selectedShape * from shape
+     or select * from shape_point
+     or select * from shape_point_relation
+     to see id shapes are saved.
+ */
 
 //siigna
 import com.siigna._
@@ -27,12 +38,6 @@ object Save extends Module {
   private var hasShape  = false
 
   lazy val stateMap     = DirectedGraph  ('Start     -> 'KeyEscape -> 'End)
-
-  def dbShape (shapeId: Int, point1Id: Int, point2Id: Int) = new PgsqlSaveShapeLine().postgresSaveShapeLine(_, _, _, _, _, _)
-
- // def getPointFromShape(shape : Shape) : List[Vector2D] = shape match {
- //   case p : PolylineShape => p.shapes.foldLeft(List[Vector2D]()) (list, shape)
- // }
 
   //definition of the coordinates
   var x1 : Option[Int] = None
@@ -47,61 +52,41 @@ object Save extends Module {
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       //display a message instructing to drag a selection around the lines that should e saved to the database
-      Siigna.display("select lines to save to database")
-
-
-
-    //var pointPlId : Seq[Int] = Seq()
-    //pointPlId = pointPlId :+ 7 :+ 8 :+ 0 :+ 89 :+ 86 :+ 0 :+ 2 :+ 3 :+ 0 :+ 7 :+ 6 :+ 0 :+ 2 :+ 4 :+ 0 :+ 33 :+ 1 :+ 0
-    //val (shapeId1: Int, pointPlIdReturn) = new pgsqlSaveShapePolyline().postgresSaveShapePolyline(pointPlId)
-    //println(shapeId1)
-    //println(pointPlIdReturn)
-
-      //test:
-      //siigna.php
-      //selectedShape * from shape
-      //select * from shape_point
-      //select * from shape_point_relation
-
-      events match {
-        //if a message is returned from the select module, use the geometry that has been passed
-        case Message(shapes : Set[Shape]) :: tail => {
-          //save the incoming shapes in a var
-          selectedShape = shapes
-          //set a flag so the module knows if there was actually any data in the set
-          if(!selectedShape.isEmpty)
-            hasShape = true
-        }
-        case _ => {
-          //if there is any data, proceed to 'End
-          if(hasShape == true) {
-           Goto('End)
-          }
-          //if not, offer the possibility to try ans select again.
-          else {
-            ForwardTo('Selection)
-          }
-        }
+      if(!Model.isEmpty){
+        Siigna.display("saving  to database")
+        Goto('End)
       }
+      else {
+        Siigna.display("no lines in drawing. Ending Save module")
+        Goto('End)
+      }
+
+
+
     }),
     'End   -> ((events : List[Event]) => {
-      //return without a result if there are no lines
-      if (hasShape == false) {
-        Siigna.display("found no lines")
-        Thread.sleep(1000)
-      }
-      //advice the user if the selection was empty
-      else if(hasShape == true && selectedShape.isEmpty) {
-        Siigna.display("found an empty set")
-        Thread.sleep(1000)
-      }
-      //save the data
-      else {
+      //proceed to save the data
+      if(!Model.isEmpty) {
         //the result is a set that need to be converted:
-        selectedShape foreach (_ match {
+        Model foreach (_ match {
           case l : PolylineShape => {
-            println(l)
-            //println(l.shapes.foldLeft(List[Vector2D]()) ((list, shape) => list ++ getPointFromShape(shape)))
+            l.shapes.foreach {
+              case l : LineShape => {
+                println("L: "+l)
+                val p1 = l.p1
+                val p2 = l.p2
+                val x1 = p1.x.toInt
+                val y1 = p1.y.toInt
+                val z1 = 0
+                val x2 = p2.x.toInt
+                val y2 = p2.y.toInt
+                val z2 = 0
+                val pgsql = new PgsqlSaveShapeLine()
+                val ids = pgsql.postgresSaveShapeLine(x1,y1,z1,x2,y2,z2)
+                println(ids)
+              }
+              case _ =>
+            }
           }
           case _ => println("incompatible shape")
         })
@@ -117,8 +102,6 @@ object Save extends Module {
       }
 
       //clear variables
-      hasShape = false
     })
   )
 }
-*/
