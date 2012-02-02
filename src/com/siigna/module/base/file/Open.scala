@@ -22,6 +22,8 @@ import com.siigna._
 
 object Open extends Module {
 
+  //DELETE DATABASE: delete from shape where point_id > 0
+  //delete from shape where shape_id > 0
   //val fromDatabase = new LineShape(p1,p2, _)
 
  /*
@@ -47,6 +49,7 @@ object Open extends Module {
       //connect to database and get all ShapeType and object IDs in it.
       val pgsqlShapes = new pgsqlGetShapesInArea()
       val lines = pgsqlShapes.getShapesInArea(-40000,-40000,80000,80000)
+      println(lines)
       val getVectors = new pgsqlGetLine
 
         lines.foreach{
@@ -55,7 +58,7 @@ object Open extends Module {
               //get Vector data from each ID
               val coords = getVectors.getLine(i)
               //convert the coordinates to LineShapes
-              shape = Some(LineShape(Vector2D(coords._1,coords._2),Vector2D(coords._5,coords._6)))
+              shape = Some(LineShape(Vector2D(coords._2,coords._3),Vector2D(coords._6,coords._7)))
               Create(shape)
             }
           }

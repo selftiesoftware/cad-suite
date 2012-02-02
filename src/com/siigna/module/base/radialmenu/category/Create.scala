@@ -33,6 +33,6 @@ case class Create(parent : Option[MenuCategory]) extends MenuCategory {
   override def SSW = Some(MenuItem('Polyline, RadialMenuIcon.group))
   override def SSE = Some(MenuItem('Polyline, RadialMenuIcon.explode))
   override def WSW = Some(MenuItem('Lineardim, RadialMenuIcon.linearDimension))
-  override def ESE = Some(MenuItem('Polyline, RadialMenuIcon.offset))
+  override def ESE = Some(MenuItem('Offset, RadialMenuIcon.offset, "create"))
 
 }
