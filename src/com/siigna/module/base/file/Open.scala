@@ -13,6 +13,9 @@ package com.siigna.module.base.file
 
 import com.siigna.app.controller.pgsql_handler._
 
+//TODO: update the way IDs are generated, so that all shapes in a saved model area assigned a global coordinate in the Siigna Universe.
+//Example: one model with two shapes: ID=000130000000, x,y, ID=000230000000, x,y where 0001 and 0002 is a running number and 30000000 the position.
+
 
 //siigna
 import com.siigna._
@@ -31,6 +34,8 @@ object Open extends Module {
 
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 
+  private var shape : Option[Shape] = None
+
   lazy val stateMap     = DirectedGraph('Start     -> 'KeyEscape -> 'End)
 
   lazy val stateMachine = Map(
@@ -42,23 +47,18 @@ object Open extends Module {
       //connect to database and get all ShapeType and object IDs in it.
       val pgsqlShapes = new pgsqlGetShapesInArea()
       val lines = pgsqlShapes.getShapesInArea(-40000,-40000,80000,80000)
-
-      //val getVectors = new pgsqlGetLine.getLine(43))
+      val getVectors = new pgsqlGetLine
 
         lines.foreach{
           case i : Int => {
-            if(i != 2)
-              //get points based on ID
-              println(i)
-              //getLine: Modtager      shapeId og returnerer (PointId1, x1-, y1- og z1-koordinat (Int), PointId2, x2-, y2- og z2-koordinat (Int)).
+            if(i != 2){
               //get Vector data from each ID
-              //println(getVectors.getLine(i))
-
+              val coords = getVectors.getLine(i)
+              //convert the coordinates to LineShapes
+              shape = Some(LineShape(Vector2D(coords._1,coords._2),Vector2D(coords._5,coords._6)))
+              Create(shape)
+            }
           }
-          //convert the coordinates to LineShapes
-
-          //and add them to the model.
-
         }
 
     })
