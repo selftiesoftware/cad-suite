@@ -11,11 +11,8 @@
 
 package com.siigna.module.base.file
 
-/* 2010 (C) Copyright by Siigna, all rights reserved. */
+import com.siigna.app.controller.pgsql_handler._
 
-//java
-import java.awt.{FileDialog, Frame}
-import java.io.File
 
 //siigna
 import com.siigna._
@@ -24,28 +21,46 @@ object Open extends Module {
 
   //val fromDatabase = new LineShape(p1,p2, _)
 
+ /*
+  GetShapesInArea:
+    Modtager x- og y-koordinat (Int), (default: 0,0)
+    samt afstand fra centerpunkt i x- og y-retning, der skal søges
+    og returnerer en sequence af: (shapeType1 (Int),shapeId1 (Int), shapeType2 (Int),shapeId2 (Int)...,...,...)
+    def getShapesInArea (xCoordinate: Int, yCoordinate: Int, xDistance: Int, yDistance: Int) =
+ */
+
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 
   lazy val stateMap     = DirectedGraph('Start     -> 'KeyEscape -> 'End)
 
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      try {
-
-        //val shapes : Iterable[Shape] = lines
-        Siigna display "Loading not possible yet."
-
+        Siigna display "Loading drawings from the Siigna universe"
         Goto('End)
+      }),
+    'End   -> ((events : List[Event]) => {
+      //connect to database and get all ShapeType and object IDs in it.
+      val pgsqlShapes = new pgsqlGetShapesInArea()
+      val lines = pgsqlShapes.getShapesInArea(-40000,-40000,80000,80000)
 
-        // Create the shapes
-        //Create(shapes)
-      } catch {
-        case e => {
-          Siigna display "Open cancelled."
-          Goto('End)
+      //val getVectors = new pgsqlGetLine.getLine(43))
+
+        lines.foreach{
+          case i : Int => {
+            if(i != 2)
+              //get points based on ID
+              println(i)
+              //getLine: Modtager      shapeId og returnerer (PointId1, x1-, y1- og z1-koordinat (Int), PointId2, x2-, y2- og z2-koordinat (Int)).
+              //get Vector data from each ID
+              //println(getVectors.getLine(i))
+
+          }
+          //convert the coordinates to LineShapes
+
+          //and add them to the model.
+
         }
-      }
-    }),
-    'End   -> ((events : List[Event]) => { None })
+
+    })
   )
 }

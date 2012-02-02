@@ -75,11 +75,11 @@ object Save extends Module {
                 println("L: "+l)
                 val p1 = l.p1
                 val p2 = l.p2
-                val x1 = p1.x.toInt
-                val y1 = p1.y.toInt
+                val x1 = p1.x.round.toInt
+                val y1 = p1.y.round.toInt
                 val z1 = 0
-                val x2 = p2.x.toInt
-                val y2 = p2.y.toInt
+                val x2 = p2.x.round.toInt
+                val y2 = p2.y.round.toInt
                 val z2 = 0
                 val pgsql = new PgsqlSaveShapeLine()
                 val ids = pgsql.postgresSaveShapeLine(x1,y1,z1,x2,y2,z2)
