@@ -75,7 +75,7 @@ object Lineardim extends Module {
   var offsetSide : Boolean = false
 
   def dynamicA : Option[Shape] = if (currentMouse.isDefined)
-      Some(LineShape((currentMouse.get + normalUnitVector2D(points(1),currentMouse.get) * scale) , (points(1) + normalUnitVector2D(points(1),currentMouse.get) * scale)).addAttributes(color))
+      Some(LineShape((currentMouse.get + normalUnitVector2D(points(1),currentMouse.get) * Siigna.paperScale) , (points(1) + normalUnitVector2D(points(1),currentMouse.get) * scale)).addAttributes(color))
     else
       None
 

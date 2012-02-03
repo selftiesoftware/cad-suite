@@ -49,21 +49,25 @@ object Open extends Module {
       //connect to database and get all ShapeType and object IDs in it.
       val pgsqlShapes = new pgsqlGetShapesInArea()
       val lines = pgsqlShapes.getShapesInArea(-40000,-40000,80000,80000)
-      println(lines)
       val getVectors = new pgsqlGetLine
+      val startTime = System.currentTimeMillis()
+      var lineNumbers = 0
 
         lines.foreach{
           case i : Int => {
             if(i != 2){
+              lineNumbers = lineNumbers + 1
               //get Vector data from each ID
               val coords = getVectors.getLine(i)
+              println(coords)
               //convert the coordinates to LineShapes
               shape = Some(LineShape(Vector2D(coords._2,coords._3),Vector2D(coords._6,coords._7)))
               Create(shape)
             }
           }
         }
-
+      val endTime = System.currentTimeMillis()
+      Siigna.display("loaded "+lineNumbers+" LineShapes in "+((endTime - startTime)/1000)+" seconds.")
     })
   )
 }

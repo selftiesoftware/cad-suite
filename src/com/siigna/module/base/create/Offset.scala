@@ -13,21 +13,27 @@ package com.siigna.module.base.create
 
 import com.siigna._
 
-class Offset extends Module {
+object Offset extends Module {
 
   val eventHandler = EventHandler(stateMap, stateMachine)
+  var templateShape : Option[Iterable[DynamicShape]] = None
 
   def stateMap = DirectedGraph(
-    'Start         -> 'KeyEscape ->         'End,
-    'Start         -> 'MouseMove   ->       'Points
+    'Start         -> 'KeyEscape ->         'End
   )
 
   //Select shapes
   def stateMachine = Map(
   'Start -> ((events : List[Event]) => {
     events match {
+
       case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-      case _ =>
+      case _ => {
+        if(Model.isSelected){
+          templateShape = Some(Model.selected)
+          Goto('SetDistance)
+        }
+      }
     }
   None
   }),
@@ -36,8 +42,8 @@ class Offset extends Module {
   'SetDistance -> ((events : List[Event]) => {
     events match {
       case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-
-      case _ => ForwardTo('Point)
+      case Message(p : Vector2D) :: tail => println("got point: "+p)
+      case _ => ForwardTo('Point, false)
     }
   None
   }),
