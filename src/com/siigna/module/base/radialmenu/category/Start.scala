@@ -33,7 +33,7 @@ case object Start extends MenuCategory {
   override def WNW = Some(MenuItem('Weight, RadialMenuIcon.weight, "properties"))
   //override def WNW = Some(new MenuItem('Polyline, RadialMenuIcon.sampleProperties))
   override def WSW = Some(MenuItem('ColorWheel, RadialMenuIcon.colorWheel, "properties"))
-  override def SSW = Some(MenuItem('Rotate, RadialMenuIcon.rotate))
+  override def SSW = Some(MenuItem('Rotate, RadialMenuIcon.rotate, "modify"))
   override def SSE = Some(MenuItem('Move, RadialMenuIcon.move, "modify"))
   override def ESE = Some(MenuItem('Polyline, RadialMenuIcon.guides))
 

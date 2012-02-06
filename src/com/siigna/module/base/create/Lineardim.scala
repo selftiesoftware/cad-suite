@@ -16,9 +16,6 @@ package com.siigna.module.base.create
 import com.siigna._
 import com.siigna.module.base.Default
 
-
-//TODO: clean up this mess!!
-
 object Lineardim extends Module {
 
   var currentMouse : Option[Vector2D] = None
@@ -26,15 +23,15 @@ object Lineardim extends Module {
   val color = "Color" -> "#AAAAAA".color
 
   def diaMark(point : Vector2D) = if (hasBothPoints)
-      Some(LineShape((diaRotation1.get + point + normalUnitVector2D(points(1),points(2)) * scale) , (diaRotation2.get + point + normalUnitVector2D(points(1),points(2)) * scale)).addAttribute(color))
+      Some(LineShape((diaRotation1.get + point + normalUnitVector2D(points(0),points(1)) * scale) , (diaRotation2.get + point + normalUnitVector2D(points(0),points(1)) * scale)).addAttribute(color))
     else
       None
-  def diaMark1 = if (hasBothPoints) diaMark(points(1)) else None
+  def diaMark1 = if (hasBothPoints) diaMark(points(0)) else None
 
-  def diaMark2 = if (hasBothPoints) diaMark(points(2)) else None
+  def diaMark2 = if (hasBothPoints) diaMark(points(1)) else None
 
   def diaRotation(degree : Double) = if (hasBothPoints)
-      Some(transformation.rotate(degree).transform(normalUnitVector2D(points(1),points(2)) * (scale/4)))
+      Some(transformation.rotate(degree).transform(normalUnitVector2D(points(0),points(1)) * (scale/4)))
     else
       None
   def diaRotation1 = diaRotation(45)
@@ -42,12 +39,12 @@ object Lineardim extends Module {
   def diaRotation2 = diaRotation(225)
 
   def dimText : Option[Shape] = if (hasBothPoints)
-      Some(TextShape((points(2)-(points(1))).length.toInt.toString , ((points(1) + normalUnitVector2D(points(1),points(2)) * scale*2.5) + (points(2)-points(1))/2) , scale, Attributes("AdjustToScale" -> true)))
+      Some(TextShape((points(1)-(points(0))).length.toInt.toString , ((points(0) + normalUnitVector2D(points(0),points(1)) * scale*4.5) + (points(1)-points(0))/2) , scale, Attributes("AdjustToScale" -> true)))
     else
       None
 
   def dynamicDimText : Option[Shape] = if (!hasBothPoints)
-      Some(TextShape((currentMouse.get-(points(1))).length.toInt.toString , ((points(1) + normalUnitVector2D(points(1),currentMouse.get) * scale*2.5) + (currentMouse.get-points(1))/2) , scale, Attributes("AdjustToScale" -> true)))
+      Some(TextShape((currentMouse.get-(points(0))).length.toInt.toString , ((points(0) + normalUnitVector2D(points(0),currentMouse.get) * scale*4.5) + (currentMouse.get-points(0))/2) , scale, Attributes("AdjustToScale" -> true)))
     else
       None
 
@@ -55,42 +52,40 @@ object Lineardim extends Module {
 
   var finalOffset : Option[Vector2D] = None
 
-  def hasBothPoints = (points.size >= 3)
+  def hasBothPoints = (points.size >= 2)
 
   def normalShape(point : Vector2D) = if (hasBothPoints)
-      Some(LineShape((point - normalUnitVector2D(points(2),points(1)) * (scale/2)) , (point + normalUnitVector2D(points(1),points(2)) * (scale*1.3))).addAttributes(color))
+      Some(LineShape((point - normalUnitVector2D(points(1),points(0)) * (scale/2)) , (point + normalUnitVector2D(points(0),points(1)) * scale)).addAttributes(color))
     else
       None
 
-  def normalShape1 = if (hasBothPoints) normalShape(points(1)) else None
+  def normalShape1 = if (hasBothPoints) normalShape(points(0)) else None
 
-  def normalShape2 = if (hasBothPoints) normalShape(points(2)) else None
+  def normalShape2 = if (hasBothPoints) normalShape(points(1)) else None
 
   def normalUnitVector2D(v1 : Vector2D, v2 : Vector2D) = {
     if (offsetSide == true)
       Vector2D((v2.x - v1.x) , (v2.y - v1.y)).normal.unit
-    else
+    else //TODO: position text better when offsetSide is false.
       Vector2D((v2.y - v1.y), -(v2.x - v1.x)).unit // Normal*3 = Vector2D(y, -x)
   }
   var offsetSide : Boolean = false
 
-  def dynamicA : Option[Shape] = if (currentMouse.isDefined)
-      Some(LineShape((currentMouse.get + normalUnitVector2D(points(1),currentMouse.get) * Siigna.paperScale) , (points(1) + normalUnitVector2D(points(1),currentMouse.get) * scale)).addAttributes(color))
-    else
-      None
+  //def dynamicA : Option[Shape] = if (currentMouse.isDefined)
+  //    Some(LineShape((currentMouse.get + normalUnitVector2D(points(1),currentMouse.get) * scale) , (points(1) + normalUnitVector2D(points(1),currentMouse.get) * scale)).addAttributes(color))
+  //  else
+  //    None
 
-  def simpleA : Option[Shape] = if (currentMouse.isDefined && points.size > 0)
-      Some(LineShape(currentMouse.get,(points(1))).addAttributes(color))
+  def simpleA : Option[Shape] = if (currentMouse.isDefined && points.length > 0)
+      Some(LineShape(currentMouse.get,(points(0))).addAttributes(color))
     else
       None
 
   def shapeA : Option[Shape] = if (hasBothPoints)
-      Some(LineShape((points(2) + normalUnitVector2D(points(1),points(2)) * scale) , (points(1) + normalUnitVector2D(points(1),points(2)) * scale)).addAttributes(color))
+      Some(LineShape((points(1) + normalUnitVector2D(points(0),points(1)) * scale) , (points(0) + normalUnitVector2D(points(0),points(1)) * scale)).addAttributes(color))
     else
       None
 
-  //a flag to discard the mouseDown event which is active when the radial menu button is pushed
-  private var startPoint = false
   private var transformation = TransformationMatrix()
   private var norm = Vector2D(0,0)
   private var points : List[Vector2D] = List()
@@ -108,12 +103,9 @@ object Lineardim extends Module {
     'Start -> ((events : List[Event]) => {
       events match {
         //set the first point of the dim line
-        case MouseDown(p, _, _):: tail => {
-          if (startPoint == true){
-            points = List(p)
-            Goto('SecondPoint)
-          }
-          startPoint = true
+        case MouseUp(p, _, _):: MouseDown(_, _, _) :: tail => {
+            points = points :+ p
+            Goto('SecondPoint, false)
         }
         case _ =>
       }
@@ -128,12 +120,8 @@ object Lineardim extends Module {
         //set the other end of the dim line
         case MouseDown(p, _, _):: tail => {
 
-            points = points :+ p
-
-        }
-        case MouseUp(_, _, _)::tail => {
-          if (points.size == 3)
-            Goto('SelectSide)
+          points = points :+ p
+          Goto('SelectSide, false)
         }
         case _ =>
       }
@@ -143,8 +131,8 @@ object Lineardim extends Module {
       events match {
         //point the mouse to the side the dim line should be offset
         case MouseMove(p, _, _):: tail => {
-          val line = points(2) - points(1)
-          val point = points(1) - p
+          val line = points(1) - points(0)
+          val point = points(0) - p
           val scalar = line.normal * point
           if (scalar >= 0)
             offsetSide = false
@@ -163,10 +151,8 @@ object Lineardim extends Module {
     None
     }),
     'End -> ((events : List[Event]) => {
-      events match {
-        case _ =>
-          val line = points(2) - points(1)
-          val point = points(1) - finalOffset.get
+          val line = points(1) - points(0)
+          val point = points(0) - finalOffset.get
           val scalar = line.normal * point
           if (scalar >= 0)
             offsetSide = false
@@ -176,17 +162,15 @@ object Lineardim extends Module {
           //clear the list of points
           points = List[Vector2D]()
       Default.previousModule = Some('Lineardim)
-      }
-
     })
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
-    if (currentMouse.isDefined && !hasBothPoints && simpleA.isDefined && dynamicDimText.isDefined) {
+    if (currentMouse.isDefined && simpleA.isDefined && dynamicDimText.isDefined) {
       g draw simpleA.get.transform(t)
       g draw dynamicDimText.get.transform(t)
     }
-    if (currentMouse.isDefined && hasBothPoints) {
-      g draw dynamicA.get.transform(t)
+    else if (hasBothPoints) {
+      g draw shapeA.get.transform(t)
       g draw normalShape1.get.transform(t)
       g draw normalShape2.get.transform(t)
       g draw diaMark1.get.transform(t)

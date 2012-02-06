@@ -9,6 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
+/*
 package com.siigna.module.base.modify
 
 /* 2010 (C) Copyright by Siigna, all rights reserved. */
@@ -43,7 +44,7 @@ object Move extends Module {
         }
         case _ => ForwardTo('Start)
       }
-    }),
+   }),
     'End   -> ((events : List[Event]) => {
       events match {
         case Message(p : Vector2D) :: tail if (startPoint.isDefined) => {
@@ -61,3 +62,5 @@ object Move extends Module {
   }
 
 }
+
+*/

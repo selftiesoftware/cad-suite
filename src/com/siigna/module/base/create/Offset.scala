@@ -40,9 +40,16 @@ object Offset extends Module {
 
   //Forward to Point to get offset point
   'SetDistance -> ((events : List[Event]) => {
+    val offsetGuide : Vector2D => LineShape = (v : Vector2D) => {
+       LineShape(Vector2D(0,0),Vector2D(100,100))
+     }
+
     events match {
       case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-      case Message(p : Vector2D) :: tail => println("got point: "+p)
+      case Message(p : Vector2D) :: tail => {
+        println("got point: "+p)
+        Send(Message(offsetGuide))
+      }
       case _ => ForwardTo('Point, false)
     }
   None

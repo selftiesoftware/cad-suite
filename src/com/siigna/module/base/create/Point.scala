@@ -90,11 +90,13 @@ object Point extends Module {
   )
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      println("PT START, e: "+events)
       events match {
 
         // Check for continued MouseDown
         case Message(g : PointGuide) :: Message(p : Vector2D) :: MouseDown(_, MouseButtonLeft, _) :: tail => {
           pointGuide = Some(g)
+          println("got corr event")
           ForwardTo('AngleGizmo)
         }
 
