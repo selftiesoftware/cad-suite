@@ -47,9 +47,10 @@ object Open extends Module {
       }),
     'End   -> ((events : List[Event]) => {
       //connect to database and get all ShapeType and object IDs in it.
-      val pgsqlShapes = new pgsqlGetShapesInArea()
-      val lines = pgsqlShapes.getShapesInArea(-40000,-40000,80000,80000)
-      val getVectors = new pgsqlGetLine
+      val pgsqlShapes = new pgsqlGetShapes()
+      val shapes = pgsqlShapes.getShapes(0, 0, 0, 10000, 10000, 10000)
+      Create(shapes)
+      /*val getVectors = new pgsqlGetLine
       val startTime = System.currentTimeMillis()
       var lineNumbers = 0
       //val query = new pgsql_db_query
@@ -70,6 +71,7 @@ object Open extends Module {
         }
       val endTime = System.currentTimeMillis()
       Siigna.display("loaded "+lineNumbers+" LineShapes in "+((endTime - startTime)/1000)+" seconds.")
+      */
     })
   )
 }
