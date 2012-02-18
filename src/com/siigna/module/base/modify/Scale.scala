@@ -16,14 +16,13 @@ import module.base.create.{PointGuide, AngleSnap}
 
 // TODO: add object selection logic.
 
-object Rotate extends Module {
-
+object Scale extends Module {
 
   private var firstMouseDown = false
   private var centerPoint : Option[Vector2D] = None
   private var endVector : Option[Vector2D] = None
-  private var rotation : Double = 0
-  //a line to test rotation before selection is implemented and it is possible to use the selection module to select shapes to rotate:
+  private var scale : Double = 0
+  //a line to test transformation before selection is implemented and it is possible to use the selection module to select shapes to rotate:
   private var testShape : LineShape = (LineShape(Vector2D(0,0),Vector2D(0,100)).addAttributes("Color" -> "#AAAAAA".color))
   private var rotatedShapes : List[Shape] = List()
   private var startVector : Option[Vector2D] = None
@@ -49,7 +48,7 @@ object Rotate extends Module {
 
       //if the center has not been set, then set it:
       if(!centerPoint.isDefined){
-        Siigna.display("Select a base point for the rotation")
+        Siigna.display("Select a base point for scale/stretch")
         events match{
           //exit mechanisms
           case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
@@ -61,7 +60,7 @@ object Rotate extends Module {
             if(firstMouseDown == false)
               firstMouseDown = true
             else {
-              println("got center point. Set StartAngle")
+              println("got center point. Set startvector")
               centerPoint = Some(p)
               ForwardTo('Point, false)
             }
@@ -69,17 +68,17 @@ object Rotate extends Module {
           case _ =>
         }
       }
-      //if the start angle has not been set, then set it:
+      //if the start vector has not been set, then set it:
       else if(!startVector.isDefined){
         events match{
           case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
             Send(Message(PointGuide(shapeGuide)))
             startVector = Some(p)
-            println("got startAngle. rotation: "+rotation)
+            println("got startAngle. rotation: "+scale)
             ForwardTo('Point)
           }
           case _ => {
-            Siigna.display("Select a starting point for the rotation")
+            Siigna.display("Select a starting point for scale/stretch")
             ForwardTo('Point, false)
           }
         }
@@ -90,11 +89,11 @@ object Rotate extends Module {
           case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
             println("got endAngle: "+endVector)
             endVector = Some(p)
-            rotation = (endVector.get - startVector.get).angle
+            scale = (endVector.get - startVector.get).angle
             Goto('End)
           }
           case _ => {
-            println("start angle set, set end point.")
+            println("start vector set, set end vector")
             ForwardTo('Point, false)
           }
         }
@@ -103,7 +102,7 @@ object Rotate extends Module {
     'End   -> ((events : List[Event]) => {
       events match {
         case Message(p : Vector2D) :: tail => {
-          //ROTATE THE SHAPE HERE
+          //SCALE OR STRETCH THE SHAPE HERE
         }
         case _ => {
           Goto('End, false)
@@ -113,7 +112,7 @@ object Rotate extends Module {
       centerPoint = None
       endVector = None
       firstMouseDown = false
-      rotation = 0
+      scale = 0
       startVectorSet = false
       startVector = None
     })
@@ -123,7 +122,7 @@ object Rotate extends Module {
      g draw testShape.transform(t)
 
     if(centerPoint.isDefined && !startVector.isDefined){
-      g draw testShape.transform(t.rotate(rotation, centerPoint.get))
+      g draw testShape.transform(t.rotate(scale, centerPoint.get))
       g draw (CircleShape(centerPoint.get,(centerPoint.get + Vector2D(0,3)))).transform(t)
     }
   }
