@@ -39,9 +39,9 @@ object Polyline extends Module {
   }),
   'SetPoint -> ((events : List[Event]) => {
     def getPointGuide = (p : Vector2D) => PolylineShape.fromPoints(points :+ p)
-
+    println("PL events: "+events)
     events match {
-      // Exit mechanisms
+      // Exit strategy
       case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
 
       case Message(p : Vector2D) :: tail => {
@@ -57,7 +57,7 @@ object Polyline extends Module {
 
       // Match on everything else
       case _ => {
-        ForwardTo('Point, false)
+        ForwardTo('Point)
         Send(Message(PointGuide(getPointGuide)))
       }
     }

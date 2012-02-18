@@ -20,95 +20,113 @@ import module.base.create.{PointGuide, AngleSnap}
 
 object Rotate extends Module {
 
+
   private var firstMouseDown = false
-  private var startAngle : Option[Vector2D] = None
-  private var centerPoint : Vector2D = Vector2D(0,0)
+  private var centerPoint : Option[Vector2D] = None
+  private var endVector : Option[Vector2D] = None
+  private var rotation : Double = 0
+  //a line to test rotation before selection is implemented and it is possible to use the selection module to select shapes to rotate:
+  private var testShape : LineShape = (LineShape(Vector2D(0,0),Vector2D(0,100)).addAttributes("Color" -> "#AAAAAA".color))
+  private var rotatedShapes : List[Shape] = List()
   private var startVector : Option[Vector2D] = None
   private var startVectorSet = false
-  private var transformation = TransformationMatrix()
+  private var transformation = TransformationMatrix
 
 
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap     = DirectedGraph(
-    'Start       -> 'KeyEscape -> 'End,
-    //'Start       -> 'Message   -> 'CenterPoint,
-    'CenterPoint -> 'Message   -> 'StartAngle
-    //'StartAngle  -> 'Message   -> 'End
+    'Start       -> 'KeyEscape -> 'End
   )
 
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println("ROTATE, start, e: "+events)
-      def centerGuide = (p : Vector2D) => CircleShape(centerPoint,(centerPoint + Vector2D(0,3)))
+      //a guide to get Point to dynamically draw the shape(s) and their rotation
+      val shapeGuide : Vector2D => LineShape = (v : Vector2D) => {
+        testShape
+        //testShape.transform(transformation.rotate(20,centerPoint.get))
 
-      //println(events)
-      Siigna.display("Select a base point for the rotation")
-      events match{
-        //exit mechanisms
-        case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
+      }
 
-        //match returns from 'Point with centerPoint
-        case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
-          startAngle = Some(p)
-          //Goto('CenterPoint) nej, dette STOPPER POINT!
+
+      //if the center has not been set, then set it:
+      if(!centerPoint.isDefined){
+        Siigna.display("Select a base point for the rotation")
+        events match{
+          //exit mechanisms
+          case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
+
+          //disregard mouse moves
+          case MouseMove(p ,_ ,_) :: tail =>
+          //if the mouse is pressed, forward to Point to check if the user calls the Angle Gizmo.
+          case MouseDown(p, _, _) :: tail => {
+            if(firstMouseDown == false)
+              firstMouseDown = true
+            else {
+              println("got center point. Set StartAngle")
+              centerPoint = Some(p)
+              ForwardTo('Point, false)
+            }
+          }
+          case _ =>
         }
-
-        //disregard mouse moves
-        case MouseMove(p ,_ ,_) :: tail =>
-        //if the mouse is pressed, forward to Point to check if the user calls the Angle Gizmo.
-        case MouseDown(p, _, _) :: tail => {
-          centerPoint = (p)
-          if(firstMouseDown == false)
-            firstMouseDown = true
-          else {
-            Send(Message(centerPoint))
-            Send(Message(PointGuide(centerGuide)))
-            println("in RT start, going to Point")
+      }
+      //if the start angle has not been set, then set it:
+      else if(!startVector.isDefined){
+        events match{
+          case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
+            Send(Message(PointGuide(shapeGuide)))
+            startVector = Some(p)
+            println("got startAngle. rotation: "+rotation)
             ForwardTo('Point)
           }
-
-        }
-        case _ =>
-      }
-    }),
-    'StartAngle   -> ((events : List[Event]) => {
-      events match {
-        case Message(p : Vector2D) :: tail => {
-          if (startVectorSet == true) {
-            startVector = Some(p)
-            Siigna.display("click to set rotation")
-            println("GOT STARTVECTOR: "+startVector.get)
-            ForwardTo('Point, false)
-          } else {
-            startVectorSet = true
+          case _ => {
+            Siigna.display("Select a starting point for the rotation")
             ForwardTo('Point, false)
           }
         }
-        case _ => {
-          Goto('End, false)
+      }
+      //if both a center and a startAngle is set, set the final point of the rotation.
+      else if(centerPoint.isDefined && startVector.isDefined){
+        events match{
+          case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
+            println("got endAngle: "+endVector)
+            endVector = Some(p)
+            rotation = (endVector.get - startVector.get).angle
+            Goto('End)
+          }
+          case _ => {
+            println("start angle set, set end point.")
+            ForwardTo('Point, false)
+          }
         }
       }
     }),
     'End   -> ((events : List[Event]) => {
       events match {
         case Message(p : Vector2D) :: tail => {
-          println("centerPoint in End: "+centerPoint)
+          //ROTATE THE SHAPE HERE
         }
         case _ => {
           Goto('End, false)
         }
       }
       //clear vars
+      centerPoint = None
+      endVector = None
       firstMouseDown = false
+      rotation = 0
       startVectorSet = false
-      centerPoint = Vector2D(0,0)
-      startAngle = None
+      startVector = None
     })
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-     // g draw (CircleShape(centerPoint,(centerPoint + Vector2D(0,3)))).transform(t)
-  }
+     g draw testShape.transform(t)
 
+    if(centerPoint.isDefined && !startVector.isDefined){
+      g draw testShape.transform(t.rotate(rotation, centerPoint.get))
+      g draw (CircleShape(centerPoint.get,(centerPoint.get + Vector2D(0,3)))).transform(t)
+    }
+  }
 }

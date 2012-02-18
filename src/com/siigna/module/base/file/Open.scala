@@ -52,7 +52,9 @@ object Open extends Module {
       val getVectors = new pgsqlGetLine
       val startTime = System.currentTimeMillis()
       var lineNumbers = 0
-
+      //val query = new pgsql_db_query
+      //val lines = new pgsqlGetShapesInArea
+      println("lines: "+lines)
         lines.foreach{
           case i : Int => {
             if(i != 2){

@@ -47,7 +47,7 @@ object Artline extends Module{
       }),
       //draw single points on mouseclick
       'Points -> ((events : List[Event]) => {
-         events match {
+        events match {
             case MouseDown(p, _, _) :: tail => {
               startPoint = Some(p)
               //points = List(LineShape(dotshape, point),LineShape(dotshape, point))

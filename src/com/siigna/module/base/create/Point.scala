@@ -90,13 +90,11 @@ object Point extends Module {
   )
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println("PT START, e: "+events)
       events match {
 
         // Check for continued MouseDown
         case Message(g : PointGuide) :: Message(p : Vector2D) :: MouseDown(_, MouseButtonLeft, _) :: tail => {
           pointGuide = Some(g)
-          println("got corr event")
           ForwardTo('AngleGizmo)
         }
 
@@ -109,14 +107,17 @@ object Point extends Module {
         }
         // Avoid ending if the mouse up comes after setting the angle in the AngleGizmo
         case MouseDown(p, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail => previousPoint = Some(p)
+
         case MouseUp(_, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail =>
 
         // Exit strategy
-        case (MouseDown(_, _, _) | MouseUp(_, _, _)) :: tail => Goto('End)
+        case (MouseDown(_, _, _) | MouseUp(_, _, _)) :: tail => {
+          Goto('End)
+        }
 
         // Mouse position
         case MouseMove(p, _, _) :: tail => mousePosition = Some(p)
-        case MouseDrag(p, _, _) :: tail => mousePosition = Some(p)
+        //case MouseDrag(p, _, _) :: tail => mousePosition = Some(p)
 
         // Exit strategy
         case KeyDown(Key.Esc, _) :: tail => Goto('End)
