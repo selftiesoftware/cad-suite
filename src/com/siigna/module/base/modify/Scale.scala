@@ -27,7 +27,7 @@ object Scale extends Module {
   private var rotatedShapes : List[Shape] = List()
   private var startVector : Option[Vector2D] = None
   private var startVectorSet = false
-  private var transformation = TransformationMatrix
+  private var transformation = TransformationMatrix(Vector2D(0,0),1)
 
 
   def eventHandler = EventHandler(stateMap, stateMachine)

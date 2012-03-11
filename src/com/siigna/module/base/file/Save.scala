@@ -53,15 +53,13 @@ object Save extends Module {
     'Start -> ((events : List[Event]) => {
       //display a message instructing to drag a selection around the lines that should e saved to the database
       if(!Model.isEmpty){
-        Siigna.display("saving  to database")
+        Siigna.display("saving to database")
         Goto('End)
       }
       else {
         Siigna.display("no lines in drawing. Ending Save module")
         Goto('End)
       }
-
-
 
     }),
     'End   -> ((events : List[Event]) => {

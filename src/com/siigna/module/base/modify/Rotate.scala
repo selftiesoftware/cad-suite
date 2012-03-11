@@ -25,10 +25,10 @@ object Rotate extends Module {
   private var rotation : Double = 0
   //a line to test rotation before selection is implemented and it is possible to use the selection module to select shapes to rotate:
   private var testShape : LineShape = (LineShape(Vector2D(0,0),Vector2D(0,100)).addAttributes("Color" -> "#AAAAAA".color))
-  private var rotatedShapes : List[Shape] = List()
+  private var rotatedShape : LineShape = (LineShape(Vector2D(0,0),Vector2D(0,100)).addAttributes("Color" -> "#AAAAAA".color))
   private var startVector : Option[Vector2D] = None
   private var startVectorSet = false
-  private var transformation = TransformationMatrix
+  private var transformation = new TransformationMatrix()
 
 
   def eventHandler = EventHandler(stateMap, stateMachine)
@@ -87,6 +87,10 @@ object Rotate extends Module {
       //if both a center and a startAngle is set, set the final point of the rotation.
       else if(centerPoint.isDefined && startVector.isDefined){
         events match{
+          //IKKE AKTIV?
+          case MouseMove(p, _ ,_) :: tail => {
+            println(p)
+          }
           case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
             println("got endAngle: "+endVector)
             endVector = Some(p)
@@ -103,7 +107,9 @@ object Rotate extends Module {
     'End   -> ((events : List[Event]) => {
       events match {
         case Message(p : Vector2D) :: tail => {
-          //ROTATE THE SHAPE HERE
+          println(transformation)
+          rotatedShape = testShape.transform(transformation.rotate(rotation,centerPoint.get))
+          Create(rotatedShape)
         }
         case _ => {
           Goto('End, false)
@@ -121,8 +127,11 @@ object Rotate extends Module {
 
   override def paint(g : Graphics, t : TransformationMatrix) {
      g draw testShape.transform(t)
-
-    if(centerPoint.isDefined && !startVector.isDefined){
+    if(startVector.isDefined){
+      println("DRAW DYNAMICALLY HERE")
+      g draw testShape.transform(t.rotate(rotation, centerPoint.get))
+    }
+    else if(centerPoint.isDefined && !startVector.isDefined){
       g draw testShape.transform(t.rotate(rotation, centerPoint.get))
       g draw (CircleShape(centerPoint.get,(centerPoint.get + Vector2D(0,3)))).transform(t)
     }

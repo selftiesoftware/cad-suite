@@ -31,6 +31,7 @@ case class File(parent : Option[MenuCategory]) extends MenuCategory {
   override def NNE = Some(MenuItem('Export, TextShape("Embed", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
   override def NNW = Some(MenuItem('Export, TextShape("Get URL", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
   override def SSE = Some(MenuItem('Print, RadialMenuIcon.print, "file"))
+  override def SSW = Some(MenuItem('ClearDatabase, RadialMenuIcon.clearDB, "file"))
   override def ESE = Some(MenuItem('Export, RadialMenuIcon.exportDXF, "file"))
   override def ENE = Some(MenuItem('Import, RadialMenuIcon.importDXF, "file"))
   override def WSW = Some(MenuItem('Open, RadialMenuIcon.load, "file"))
