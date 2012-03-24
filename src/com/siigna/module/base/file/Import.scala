@@ -42,10 +42,11 @@ object Import extends Module {
 
         val sections : List[DXFSection] = sanitize(file)
 
-        val shapes : List[Shape] = sections.map(_.toShape.getOrElse(None)).filterNot(_ == None).asInstanceOf[List[Shape]]
+        val shapes : List[ImmutableShape] = sections.map(_.toShape.getOrElse(None)).filterNot(_ == None).asInstanceOf[List[ImmutableShape]]
 
         Siigna display "Loading completed."
 
+        println("Creating " + shapes)
         Goto('End)
         frame.dispose() // Dispose of the frame so the thread can close down.
         Create(shapes) // Create the shapes

@@ -52,7 +52,7 @@ object Selection extends Module {
     }),
     'End -> ((events : List[Event]) => {
       if (box.isDefined) {
-        Select(Model(box.get))
+        //Select(Model(box.get))
         box = None
       }
     })

@@ -65,7 +65,7 @@ object Polyline extends Module {
   'End -> ((events : List[Event]) => {
     // If the shape is defined, then create it!
     if (shape.isDefined)
-      Create(shape.get)
+      Create(shape.get.asInstanceOf[ImmutableShape])
 
     //clear the vars
     shape = None

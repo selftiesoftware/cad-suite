@@ -64,7 +64,7 @@ object Fill extends Module {
     'End -> ((events : List[Event]) => {
 
       //add a line segment from the last to the first point in the list to close the fill area
-      if (shape.shapes.size > 0) Create(shape)
+      if (shape.shapes.size > 0) Create(shape.asInstanceOf[ImmutableShape])
 
       //Clear the variables
       firstPoint = None
@@ -75,15 +75,8 @@ object Fill extends Module {
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    def fillVector2Ds = points.map(_.transform(t))
-    val fillScreenX = fillVector2Ds.map(_.x.toInt).toArray
-    val fillScreenY = fillVector2Ds.map(_.y.toInt).toArray
-
     if(!firstPoint.isEmpty && mousePosition.isDefined && previousPoint.isDefined && points.length > 0)
       g draw shape.transform(t)
-      g.g.fillPolygon(fillScreenX, fillScreenY, fillVector2Ds.size)
-      g draw LineShape(points.head,mousePosition.get).transform(t)
-      g draw LineShape(previousPoint.get,mousePosition.get).transform(t)
 
   }
 }

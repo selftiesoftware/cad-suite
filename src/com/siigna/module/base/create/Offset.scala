@@ -29,10 +29,10 @@ object Offset extends Module {
 
       case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
       case _ => {
-        if(Model.isSelected){
+        /*if(Model.isSelected){
           templateShape = Some(Model.selected)
           Goto('SetDistance)
-        }
+        }*/
       }
     }
   None

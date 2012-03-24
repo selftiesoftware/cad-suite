@@ -15,7 +15,9 @@ import com.siigna._
 import module.base.create.{PointGuide, AngleSnap}
 
 // TODO: add object selection logic.
-
+/**
+ * A module that rotates one or more objects.
+ */
 object Rotate extends Module {
 
 
@@ -41,8 +43,17 @@ object Rotate extends Module {
     'Start -> ((events : List[Event]) => {
       //a guide to get Point to dynamically draw the shape(s) and their rotation
       val shapeGuide : Vector2D => LineShape = (v : Vector2D) => {
-        testShape
-        //testShape.transform(transformation.rotate(20,centerPoint.get))
+        // Create a matrix
+        val t : TransformationMatrix = if (startVector.isDefined && centerPoint.isDefined) {
+          // To find the angle between two vectors (lines)
+          // First calculate the separate angles
+          val a1 : Double = (startVector.get - centerPoint.get).angle
+          val a2 : Double = (v - centerPoint.get).angle
+          // ... And then subtract the second from the first
+          TransformationMatrix(centerPoint.get, 1).rotate(a2 - a1)
+        } else TransformationMatrix() // If no start- (or center-) point has been defined - create empty matrix
+        // Return the shape, transformed
+        testShape.transform(t)
       }
 
       //if the center has not been set, then set it:
@@ -59,7 +70,6 @@ object Rotate extends Module {
             if(firstMouseDown == false)
               firstMouseDown = true
             else {
-              println("got center point. Set StartAngle")
               centerPoint = Some(p)
               ForwardTo('Point, false)
             }
@@ -73,7 +83,6 @@ object Rotate extends Module {
           case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
             Send(Message(PointGuide(shapeGuide)))
             startVector = Some(p)
-            println("got startAngle. rotation: "+rotation)
             ForwardTo('Point)
           }
           case _ => {
@@ -86,13 +95,11 @@ object Rotate extends Module {
       else if(centerPoint.isDefined && startVector.isDefined){
         events match{
           case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
-            println("got endAngle: "+endVector)
             endVector = Some(p)
             rotation = (endVector.get - startVector.get).angle
             Goto('End)
           }
           case _ => {
-            println("start angle set, set end point.")
             ForwardTo('Point, false)
           }
         }
@@ -101,7 +108,6 @@ object Rotate extends Module {
     'End   -> ((events : List[Event]) => {
       events match {
         case Message(p : Vector2D) :: tail => {
-          println(transformation)
           rotatedShape = testShape.transform(transformation.rotate(rotation,centerPoint.get))
           Create(rotatedShape)
         }
@@ -122,8 +128,6 @@ object Rotate extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
      g draw testShape.transform(t)
     if(startVector.isDefined){
-      println("rotation: "+ rotation)
-      println("DRAW DYNAMICALLY HERE")
       g draw testShape.transform(t.rotate(rotation, centerPoint.get))
     }
     else if(centerPoint.isDefined && !startVector.isDefined){

@@ -110,7 +110,7 @@ class MyPrintable extends Printable {
       val t2 = TransformationMatrix(Vector2D(0, 0), 1).flipY.scale(screenToPaperScale)
 
       // Iterate through the dom and draw the shape on the buffer graphics
-      Model map( _.transform(t1).transform(t2) ) foreach( bufferedGraphics draw(_))
+      Model map( _._2.transform(t1).transform(t2) ) foreach( bufferedGraphics draw)
 
       // Paint filters and interfaces accesible by the modules.
       // TODO: Test matrixes

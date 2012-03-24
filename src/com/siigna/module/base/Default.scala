@@ -43,7 +43,10 @@ object Default extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-    nearestShape = Model(Siigna.mousePosition)
+    val m = Siigna.mousePosition
+    if (Model(m).size > 0) {
+      nearestShape = Some(Model(m).reduceLeft((s1 : ImmutableShape, s2 : ImmutableShape) => if (s1.geometry.distanceTo(m) < s2.geometry.distanceTo(m)) s1 else s2))
+    }
       if (firstStart == true) {
         Siigna.display("Loading Siigna modules ver. 0.2.00.0 (466 kb")
         firstStart = false
@@ -71,7 +74,7 @@ object Default extends Module {
         //special key inputs
         case KeyDown(('z' | 'Z'), ModifierKeys(_, true, _)) :: tail => Model.undo
         case KeyDown(('y' | 'Y'), ModifierKeys(_, true, _)) :: tail => Model.redo
-        case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => Model.selectAll
+        case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => //Model.selectAll
 
         //ignore mouse up events
         case KeyUp(key, _) :: tail =>
@@ -80,17 +83,17 @@ object Default extends Module {
         case KeyDown(key, _) :: tail => {
           key.toChar match {
             case Key.Backspace | Key.Delete => {
-              if (Model.isSelected) {
+              /*if (Model.isSelected) {
                 val selected = Model.selected
                 Model.deselect
                 Delete(selected)
-              }
+              }*/
             }
             case Key.Control => {
-              if (Model.isSelected) ForwardTo('Copy)
+              //if (Model.isSelected) ForwardTo('Copy)
             }
             case Key.Escape => {
-              Model.deselect
+              //Model.deselect
             }
             case Key.Space => {
               if (previousModule.isDefined) ForwardTo(previousModule.get)

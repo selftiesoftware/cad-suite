@@ -61,7 +61,7 @@ object Export extends Module {
     val dxf = new DXFFile
     val writer = new FileWriter(directory+filename)
     val file   = new BufferedWriter(writer)
-    dxf ++ Model.map(_.toDXF)
+    dxf ++ Model.map(_._2.toDXF).seq.toSeq
     file.write(dxf.toString)
     file.flush
     file.close

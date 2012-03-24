@@ -62,6 +62,6 @@ object Performancetest extends Module {
 
   override def paint(g : Graphics, t : TransformationMatrix) {
     g setColor black
-    g.draw(shapes.map(_.transform(t)))
+    shapes.map(_.transform(t)).foreach(g.draw)
   }
 }

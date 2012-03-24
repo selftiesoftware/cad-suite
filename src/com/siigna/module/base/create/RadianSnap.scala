@@ -13,18 +13,14 @@ package com.siigna.module.base.create
 
 import com.siigna._
 import com.siigna.app.view.event.EventSnap
+import collection.parallel.immutable.ParIterable
 
 /**
- * Created by IntelliJ IDEA.
- * User: oep
- * Date: 15-01-12
- * Time: 12:23
- * To change this template use File | Settings | File Templates.
+ * A snap module that snaps to a given line with a given radian.
  */
-
 class RadianSnap(p: Vector2D, radian : Double) extends EventSnap{
 
-  def parse(event : Event, model : Iterable[ImmutableShape]) = event match {
+  def parse(event : Event, model : ParIterable[ImmutableShape]) = event match {
     case MouseMove(point, a, b) => MouseMove(snapToRadian(point), a, b)
     case some => {
       some

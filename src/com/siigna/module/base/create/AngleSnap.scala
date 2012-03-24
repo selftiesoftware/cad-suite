@@ -13,6 +13,7 @@ package com.siigna.module.base.create
 
 import com.siigna._
 import com.siigna.app.view.event.EventSnap
+import collection.parallel.immutable.ParIterable
 
 /**
  * A radian snap module that snaps to the point and the radian given.
@@ -34,7 +35,7 @@ case class AngleSnap(center: Vector2D, degree : Int) extends EventSnap{
   /**
    * Parse events to follow the guide given in the constructor.
    */
-  def parse(event : Event, model : Iterable[ImmutableShape]) = event match {
+  def parse(event : Event, model : ParIterable[ImmutableShape]) = event match {
     case MouseMove(point, a, b) => MouseMove(snapToRadian(point), a, b)
     case MouseDrag(point, a, b) => MouseMove(snapToRadian(point), a, b)
     case MouseDown(point, a, b) => MouseDown(snapToRadian(point), a, b)

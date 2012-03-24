@@ -31,7 +31,7 @@ object Copy extends Module {
 
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      if (!Model.isSelected) ForwardTo('Select) // Prompt for selection
+      /*if (!Model.isSelected) ForwardTo('Select) // Prompt for selection
       else {
         shapes = Model.selected
         events match {
@@ -40,7 +40,7 @@ object Copy extends Module {
           case MouseDrag(point, _, _) :: tail => basePoint = Some(point)
           case _ => basePoint = Some(Siigna.mousePosition)
         }
-      }
+      }*/
     }),
     'Move -> ((events : List[Event]) => {
       events match {
