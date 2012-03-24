@@ -30,6 +30,7 @@ import com.siigna.app.controller.pgsql_handler._
 
 //siigna
 import com.siigna._
+import com.siigna.app.controller.pgsql_handler.pgsqlSaveShapes
 
 object Save extends Module {
 
@@ -38,6 +39,8 @@ object Save extends Module {
   private var hasShape  = false
 
   lazy val stateMap     = DirectedGraph  ('Start     -> 'KeyEscape -> 'End)
+
+  val save = new pgsqlSaveShapes()
 
   //definition of the coordinates
   var x1 : Option[Int] = None
@@ -52,8 +55,11 @@ object Save extends Module {
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       //display a message instructing to drag a selection around the lines that should e saved to the database
+
       if(!Model.isEmpty){
+
         Siigna.display("saving to database")
+
         Goto('End)
       }
       else {
@@ -64,6 +70,10 @@ object Save extends Module {
     }),
     'End   -> ((events : List[Event]) => {
       //proceed to save the data
+      println("saving now")
+      save.saveShapes()
+
+      /*
       if(!Model.isEmpty) {
         //the result is a set that need to be converted:
         Model foreach (_ match {
@@ -100,6 +110,7 @@ object Save extends Module {
       }
 
       //clear variables
+      */
     })
   )
 }

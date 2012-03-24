@@ -43,9 +43,7 @@ object Rotate extends Module {
       val shapeGuide : Vector2D => LineShape = (v : Vector2D) => {
         testShape
         //testShape.transform(transformation.rotate(20,centerPoint.get))
-
       }
-
 
       //if the center has not been set, then set it:
       if(!centerPoint.isDefined){
@@ -87,10 +85,6 @@ object Rotate extends Module {
       //if both a center and a startAngle is set, set the final point of the rotation.
       else if(centerPoint.isDefined && startVector.isDefined){
         events match{
-          //IKKE AKTIV?
-          case MouseMove(p, _ ,_) :: tail => {
-            println(p)
-          }
           case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
             println("got endAngle: "+endVector)
             endVector = Some(p)
@@ -128,6 +122,7 @@ object Rotate extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
      g draw testShape.transform(t)
     if(startVector.isDefined){
+      println("rotation: "+ rotation)
       println("DRAW DYNAMICALLY HERE")
       g draw testShape.transform(t.rotate(rotation, centerPoint.get))
     }
