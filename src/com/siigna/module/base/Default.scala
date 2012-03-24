@@ -48,7 +48,7 @@ object Default extends Module {
       nearestShape = Some(Model(m).reduceLeft((s1 : ImmutableShape, s2 : ImmutableShape) => if (s1.geometry.distanceTo(m) < s2.geometry.distanceTo(m)) s1 else s2))
     }
       if (firstStart == true) {
-        Siigna.display("Loading Siigna modules ver. 0.2.00.0 (466 kb")
+        Siigna.display("Loading Siigna modules ver. 0.2.1")
         firstStart = false
       }
       events match {
