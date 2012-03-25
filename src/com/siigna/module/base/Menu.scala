@@ -59,6 +59,11 @@ object Menu extends Module {
   // the center after the radial menu is closed. Used if other modules need to know where it was (used in Color Wheel)
   var oldCenter = Vector2D(0 ,0)
 
+  /**
+   * The radius of the wheel. Can be adjusted to adjust the size of the wheel.
+   */
+  var radius = 180
+
   // The transformation to use throughout the paint
   private var transformation = TransformationMatrix(Vector2D(0, 0), 1)
 
@@ -72,7 +77,24 @@ object Menu extends Module {
           initializeMenu()
         }
         case MouseDown(point, MouseButtonRight, _) :: tail => {
-          center = Some(point)
+          val p = point.transform(View.physical.flipY)
+          // Move the menu if the distance from the center to the screen
+          // is less than the radius of the menu
+          val d : Vector2D = if (View.screen.distanceTo(p) < radius) {
+            val dBot = View.screen.borderBottom.distanceTo(p)
+            val dTop = View.screen.borderTop.distanceTo(p)
+            val dLeft = View.screen.borderLeft.distanceTo(p)
+            val dRight = View.screen.borderRight.distanceTo(p)
+            Vector2D(
+                   if (dLeft < dRight && dLeft < radius)  radius - dLeft
+              else if (dLeft > dRight && dRight < radius) dRight - radius
+              else 0,
+                   if (dTop < dBot && dTop < radius) dTop - radius
+              else if (dTop > dBot && dBot < radius) radius - dBot
+              else 0)
+          } else Vector2D(0, 0)
+
+          center = Some(point + d)
           currentCategory = Start
           initializeMenu()
         }
@@ -117,7 +139,7 @@ object Menu extends Module {
           val deltaLevel = if (level + delta < 1) 1 else if (level + delta > 3) 3 else delta + level
 
           // Make the interaction!
-          interact(currentCategory, direction, 1, deltaLevel) match {
+          interact(currentCategory, direction, 1, deltaLevel.toInt) match {
             case Some(category : MenuCategory) => {
               currentCategory = category
             }
@@ -182,7 +204,7 @@ object Menu extends Module {
         // TODO: Refactor!
         def getT(event : MenuEvent) = event match {
           case EventC => t.translate(Vector2D(-10000, -10000))
-          case _      => t.scale(scale).translate(event.vector * 129)
+          case _      => t.scale(scale).translate(event.vector * (radius - 50))
         }
 
         // Draws a MenuCategory icon and the background-icon for the given direction.
