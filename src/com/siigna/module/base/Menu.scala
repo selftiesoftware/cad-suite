@@ -77,7 +77,7 @@ object Menu extends Module {
           initializeMenu()
         }
         case MouseDown(point, MouseButtonRight, _) :: tail => {
-          val p = point.transform(Siigna.physical.flipY)
+          val p = point.transform(View.physical.flipY)
           // Move the menu if the distance from the center to the screen
           // is less than the radius of the menu
           val d : Vector2D = if (View.screen.distanceTo(p) < radius) {
@@ -85,7 +85,6 @@ object Menu extends Module {
             val dTop = View.screen.borderTop.distanceTo(p)
             val dLeft = View.screen.borderLeft.distanceTo(p)
             val dRight = View.screen.borderRight.distanceTo(p)
-            println(dBot, dTop, dLeft, dRight)
             Vector2D(
                    if (dLeft < dRight && dLeft < radius)  radius - dLeft
               else if (dLeft > dRight && dRight < radius) dRight - radius
@@ -140,7 +139,7 @@ object Menu extends Module {
           val deltaLevel = if (level + delta < 1) 1 else if (level + delta > 3) 3 else delta + level
 
           // Make the interaction!
-          interact(currentCategory, direction, 1, deltaLevel) match {
+          interact(currentCategory, direction, 1, deltaLevel.toInt) match {
             case Some(category : MenuCategory) => {
               currentCategory = category
             }

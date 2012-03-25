@@ -45,7 +45,8 @@ object Default extends Module {
     'Start -> ((events : List[Event]) => {
     val m = Siigna.mousePosition
     if (Model(m).size > 0) {
-      nearestShape = Some(Model(m).reduceLeft((s1 : ImmutableShape, s2 : ImmutableShape) => if (s1.geometry.distanceTo(m) < s2.geometry.distanceTo(m)) s1 else s2))
+      val nearest = Model(m).reduceLeft((s1 : ImmutableShape, s2 : ImmutableShape) => if (s1.geometry.distanceTo(m) < s2.geometry.distanceTo(m)) s1 else s2)
+      nearestShape = if (nearest.distanceTo(m) < 5) Some(nearest) else None
     }
       if (firstStart == true) {
         Siigna.display("Loading Siigna modules ver. 0.2.1")
