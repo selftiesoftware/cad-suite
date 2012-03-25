@@ -52,7 +52,7 @@ object Copy extends Module {
     }),
     'End   -> ((events : List[Event]) => {
       if (delta.isDefined && events.head != KeyDown(Key.Esc, ModifierKeys(false, false, false))) {
-        Create(shapes.map(_.shape.transform(TransformationMatrix(delta.get, 1))))
+        //Create(shapes.map(_.shape.transform(TransformationMatrix(delta.get, 1))))
       }
     })
   )
