@@ -27,7 +27,7 @@ object Default extends Module {
 
   def stateMap     = DirectedGraph( 'Start -> 'Event -> 'Start )
 
-  def fullScreenBox = Rectangle2D(Siigna.screen.bottomRight - Vector2D(20, -5), Siigna.screen.bottomRight - Vector2D(40, -25))
+  def fullScreenBox = Rectangle2D(View.screen.bottomRight - Vector2D(20, -5), View.screen.bottomRight - Vector2D(40, -25))
 
   var firstStart : Boolean = true
   var firstMenuLoad : Boolean = true
