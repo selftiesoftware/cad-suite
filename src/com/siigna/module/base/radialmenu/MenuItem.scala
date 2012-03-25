@@ -33,6 +33,7 @@ class MenuItem(val module : Symbol, val icon : Traversable[Shape], val modulePat
 object MenuItem {
 
   def apply(module : Symbol, icon : Shape) : MenuItem = MenuItem(module, Traversable[Shape](icon))
+  def apply(module : Symbol, icon : Shape, modulePath : String) : MenuItem =new MenuItem(module, Traversable[Shape](icon), "com.siigna.module.base." + modulePath)
   def apply(module : Symbol, icon : Traversable[Shape]) = new MenuItem(module, icon, "com.siigna.module.base." + module.name)
   def apply(module : Symbol, icon : Traversable[Shape], modulePath : String) = new MenuItem(module, icon, "com.siigna.module.base." + modulePath)
 

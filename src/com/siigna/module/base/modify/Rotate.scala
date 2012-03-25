@@ -20,7 +20,6 @@ import module.base.create.{PointGuide, AngleSnap}
  */
 object Rotate extends Module {
 
-
   private var firstMouseDown = false
   private var centerPoint : Option[Vector2D] = None
   private var endVector : Option[Vector2D] = None
@@ -31,7 +30,6 @@ object Rotate extends Module {
   private var startVector : Option[Vector2D] = None
   private var startVectorSet = false
   private var transformation = new TransformationMatrix()
-
 
   def eventHandler = EventHandler(stateMap, stateMachine)
 
@@ -51,7 +49,8 @@ object Rotate extends Module {
           val a2 : Double = (v - centerPoint.get).angle
           // ... And then subtract the second from the first
           TransformationMatrix(centerPoint.get, 1).rotate(a2 - a1)
-        } else TransformationMatrix() // If no start- (or center-) point has been defined - create empty matrix
+        // If no start- (or center-) point has been defined - create empty matrix
+        } else TransformationMatrix()
         // Return the shape, transformed
         testShape.transform(t)
       }

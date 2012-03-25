@@ -29,6 +29,7 @@ object AntiAliasingToggle extends Module {
     'Start -> ((events : List[Event]) => {
       Goto('End)
       None
+      println("AI value: "+ Preferences("anti-aliasing"))
     }),
 
     'End -> ((events : List[Event]) => {
