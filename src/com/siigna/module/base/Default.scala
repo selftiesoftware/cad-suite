@@ -49,7 +49,7 @@ object Default extends Module {
       nearestShape = if (nearest.distanceTo(m) < 5) Some(nearest) else None
     }
       if (firstStart == true) {
-        Siigna.display("Loading Siigna modules ver. 0.2.1")
+        Siigna.display("Loading Siigna modules ver. 0.2.2")
         firstStart = false
       }
       events match {
