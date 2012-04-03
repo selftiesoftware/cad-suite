@@ -48,9 +48,9 @@ object Open extends Module {
     'End   -> ((events : List[Event]) => {
       //connect to database and get all ShapeType and object IDs in it.
       val pgsqlShapes = new pgsqlGetShapes()
-      val shapes = pgsqlShapes.getShapes(0, 0, 0, 10000, 10000, 10000)
-      // TODO: Must be Seq[ImmutableShape] and not Seq[Shape]
-      //Create(shapes)
+      val shapes = pgsqlShapes.getDrawingFromId(1)
+      //val shapes = pgsqlShapes.getShapes(0, 0, 0, 10000, 10000, 10000)
+      Create(shapes)
       /*val getVectors = new pgsqlGetLine
       val startTime = System.currentTimeMillis()
       var lineNumbers = 0
