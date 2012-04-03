@@ -35,7 +35,7 @@ case class AngleSnap(center: Vector2D, degree : Int) extends EventSnap{
   /**
    * Parse events to follow the guide given in the constructor.
    */
-  def parse(event : Event, model : ParMap[Int, ImmutableShape]) = event match {
+  def parse(event : Event, model : Map[Int, ImmutableShape]) = event match {
     case MouseMove(point, a, b) => MouseMove(snapToRadian(point), a, b)
     case MouseDrag(point, a, b) => MouseMove(snapToRadian(point), a, b)
     case MouseDown(point, a, b) => MouseDown(snapToRadian(point), a, b)
