@@ -9,58 +9,61 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-/*
 package com.siigna.module.base.modify
-
-/* 2010 (C) Copyright by Siigna, all rights reserved. */
 
 import com.siigna._
 
 object Move extends Module {
 
   var startPoint : Option[Vector2D] = None
-  var doneDrawing = false
-  var closeToObjectOnStart = false
+  
+  var shape : Traversable[ImmutableShape] = None
+  
+  var transformation : Option[TransformationMatrix] = None
 
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap     = DirectedGraph(
-    'Start      -> 'KeyEscape -> 'End,
-    'Start      -> 'Message   -> 'FirstPoint,
-    'FirstPoint -> 'Message   -> 'End)
+    'Start      -> 'KeyDown -> 'End
+  )
   
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      // TODO: Make sure objects are selected
-      Siigna.display("Select a starting point to move from.")
-
-      ForwardTo('Point)
-    }),
-    'FirstPoint -> ((events : List[Event]) => {
-      events match {
-        case Message(p : Vector2D) :: tail => {
-          startPoint = Some(p)
-          ForwardTo('Point)
-        }
-        case _ => ForwardTo('Start)
+      if (Model.selection.isDefined) {
+        startPoint = Some(Siigna.mousePosition)
+        Goto('Move)
+      } else {
+        Goto('End)
       }
-   }),
+    }),
+    'Move -> ((events : List[Event]) => {
+      if (startPoint.isDefined) {
+        events match {
+          case (m : MouseDown) :: tail =>
+          case MouseDrag(p, _, _) :: tail => {
+            transformation = Some(TransformationMatrix(p - startPoint.get, 1))
+            shape = Model.selection.get.apply(transformation.get)
+          }
+          case _ => Goto('End)
+        }
+      }
+    }),
     'End   -> ((events : List[Event]) => {
       events match {
-        case Message(p : Vector2D) :: tail if (startPoint.isDefined) => {
-          Log(p - startPoint.get)
-        }
         case _ => {
-          Goto('FirstPoint)
+          if (transformation.isDefined && Model.selection.isDefined) {
+            Model.selection.get.transform(transformation.get)
+            Model.deselect
+          }
         }
       }
     })
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-
+    if (!shape.isEmpty) {
+      shape.foreach(g draw _.transform(t))
+    }
   }
 
 }
-
-*/

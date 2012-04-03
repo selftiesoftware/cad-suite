@@ -33,7 +33,7 @@ object Default extends Module {
   var firstMenuLoad : Boolean = true
 
    //The nearest shape to the current mouse position.
-  var nearestShape : Option[Shape] = None
+  var nearestShape : Option[(Int, ImmutableShape)] = None
 
   //The last module this module forwarded to, if any.
   var previousModule : Option[Symbol] = None
@@ -45,8 +45,8 @@ object Default extends Module {
     'Start -> ((events : List[Event]) => {
     val m = Siigna.mousePosition
     if (Model(m).size > 0) {
-      val nearest = Model(m).reduceLeft((s1 : ImmutableShape, s2 : ImmutableShape) => if (s1.geometry.distanceTo(m) < s2.geometry.distanceTo(m)) s1 else s2)
-      nearestShape = if (nearest.distanceTo(m) < 5) Some(nearest) else None
+      val nearest = Model(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+      nearestShape = if (nearest._2.distanceTo(m) < 5) Some(nearest) else None
     }
       if (firstStart == true) {
         Siigna.display("Loading Siigna modules ver. 0.2.2")
@@ -225,7 +225,12 @@ object Default extends Module {
 
   override def paint(g : Graphics, t : TransformationMatrix) {
     if (nearestShape.isDefined) {
-      g draw nearestShape.get.addAttribute("Color" -> "#AAAAFF".color).transform(t)
+      val shape = nearestShape.get._2
+      val p = Siigna.mousePosition
+      val closestPoint = shape.geometry.vertices.reduceLeft((a, b) => if (a.distanceTo(p) < b.distanceTo(p)) a else b)
+      if (closestPoint.distanceTo(p) < Preferences.double("selectionDistance")) {
+        g draw t.transform(closestPoint)
+      }
     }
 
     // Draw boundary

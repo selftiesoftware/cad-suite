@@ -35,11 +35,20 @@ object Selection extends Module {
     'Box   -> 'MouseUp     -> 'End
   )
 
+  Preload('Move, "com.siigna.module.base.modify")
+
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      events match {
-        case MouseDown(p, _, _) :: tail => startPoint = Some(p)
-        case _ => Goto('End)
+      if (Default.nearestShape.isDefined) {
+        val shape = Default.nearestShape.get
+        val f = shape._2.select(Siigna.mousePosition)
+
+        if (f.isDefined) {
+          val dynamicShape = DynamicShape(shape._1, f.get)
+          Model select dynamicShape
+          Goto('End)
+          ForwardTo('Move)
+        }
       }
     }),
     'Box -> ((events : List[Event]) => {
@@ -52,7 +61,6 @@ object Selection extends Module {
     }),
     'End -> ((events : List[Event]) => {
       if (box.isDefined) {
-        //Select(Model(box.get))
         box = None
       }
     })
