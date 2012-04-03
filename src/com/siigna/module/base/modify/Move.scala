@@ -53,7 +53,6 @@ object Move extends Module {
         case _ => {
           if (transformation.isDefined && Model.selection.isDefined) {
             Model.selection.get.transform(transformation.get)
-            Model.deselect
           }
         }
       }
