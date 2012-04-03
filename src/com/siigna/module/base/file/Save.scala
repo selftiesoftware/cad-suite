@@ -71,7 +71,7 @@ object Save extends Module {
     'End   -> ((events : List[Event]) => {
       //proceed to save the data
       println("saving now")
-      save.saveShapes()
+      save.saveShapesIntoDrawing(1)
 
       /*
       if(!Model.isEmpty) {
