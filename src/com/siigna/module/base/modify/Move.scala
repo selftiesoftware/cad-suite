@@ -24,13 +24,23 @@ object Move extends Module {
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap     = DirectedGraph(
-    'Start      -> 'KeyDown -> 'End
+    'Start -> 'KeyDown -> 'End,
+    'Start -> 'MouseUp -> 'End,
+    'Move  -> 'MouseUp -> 'End,
+    'Move  -> 'KeyDown -> 'End
   )
   
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      if (Model.selection.isDefined) {
-        startPoint = Some(Siigna.mousePosition)
+      events match {
+        case Message(p : Option[Vector2D]) :: tail => startPoint = p
+        case MouseDown(p, _, _) :: tail => startPoint = Some(p)
+        case MouseMove(p, _, _) :: tail => startPoint = Some(p)
+        case MouseDrag(p, _, _) :: tail => startPoint = Some(p)
+        case _ =>
+      }
+
+      if (Model.selection.isDefined && startPoint.isDefined) {
         Goto('Move)
       } else {
         Goto('End)
@@ -38,23 +48,21 @@ object Move extends Module {
     }),
     'Move -> ((events : List[Event]) => {
       if (startPoint.isDefined) {
-        events match {
-          case (m : MouseDown) :: tail =>
-          case MouseDrag(p, _, _) :: tail => {
-            transformation = Some(TransformationMatrix(p - startPoint.get, 1))
-            shape = Model.selection.get.apply(transformation.get)
-          }
-          case _ => Goto('End)
+        val translation = events match {
+          case MouseDown(p, _, _) :: tail => p - startPoint.get
+          case MouseDrag(p, _, _) :: tail => p - startPoint.get
+          case MouseMove(p, _, _) :: tail => p - startPoint.get
+          case _ => Vector2D(0, 0)
         }
+
+        transformation = Some(TransformationMatrix(translation, 1))
+        shape = Model.selection.get.apply(transformation.get)
       }
     }),
     'End   -> ((events : List[Event]) => {
-      events match {
-        case _ => {
-          if (transformation.isDefined && Model.selection.isDefined) {
-            Model.selection.get.transform(transformation.get)
-          }
-        }
+      if (transformation.isDefined && Model.selection.isDefined) {
+        Model.selection.get.transform(transformation.get)
+        Model.deselect()
       }
     })
   )
