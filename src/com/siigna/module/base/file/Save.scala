@@ -72,7 +72,7 @@ object Save extends Module {
       //proceed to save the data
       println("saving now")
       //Gemmer her alle shapes i modellen i tegningen med id 1, da mappen, der gemmes er modellen (Model.seq)...
-      save.saveMapOfShapesIntoDrawing(Model.seq,1)
+      save.mapOfShapesIntoDrawing(Model.seq,1)
 
       /*
       if(!Model.isEmpty) {
