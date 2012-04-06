@@ -56,7 +56,7 @@ object SetTitle extends Module {
       None
       println(text)
       //set the drawing title
-      setActiveDrawingName(drawingId.get,text)
+      readActiveDrawingName(text)
 
       //reset the vars
       text = ""

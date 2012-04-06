@@ -51,9 +51,9 @@ object Default extends Module {
     }
       if (firstStart == true) {
         Siigna.display("Loading Siigna modules ver. 0.2.2")
-        com.siigna.app.model.drawing.activeDrawing.setActiveDrawingId(com.siigna.app.controller.pgsql_handler.pgsqlIdPool.getNewDrawingId())
+        com.siigna.app.model.drawing.activeDrawing.readActiveDrawingId(com.siigna.app.controller.pgsql_handler.pgsqlIdPool.getNewDrawingId())
         val getterval = new com.siigna.app.controller.pgsql_handler.pgsqlGet
-        com.siigna.app.model.drawing.activeDrawing.setActiveDrawingName(com.siigna.app.model.drawing.activeDrawing.drawingId.get,getterval.drawingNameFromId(com.siigna.app.model.drawing.activeDrawing.drawingId.get))
+        com.siigna.app.model.drawing.activeDrawing.readActiveDrawingName(getterval.drawingNameFromId(com.siigna.app.model.drawing.activeDrawing.drawingId.get))
         firstStart = false
       }
       events match {
