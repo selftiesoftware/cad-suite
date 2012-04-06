@@ -247,13 +247,17 @@ object Default extends Module {
     // Define header
     val headerHeight = scala.math.min(boundary.height, boundary.width) * 0.025
 
-    // Drawing title
-
-    val currentTitle = new app.controller.pgsql_handler.pgsqlGet
-    val title = TextShape(currentTitle.drawingNameFromId(currentId), unitX(-60), headerHeight * 0.7)
-
-    // Drawing ID
+    // Drawing title and ID
     val currentId = 1
+
+    val currentTitle = new app.controller.pgsql_handler.pgsqlGet()
+
+    val test = currentTitle.drawingNameFromId(1)
+
+    println(test)
+
+    //val title = TextShape(test, unitX(-60), headerHeight * 0.7)
+
     val id = TextShape(currentId.toString, unitX(-12), headerHeight * 0.7)
 
     // Paper scale
@@ -275,7 +279,7 @@ object Default extends Module {
     g.draw(scale.transform(transformation))
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
     // Draw ID and title
-    g draw(title.transform(transformation))
+    //g draw(title.transform(transformation))
     g draw(id.transform(transformation))
 
   }
