@@ -53,9 +53,8 @@ object Default extends Module {
         Siigna.display("Loading Siigna modules ver. 0.2.2")
         //Får ny tegningsid fra databasen, og henter id'et til appletten
         com.siigna.app.model.drawing.activeDrawing.loadActiveDrawingIdVariable(com.siigna.app.controller.pgsql_handler.pgsqlIdPool.getNewDrawingId())
-        val getterval = new com.siigna.app.controller.pgsql_handler.pgsqlGet
         //Henter navnet på tegningen, og henter det ind i appletten
-        com.siigna.app.model.drawing.activeDrawing.loadActiveDrawingNameVariable(getterval.drawingNameFromId(com.siigna.app.model.drawing.activeDrawing.drawingId.get))
+        com.siigna.app.model.drawing.activeDrawing.loadActiveDrawingNameVariable(com.siigna.app.controller.pgsql_handler.pgsqlGet.drawingNameFromId(com.siigna.app.model.drawing.activeDrawing.drawingId.get))
         firstStart = false
       }
       events match {

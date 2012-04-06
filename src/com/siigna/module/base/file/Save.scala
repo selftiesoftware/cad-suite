@@ -40,8 +40,6 @@ object Save extends Module {
 
   lazy val stateMap     = DirectedGraph  ('Start     -> 'KeyEscape -> 'End)
 
-  val save = new pgsqlSave()
-
   //definition of the coordinates
   var x1 : Option[Int] = None
   var y1 : Option[Int] = None
@@ -72,7 +70,7 @@ object Save extends Module {
       //proceed to save the data
       println("saving now")
       //Gemmer her alle shapes i modellen i tegningen med id 5, da mappen, der gemmes er modellen (Model.seq)....
-      save.mapOfShapesIntoDrawing(Model.seq,5)
+      pgsqlSave.mapOfShapesIntoDrawing(Model.seq,5)
 
       /*
       if(!Model.isEmpty) {
