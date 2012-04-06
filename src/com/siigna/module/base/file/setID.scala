@@ -29,9 +29,7 @@ object setID extends Module {
     }),
 
     'End -> ((events : List[Event]) => {
-      val id = new com.siigna.app.controller.pgsql_handler.pgsqlIdPool
-      com.siigna.app.model.drawing.activeDrawing.setId(id)
-      None
+      com.siigna.app.model.drawing.activeDrawing.setId(com.siigna.app.controller.pgsql_handler.pgsqlIdPool.getNewDrawingId())
     })
   )
 }
