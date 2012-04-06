@@ -51,6 +51,9 @@ object Default extends Module {
     }
       if (firstStart == true) {
         Siigna.display("Loading Siigna modules ver. 0.2.2")
+        com.siigna.app.model.drawing.activeDrawing.setActiveDrawingId(com.siigna.app.controller.pgsql_handler.pgsqlIdPool.getNewDrawingId())
+        val getterval = new com.siigna.app.controller.pgsql_handler.pgsqlGet
+        com.siigna.app.model.drawing.activeDrawing.setActiveDrawingName(com.siigna.app.model.drawing.activeDrawing.drawingId.get,getterval.drawingNameFromId(com.siigna.app.model.drawing.activeDrawing.drawingId.get))
         firstStart = false
       }
       events match {
@@ -250,15 +253,16 @@ object Default extends Module {
     val headerHeight = scala.math.min(boundary.height, boundary.width) * 0.025
 
     // Drawing title and ID
-    val currentId = 5
+    //val currentId = 5
 
-    val currentTitle = new app.controller.pgsql_handler.pgsqlGet()
+    //val currentTitle = new app.controller.pgsql_handler.pgsqlGet()
 
-    val test = currentTitle.drawingNameFromId(currentId)
+    //val test = currentTitle.drawingNameFromId(currentId)
 
-    val title = TextShape(test, unitX(-40), headerHeight * 0.7)
+    //val title = TextShape(test, unitX(-40), headerHeight * 0.7)
 
-    val id = TextShape(currentId.toString, unitX(-12), headerHeight * 0.7)
+    //println (com.siigna.app.model.drawing.activeDrawing.drawingId.get)
+    //val id = TextShape(com.siigna.app.model.drawing.activeDrawing.drawingId.get.toString, unitX(-12), headerHeight * 0.7)
 
     // Paper scale
     val scale = TextShape("Scale 1:"+Siigna.paperScale, unitX(1), headerHeight * 0.7)
@@ -279,8 +283,8 @@ object Default extends Module {
     g.draw(scale.transform(transformation))
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
     // Draw ID and title
-    g draw(title.transform(transformation))
-    g draw(id.transform(transformation))
+    //g draw(title.transform(transformation))
+    //g draw(id.transform(transformation))
 
   }
 
