@@ -29,7 +29,7 @@ case object Start extends MenuCategory {
 
   override def ENE = Some(MenuItem('Polyline, RadialMenuIcon.snap))
   override def NNE = Some(MenuItem('Polyline, RadialMenuIcon.polyline))
-  override def NNW = Some(MenuItem('Line, RadialMenuIcon.artline))
+  override def NNW = Some(MenuItem('Line, RadialMenuIcon.line))
   //override def NNW = Some(MenuItem('Artline, RadialMenuIcon.artline))
   override def WNW = Some(MenuItem('Weight, RadialMenuIcon.weight, "properties"))
   //override def WNW = Some(new MenuItem('Polyline, RadialMenuIcon.sampleProperties))

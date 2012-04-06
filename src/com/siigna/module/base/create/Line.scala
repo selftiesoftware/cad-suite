@@ -11,15 +11,11 @@
 
 package com.siigna.module.base.create
 
-/**
- * Created by IntelliJ IDEA.
- * User: oep
- * Date: 06-04-12
- * Time: 09:55
- * To change this template use File | Settings | File Templates.
- */
-
 import com.siigna._
+
+/**
+ * A line module (draws one line-segment)
+ */
 
 object Line extends Module{
 
@@ -72,7 +68,13 @@ object Line extends Module{
       }
     }),
     'End -> ((events : List[Event]) => {
+      //create the line
       Create(shape)
+
+      //reset the module vars
+      points = List[Vector2D]()
+      shape = None
+
     })
   )
 }

@@ -63,6 +63,7 @@ object Default extends Module {
             Preload('AngleGizmo, "com.siigna.module.base.create")
             Preload('Artline, "com.siigna.module.base.create")
             Preload('Fill, "com.siigna.module.base.create")
+            Preload('Line, "com.siigna.module.base.create")
             Preload('Lineardim, "com.siigna.module.base.create")
             Preload('Point, "com.siigna.module.base.create")
             Preload('Polyline, "com.siigna.module.base.create")
@@ -248,13 +249,13 @@ object Default extends Module {
     val headerHeight = scala.math.min(boundary.height, boundary.width) * 0.025
 
     // Drawing title and ID
-    val currentId = 1
+    val currentId = 4
 
     val currentTitle = new app.controller.pgsql_handler.pgsqlGet()
 
-    val test = currentTitle.drawingNameFromId(4)
+    val test = currentTitle.drawingNameFromId(currentId)
 
-    println("TESTTITLE: ", test)
+    //println("TESTTITLE: "+ test)
     //val title = TextShape(test, unitX(-60), headerHeight * 0.7)
 
     val id = TextShape(currentId.toString, unitX(-12), headerHeight * 0.7)
