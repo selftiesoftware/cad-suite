@@ -248,10 +248,13 @@ object Default extends Module {
     val headerHeight = scala.math.min(boundary.height, boundary.width) * 0.025
 
     // Drawing title
-    val title = TextShape("TITLE HERE", unitX(-74), headerHeight * 0.7)
+
+    val currentTitle = new app.controller.pgsql_handler.pgsqlGet
+    val title = TextShape(currentTitle.drawingNameFromId(currentId), unitX(-60), headerHeight * 0.7)
 
     // Drawing ID
-    val id = TextShape("ID HERE", unitX(-22), headerHeight * 0.7)
+    val currentId = 1
+    val id = TextShape(currentId.toString, unitX(-12), headerHeight * 0.7)
 
     // Paper scale
     val scale = TextShape("Scale 1:"+Siigna.paperScale, unitX(1), headerHeight * 0.7)
