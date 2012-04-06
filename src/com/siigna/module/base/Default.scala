@@ -255,8 +255,7 @@ object Default extends Module {
 
     val test = currentTitle.drawingNameFromId(currentId)
 
-    //println("TESTTITLE: "+ test)
-    //val title = TextShape(test, unitX(-60), headerHeight * 0.7)
+    val title = TextShape(test, unitX(-40), headerHeight * 0.7)
 
     val id = TextShape(currentId.toString, unitX(-12), headerHeight * 0.7)
 
@@ -279,7 +278,7 @@ object Default extends Module {
     g.draw(scale.transform(transformation))
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
     // Draw ID and title
-    //g draw(title.transform(transformation))
+    g draw(title.transform(transformation))
     g draw(id.transform(transformation))
 
   }
