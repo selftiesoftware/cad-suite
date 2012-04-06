@@ -30,7 +30,8 @@ object setID extends Module {
 
     'End -> ((events : List[Event]) => {
       //Opretter ny drawing i databasen, henter id på denne og sætter "aktiv tegnings id" til denne.
-      //com.siigna.app.model.drawing.activeDrawing.setActiveDrawingId(com.siigna.app.controller.pgsql_handler.pgsqlIdPool.getNewDrawingId())
+      com.siigna.app.model.drawing.activeDrawing.setActiveDrawingId(com.siigna.app.controller.pgsql_handler.pgsqlIdPool.getNewDrawingId())
+      println("testing")
     })
   )
 }
