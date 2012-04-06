@@ -10,10 +10,11 @@
  */
 
 package com.siigna.module.base
-
 import com.siigna._
 import com.siigna.module.base.radialmenu.category._
 import com.siigna.module.base.radialmenu.category.{Create => MenuCreate}
+
+
 
 /**
 * The default module for the base module pack. Works as access point to
@@ -228,7 +229,7 @@ object Default extends Module {
       val shape = nearestShape.get._2
       val p = Siigna.mousePosition
       val closestPoint = shape.geometry.vertices.reduceLeft((a, b) => if (a.distanceTo(p) < b.distanceTo(p)) a else b)
-      if (closestPoint.distanceTo(p) < Preferences.double("selectionDistance")) {
+      if (closestPoint.distanceTo(p) < com.siigna.util.collection.Preferences.double("selectionDistance")) {
         g draw t.transform(closestPoint)
       }
     }
@@ -245,6 +246,13 @@ object Default extends Module {
 
     // Define header
     val headerHeight = scala.math.min(boundary.height, boundary.width) * 0.025
+
+    // Drawing title
+    val title = TextShape("TITLE HERE", unitX(-74), headerHeight * 0.7)
+
+    // Drawing ID
+    val id = TextShape("ID HERE", unitX(-22), headerHeight * 0.7)
+
     // Paper scale
     val scale = TextShape("Scale 1:"+Siigna.paperScale, unitX(1), headerHeight * 0.7)
     // Get URL
@@ -263,6 +271,10 @@ object Default extends Module {
     //g draw separator
     g.draw(scale.transform(transformation))
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
+    // Draw ID and title
+    g draw(title.transform(transformation))
+    g draw(id.transform(transformation))
+
   }
 
 }

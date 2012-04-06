@@ -14,7 +14,7 @@ package com.siigna.module.base.properties
 
 import com.siigna._
 
-object Preferences extends Module {
+object PreferencesSet extends Module {
 
   def eventHandler = EventHandler(stateMap, stateMachine)
 

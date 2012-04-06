@@ -17,11 +17,11 @@ import com.siigna.module.base.radialmenu._
 import com.siigna.util.collection.Attributes
 import com.siigna.util.geom.Vector2D
 
-case class Preferences (parent : Option[MenuCategory]) extends MenuCategory {
+case class MenuPreferences (parent : Option[MenuCategory]) extends MenuCategory {
 
   val color = RadialMenuIcon.propertiesColor
 
-  def name = "Preferences"
+  def name = "MenuPreferences"
 
   override def N = Some(MenuItemEmpty("Selection"))
   override def E = Some(MenuItemEmpty("Paper"))

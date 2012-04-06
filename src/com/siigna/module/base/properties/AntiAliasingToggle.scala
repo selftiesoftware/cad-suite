@@ -10,7 +10,6 @@
  */
 
 package com.siigna.module.base.properties
-
 import com.siigna._
 
 /**
@@ -29,11 +28,11 @@ object AntiAliasingToggle extends Module {
     'Start -> ((events : List[Event]) => {
       Goto('End)
       None
-      println("AI value: "+ Preferences("anti-aliasing"))
+      println("AI value: "+ com.siigna.util.collection.Preferences("anti-aliasing"))
     }),
 
     'End -> ((events : List[Event]) => {
-      Preferences.toggle("anti-aliasing");
+//      Preferences.toggle("anti-aliasing");
       None
     })
   )
