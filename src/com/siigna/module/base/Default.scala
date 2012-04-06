@@ -249,7 +249,7 @@ object Default extends Module {
     val headerHeight = scala.math.min(boundary.height, boundary.width) * 0.025
 
     // Drawing title and ID
-    val currentId = 4
+    val currentId = 5
 
     val currentTitle = new app.controller.pgsql_handler.pgsqlGet()
 
