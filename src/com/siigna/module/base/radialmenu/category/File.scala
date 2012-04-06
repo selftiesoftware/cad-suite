@@ -28,7 +28,7 @@ case class File(parent : Option[MenuCategory]) extends MenuCategory {
   override def W = Some(MenuItemEmpty("server"))
   override def S = Some(MenuItemEmpty("print"))
 
-  override def NNE = Some(MenuItem('SetID, TextShape("setID", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "file"))
+  override def NNE = Some(MenuItem('setID, TextShape("set ID", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "file"))
   //override def NNW = Some(MenuItem('Export, TextShape("N/A", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
   override def SSE = Some(MenuItem('Print, RadialMenuIcon.print, "file"))
   override def SSW = Some(MenuItem('ClearDatabase, RadialMenuIcon.clearDB, "file"))
