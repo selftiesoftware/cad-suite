@@ -252,10 +252,9 @@ object Default extends Module {
 
     val currentTitle = new app.controller.pgsql_handler.pgsqlGet()
 
-    val test = currentTitle.drawingNameFromId(1)
+    val test = currentTitle.drawingNameFromId(4)
 
-    println(test)
-
+    println("TESTTITLE: ", test)
     //val title = TextShape(test, unitX(-60), headerHeight * 0.7)
 
     val id = TextShape(currentId.toString, unitX(-12), headerHeight * 0.7)
