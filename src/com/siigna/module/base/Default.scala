@@ -68,7 +68,7 @@ object Default extends Module {
             Preload('Point, "com.siigna.module.base.create")
             Preload('Polyline, "com.siigna.module.base.create")
             Preload('Rectangle, "com.siigna.module.base.create")
-            Preload('SetID, "com.siigna.module.base.file")
+            Preload('setID, "com.siigna.module.base.file")
             Preload('Text, "com.siigna.module.base.create")
             firstMenuLoad = false
           }
