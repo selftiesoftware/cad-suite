@@ -12,6 +12,7 @@
 package com.siigna.module.base.file
 
 import com.siigna.app.controller.pgsql_handler._
+import com.siigna.app.model.drawing.activeDrawing._
 
 //TODO: update the way IDs are generated, so that all shapes in a saved model area assigned a global coordinate in the Siigna Universe.
 //Example: one model with two shapes: ID=000130000000, x,y, ID=000230000000, x,y where 0001 and 0002 is a running number and 30000000 the position.
@@ -38,41 +39,54 @@ object Open extends Module {
 
   private var shape : Option[Shape] = None
 
-  lazy val stateMap     = DirectedGraph('Start     -> 'KeyEscape -> 'End)
+  var text     = ""
+
+  lazy val stateMap     = DirectedGraph(
+
+    'Start     -> 'KeyEscape -> 'End)
 
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-        Siigna display "Loading drawings from the Siigna universe"
-        Goto('End)
+        Siigna display "type ID for the drawing you wish to load"
+        Goto('TextInput)
       }),
+    'TextInput -> ((events : List[Event]) => {
+      events match {
+        case KeyDown(Key.Backspace, _) :: tail => {
+            if (text.length != 0) text = text.substring(0, text.length - 1)
+            else Goto('End)
+        }
+        case KeyDown(Key.Enter, _) :: tail => Goto('End)
+        case KeyDown(Key.Esc, _) :: tail => {
+          text = ""
+          Goto('End)
+        }
+        case KeyDown(key, _) :: tail => {
+          text += key.toChar.toString.toLowerCase
+        }
+        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
+        case _ =>
+      }
+      None
+    }),
+
     'End   -> ((events : List[Event]) => {
       //connect to database and get all ShapeType and object IDs in it.
-      val shapes: Map[Int,ImmutableShape] = pgsqlGet.allShapesInDrawingFromDrawingIdWithDatabaseId(5)
+
+      //tell Siigna that the drawing with the given ID is now the acftive drawing
+      loadActiveDrawingIdVariable(text.toInt)
+      val name = pgsqlGet.drawingNameFromId(text.toInt)
+      com.siigna.app.model.drawing.activeDrawing.loadActiveDrawingNameVariable(name)
+
+      //then load the contents of this drawing
+      val shapes: Map[Int,ImmutableShape] = pgsqlGet.allShapesInDrawingFromDrawingIdWithDatabaseId(text.toInt)
       //NEval shapes = pgsqlShapes.allShapesInDrawingFromDrawingId(1)
       //val shapes = pgsqlShapes.getShapes(0, 0, 0, 10000, 10000, 10000)
       Create(shapes)
-      /*val getVectors = new pgsqlGetLine
-      val startTime = System.currentTimeMillis()
-      var lineNumbers = 0
-      //val query = new pgsql_db_query
-      //val lines = new pgsqlGetShapesInArea
-      println("lines: "+lines)
-        lines.foreach{
-          case i : Int => {
-            if(i != 2){
-              lineNumbers = lineNumbers + 1
-              //get Vector data from each ID
-              val coords = getVectors.getLine(i)
-              println(coords)
-              //convert the coordinates to LineShapes
-              shape = Some(LineShape(Vector2D(coords._2,coords._3),Vector2D(coords._6,coords._7)))
-              Create(shape)
-            }
-          }
-        }
-      val endTime = System.currentTimeMillis()
-      Siigna.display("loaded "+lineNumbers+" LineShapes in "+((endTime - startTime)/1000)+" seconds.")
-      */
+
+      //reset the vars
+      text = ""
+
     })
   )
 }
