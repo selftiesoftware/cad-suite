@@ -55,9 +55,8 @@ object SetTitle extends Module {
       //println("set title here")
       None
       println(text)
-      //set the drawing title
-      readActiveDrawingName(text)
-
+      //Gem nyt navn på tegningen i databasen (retter automatisk applettens variabel)
+      com.siigna.app.controller.pgsql_handler.pgsqlUpdate.renameDrawing(com.siigna.app.model.drawing.activeDrawing.drawingId.get,text)
       //reset the vars
       text = ""
     })
