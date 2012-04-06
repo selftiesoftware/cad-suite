@@ -71,8 +71,8 @@ object Save extends Module {
     'End   -> ((events : List[Event]) => {
       //proceed to save the data
       println("saving now")
-      //Gemmer her alle shapes i modellen i tegningen med id 1, da mappen, der gemmes er modellen (Model.seq)....
-      save.mapOfShapesIntoDrawing(Model.seq,1)
+      //Gemmer her alle shapes i modellen i tegningen med id 5, da mappen, der gemmes er modellen (Model.seq)....
+      save.mapOfShapesIntoDrawing(Model.seq,5)
 
       /*
       if(!Model.isEmpty) {
