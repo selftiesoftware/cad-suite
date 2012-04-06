@@ -63,6 +63,7 @@ object Open extends Module {
         }
         case KeyDown(key, _) :: tail => {
           text += key.toChar.toString.toLowerCase
+          Siigna display text
         }
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
         case _ =>
