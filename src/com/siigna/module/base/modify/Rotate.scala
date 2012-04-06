@@ -26,7 +26,7 @@ object Rotate extends Module {
   private var rotation : Double = 0
   //a line to test rotation before selection is implemented and it is possible to use the selection module to select shapes to rotate:
   private var testShape : LineShape = (LineShape(Vector2D(0,0),Vector2D(0,100)).addAttributes("Color" -> "#AAAAAA".color))
-  private var rotatedShape : LineShape = (LineShape(Vector2D(0,0),Vector2D(0,100)).addAttributes("Color" -> "#AAAAAA".color))
+  private var rotatedShape : Option[LineShape] = None
   private var startVector : Option[Vector2D] = None
   private var startVectorSet = false
   private var transformation = new TransformationMatrix()
@@ -107,8 +107,8 @@ object Rotate extends Module {
     'End   -> ((events : List[Event]) => {
       events match {
         case Message(p : Vector2D) :: tail => {
-          rotatedShape = testShape.transform(transformation.rotate(rotation,centerPoint.get))
-          Create(rotatedShape)
+          rotatedShape = Some(testShape.transform(transformation.rotate(rotation,centerPoint.get)))
+          Create(rotatedShape.get)
         }
         case _ => {
           Goto('End, false)

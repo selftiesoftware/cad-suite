@@ -9,58 +9,105 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-/*
 package com.siigna.module.base.modify
 
-/* 2010 (C) Copyright by Siigna, all rights reserved. */
-
 import com.siigna._
+import module.base.create.{PointGuide, AngleSnap}
 
 object Move extends Module {
 
-  var startPoint : Option[Vector2D] = None
-  var doneDrawing = false
-  var closeToObjectOnStart = false
+  private var endPoint : Option[Vector2D] = None
+  private var movedShape : LineShape = (LineShape(Vector2D(0,0),Vector2D(0,100)).addAttributes("Color" -> "#AAAAAA".color))
+  private var moveVector : Option[Vector2D] = None
+  private var testShape : LineShape = (LineShape(Vector2D(0,0),Vector2D(0,100)).addAttributes("Color" -> "#AAAAAA".color))
+  private var startPoint : Option[Vector2D] = None
+  private var startPointSet = false
+  private var transformation = new TransformationMatrix()
 
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap     = DirectedGraph(
-    'Start      -> 'KeyEscape -> 'End,
-    'Start      -> 'Message   -> 'FirstPoint,
-    'FirstPoint -> 'Message   -> 'End)
+    'Start      -> 'KeyEscape -> 'End)
   
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      // TODO: Make sure objects are selected
-      Siigna.display("Select a starting point to move from.")
+      val shapeGuide : Vector2D => LineShape = (v : Vector2D) => {
+        // Create a matrix
+        val t : TransformationMatrix = if (startPoint.isDefined) {
+          TransformationMatrix(v, 1)
+        // If no startpoint has been defined - create empty matrix
+        } else TransformationMatrix()
+        // Return the shape, transformed
+        testShape.transform(t)
+      }
+      //if the start point has not been set, then set it:
+      if(!startPoint.isDefined){
+        Siigna.display("Select a point to move from")
+        events match{
+          //if a startPoint is received from Point:
+          case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
+            //set the point as start point
+            startPoint = Some(p)
+            //send a shapeGuide to Point to draw the moving object(s) dynamically
+              println("sending shapeGuide")
+              Send(Message(PointGuide(shapeGuide)))
+            //and goto Point to get the moveVector
+            ForwardTo('Point, false)
+          }
+          //exit mechanisms
+          case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
 
-      ForwardTo('Point)
+          //disregard mouse moves
+          case MouseMove(p ,_ ,_) :: tail =>
+          //if the mouse is pressed, forward to Point to check if the user calls the Angle Gizmo.
+          case MouseDown(p, _, _) :: tail => {
+            ForwardTo('Point)
+          }
+          case _ =>
+        }
+      // if the start point and move point is set, goto End.
+      }
+      else if(startPoint.isDefined){
+        events match{
+          case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
+            endPoint = Some(p)
+            moveVector = Some(endPoint.get - startPoint.get)
+            println("going to END")
+            Goto('End)
+          }
+          case _ => {
+            ForwardTo('Point, false)
+          }
+        }
+      }
     }),
-    'FirstPoint -> ((events : List[Event]) => {
+    'End   -> ((events : List[Event]) => {
+      println("in END")
       events match {
         case Message(p : Vector2D) :: tail => {
-          startPoint = Some(p)
-          ForwardTo('Point)
-        }
-        case _ => ForwardTo('Start)
-      }
-   }),
-    'End   -> ((events : List[Event]) => {
-      events match {
-        case Message(p : Vector2D) :: tail if (startPoint.isDefined) => {
-          Log(p - startPoint.get)
+          movedShape = testShape.transform(transformation)
+          Create(movedShape)
         }
         case _ => {
-          Goto('FirstPoint)
+          Goto('End, false)
         }
       }
+    //clear vars
+     endPoint = None
+     moveVector = None
+     startPointSet = false
+     startPoint = None
+
     })
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
+    if(!startPoint.isDefined){
+      g draw testShape.transform(t)
+    } else if(startPoint.isDefined){
+      g draw testShape.transform(t)
+      g draw (CircleShape(startPoint.get,(startPoint.get + Vector2D(0,3)))).transform(t)
 
+    }
   }
-
 }
-
-*/
