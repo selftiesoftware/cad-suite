@@ -43,7 +43,7 @@ object SetTitle extends Module {
         }
         case KeyDown(key, _) :: tail => {
           text += key.toChar.toString.toLowerCase        }
-          println(text)
+          Siigna display text
 
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
         case _ =>
@@ -56,7 +56,7 @@ object SetTitle extends Module {
       None
       println(text)
       //set the drawing title
-      setActiveDrawingName(5,text)
+      setActiveDrawingName(drawingId.get,text)
 
       //reset the vars
       text = ""
