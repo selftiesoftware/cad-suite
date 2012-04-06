@@ -22,7 +22,7 @@ object ClearDatabase extends Module {
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       Siigna.display("deleting all database content")
-      com.siigna.app.controller.pgsql_handler.pgsqlDelete.allDrawings()
+      com.siigna.app.controller.pgsql_handler.pgsqlDelete.allShapesInDrawingButKeepsDrawing()
       Goto('End)
     }),
     'End   -> ((events : List[Event]) => { None })
