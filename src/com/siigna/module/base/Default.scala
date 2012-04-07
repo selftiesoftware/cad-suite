@@ -57,9 +57,8 @@ object Default extends Module {
         //read drawing title
         loadActiveDrawingNameVariable(pgsqlGet.drawingNameFromId(drawingId.get))
         //set default contributor
-        setContributorId(2)
+        setContributorId(com.siigna.app.controller.AppletParameters.getParametersInt(Some("contributorId")).get)
         setContributorName(pgsqlGet.contributorNameFromId(contributorId.get))
-        println("CN: "+contributorName.get)
         firstStart = false
       }
       events match {
