@@ -58,11 +58,8 @@ object Default extends Module {
         loadActiveDrawingNameVariable(pgsqlGet.drawingNameFromId(drawingId.get))
         //set default contributor
         setContributorId(2)
-
-        println(contributorId.get)
-        //setContributorName(pgsqlGet.contributorNameFromId(contributorId.get))
-        //com.siigna.app.model.drawing.activeDrawing.setContributorName(anonymous)
-
+        setContributorName(pgsqlGet.contributorNameFromId(contributorId.get))
+        println("CN: "+contributorName.get)
         firstStart = false
       }
       events match {
@@ -277,14 +274,14 @@ object Default extends Module {
     g.draw(scale.transform(transformation))
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
     // Draw ID and title
-    if (drawingName != None) {
+    if (drawingName.isDefined && contributorName.isDefined) {
       val title = TextShape(drawingName.get, unitX(-50), headerHeight * 0.7)
       val id = TextShape("ID: "+drawingId.get.toString, unitX(-18), headerHeight * 0.7)
-      //val contributor = TextShape("USER: "+com.siigna.app.model.drawing.activeDrawing.contributorName.get, unitX(-80), headerHeight * 0.7)
+      val contributor = TextShape("user: "+contributorName.get, unitX(-100), headerHeight * 0.7)
 
       g draw(title.transform(transformation))
       g draw(id.transform(transformation))
-      //g draw(contributor.transform(transformation))
+      g draw(contributor.transform(transformation))
     }
   }
 

@@ -21,14 +21,20 @@ case class MenuPreferences (parent : Option[MenuCategory]) extends MenuCategory 
 
   val color = RadialMenuIcon.propertiesColor
 
-  def name = "MenuPreferences"
+  def name = "Preferences"
 
   override def N = Some(MenuItemEmpty("Selection"))
   override def E = Some(MenuItemEmpty("Paper"))
-  override def S = Some(MenuItemEmpty("Background"))
+  override def S = Some(MenuItemEmpty("Display"))
   override def W = Some(MenuItemEmpty("Navigation"))
 
-  override def NNE = Some(MenuItem('SelectionDistance, TextShape("distance", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "properties"))
+  override def NNE = Some(MenuItem('PreferencesSet, TextShape("sel dist", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "properties"))
+  override def NNW = Some(MenuItem('PreferencesSet, TextShape("sel color", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "properties"))
+  override def ENE = Some(MenuItem('PreferencesSet, TextShape("paper size", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "properties"))
+  override def ESE = Some(MenuItem('PreferencesSet, TextShape("paper color", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "properties"))
+  override def SSE = Some(MenuItem('PreferencesSet, TextShape("backgr color", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "properties"))
+  override def SSW = Some(MenuItem('AntiAliasingToggle, TextShape("anti-alias", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "properties"))
+  override def WNW = Some(MenuItem('PreferencesSet, TextShape("zoom speed", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "properties"))
 
 
   //override def NNW = Some(MenuItem('Arc, RadialMenuIcon.arc , "create"))

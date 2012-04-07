@@ -68,7 +68,7 @@ object Save extends Module {
     }),
     'End   -> ((events : List[Event]) => {
       //proceed to save the data
-      println("saving now")
+      Siigna display "saving to Siigna Universe, please wait"
       //Gemmer her alle shapes i modellen i tegningen med id 5, da mappen, der gemmes er modellen (Model.seq)....
       pgsqlSave.mapOfShapesIntoDrawing(Model.seq,com.siigna.app.model.drawing.activeDrawing.drawingId.get)
 

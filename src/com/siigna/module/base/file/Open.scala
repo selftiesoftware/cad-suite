@@ -72,6 +72,9 @@ object Open extends Module {
     }),
 
     'End   -> ((events : List[Event]) => {
+
+      Siigna display "loading file... please wait"
+
       //connect to database and get all ShapeType and object IDs in it.
 
       //tell Siigna that the drawing with the given ID is now the acftive drawing
