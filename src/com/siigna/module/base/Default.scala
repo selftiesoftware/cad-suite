@@ -13,8 +13,8 @@ package com.siigna.module.base
 import com.siigna._
 import com.siigna.module.base.radialmenu.category._
 import com.siigna.module.base.radialmenu.category.{Create => MenuCreate}
-
-
+import com.siigna.app.model.drawing.activeDrawing._
+import com.siigna.app.controller.pgsql_handler._
 
 /**
 * The default module for the base module pack. Works as access point to
@@ -53,10 +53,14 @@ object Default extends Module {
       if (firstStart == true) {
         Siigna.display("Loading Siigna modules ver. 0.3.0")
         //read drawing ID from database
-        com.siigna.app.model.drawing.activeDrawing.loadActiveDrawingIdVariable(com.siigna.app.controller.pgsql_handler.pgsqlIdPool.getNewDrawingId())
+        loadActiveDrawingIdVariable(pgsqlIdPool.getNewDrawingId())
         //read drawing title
-        com.siigna.app.model.drawing.activeDrawing.loadActiveDrawingNameVariable(com.siigna.app.controller.pgsql_handler.pgsqlGet.drawingNameFromId(com.siigna.app.model.drawing.activeDrawing.drawingId.get))
+        loadActiveDrawingNameVariable(pgsqlGet.drawingNameFromId(drawingId.get))
         //set default contributor
+        setContributorId(2)
+
+        println(contributorId.get)
+        //setContributorName(pgsqlGet.contributorNameFromId(contributorId.get))
         //com.siigna.app.model.drawing.activeDrawing.setContributorName(anonymous)
 
         firstStart = false
@@ -273,14 +277,14 @@ object Default extends Module {
     g.draw(scale.transform(transformation))
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
     // Draw ID and title
-    if (com.siigna.app.model.drawing.activeDrawing.drawingName != None) {
-      val title = TextShape(com.siigna.app.model.drawing.activeDrawing.drawingName.get, unitX(-50), headerHeight * 0.7)
-      val id = TextShape("ID: "+com.siigna.app.model.drawing.activeDrawing.drawingId.get.toString, unitX(-18), headerHeight * 0.7)
-      val contributor = TextShape("USER: "+com.siigna.app.controller.pgsql_handler.pgsqlGet.contributorNameFromId(1), unitX(-80), headerHeight * 0.7)
+    if (drawingName != None) {
+      val title = TextShape(drawingName.get, unitX(-50), headerHeight * 0.7)
+      val id = TextShape("ID: "+drawingId.get.toString, unitX(-18), headerHeight * 0.7)
+     // val contributor = TextShape("USER: "+com.siigna.app.model.drawing.activeDrawing.contributorName, unitX(-80), headerHeight * 0.7)
 
       g draw(title.transform(transformation))
       g draw(id.transform(transformation))
-      g draw(contributor.transform(transformation))
+     // g draw(contributor.transform(transformation))
     }
   }
 
