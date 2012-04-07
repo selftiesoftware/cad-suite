@@ -280,11 +280,11 @@ object Default extends Module {
     if (drawingName != None) {
       val title = TextShape(drawingName.get, unitX(-50), headerHeight * 0.7)
       val id = TextShape("ID: "+drawingId.get.toString, unitX(-18), headerHeight * 0.7)
-     // val contributor = TextShape("USER: "+com.siigna.app.model.drawing.activeDrawing.contributorName, unitX(-80), headerHeight * 0.7)
+      //val contributor = TextShape("USER: "+com.siigna.app.model.drawing.activeDrawing.contributorName.get, unitX(-80), headerHeight * 0.7)
 
       g draw(title.transform(transformation))
       g draw(id.transform(transformation))
-     // g draw(contributor.transform(transformation))
+      //g draw(contributor.transform(transformation))
     }
   }
 
