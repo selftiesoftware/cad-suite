@@ -78,15 +78,15 @@ object Open extends Module {
       //connect to database and get all ShapeType and object IDs in it.
 
       //tell Siigna that the drawing with the given ID is now the acftive drawing
-      loadActiveDrawingIdVariable(text.toInt)
+      com.siigna.app.model.drawing.activeDrawing.setActiveDrawingId(text.toInt)
       val name = pgsqlGet.drawingNameFromId(text.toInt)
-      com.siigna.app.model.drawing.activeDrawing.loadActiveDrawingNameVariable(name)
+      com.siigna.app.model.drawing.activeDrawing.setActiveDrawingName(name)
 
       //then load the contents of this drawing
       val shapes: Map[Int,ImmutableShape] = pgsqlGet.allShapesInDrawingFromDrawingIdWithDatabaseId(text.toInt)
-      //NEval shapes = pgsqlShapes.allShapesInDrawingFromDrawingId(1)
-      //val shapes = pgsqlShapes.getShapes(0, 0, 0, 10000, 10000, 10000)
       Create(shapes)
+      //Set this drawing to "last active drawing for user" så den åbnes ved næste besøg...
+      com.siigna.app.controller.pgsql_handler.pgsqlSave.lastActiveDrawingIdIntoContributorData(contributorId.get,drawingId.get)
 
       //reset the vars
       text = ""

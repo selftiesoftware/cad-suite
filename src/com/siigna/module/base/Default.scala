@@ -52,13 +52,6 @@ object Default extends Module {
       //values to be retrieved only once
       if (firstStart == true) {
         Siigna.display("Loading Siigna modules ver. 0.3.0")
-        //read drawing ID from database
-        loadActiveDrawingIdVariable(pgsqlIdPool.getNewDrawingId())
-        //read drawing title
-        loadActiveDrawingNameVariable(pgsqlGet.drawingNameFromId(drawingId.get))
-        //set default contributor
-        setContributorId(com.siigna.app.controller.AppletParameters.getParametersInt(Some("contributorId")).get)
-        setContributorName(pgsqlGet.contributorNameFromId(contributorId.get))
         firstStart = false
       }
       events match {
