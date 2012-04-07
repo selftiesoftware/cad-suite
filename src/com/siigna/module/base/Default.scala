@@ -49,12 +49,16 @@ object Default extends Module {
       val nearest = Model(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
       nearestShape = if (nearest._2.distanceTo(m) < 5) Some(nearest) else None
     }
+      //values to be retrieved only once
       if (firstStart == true) {
-        Siigna.display("Loading Siigna modules ver. 0.2.2")
-        //Får ny tegningsid fra databasen, og henter id'et til appletten
+        Siigna.display("Loading Siigna modules ver. 0.3.0")
+        //read drawing ID from database
         com.siigna.app.model.drawing.activeDrawing.loadActiveDrawingIdVariable(com.siigna.app.controller.pgsql_handler.pgsqlIdPool.getNewDrawingId())
-        //Henter navnet på tegningen, og henter det ind i appletten
+        //read drawing title
         com.siigna.app.model.drawing.activeDrawing.loadActiveDrawingNameVariable(com.siigna.app.controller.pgsql_handler.pgsqlGet.drawingNameFromId(com.siigna.app.model.drawing.activeDrawing.drawingId.get))
+        //set default contributor
+        //com.siigna.app.model.drawing.activeDrawing.setContributorName(anonymous)
+
         firstStart = false
       }
       events match {
@@ -252,41 +256,31 @@ object Default extends Module {
     // Define header
     val headerHeight = scala.math.min(boundary.height, boundary.width) * 0.025
 
-    // Drawing title and ID
-    //val currentId = 5
-
-    //val currentTitle = new app.controller.pgsql_handler.pgsqlGet()
-
-    //val test = currentTitle.drawingNameFromId(currentId)
-
-
-    //println (com.siigna.app.model.drawing.activeDrawing.drawingId.get)
-    //val id = TextShape(com.siigna.app.model.drawing.activeDrawing.drawingId.get.toString, unitX(-12), headerHeight * 0.7)
-
     // Paper scale
     val scale = TextShape("Scale 1:"+Siigna.paperScale, unitX(1), headerHeight * 0.7)
     // Get URL
     val getURL = TextShape(" ", Vector2D(0, 0), headerHeight * 0.7)
 
     val headerWidth  = (scale.boundary.width + getURL.boundary.width) * 1.2
-    val headerBoundary = Rectangle2D(boundary.bottomRight, boundary.bottomRight - Vector2D(headerWidth, -headerHeight))
+    val headerBoundary = Rectangle2D(boundary.bottomRight, (boundary.bottomRight - Vector2D(headerWidth, -headerHeight)))
 
     val transformation : TransformationMatrix = t.concatenate(TransformationMatrix(boundary.bottomRight - Vector2D(headerWidth * 0.99, -headerHeight * 0.8), 1))
 
     // Draw header
-    g draw LineShape(headerBoundary.topLeft, headerBoundary.topRight)
-    g draw LineShape(headerBoundary.topRight, headerBoundary.bottomRight)
-    g draw LineShape(headerBoundary.bottomRight, headerBoundary.bottomLeft)
-    g draw LineShape(headerBoundary.bottomLeft, headerBoundary.topLeft)
+    //g draw LineShape(boundary.bottomLeft, boundary.topLeft).transform(transformation)
+    //println(boundary.bottomLeft)
     //g draw separator
     g.draw(scale.transform(transformation))
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
     // Draw ID and title
     if (com.siigna.app.model.drawing.activeDrawing.drawingName != None) {
-      val title = TextShape(com.siigna.app.model.drawing.activeDrawing.drawingName.get, unitX(-40), headerHeight * 0.7)
-      val id = TextShape(com.siigna.app.model.drawing.activeDrawing.drawingId.get.toString, unitX(-12), headerHeight * 0.7)
+      val title = TextShape(com.siigna.app.model.drawing.activeDrawing.drawingName.get, unitX(-50), headerHeight * 0.7)
+      val id = TextShape("ID: "+com.siigna.app.model.drawing.activeDrawing.drawingId.get.toString, unitX(-18), headerHeight * 0.7)
+      val contributor = TextShape("USER: "+com.siigna.app.controller.pgsql_handler.pgsqlGet.contributorNameFromId(1), unitX(-80), headerHeight * 0.7)
+
       g draw(title.transform(transformation))
       g draw(id.transform(transformation))
+      g draw(contributor.transform(transformation))
     }
   }
 

@@ -27,6 +27,7 @@ object SetTitle extends Module {
   def stateMachine = Map(
 
     'Start -> ((events : List[Event]) => {
+      Siigna display "type a drawing title"
       Goto('TextInput)
       None
     }),
@@ -51,10 +52,6 @@ object SetTitle extends Module {
       None
     }),
     'End -> ((events : List[Event]) => {
-      //set drawing title here
-      //println("set title here")
-      None
-      println(text)
       //Gem nyt navn på tegningen i databasen (retter automatisk applettens variabel)
       com.siigna.app.controller.pgsql_handler.pgsqlUpdate.renameDrawing(com.siigna.app.model.drawing.activeDrawing.drawingId.get,text)
       //reset the vars
