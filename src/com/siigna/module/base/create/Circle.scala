@@ -56,7 +56,7 @@ object Circle extends Module {
             Goto('End)
           } else if (!center.isDefined) {
            center = Some(p)
-           Send(Message(PointGuide(getCircleGuide)))
+           Controller ! Message(PointGuide(getCircleGuide))
            ForwardTo('Point)
           }
         }

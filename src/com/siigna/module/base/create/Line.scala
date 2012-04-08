@@ -12,6 +12,7 @@
 package com.siigna.module.base.create
 
 import com.siigna._
+import app.controller.Controller
 
 /**
  * A line module (draws one line-segment)
@@ -53,7 +54,7 @@ object Line extends Module{
           // Define shape if there is enough points
           if (points.size == 1) {
             ForwardTo('Point, false)
-            Send(Message(PointGuide(getPointGuide)))
+            Controller ! Message(PointGuide(getPointGuide))
           } else if (points.size == 2) {
             shape = Some(LineShape(points(0),points(1)))
             Goto('End)
@@ -63,7 +64,7 @@ object Line extends Module{
         // Match on everything else
         case _ => {
           ForwardTo('Point)
-          Send(Message(PointGuide(getPointGuide)))
+          Controller ! Message(PointGuide(getPointGuide))
         }
       }
     }),

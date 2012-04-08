@@ -48,7 +48,7 @@ object Offset extends Module {
       case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
       case Message(p : Vector2D) :: tail => {
         println("got point: "+p)
-        Send(Message(offsetGuide))
+        Controller ! Message(offsetGuide)
       }
       case _ => ForwardTo('Point, false)
     }

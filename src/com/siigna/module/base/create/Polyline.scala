@@ -51,13 +51,13 @@ object Polyline extends Module {
           shape = Some(PolylineShape.fromPoints(points))
         }
         ForwardTo('Point, false)
-        Send(Message(PointGuide(getPointGuide)))
+        Controller ! Message(PointGuide(getPointGuide))
       }
 
       // Match on everything else
       case _ => {
         ForwardTo('Point)
-        Send(Message(PointGuide(getPointGuide)))
+        Controller ! Message(PointGuide(getPointGuide))
       }
     }
   }),

@@ -63,7 +63,7 @@ object Arc extends Module {
         if (points.length < 1) {
           //proceed to set the Arc segment
           points = points :+ p
-          Send(Message(PointGuide(getCircleGuide)))
+          Controller ! Message(PointGuide(getCircleGuide))
           ForwardTo('Point)
         }
         else if (points.length == 1) {
@@ -98,7 +98,7 @@ object Arc extends Module {
       }
 
       case _ => {
-        Send(Message(PointGuide(arcGuide)))
+        Controller ! Message(PointGuide(arcGuide))
         ForwardTo('Point)
       }
 

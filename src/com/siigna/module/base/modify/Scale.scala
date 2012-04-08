@@ -72,7 +72,7 @@ object Scale extends Module {
       else if(!startVector.isDefined){
         events match{
           case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
-            Send(Message(PointGuide(shapeGuide)))
+            Controller ! Message(PointGuide(shapeGuide))
             startVector = Some(p)
             println("got startAngle. rotation: "+scale)
             ForwardTo('Point)

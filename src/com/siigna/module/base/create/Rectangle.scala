@@ -14,6 +14,7 @@ package com.siigna.module.base.create
 ///* 2012 (C) Copyright by Siigna, all rights reserved. */
 
 import com.siigna._
+import app.controller.Controller
 
 object Rectangle extends Module {
 
@@ -49,7 +50,7 @@ object Rectangle extends Module {
             Goto('End)
           } else if (points.length == 0) {
            points = points :+ point
-           Send(Message(PointGuide(getRectGuide)))
+           Controller ! Message(PointGuide(getRectGuide))
            ForwardTo('Point)
           }
         }

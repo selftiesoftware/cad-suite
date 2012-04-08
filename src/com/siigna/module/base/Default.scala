@@ -125,7 +125,7 @@ object Default extends Module {
               }
               //open the CREATE menu
               else {
-                Send(Message(MenuCreate(Some(Start))))
+                Controller ! Message(MenuCreate(Some(Start)))
                 ForwardTo('Menu)
                 previousKey = Some('c')
               }
@@ -150,14 +150,14 @@ object Default extends Module {
                 ForwardTo('Fill)
                 previousKey = Some('f')
               } else {
-                Send(Message(File(Some(Start))))
+                Controller ! Message(File(Some(Start)))
                 ForwardTo('Menu)
                 previousKey = Some('f')
               }
             }
             //open the HELPERS menu
             case 'h' => {
-                Send(Message(Helpers(Some(Start))))
+                Controller ! Message(Helpers(Some(Start)))
                 ForwardTo('Menu)
                 previousKey = Some('h')
             }
@@ -169,7 +169,7 @@ object Default extends Module {
               }
               else
               {
-                Send(Message(Modify(Some(Start))))
+                Controller ! Message(Modify(Some(Start)))
                 ForwardTo('Menu)
                 previousKey = Some('m')
               }
@@ -206,7 +206,7 @@ object Default extends Module {
               }
               //open the PROPERTIES menu
               else {
-                Send(Message(Properties(Some(Start))))
+                Controller ! Message(Properties(Some(Start)))
                 ForwardTo('Menu)
                 previousKey = Some('p')
               }

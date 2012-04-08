@@ -169,7 +169,7 @@ object Menu extends Module {
         oldCenter = center.get
       center = None
       if(lastKey.isDefined)
-        Send(lastKey.get)
+        Controller ! lastKey.get
       lastKey = None
     })
   )
