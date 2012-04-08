@@ -77,16 +77,21 @@ object Open extends Module {
 
       //connect to database and get all ShapeType and object IDs in it.
 
-      //tell Siigna that the drawing with the given ID is now the acftive drawing
-      com.siigna.app.model.drawing.activeDrawing.setActiveDrawingId(text.toInt)
+      //Try to get drawing name - if unable, the drawing doesn't exist:
       val name = pgsqlGet.drawingNameFromId(text.toInt)
-      com.siigna.app.model.drawing.activeDrawing.setActiveDrawingName(name)
-
-      //then load the contents of this drawing
-      val shapes: Map[Int,ImmutableShape] = pgsqlGet.allShapesInDrawingFromDrawingIdWithDatabaseId(text.toInt)
-      Create(shapes)
-      //Set this drawing to "last active drawing for user" så den åbnes ved næste besøg...
-      com.siigna.app.controller.pgsql_handler.pgsqlSave.lastActiveDrawingIdIntoContributorData(contributorId.get,drawingId.get)
+      if (name.isDefined) {
+        //tell Siigna that the drawing with the given ID and name is now the active drawing
+        com.siigna.app.model.drawing.activeDrawing.setActiveDrawingId(text.toInt)
+        com.siigna.app.model.drawing.activeDrawing.setActiveDrawingName(name.get)
+        //then load the contents of this drawing
+        val shapes: Map[Int,ImmutableShape] = pgsqlGet.allShapesInDrawingFromDrawingIdWithDatabaseId(text.toInt)
+        //If there are shapes in the drawing (it could be a clean sheet):
+        if (shapes.size > 0 ) {Create(shapes)} else {println("Drawing is empty.")}
+        //Set this drawing to "last active drawing for user" så den åbnes ved næste besøg...
+        com.siigna.app.controller.pgsql_handler.pgsqlUpdate.lastActiveDrawingIdIntoContributorData(contributorId.get,drawingId.get)
+      } else {
+        println ("The drawing doesn't exist.")
+      }
 
       //reset the vars
       text = ""
