@@ -15,6 +15,8 @@ import com.siigna._
 
 object Move extends Module {
 
+  var endPoint : Option[Vector2D] = None
+
   var startPoint : Option[Vector2D] = None
   
   var transformation : Option[TransformationMatrix] = None
@@ -47,9 +49,18 @@ object Move extends Module {
     'Move -> ((events : List[Event]) => {
       if (startPoint.isDefined) {
         val translation = events match {
-          case MouseDown(p, _, _) :: tail => p - startPoint.get
-          case MouseDrag(p, _, _) :: tail => p - startPoint.get
-          case MouseMove(p, _, _) :: tail => p - startPoint.get
+          case MouseDown(p, _, _) :: tail => {
+            endPoint = Some(p)
+            p - startPoint.get
+          }
+          case MouseDrag(p, _, _) :: tail => {
+            endPoint = Some(p)
+            p - startPoint.get
+          }
+          case MouseMove(p, _, _) :: tail => {
+            endPoint = Some(p)
+            p - startPoint.get
+          }
           case _ => Vector2D(0, 0)
         }
 
@@ -58,7 +69,8 @@ object Move extends Module {
       }
     }),
     'End   -> ((events : List[Event]) => {
-      if (Model.selection.isDefined) {
+      //deselect, but only if an objects has been moved.
+      if (Model.selection.isDefined && (startPoint.get - endPoint.get != Vector2D(0, 0))) {
         Model.deselect()
       }
     })

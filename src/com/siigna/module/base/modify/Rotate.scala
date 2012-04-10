@@ -26,10 +26,11 @@ object Rotate extends Module {
   private var rotation : Double = 0
   //a line to test rotation before selection is implemented and it is possible to use the selection module to select shapes to rotate:
   private var testShape : LineShape = (LineShape(Vector2D(0,0),Vector2D(0,100)).addAttributes("Color" -> "#AAAAAA".color))
-  private var rotatedShape : Option[LineShape] = None
+  private var rotatedShape : Option[DynamicShape] = None
   private var startVector : Option[Vector2D] = None
   private var startVectorSet = false
   private var transformation = new TransformationMatrix()
+
 
   def eventHandler = EventHandler(stateMap, stateMachine)
 
@@ -107,8 +108,8 @@ object Rotate extends Module {
     'End   -> ((events : List[Event]) => {
       events match {
         case Message(p : Vector2D) :: tail => {
-          rotatedShape = Some(testShape.transform(transformation.rotate(rotation,centerPoint.get)))
-          Create(rotatedShape.get)
+          val t = transformation.rotate(rotation,centerPoint.get)
+          Model.selection.get.transform(t)
         }
         case _ => {
           Goto('End, false)
@@ -125,12 +126,9 @@ object Rotate extends Module {
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-     //g draw testShape.transform(t)
     if(startVector.isDefined){
-      //g draw testShape.transform(t.rotate(rotation, centerPoint.get))
     }
     else if(centerPoint.isDefined && !startVector.isDefined){
-      //g draw testShape.transform(t.rotate(rotation, centerPoint.get))
       g draw (CircleShape(centerPoint.get,(centerPoint.get + Vector2D(0,3)))).transform(t)
     }
   }

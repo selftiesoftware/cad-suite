@@ -39,14 +39,12 @@ object Selection extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println("in selection")
       events match {
         case MouseDown(p, _, _) :: tail => startPoint = Some(p)
         case MouseMove(p, _, _) :: tail => startPoint = Some(p)
         case MouseDrag(p, _, _) :: tail => startPoint = Some(p)
         case _ =>
       }
-
       if (Default.nearestShape.isDefined) {
         val shape = Default.nearestShape.get
         val f = shape._2.select(Siigna.mousePosition)
