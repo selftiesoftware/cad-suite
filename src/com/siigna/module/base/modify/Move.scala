@@ -62,14 +62,14 @@ object Move extends Module {
     'End   -> ((events : List[Event]) => {
       if (transformation.isDefined && Model.selection.isDefined) {
         Model.selection.get.transform(transformation.get)
-        Model.deselect()
+        //Model.deselect()
       }
     })
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
     if (!shape.isEmpty) {
-      shape.foreach(g draw _.transform(t))
+      shape.foreach(g draw _.addAttribute("Color" -> "#9999FF".color).transform(t))
     }
   }
 

@@ -39,6 +39,7 @@ object Selection extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      println("in selection")
       events match {
         case MouseDown(p, _, _) :: tail => startPoint = Some(p)
         case MouseMove(p, _, _) :: tail => startPoint = Some(p)
@@ -49,7 +50,6 @@ object Selection extends Module {
       if (Default.nearestShape.isDefined) {
         val shape = Default.nearestShape.get
         val f = shape._2.select(Siigna.mousePosition)
-
         if (f.isDefined) {
           val dynamicShape = DynamicShape(shape._1, f.get)
           Model select dynamicShape
@@ -80,8 +80,10 @@ object Selection extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
     val enclosed = "Color" -> "#9999FF".color
     val focused  = "Color" -> "#FF9999".color
+
     if (box.isDefined) {
-        g draw PolylineShape.fromRectangle(box.get).addAttribute("Color" -> (if (isEnclosed) enclosed else focused)).transform(t)
+      g draw PolylineShape.fromRectangle(box.get).addAttribute("Color" -> (if (isEnclosed) enclosed else focused)).transform(t)
     }
+
   }
 }
