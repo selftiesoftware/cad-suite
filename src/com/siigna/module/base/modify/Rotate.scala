@@ -12,7 +12,7 @@
 package com.siigna.module.base.modify
 
 import com.siigna._
-import module.base.create.{PointGuide, AngleSnap}
+import module.base.create.{PointGuides, PointGuide, AngleSnap}
 
 // TODO: add object selection logic.
 /**
@@ -40,7 +40,7 @@ object Rotate extends Module {
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       //a guide to get Point to dynamically draw the shape(s) and their rotation
-      val shapeGuide : Vector2D => LineShape = (v : Vector2D) => {
+      val shapeGuide : Vector2D => Traversable[ImmutableShape] = (v : Vector2D) => {
         // Create a matrix
         val t : TransformationMatrix = if (startVector.isDefined && centerPoint.isDefined) {
           // To find the angle between two vectors (lines)
@@ -52,7 +52,7 @@ object Rotate extends Module {
         // If no start- (or center-) point has been defined - create empty matrix
         } else TransformationMatrix()
         // Return the shape, transformed
-        testShape.transform(t)
+          Model.selection.get.apply(t)
       }
 
       //if the center has not been set, then set it:
@@ -80,7 +80,7 @@ object Rotate extends Module {
       else if(!startVector.isDefined){
         events match{
           case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
-            Controller ! Message(PointGuide(shapeGuide))
+            Controller ! Message(PointGuides(shapeGuide))
             startVector = Some(p)
             ForwardTo('Point)
           }
@@ -125,12 +125,12 @@ object Rotate extends Module {
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-     g draw testShape.transform(t)
+     //g draw testShape.transform(t)
     if(startVector.isDefined){
-      g draw testShape.transform(t.rotate(rotation, centerPoint.get))
+      //g draw testShape.transform(t.rotate(rotation, centerPoint.get))
     }
     else if(centerPoint.isDefined && !startVector.isDefined){
-      g draw testShape.transform(t.rotate(rotation, centerPoint.get))
+      //g draw testShape.transform(t.rotate(rotation, centerPoint.get))
       g draw (CircleShape(centerPoint.get,(centerPoint.get + Vector2D(0,3)))).transform(t)
     }
   }

@@ -54,7 +54,7 @@ object Point extends Module {
    */
   private var point : Option[Vector2D] = None
 
-  var pointGuide : Option[PointGuide] = None
+  var pointGuide : Option[Guide] = None
 
   //Store the mousePosition, so we get the snap-coordinates
   private var mousePosition : Option[Vector2D] = None
@@ -256,27 +256,27 @@ object Point extends Module {
 
     // Draw a point guide if a previous point (or guide) is found.
     if (pointGuide.isDefined || previousPoint.isDefined) {
-      val guide : Vector2D => ImmutableShape = {
+      val guide : Vector2D => Traversable[ImmutableShape] = {
         //if there is no previous point, use
         if (pointGuide.isDefined) {
-          pointGuide.get.guide
+          pointGuide.get
         } else {
           //the last field _ is replaceable depending on how the point is constructed
-          LineShape(previousPoint.get, _)
+          p => Traversable(LineShape(previousPoint.get, p))
         }
       }
 
       // Draw the point guide depending on which information is available
       if (x.isDefined && y.isDefined) {
-        g draw guide(Vector2D(x.get + difference.x, y.get)).transform(t)
+        guide(Vector2D(x.get + difference.x, y.get)).foreach(s => g draw s.transform(t))
       } else if (x.isDefined && mousePosition.isDefined && !filteredX.isDefined && !currentSnap.isDefined) {
-        g draw guide(Vector2D(x.get, mousePosition.get.y)).transform(t)
+        guide(Vector2D(x.get, mousePosition.get.y)).foreach(s => g draw s.transform(t))
       } else if (x.isDefined && mousePosition.isDefined && !filteredX.isDefined && currentSnap.isDefined) {
-        g draw guide(lengthVector(x.get - difference.x)).transform(t)
+        guide(lengthVector(x.get - difference.x)).foreach(s => g draw s.transform(t))
       } else if (x.isDefined && mousePosition.isDefined && filteredX.isDefined) {
-        g draw guide(Vector2D(filteredX.get, mousePosition.get.y)).transform(t)
+        guide(Vector2D(filteredX.get, mousePosition.get.y)).foreach(s => g draw s.transform(t))
       } else if (mousePosition.isDefined) {
-        g draw guide(mousePosition.get).transform(t)
+        guide(mousePosition.get).foreach(s => g draw s.transform(t))
       }
 
     }
@@ -284,7 +284,14 @@ object Point extends Module {
 
 }
 
+trait Guide extends (Vector2D => Traversable[ImmutableShape])
+
 /**
  * A class used to draw guides in the point module.
  */
-case class PointGuide(guide : Vector2D => ImmutableShape)
+case class PointGuide(guide : Vector2D => ImmutableShape) extends Guide{
+  def apply(v : Vector2D) = Traversable(guide(v))
+}
+case class PointGuides(guide : Vector2D => Traversable[ImmutableShape]) extends Guide{
+  def apply(v : Vector2D) = guide(v)
+}

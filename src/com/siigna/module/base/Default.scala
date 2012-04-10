@@ -44,7 +44,7 @@ object Default extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-    val m = Siigna.mousePosition
+      val m = Siigna.mousePosition
     if (Model(m).size > 0) {
       val nearest = Model(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
       nearestShape = if (nearest._2.distanceTo(m) < 5) Some(nearest) else None
@@ -79,6 +79,8 @@ object Default extends Module {
         case KeyDown(('z' | 'Z'), ModifierKeys(_, true, _)) :: tail => Model.undo
         case KeyDown(('y' | 'Y'), ModifierKeys(_, true, _)) :: tail => Model.redo
         case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => //Model.selectAll
+        case KeyDown((Key.Escape), ModifierKeys(_, _, _)) :: tail => Model.deselect()
+
 
         //ignore mouse up events
         case KeyUp(key, _) :: tail =>
