@@ -17,8 +17,6 @@ object Move extends Module {
 
   var startPoint : Option[Vector2D] = None
   
-  var shape : Traversable[ImmutableShape] = None
-  
   var transformation : Option[TransformationMatrix] = None
 
   def eventHandler = EventHandler(stateMap, stateMachine)
@@ -56,21 +54,13 @@ object Move extends Module {
         }
 
         transformation = Some(TransformationMatrix(translation, 1))
-        shape = Model.selection.get.apply(transformation.get)
+        Model.selection.get.transform(transformation.get)
       }
     }),
     'End   -> ((events : List[Event]) => {
-      if (transformation.isDefined && Model.selection.isDefined) {
-        Model.selection.get.transform(transformation.get)
+      if (Model.selection.isDefined) {
         Model.deselect()
       }
     })
   )
-
-  override def paint(g : Graphics, t : TransformationMatrix) {
-    if (!shape.isEmpty) {
-      shape.foreach(g draw _.transform(t))
-    }
-  }
-
 }
