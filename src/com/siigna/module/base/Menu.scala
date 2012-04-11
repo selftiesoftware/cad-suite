@@ -53,6 +53,8 @@ object Menu extends Module {
   //a var to pass on the last key down back to Default, to check if it is needed to activate a shortcut
   var lastKey : Option[KeyDown] = None
 
+  var moduleCallFromMenu : Boolean = false
+
   // The position of the mouse at any given time
   private var mousePosition  = Vector2D(0, 0)
 
@@ -119,6 +121,8 @@ object Menu extends Module {
             case Some(category : MenuCategory) => currentCategory = category
             case Some(item : MenuItem)         => {
                 if (item.module != 'None) {
+                //set a flag to destinguish between mouse-induced and menu-induced module calls. (Used in 'Move)
+                 moduleCallFromMenu = true
                   Goto('End)
                   Preload(item.module, item.modulePath)
                   ForwardTo(item.module)

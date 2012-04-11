@@ -19,7 +19,7 @@ import com.siigna.app.controller.pgsql_handler._
 /**
 * The default module for the base module pack. Works as access point to
 * the rest of the modules.
-*/
+ */
 object Default extends Module {
 
   Preload('Selection)
@@ -44,6 +44,8 @@ object Default extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      //on stratup, for some reason this value defaults to true even though it is set to false in 'Menu. This line forces it to be false.
+      com.siigna.module.base.Menu.moduleCallFromMenu = false
       val m = Siigna.mousePosition
     if (Model(m).size > 0) {
       val nearest = Model(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
@@ -51,7 +53,7 @@ object Default extends Module {
     }
       //values to be retrieved only once
       if (firstStart == true) {
-        Siigna.display("Loading Siigna modules ver. 0.3.0")
+        Siigna.display("Loading Siigna modules ver. 0.3.1")
         firstStart = false
       }
       events match {

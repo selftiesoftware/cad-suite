@@ -16,26 +16,23 @@ import com.siigna.module.base.radialmenu._
 case object Start extends MenuCategory {
 
   val color = RadialMenuIcon.fileColor
-
   val parent = None
   
   def name = "Start"
 
+  //main cetegories in the start menu:
   override def C = Some(new File(Some(this)))
   override def E = Some(new Helpers(Some(this)))
   override def N = Some(new Create(Some(this)))
   override def W = Some(new Properties(Some(this)))
   override def S = Some(new Modify(Some(this)))
-
+  //drawing tools in the default menu:
   override def ENE = Some(MenuItem('Polyline, RadialMenuIcon.snap))
   override def NNE = Some(MenuItem('Polyline, RadialMenuIcon.polyline))
-  override def NNW = Some(MenuItem('Line, RadialMenuIcon.line))
-  //override def NNW = Some(MenuItem('Artline, RadialMenuIcon.artline))
+  override def NNW = Some(MenuItem('Artline, RadialMenuIcon.artline))
   override def WNW = Some(MenuItem('Weight, RadialMenuIcon.weight, "properties"))
-  //override def WNW = Some(new MenuItem('Polyline, RadialMenuIcon.sampleProperties))
   override def WSW = Some(MenuItem('ColorWheel, RadialMenuIcon.colorWheel, "properties"))
   override def SSW = Some(MenuItem('Rotate, RadialMenuIcon.rotate, "modify"))
   override def SSE = Some(MenuItem('Move, RadialMenuIcon.move, "modify"))
   override def ESE = Some(MenuItem('Polyline, RadialMenuIcon.guides))
-
 }

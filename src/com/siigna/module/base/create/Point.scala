@@ -278,7 +278,6 @@ object Point extends Module {
       } else if (mousePosition.isDefined) {
         guide(mousePosition.get).foreach(s => g draw s.transform(t))
       }
-
     }
   }
 
