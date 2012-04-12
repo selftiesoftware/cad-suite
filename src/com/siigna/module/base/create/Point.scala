@@ -99,7 +99,10 @@ object Point extends Module {
         }
 
         // Check for PointGuide
-        case Message(g : PointGuide) :: tail => pointGuide = Some(g)
+        case Message(g : PointGuide) :: tail => {
+          pointGuide = Some(g)
+          println("pointGuide: "+pointGuide)
+        }
 
         case Message(a : AngleSnap) :: tail => {
           currentSnap = Some(a)

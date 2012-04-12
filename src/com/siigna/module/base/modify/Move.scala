@@ -81,13 +81,13 @@ object Move extends Module {
       }
     }),
     'StartPoint ->   ((events : List[Event]) => {
+      Siigna display "set base point"
       events match {
         case Message(p : Vector2D) :: tail => {
           startPoint = Some(p)
           Goto('Move)
         }
         case MouseUp(p, _, _) :: MouseDown(_ ,_ ,_) :: tail => {
-          Siigna display "set origin"
           ForwardTo('Point)
           Controller ! Message(PointGuides(shapeGuide))
         }
@@ -120,7 +120,6 @@ object Move extends Module {
       else if (startPoint.isDefined && moduleCallFromMenu == true) {
         //check if the endPoint is set. If not, goto 'Point.
         if (gotEndPoint == false) {
-          Siigna display "type or set point to move to"
           gotEndPoint = true
           ForwardTo('Point)
         }
