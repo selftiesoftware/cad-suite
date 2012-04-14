@@ -21,7 +21,6 @@ object Selection extends Module {
 
   // The starting point of the rectangle
   private var startPoint : Option[Vector2D] = None
-
   /**
    * Examines whether the selection is currently enclosed or not.
    */
@@ -40,13 +39,30 @@ object Selection extends Module {
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {
-        case MouseDown(p, _, _) :: tail => startPoint = Some(p)
         case MouseMove(p, _, _) :: tail => startPoint = Some(p)
         case MouseDrag(p, _, _) :: tail => startPoint = Some(p)
+        //use double click to select an entire shape
+        case MouseDown(p, _, _) :: MouseUp(_, _, _) :: MouseUp(_, _, _) :: MouseDown(_, _, _) :: tail =>
+          if (Default.nearestShape.isDefined) {
+            val shape = Default.nearestShape.get
+
+            //select the entire shape:
+            val f = shape._2.select()
+            var transformation : TransformationMatrix = TransformationMatrix(Vector2D(-200,-200), 1)
+            val dynamicShape = DynamicShape(shape._1, f)
+            Model select dynamicShape
+            //println(f(transformation))
+            println(Model.selection.get.apply(transformation))
+
+          Goto('End)
+          ForwardTo('Move)
+          }
+        case MouseDown(p, _, _) :: tail => startPoint = Some(p)
         case _ =>
       }
       if (Default.nearestShape.isDefined) {
         val shape = Default.nearestShape.get
+        //select either a point or segment on the basis of the current mouse position:
         val f = shape._2.select(Siigna.mousePosition)
         if (f.isDefined) {
           val dynamicShape = DynamicShape(shape._1, f.get)
@@ -55,6 +71,7 @@ object Selection extends Module {
           ForwardTo('Move)
         }
       }
+
     }),
     'Box -> ((events : List[Event]) => {
       if (startPoint.isEmpty) {

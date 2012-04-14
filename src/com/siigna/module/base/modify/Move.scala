@@ -19,6 +19,8 @@ object Move extends Module {
 
   var endPoint : Option[Vector2D] = None
 
+  var ending : Boolean = false
+
   var gotEndPoint : Boolean = false
 
   //a guide to get Point to draw the shape(s) dynamically
@@ -40,7 +42,6 @@ object Move extends Module {
 
   def stateMap     = DirectedGraph(
     'Start -> 'KeyDown -> 'End,
-    'Move  -> 'MouseUp -> 'End,
     'Move  -> 'KeyDown -> 'End
   )
   
@@ -64,11 +65,13 @@ object Move extends Module {
           }
           //set startPoint conditions : 1) shape selected. 2) mouseUp 3) Move selected from the menu / shortcut
           //goto End contitions: 1) shape selected 2) mouseUp 3) move called from selection
-          case MouseUp(p, _,_) :: tail => {
+          case MouseUp(p, _,_) :: MouseDown(_, _, _) :: tail => {
             if(moduleCallFromMenu == true) {
               Goto('StartPoint)
             }
-            else Goto('End)
+            else {
+              Goto('End)
+            }
           }
           case _ =>
         }
@@ -110,11 +113,22 @@ object Move extends Module {
             endPoint = Some(p)
             p - startPoint.get
           }
+          case MouseUp(p, _, _) :: tail => {
+            ending = true
+            endPoint = Some(p)
+            p - startPoint.get
+          }
           case _ => Vector2D(0, 0)
         }
-
-        transformation = Some(TransformationMatrix(translation, 1))
-        Model.selection.get.transform(transformation.get)
+        //TODO: if else hack to bypass unability to add Goto('End) in case MouseUp above (since it need to return a value). Adding MouseUp -> 'End in the stateMap will cause the module to crach when double clicking.
+        if (ending == false) {
+          transformation = Some(TransformationMatrix(translation, 1))
+          Model.selection.get.transform(transformation.get)
+          } else {
+          transformation = Some(TransformationMatrix(translation, 1))
+          Model.selection.get.transform(transformation.get)
+          Goto('End)
+        }
       }
       //if moving is performed with a module call from the menu:
       else if (startPoint.isDefined && moduleCallFromMenu == true) {
@@ -129,8 +143,13 @@ object Move extends Module {
           events match {
             case Message (p : Vector2D) :: tail => {
               //move the object(s):
+              var transformation2 : TransformationMatrix = TransformationMatrix(Vector2D(200,200), 1)
+              //println("selection in move: "+Model.selection.get.apply(transformation2))
               transformation = Some(TransformationMatrix(p - startPoint.get, 1))
+              //Model.selection.get.transform(transformation2)
               Model.selection.get.transform(transformation.get)
+              //println("model transformation: "+Model.selection.get.getTransformation)
+              Model.deselect()
               Goto('End)
             }
             case _ => None
@@ -144,6 +163,7 @@ object Move extends Module {
         Model.deselect()
       }
       //clear the vars
+      ending = false
       gotEndPoint = false
       moduleCallFromMenu = false
       startPoint = None
