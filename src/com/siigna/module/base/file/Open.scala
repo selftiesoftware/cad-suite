@@ -11,7 +11,6 @@
 
 package com.siigna.module.base.file
 
-import com.siigna.app.controller.pgsql_handler._
 import com.siigna.app.model.drawing.activeDrawing._
 
 //TODO: update the way IDs are generated, so that all shapes in a saved model area assigned a global coordinate in the Siigna Universe.
@@ -78,7 +77,7 @@ object Open extends Module {
       //connect to database and get all ShapeType and object IDs in it.
 
       //Try to get drawing name - if unable, the drawing doesn't exist:
-      val name = pgsqlGet.drawingNameFromId(text.toInt)
+      /*val name = pgsqlGet.drawingNameFromId(text.toInt)
       if (name.isDefined) {
         //tell Siigna that the drawing with the given ID and name is now the active drawing
         com.siigna.app.model.drawing.activeDrawing.setActiveDrawingId(text.toInt)
@@ -92,6 +91,7 @@ object Open extends Module {
       } else {
         println ("The drawing doesn't exist.")
       }
+      */
 
       //reset the vars
       text = ""

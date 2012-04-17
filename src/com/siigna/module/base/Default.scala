@@ -14,7 +14,6 @@ import com.siigna._
 import com.siigna.module.base.radialmenu.category._
 import com.siigna.module.base.radialmenu.category.{Create => MenuCreate}
 import com.siigna.app.model.drawing.activeDrawing._
-import com.siigna.app.controller.pgsql_handler._
 
 /**
 * The default module for the base module pack. Works as access point to

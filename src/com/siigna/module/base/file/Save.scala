@@ -13,8 +13,6 @@ package com.siigna.module.base.file
 
 /* 2010 (C) Copyright by Siigna, all rights reserved. */
 
-import com.siigna.app.controller.pgsql_handler._
-
  /*
    a test module for Database connection:
      selects all (Poly)LineShapes in the model and saves them to the database.
@@ -30,7 +28,6 @@ import com.siigna.app.controller.pgsql_handler._
 
 //siigna
 import com.siigna._
-import com.siigna.app.controller.pgsql_handler.pgsqlSave
 
 object Save extends Module {
 
@@ -70,7 +67,7 @@ object Save extends Module {
       //proceed to save the data
       Siigna display "saving to Siigna Universe, please wait"
       //Gemmer her alle shapes i modellen i tegningen med id 5, da mappen, der gemmes er modellen (Model.seq)....
-      pgsqlSave.mapOfShapesIntoDrawing(Model.seq,com.siigna.app.model.drawing.activeDrawing.drawingId.get)
+      //pgsqlSave.mapOfShapesIntoDrawing(Model.seq,com.siigna.app.model.drawing.activeDrawing.drawingId.get)
 
       /*
       if(!Model.isEmpty) {
