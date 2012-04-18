@@ -71,6 +71,7 @@ object Open extends Module {
       None
     }),
 
+
     'End   -> ((events : List[Event]) => {
 
       Siigna display "loading file... please wait"
