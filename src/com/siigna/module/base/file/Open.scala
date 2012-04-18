@@ -46,7 +46,7 @@ object Open extends Module {
 
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-        println (com.siigna.app.controller.AppletParameters.getParameters(Some("contributorName")))
+        println (com.siigna.app.controller.AppletParameters.getParametersInt(Some("contributorName")))
         Siigna display "type ID for the drawing you wish to load"
         Goto('TextInput)
       }),
