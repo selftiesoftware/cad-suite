@@ -24,6 +24,7 @@ object Default extends Module {
   Preload('Selection)
 
   var activeUser : Option[String] = None
+  var activeDrawing : Option[Int] = None
 
   var drawingName : Option[String] = Some("untitled")
 
@@ -46,6 +47,7 @@ object Default extends Module {
   var previousKey :Option[Char] = None
 
   var userName : String = "anonymous"
+  var drawingId : Int = 1
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
@@ -62,6 +64,10 @@ object Default extends Module {
         //get the active user, if a log in was performed at www.siigna.com
         activeUser = com.siigna.app.model.contributor.activeContributor.getContributorNameFromHomepage()
         if (activeUser == None) userName = "anonymous" else userName = activeUser.get
+        //get the active drawing, if one was selected at www.siigna.com
+        activeDrawing = com.siigna.app.model.drawing.activeDrawing.getDrawingIdFromHomepage()
+        if (activeDrawing == None) drawingId = 1 else drawingId = activeDrawing.get
+
         firstStart = false
       }
       events match {
@@ -280,11 +286,11 @@ object Default extends Module {
     // Draw ID and title
     if (drawingName.isDefined) {
       val title = TextShape(drawingName.get, unitX(-50), headerHeight * 0.7)
-      //val id = TextShape("ID: "+drawingId.get.toString, unitX(-18), headerHeight * 0.7)
+      val id = TextShape("ID: "+drawingId.toString, unitX(-18), headerHeight * 0.7)
       val contributor = TextShape("user: "+userName, unitX(-100), headerHeight * 0.7)
 
       g draw(title.transform(transformation))
-      //g draw(id.transform(transformation))
+      g draw(id.transform(transformation))
       g draw(contributor.transform(transformation))
     }
   }
