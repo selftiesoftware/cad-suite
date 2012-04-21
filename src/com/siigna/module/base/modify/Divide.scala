@@ -19,11 +19,13 @@ object Divide extends Module {
 /**
  * A module to split a line into a number (specified by the user) of segments. Each segment has the length lineLength/segments.
  */
-
-  var transformation : Option[TransformationMatrix] = None
+  var endPoint : Option[Vector2D] = None
+  var startPoint : Option[Vector2D] = None
+  //var transformation : Option[TransformationMatrix] = None
 
   def eventHandler = EventHandler(stateMap, stateMachine)
 
+  val transformation = TransformationMatrix()
   var text         = ""
 
   def stateMap     = DirectedGraph(
@@ -33,6 +35,10 @@ object Divide extends Module {
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       //start 'Move only if there is a selection
+
+       startPoint = Some(Vector2D(0,0))
+       endPoint = Some(Vector2D(100,100))
+
       if (!Model.selection.isEmpty) {
         Siigna display "type segments"
         Goto('TextInput)
@@ -64,8 +70,15 @@ object Divide extends Module {
       None
     }),
     'End   -> ((events : List[Event]) => {
-       println("segments: "+text)
+
+
        //make the division here:
     })
   )
+  override def paint(g : Graphics, t : TransformationMatrix) {
+    if(startPoint.isDefined && endPoint.isDefined){
+      println("painting")
+      g draw LineShape(startPoint.get,endPoint.get).transform(t)
+    }
+  }
 }

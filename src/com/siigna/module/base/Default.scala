@@ -23,6 +23,10 @@ object Default extends Module {
 
   Preload('Selection)
 
+  var activeUser : Option[String] = None
+
+  var drawingName : Option[String] = Some("untitled")
+
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap     = DirectedGraph( 'Start -> 'Event -> 'Start )
@@ -41,6 +45,8 @@ object Default extends Module {
   //store the latest Key Event to be able to see whether a category (C,H,E,P, or F) was chosen before
   var previousKey :Option[Char] = None
 
+  var userName : String = "anonymous"
+
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       //on stratup, for some reason this value defaults to true even though it is set to false in 'Menu. This line forces it to be false.
@@ -53,6 +59,9 @@ object Default extends Module {
       //values to be retrieved only once
       if (firstStart == true) {
         Siigna.display("Loading Siigna modules ver. 0.3.1")
+        //get the active user, if a log in was performed at www.siigna.com
+        activeUser = com.siigna.app.model.contributor.activeContributor.getContributorNameFromHomepage()
+        if (activeUser == None) userName = "anonymous" else userName = activeUser.get
         firstStart = false
       }
       events match {
@@ -269,13 +278,13 @@ object Default extends Module {
     g.draw(scale.transform(transformation))
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
     // Draw ID and title
-    if (drawingName.isDefined && contributorName.isDefined) {
+    if (drawingName.isDefined) {
       val title = TextShape(drawingName.get, unitX(-50), headerHeight * 0.7)
-      val id = TextShape("ID: "+drawingId.get.toString, unitX(-18), headerHeight * 0.7)
-      val contributor = TextShape("user: "+contributorName.get, unitX(-100), headerHeight * 0.7)
+      //val id = TextShape("ID: "+drawingId.get.toString, unitX(-18), headerHeight * 0.7)
+      val contributor = TextShape("user: "+userName, unitX(-100), headerHeight * 0.7)
 
       g draw(title.transform(transformation))
-      g draw(id.transform(transformation))
+      //g draw(id.transform(transformation))
       g draw(contributor.transform(transformation))
     }
   }
