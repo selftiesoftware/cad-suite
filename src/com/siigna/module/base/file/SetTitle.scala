@@ -29,12 +29,14 @@ object SetTitle extends Module {
     'Start -> ((events : List[Event]) => {
       Siigna display "type a drawing title"
       Goto('TextInput)
-      None
     }),
     'TextInput -> ((events : List[Event]) => {
       events match {
         case KeyDown(Key.Backspace, _) :: tail => {
-            if (text.length != 0) text = text.substring(0, text.length - 1)
+            if (text.length != 0) {
+              text = text.substring(0, text.length - 1)
+              Siigna display text
+            }
             else Goto('End)
         }
         case KeyDown(Key.Enter, _) :: tail => Goto('End)
@@ -44,6 +46,7 @@ object SetTitle extends Module {
         }
         case KeyDown(key, _) :: tail => {
           text += key.toChar.toString.toLowerCase        }
+          println("typing")
           Siigna display text
 
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
@@ -52,6 +55,7 @@ object SetTitle extends Module {
       None
     }),
     'End -> ((events : List[Event]) => {
+      println("TITLE: "+text)
       //Gem nyt navn på tegningen i databasen (retter automatisk applettens variabel)
       //com.siigna.app.controller.pgsql_handler.pgsqlUpdate.renameDrawing(com.siigna.app.model.drawing.activeDrawing.drawingId.get,text)
       //reset the vars

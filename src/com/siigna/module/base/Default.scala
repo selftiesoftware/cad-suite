@@ -12,6 +12,7 @@
 package com.siigna.module.base
 import com.siigna._
 import com.siigna.module.base.radialmenu.category._
+import module.base.file.{SetTitle}
 import com.siigna.module.base.radialmenu.category.{Create => MenuCreate}
 import com.siigna.app.model.drawing.activeDrawing._
 
@@ -48,7 +49,7 @@ object Default extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      //on stratup, for some reason this value defaults to true even though it is set to false in 'Menu. This line forces it to be false.
+      //on startup, for some reason this value defaults to true even though it is set to false in 'Menu. This line forces it to be false.
       com.siigna.module.base.Menu.moduleCallFromMenu = false
       val m = Siigna.mousePosition
     if (Model(m).size > 0) {
@@ -57,7 +58,9 @@ object Default extends Module {
     }
       //values to be retrieved only once
       if (firstStart == true) {
+        Preload('SetTitle, "com.siigna.module.base.file")
         Siigna.display("Loading Siigna modules ver. 0.3.1")
+        ForwardTo('SetTitle)
         firstStart = false
       }
       events match {
