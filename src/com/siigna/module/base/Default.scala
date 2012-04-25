@@ -61,9 +61,9 @@ object Default extends Module {
         Preload('SetTitle, "com.siigna.module.base.file")
         Siigna.display("Loading Siigna modules ver. 0.3.1")
         firstStart = false
-        //if (Controller.isNewDrawing == true) {
-        //  ForwardTo('SetTitle)
-        //}
+        if (Controller.isNewDrawing == true) {
+          ForwardTo('SetTitle)
+        }
       }
       events match {
         case MouseDown(point, MouseButtonLeft, _) :: tail           => ForwardTo('Selection)
@@ -279,6 +279,8 @@ object Default extends Module {
     g.draw(scale.transform(transformation))
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
     // Draw ID and title
+    if
+
     if (drawingName.isDefined && com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.isDefined) {
       val title = TextShape(drawingName.get, unitX(-50), headerHeight * 0.7)
       val id = TextShape("ID: "+com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.get, unitX(-18), headerHeight * 0.7)
