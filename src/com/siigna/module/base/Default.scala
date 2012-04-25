@@ -276,8 +276,8 @@ object Default extends Module {
     // Draw ID and title
     if (drawingName.isDefined) {
       val title = TextShape(drawingName.get, unitX(-50), headerHeight * 0.7)
-      val id = TextShape("ID: "+com.siigna.app.model.drawing.activeDrawing.drawingId, unitX(-18), headerHeight * 0.7)
-      val contributor = TextShape("user: "+com.siigna.app.model.contributor.activeContributor.contributorName, unitX(-100), headerHeight * 0.7)
+      val id = TextShape("ID: "+com.siigna.app.controller.AppletParameters.drawingId, unitX(-18), headerHeight * 0.7)
+      val contributor = TextShape("user: "+com.siigna.app.controller.AppletParameters.contributorName, unitX(-100), headerHeight * 0.7)
 
       g draw(title.transform(transformation))
       g draw(id.transform(transformation))
