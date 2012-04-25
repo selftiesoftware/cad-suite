@@ -27,9 +27,8 @@ object SetTitle extends Module {
   def stateMachine = Map(
 
     'Start -> ((events : List[Event]) => {
-      //TODO: FIX THIS
-      Siigna display "click once to activate Siigna"
-      Thread.sleep(600)
+      //TODO: A CLICK IS NEEDED BEFORE SIIGNA REGISTERES KEY INPUT. TO BE FIXED.
+      com.siigna.app.view.View.zoom(Vector2D(400,250), -3)
       Siigna display "type a drawing title"
       Goto('TextInput)
     }),

@@ -279,6 +279,10 @@ object Default extends Module {
     g.draw(scale.transform(transformation))
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
     // Draw ID and title
+    if (!SetTitle.text.isEmpty) {
+      val title = TextShape(SetTitle.text, unitX(-50), headerHeight * 0.7)
+      g draw(title.transform(transformation))
+    }
 
     if (drawingName.isDefined && com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.isDefined) {
       val title = TextShape(drawingName.get, unitX(-50), headerHeight * 0.7)
