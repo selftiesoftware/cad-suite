@@ -26,7 +26,6 @@ object Rotate extends Module {
   private var rotation : Double = 0
   //a line to test rotation before selection is implemented and it is possible to use the selection module to select shapes to rotate:
   private var testShape : LineShape = (LineShape(Vector2D(0,0),Vector2D(0,100)).addAttributes("Color" -> "#AAAAAA".color))
-  private var rotatedShape : Option[DynamicShape] = None
   private var startVector : Option[Vector2D] = None
   private var startVectorSet = false
   private var transformation = new TransformationMatrix()
@@ -53,7 +52,8 @@ object Rotate extends Module {
         // If no start- (or center-) point has been defined - create empty matrix
         } else TransformationMatrix()
         // Return the shape, transformed
-          Model.selection.get.apply(t)
+        //Model.selection.get.apply(t)
+        Model.selection.get.shapes.values
       }
 
       //if the center has not been set, then set it:

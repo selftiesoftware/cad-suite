@@ -31,7 +31,9 @@ object Move extends Module {
       // If no startPoint has been defined - create an empty matrix
       } else TransformationMatrix()
       // Return the shape, transformed
-    Model.selection.get.apply(t)
+    // TODO: Rethink this...
+    //Model.selection.get.apply(t)
+    Model.selection.get.shapes.values
   }
 
   var startPoint : Option[Vector2D] = None

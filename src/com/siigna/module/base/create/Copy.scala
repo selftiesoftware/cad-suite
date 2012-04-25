@@ -19,7 +19,7 @@ object Copy extends Module {
 
   var basePoint : Option[Vector2D] = None
   var endPoint : Option[Vector2D] = None
-  var shapes : Iterable[DynamicShape] = Iterable()
+  //var shapes : Iterable[DynamicShape] = Iterable()
 
   def delta : Option[Vector2D] = if (basePoint.isDefined && endPoint.isDefined) Some(endPoint.get - basePoint.get) else None
 
@@ -59,7 +59,7 @@ object Copy extends Module {
 
   override def paint(g : Graphics, t : TransformationMatrix) {
     if (delta.isDefined) {
-      shapes. foreach( g draw _.transform(t.translate(delta.get)))
+      //shapes. foreach( g draw _.transform(t.translate(delta.get)))
     }
   }
 

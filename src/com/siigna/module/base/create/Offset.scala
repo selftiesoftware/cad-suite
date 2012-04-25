@@ -16,7 +16,6 @@ import com.siigna._
 object Offset extends Module {
 
   val eventHandler = EventHandler(stateMap, stateMachine)
-  var templateShape : Option[Iterable[DynamicShape]] = None
 
   def stateMap = DirectedGraph(
     'Start         -> 'KeyEscape ->         'End
