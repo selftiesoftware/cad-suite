@@ -27,6 +27,9 @@ object SetTitle extends Module {
   def stateMachine = Map(
 
     'Start -> ((events : List[Event]) => {
+      //TODO: FIX THIS
+      Siigna display "click once to activate Siigna"
+      Thread.sleep(600)
       Siigna display "type a drawing title"
       Goto('TextInput)
     }),
@@ -46,7 +49,6 @@ object SetTitle extends Module {
         }
         case KeyDown(key, _) :: tail => {
           text += key.toChar.toString.toLowerCase        }
-          println("typing")
           Siigna display text
 
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
@@ -56,8 +58,10 @@ object SetTitle extends Module {
     }),
     'End -> ((events : List[Event]) => {
       println("TITLE: "+text)
-      //Gem nyt navn på tegningen i databasen (retter automatisk applettens variabel)
-      //com.siigna.app.controller.pgsql_handler.pgsqlUpdate.renameDrawing(com.siigna.app.model.drawing.activeDrawing.drawingId.get,text)
+      //save a new name in the databasen (automatically corrects the applet's variable)
+      println(AppletParameters.readDrawingIdAsOption)
+      println(AppletParameters.getClient)
+      //com.siigna.app.controller.remote.SaveDrawingName(AppletParameters.readDrawingIdAsOption.get, text, AppletParameters.getClient)
       //reset the vars
       text = ""
     })
