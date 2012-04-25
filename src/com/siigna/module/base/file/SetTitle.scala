@@ -28,7 +28,7 @@ object SetTitle extends Module {
 
     'Start -> ((events : List[Event]) => {
       //TODO: A CLICK IS NEEDED BEFORE SIIGNA REGISTERES KEY INPUT. TO BE FIXED.
-      com.siigna.app.view.View.zoom(Vector2D(400,250), -3)
+      com.siigna.app.view.View.zoom(Vector2D(450,260), -3)
       Siigna display "type a drawing title"
       Goto('TextInput)
     }),

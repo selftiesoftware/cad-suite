@@ -12,6 +12,7 @@
 package com.siigna.module.base
 import com.siigna._
 import com.siigna.module.base.radialmenu.category._
+import module.base.file.{SetTitle}
 import com.siigna.module.base.radialmenu.category.{Create => MenuCreate}
 import com.siigna.app.model.drawing.activeDrawing._
 
@@ -22,6 +23,11 @@ import com.siigna.app.model.drawing.activeDrawing._
 object Default extends Module {
 
   Preload('Selection)
+
+  var activeUser : Option[String] = None
+  var activeDrawing : Option[Int] = None
+
+  var drawingName : Option[String] = Some("untitled")
 
   def eventHandler = EventHandler(stateMap, stateMachine)
 
@@ -43,8 +49,8 @@ object Default extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      //on stratup, for some reason this value defaults to true even though it is set to false in 'Menu. This line forces it to be false.
-      Menu.moduleCallFromMenu = false
+      //on startup, for some reason this value defaults to true even though it is set to false in 'Menu. This line forces it to be false.
+      com.siigna.module.base.Menu.moduleCallFromMenu = false
       val m = Siigna.mousePosition
     if (Model(m).size > 0) {
       val nearest = Model(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
@@ -52,8 +58,12 @@ object Default extends Module {
     }
       //values to be retrieved only once
       if (firstStart == true) {
-        Siigna.display("Loading Siigna modules ver. 0.3.1")
+        Preload('SetTitle, "com.siigna.module.base.file")
+        Siigna.display("Loading Siigna modules ver. 0.3.3")
         firstStart = false
+        if (Controller.isNewDrawing == true) {
+          ForwardTo('SetTitle)
+        }
       }
       events match {
         case MouseDown(point, MouseButtonLeft, _) :: tail           => ForwardTo('Selection)
@@ -79,8 +89,9 @@ object Default extends Module {
         //special key inputs
         case KeyDown(('z' | 'Z'), ModifierKeys(_, true, _)) :: tail => Model.undo
         case KeyDown(('y' | 'Y'), ModifierKeys(_, true, _)) :: tail => Model.redo
-        case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => Model.selectAll
+        case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => //Model.selectAll
         case KeyDown((Key.Escape), ModifierKeys(_, _, _)) :: tail => Model.deselect()
+
 
         //ignore mouse up events
         case KeyUp(key, _) :: tail =>
@@ -268,20 +279,19 @@ object Default extends Module {
     g.draw(scale.transform(transformation))
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
     // Draw ID and title
-    /*if (!SetTitle.text.isEmpty) {
+    if (!SetTitle.text.isEmpty) {
       val title = TextShape(SetTitle.text, unitX(-50), headerHeight * 0.7)
       g draw(title.transform(transformation))
-    }*/
+    }
 
     if (drawingName.isDefined && com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.isDefined) {
       val title = TextShape(drawingName.get, unitX(-50), headerHeight * 0.7)
-      //val id = TextShape("ID: "+drawingId.get.toString, unitX(-18), headerHeight * 0.7)
-      val contributor = TextShape("user: "+contributorName.get, unitX(-100), headerHeight * 0.7)
+      val id = TextShape("ID: "+com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.get, unitX(-18), headerHeight * 0.7)
+      val contributor = TextShape("user: "+com.siigna.app.controller.AppletParameters.contributorName, unitX(-100), headerHeight * 0.7)
 
       g draw(title.transform(transformation))
-      //g draw(id.transform(transformation))
+      g draw(id.transform(transformation))
       g draw(contributor.transform(transformation))
     }
   }
-
 }
