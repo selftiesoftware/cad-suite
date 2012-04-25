@@ -23,42 +23,49 @@ import com.siigna.util.dxf._
 
 object Import extends Module {
 
+  val frame = new Frame
+  var frameIsLoaded = false
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 
   lazy val stateMap     = DirectedGraph('Start     -> 'KeyEscape -> 'End)
 
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      try {
-        //opens a file dialog
-        val frame = new Frame
-        val dialog = new FileDialog (frame)
-        dialog.setVisible(true)
-        val fileName = dialog.getFile
-        val fileDir = dialog.getDirectory
-        val file = new File(fileDir + fileName)
+      if(frameIsLoaded == false){
+        try {
+          //opens a file dialog
 
-        Siigna display "Loading file... Please wait."
+          val dialog = new FileDialog (frame)
+          dialog.setVisible(true)
+          val fileName = dialog.getFile
+          val fileDir = dialog.getDirectory
+          val file = new File(fileDir + fileName)
 
-        val sections : List[DXFSection] = sanitize(file)
+          Siigna display "Loading file... Please wait."
 
-        val shapes : List[ImmutableShape] = sections.map(_.toShape.getOrElse(None)).filterNot(_ == None).asInstanceOf[List[ImmutableShape]]
+          val sections : List[DXFSection] = sanitize(file)
 
-        Siigna display "Loading completed."
-
-        println("Creating " + shapes)
-        Goto('End)
-        frame.dispose() // Dispose of the frame so the thread can close down.
-        Create(shapes) // Create the shapes
-      } catch {
-        case e => {
-          Siigna display "Import cancelled."
+          val shapes : List[ImmutableShape] = sections.map(_.toShape.getOrElse(None)).filterNot(_ == None).asInstanceOf[List[ImmutableShape]]
+          Siigna display "Loading completed."
+          frameIsLoaded = true
+          println("ending")
           Goto('End)
+          Create(shapes) // Create the shapes
+
+        } catch {
+          case e => {
+            Siigna display "Import cancelled."
+            Goto('End)
+          }
         }
       }
-
     }),
-    'End   -> ((events : List[Event]) => { None })
+    // Dispose of the frame so the thread can close down.
+    'End   -> ((events : List[Event]) => {
+      println("in end")
+      frameIsLoaded = false
+      frame.dispose()
+    })
   )
 
   /**
