@@ -57,7 +57,7 @@ object SetTitle extends Module {
     'End -> ((events : List[Event]) => {
       println("TITLE: "+text)
       //Gem nyt navn på tegningen i databasen (retter automatisk applettens variabel)
-      //com.siigna.app.controller.pgsql_handler.pgsqlUpdate.renameDrawing(com.siigna.app.model.drawing.activeDrawing.drawingId.get,text)
+      com.siigna.app.controller.remote.SaveDrawingName(AppletParameters.readDrawingIdAsOption.get, text, AppletParameters.getClient)
       //reset the vars
       text = ""
     })
