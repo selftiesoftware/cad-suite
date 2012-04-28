@@ -61,9 +61,9 @@ object Default extends Module {
         Preload('SetTitle, "com.siigna.module.base.file")
         Siigna.display("Loading Siigna modules ver. 0.3.3")
         firstStart = false
-        if (Controller.isNewDrawing == true) {
-          ForwardTo('SetTitle)
-        }
+        //if (Controller.isNewDrawing == true) {
+        //  ForwardTo('SetTitle)
+        //}
       }
       events match {
         case MouseDown(point, MouseButtonLeft, _) :: tail           => ForwardTo('Selection)
