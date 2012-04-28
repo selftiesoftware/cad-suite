@@ -86,7 +86,7 @@ object Open extends Module {
         com.siigna.app.model.drawing.activeDrawing.setActiveDrawingId(text.toInt)
         com.siigna.app.model.drawing.activeDrawing.setActiveDrawingName(name.get)
         //then load the contents of this drawing
-        val shapes: Map[Int,ImmutableShape] = pgsqlGet.allShapesInDrawingFromDrawingIdWithDatabaseId(text.toInt)
+        val shapes: Map[Int,Shape] = pgsqlGet.allShapesInDrawingFromDrawingIdWithDatabaseId(text.toInt)
         //If there are shapes in the drawing (it could be a clean sheet):
         if (shapes.size > 0 ) {Create(shapes)} else {println("Drawing is empty.")}
         //Set this drawing to "last active drawing for user" så den åbnes ved næste besøg...

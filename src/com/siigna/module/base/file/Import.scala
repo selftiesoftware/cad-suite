@@ -45,7 +45,7 @@ object Import extends Module {
 
           val sections : List[DXFSection] = sanitize(file)
 
-          val shapes : List[ImmutableShape] = sections.map(_.toShape.getOrElse(None)).filterNot(_ == None).asInstanceOf[List[ImmutableShape]]
+          val shapes : List[Shape] = sections.map(_.toShape.getOrElse(None)).filterNot(_ == None).asInstanceOf[List[Shape]]
           Siigna display "Loading completed."
           frameIsLoaded = true
           println("ending")

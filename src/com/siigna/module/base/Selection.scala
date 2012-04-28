@@ -47,7 +47,7 @@ object Selection extends Module {
       }
       if (Default.nearestShape.isDefined) {
         val shape = Default.nearestShape.get
-        val part = shape._2.select(Siigna.mousePosition)
+        val part = shape._2.getPart(Siigna.mousePosition)
         Model.select(shape._1, part)
         Goto('End)
         ForwardTo('Move)
@@ -67,6 +67,7 @@ object Selection extends Module {
     }),
     'End -> ((events : List[Event]) => {
       if (box.isDefined) {
+        Select(box.get)
         box = None
       }
     })

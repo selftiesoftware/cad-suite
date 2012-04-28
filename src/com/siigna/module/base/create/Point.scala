@@ -259,7 +259,7 @@ object Point extends Module {
 
     // Draw a point guide if a previous point (or guide) is found.
     if (pointGuide.isDefined || previousPoint.isDefined) {
-      val guide : Vector2D => Traversable[ImmutableShape] = {
+      val guide : Vector2D => Traversable[Shape] = {
         //if there is no previous point, use
         if (pointGuide.isDefined) {
           pointGuide.get
@@ -286,14 +286,14 @@ object Point extends Module {
 
 }
 
-trait Guide extends (Vector2D => Traversable[ImmutableShape])
+trait Guide extends (Vector2D => Traversable[Shape])
 
 /**
  * A class used to draw guides in the point module.
  */
-case class PointGuide(guide : Vector2D => ImmutableShape) extends Guide{
+case class PointGuide(guide : Vector2D => Shape) extends Guide{
   def apply(v : Vector2D) = Traversable(guide(v))
 }
-case class PointGuides(guide : Vector2D => Traversable[ImmutableShape]) extends Guide{
+case class PointGuides(guide : Vector2D => Traversable[Shape]) extends Guide{
   def apply(v : Vector2D) = guide(v)
 }
