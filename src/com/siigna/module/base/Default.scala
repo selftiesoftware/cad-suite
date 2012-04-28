@@ -26,8 +26,6 @@ object Default extends Module {
   var activeUser : Option[String] = None
   var activeDrawing : Option[Int] = None
 
-  var drawingName : Option[String] = Some("untitled")
-
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap     = DirectedGraph( 'Start -> 'Event -> 'Start )
@@ -283,13 +281,16 @@ object Default extends Module {
       g draw(title.transform(transformation))
     }
 
-    if (drawingName.isDefined && com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.isDefined) {
-      val title = TextShape(drawingName.get, unitX(-50), headerHeight * 0.7)
-      val id = TextShape("ID: "+com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.get, unitX(-18), headerHeight * 0.7)
-      val contributor = TextShape("user: "+com.siigna.app.controller.AppletParameters.contributorName, unitX(-100), headerHeight * 0.7)
-
+    if (AppletParameters.readDrawingNameAsOption.isDefined) {
+      val title = TextShape(AppletParameters.readDrawingNameAsOption.get, unitX(-50), headerHeight * 0.7)
       g draw(title.transform(transformation))
+    }
+    if (AppletParameters.readDrawingIdAsOption.isDefined) {
+      val id = TextShape("ID: "+com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.get, unitX(-18), headerHeight * 0.7)
       g draw(id.transform(transformation))
+    }
+    if (AppletParameters.contributorName.isDefined) {
+      val contributor = TextShape("user: "+com.siigna.app.controller.AppletParameters.contributorName, unitX(-100), headerHeight * 0.7)
       g draw(contributor.transform(transformation))
     }
   }
