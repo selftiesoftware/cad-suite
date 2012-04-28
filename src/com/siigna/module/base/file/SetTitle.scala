@@ -56,11 +56,9 @@ object SetTitle extends Module {
       None
     }),
     'End -> ((events : List[Event]) => {
-      println("TITLE: "+text)
+      Siigna display (com.siigna.app.controller.AppletParameters.saveNewDrawingName(text).get)
       //save a new name in the databasen (automatically corrects the applet's variable)
-      println(AppletParameters.readDrawingIdAsOption)
-      println(AppletParameters.getClient)
-      //com.siigna.app.controller.remote.SaveDrawingName(AppletParameters.readDrawingIdAsOption.get, text, AppletParameters.getClient)
+
       //reset the vars
       text = ""
     })
