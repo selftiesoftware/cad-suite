@@ -24,7 +24,7 @@ object Move extends Module {
   var gotEndPoint : Boolean = false
 
   //a guide to get Point to draw the shape(s) dynamically
-  val shapeGuide : Vector2D => Traversable[ImmutableShape] = (v : Vector2D) => {
+  val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
     // Create a matrix
       val t : TransformationMatrix = if (startPoint.isDefined) {
         TransformationMatrix(v - startPoint.get, 1)

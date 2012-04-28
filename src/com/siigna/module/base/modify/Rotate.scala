@@ -40,7 +40,7 @@ object Rotate extends Module {
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       //a guide to get Point to dynamically draw the shape(s) and their rotation
-      val shapeGuide : Vector2D => Traversable[ImmutableShape] = (v : Vector2D) => {
+      val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
         // Create a matrix
         val t : TransformationMatrix = if (startVector.isDefined && centerPoint.isDefined) {
           // To find the angle between two vectors (lines)

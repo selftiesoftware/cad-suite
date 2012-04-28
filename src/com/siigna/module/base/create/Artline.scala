@@ -66,7 +66,7 @@ object Artline extends Module{
             case MouseUp(p, _, _) :: tail => {
               points = points :+p
               shape = PolylineShape.fromPoints(points)
-              Create(shape.asInstanceOf[ImmutableShape])
+              Create(shape.asInstanceOf[Shape])
               //clear the list
               shape = PolylineShape.empty
               points = List[Vector2D]()

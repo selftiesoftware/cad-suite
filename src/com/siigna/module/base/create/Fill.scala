@@ -64,7 +64,7 @@ object Fill extends Module {
     'End -> ((events : List[Event]) => {
 
       //add a line segment from the last to the first point in the list to close the fill area
-      if (shape.shapes.size > 0) Create(shape.asInstanceOf[ImmutableShape])
+      if (shape.shapes.size > 0) Create(shape.asInstanceOf[Shape])
 
       //Clear the variables
       firstPoint = None

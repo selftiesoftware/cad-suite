@@ -14,7 +14,6 @@ import com.siigna._
 import com.siigna.module.base.radialmenu.category._
 import module.base.file.{SetTitle}
 import com.siigna.module.base.radialmenu.category.{Create => MenuCreate}
-import com.siigna.app.model.drawing.activeDrawing._
 
 /**
 * The default module for the base module pack. Works as access point to
@@ -39,7 +38,7 @@ object Default extends Module {
   var firstMenuLoad : Boolean = true
 
    //The nearest shape to the current mouse position.
-  var nearestShape : Option[(Int, ImmutableShape)] = None
+  var nearestShape : Option[(Int, Shape)] = None
 
   //The last module this module forwarded to, if any.
   var previousModule : Option[Symbol] = None
@@ -52,10 +51,10 @@ object Default extends Module {
       //on startup, for some reason this value defaults to true even though it is set to false in 'Menu. This line forces it to be false.
       com.siigna.module.base.Menu.moduleCallFromMenu = false
       val m = Siigna.mousePosition
-    if (Model(m).size > 0) {
-      val nearest = Model(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-      nearestShape = if (nearest._2.distanceTo(m) < 5) Some(nearest) else None
-    }
+      if (Model(m).size > 0) {
+        val nearest = Model(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+        nearestShape = if (nearest._2.distanceTo(m) < 5) Some(nearest) else None
+      }
       //values to be retrieved only once
       if (firstStart == true) {
         Preload('SetTitle, "com.siigna.module.base.file")
@@ -89,7 +88,7 @@ object Default extends Module {
         //special key inputs
         case KeyDown(('z' | 'Z'), ModifierKeys(_, true, _)) :: tail => Model.undo
         case KeyDown(('y' | 'Y'), ModifierKeys(_, true, _)) :: tail => Model.redo
-        case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => //Model.selectAll
+        case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => Model.selectAll
         case KeyDown((Key.Escape), ModifierKeys(_, _, _)) :: tail => Model.deselect()
 
 
@@ -235,7 +234,7 @@ object Default extends Module {
             case _ =>
           }
         }
-        case m => Log.debug("Default module received unknown input: " + m)
+        case _ => Log.debug("Default module received unknown input: " + events)
       }
     }))
 

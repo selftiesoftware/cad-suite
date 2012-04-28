@@ -38,12 +38,12 @@ object Lineardim extends Module {
 
   def diaRotation2 = diaRotation(225)
 
-  def dimText : Option[ImmutableShape] = if (hasBothPoints)
+  def dimText : Option[Shape] = if (hasBothPoints)
       Some(TextShape((points(1)-(points(0))).length.toInt.toString , ((points(0) + normalUnitVector2D(points(0),points(1)) * scale*4.5) + (points(1)-points(0))/2) , scale, Attributes("AdjustToScale" -> true)))
     else
       None
 
-  def dynamicDimText : Option[ImmutableShape] = if (!hasBothPoints)
+  def dynamicDimText : Option[Shape] = if (!hasBothPoints)
       Some(TextShape((currentMouse.get-(points(0))).length.toInt.toString , ((points(0) + normalUnitVector2D(points(0),currentMouse.get) * scale*4.5) + (currentMouse.get-points(0))/2) , scale, Attributes("AdjustToScale" -> true)))
     else
       None
@@ -76,12 +76,12 @@ object Lineardim extends Module {
   //  else
   //    None
 
-  def simpleA : Option[ImmutableShape] = if (currentMouse.isDefined && points.length > 0)
+  def simpleA : Option[Shape] = if (currentMouse.isDefined && points.length > 0)
       Some(LineShape(currentMouse.get,(points(0))).addAttributes(color))
     else
       None
 
-  def shapeA : Option[ImmutableShape] = if (hasBothPoints)
+  def shapeA : Option[Shape] = if (hasBothPoints)
       Some(LineShape((points(1) + normalUnitVector2D(points(0),points(1)) * scale) , (points(0) + normalUnitVector2D(points(0),points(1)) * scale)).addAttributes(color))
     else
       None

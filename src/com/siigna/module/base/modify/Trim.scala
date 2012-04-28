@@ -24,8 +24,8 @@ object Trim extends Module {
   var selection = List[Vector2D]()
   var shapes : List[Shape] = List()
 
-  var trimGuide : Option[ImmutableShape] = None
-  var trimShapes : Iterable[ImmutableShape] = List()
+  var trimGuide : Option[Shape] = None
+  var trimShapes : Iterable[Shape] = List()
 
   var selectionBoxStart : Option[Vector2D] = None
   var selectionBoxEnd : Option[Vector2D] = None
@@ -71,8 +71,8 @@ object Trim extends Module {
      events match {
        case MouseDown (p,_,_) :: tail => {
          val closestShape = Model(p)
-         if (closestShape.isDefined && closestShape.get.distanceTo(p) < 5 && closestShape.get.isInstanceOf[ImmutableShape]) {
-           Model.select(Model.findId(_ == closestShape.get.asInstanceOf[ImmutableShape]))
+         if (closestShape.isDefined && closestShape.get.distanceTo(p) < 5 && closestShape.get.isInstanceOf[Shape]) {
+           Model.select(Model.findId(_ == closestShape.get.asInstanceOf[Shape]))
            if (Model.selected.size == 1) {
              trimGuide = Some(Model.selected.head.shape)
              Goto('StartSelection)
@@ -91,8 +91,8 @@ object Trim extends Module {
         case MouseUp(p2, _, _) :: _ :: MouseDown(p1, _, _) :: tail => {
           if ((p2 - p1).length <= 2) {
             val closestShape = Model(p2)
-            if (closestShape.isDefined && closestShape.get.distanceTo(p2) <= 10 && closestShape.isInstanceOf[ImmutableShape]) {
-              trimShapes ++:= Iterable(closestShape.get.asInstanceOf[ImmutableShape])
+            if (closestShape.isDefined && closestShape.get.distanceTo(p2) <= 10 && closestShape.isInstanceOf[Shape]) {
+              trimShapes ++:= Iterable(closestShape.get.asInstanceOf[Shape])
             }
           }
         }
