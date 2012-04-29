@@ -14,6 +14,7 @@ import com.siigna._
 import com.siigna.module.base.radialmenu.category._
 import module.base.file.{SetTitle}
 import com.siigna.module.base.radialmenu.category.{Create => MenuCreate}
+import com.siigna.app.controller.AppletParameters
 
 /**
 * The default module for the base module pack. Works as access point to
@@ -58,7 +59,7 @@ object Default extends Module {
         Preload('SetTitle, "com.siigna.module.base.file")
         Siigna.display("Loading Siigna modules ver. 0.3.3")
         firstStart = false
-        if (!AppletParameters.readDrawingNameAsOption.isDefined) {
+        if (AppletParameters.drawingIdReceivedAtStartup == false) {
           ForwardTo('SetTitle)
         }
       }
@@ -281,7 +282,7 @@ object Default extends Module {
       g draw(title.transform(transformation))
     }
 
-    if (AppletParameters.readDrawingNameAsOption.isDefined) {
+    if (AppletParameters.readDrawingNameAsOption.isDefined && (AppletParameters.readDrawingNameAsOption.get.length() > 0)) {
       val title = TextShape(AppletParameters.readDrawingNameAsOption.get, unitX(-50), headerHeight * 0.7)
       g draw(title.transform(transformation))
     }
