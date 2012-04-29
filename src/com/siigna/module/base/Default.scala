@@ -290,7 +290,7 @@ object Default extends Module {
       val id = TextShape("ID: "+com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.get, unitX(-18), headerHeight * 0.7)
       g draw(id.transform(transformation))
     }
-    if (AppletParameters.contributorName.isDefined) {
+    if (AppletParameters.contributorName.isDefined && (AppletParameters.contributorName.get.length() > 0)) {
       val contributor = TextShape("user: "+com.siigna.app.controller.AppletParameters.contributorName, unitX(-100), headerHeight * 0.7)
       g draw(contributor.transform(transformation))
     }
