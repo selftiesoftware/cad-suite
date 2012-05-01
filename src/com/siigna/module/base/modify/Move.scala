@@ -26,14 +26,12 @@ object Move extends Module {
   //a guide to get Point to draw the shape(s) dynamically
   val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
     // Create a matrix
-      val t : TransformationMatrix = if (startPoint.isDefined) {
-        TransformationMatrix(v - startPoint.get, 1)
-      // If no startPoint has been defined - create an empty matrix
-      } else TransformationMatrix()
-      // Return the shape, transformed
-    // TODO: Rethink this...
-    //Model.selection.get.apply(t)
-    Model.selection.get.shapes.values
+    val t : TransformationMatrix = if (startPoint.isDefined) {
+      TransformationMatrix(v - startPoint.get, 1)
+    // If no startPoint has been defined - create an empty matrix
+    } else TransformationMatrix()
+    // Return the shape, transformed
+    Model.selection.get.apply(t)
   }
 
   var startPoint : Option[Vector2D] = None
@@ -94,26 +92,18 @@ object Move extends Module {
       }
     }),
     'Move -> ((events : List[Event]) => {
+      def repeatingCode(p : Vector2D) = {
+        endPoint = Some(p)
+        (p - startPoint.get)
+
+      }
       //if moving is performed with the mouse:
       if (startPoint.isDefined && moduleCallFromMenu == false) {
         val translation = events match {
-          case MouseDown(p, _, _) :: tail => {
-            endPoint = Some(p)
-            (p - startPoint.get)/2
-          }
-          case MouseDrag(p, _, _) :: tail => {
-            endPoint = Some(p)
-            (p - startPoint.get)/2
-          }
-          case MouseMove(p, _, _) :: tail => {
-            endPoint = Some(p)
-            (p - startPoint.get)/2
-          }
-          case MouseUp(p, _, _) :: tail => {
-            ending = true
-            endPoint = Some(p)
-            (p - startPoint.get)/2
-          }
+          case MouseDown(p, _, _) :: tail => repeatingCode(p)
+          case MouseDrag(p, _, _) :: tail => repeatingCode(p)
+          case MouseMove(p, _, _) :: tail => repeatingCode(p)
+          case MouseUp(p, _, _) :: tail => repeatingCode(p)
           case _ => Vector2D(0, 0)
         }
         //TODO: if else hack to bypass unability to add Goto('End) in case MouseUp above (since it needs to return a value). Adding MouseUp -> 'End in the stateMap will cause the module to crach when double clicking.
@@ -139,7 +129,7 @@ object Move extends Module {
           events match {
             case Message (p : Vector2D) :: tail => {
               //move the object(s):
-              transformation = Some(TransformationMatrix((p - startPoint.get)/2, 1))
+              transformation = Some(TransformationMatrix((p - startPoint.get), 1))
               //Model.selection.get.transform(transformation2)
               Model.selection.get.transform(transformation.get)
               Model.deselect()
