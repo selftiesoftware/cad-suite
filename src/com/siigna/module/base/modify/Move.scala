@@ -145,16 +145,11 @@ object Move extends Module {
     }),
     'End   -> ((events : List[Event]) => {
       //deselect, but only if an objects has been moved.
-      println("IN END")
-      println(Model.selection.isDefined)
-      println(startPoint.isDefined)
-      println(endPoint.isDefined)
-      println(startPoint.get - endPoint.get)
-
       if (Model.selection.isDefined && startPoint.isDefined && endPoint.isDefined && (startPoint.get - endPoint.get != Vector2D(0, 0))) {
         Model.deselect()
       }
       //clear the vars
+      com.siigna.module.base.Default.previousModule = Some('Move)
       ending = false
       gotEndPoint = false
       moduleCallFromMenu = false

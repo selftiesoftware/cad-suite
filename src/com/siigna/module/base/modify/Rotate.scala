@@ -24,8 +24,6 @@ object Rotate extends Module {
   private var centerPoint : Option[Vector2D] = None
   private var endVector : Option[Vector2D] = None
   private var rotation : Double = 0
-  //a line to test rotation before selection is implemented and it is possible to use the selection module to select shapes to rotate:
-  private var testShape : LineShape = (LineShape(Vector2D(0,0),Vector2D(0,100)).addAttributes("Color" -> "#AAAAAA".color))
   private var startVector : Option[Vector2D] = None
   private var startVectorSet = false
   private var transformation = new TransformationMatrix()
@@ -56,7 +54,7 @@ object Rotate extends Module {
         Model.selection.get.shapes.values
       }
 
-      //if the center has not been set, then set it:
+      //if the center for the rotation has not been set, then set it:
       if(!centerPoint.isDefined){
         Siigna.display("Select a base point for the rotation")
         events match{
@@ -96,7 +94,8 @@ object Rotate extends Module {
         events match{
           case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
             endVector = Some(p)
-            rotation = (endVector.get - startVector.get).angle
+            rotation = ((startVector.get - centerPoint.get) - (endVector.get - centerPoint.get)).angle
+            println("ANGLE: " +rotation)
             Goto('End)
           }
           case _ => {
@@ -110,12 +109,14 @@ object Rotate extends Module {
         case Message(p : Vector2D) :: tail => {
           val t = transformation.rotate(rotation,centerPoint.get)
           Model.selection.get.transform(t)
+          Model.deselect()
         }
         case _ => {
           Goto('End, false)
         }
       }
       //clear vars
+      com.siigna.module.base.Default.previousModule = Some('Rotate)
       centerPoint = None
       endVector = None
       firstMouseDown = false
@@ -126,10 +127,16 @@ object Rotate extends Module {
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
+    println(startVector.isDefined)
     if(startVector.isDefined){
     }
     else if(centerPoint.isDefined && !startVector.isDefined){
       g draw (CircleShape(centerPoint.get,(centerPoint.get + Vector2D(0,3)))).transform(t)
+    }
+    else if(startVector.isDefined) {
+      var marker : CircleShape = CircleShape(startVector.get, Vector2D(10,0))
+
+      //g draw marker.transform(t)
     }
   }
 }

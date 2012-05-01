@@ -47,7 +47,7 @@ object Default extends Module {
   //store the latest Key Event to be able to see whether a category (C,H,E,P, or F) was chosen before
   var previousKey :Option[Char] = None
 
-  var titleFocus : Vector2D = Vector2D(0,0)
+  var titleFocus : Option[Vector2D] = None
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
@@ -61,19 +61,23 @@ object Default extends Module {
       //values to be retrieved only once
       if (firstStart == true) {
         Preload('SetTitle, "com.siigna.module.base.file")
-        Siigna.display("Loading Siigna modules ver. 0.3.3")
+        Siigna.display("Loading Siigna modules ver. 0.4")
         firstStart = false
-        if (AppletParameters.drawingIdReceivedAtStartup == false) {
+        //be sure to zoom to the title only after the boundary has been set, so that the correct zoom center can be retrieved.
+        if (AppletParameters.drawingIdReceivedAtStartup == false && titleFocus.isDefined) {
           ForwardTo('SetTitle)
+        }
+        else if (AppletParameters.drawingIdReceivedAtStartup == false && !titleFocus.isDefined) {
+          Goto('Start)
         }
       }
       events match {
         case MouseDown(point, MouseButtonLeft, _) :: tail           => ForwardTo('Selection)
         case MouseDown(point, MouseButtonRight, _) :: tail          => {
           if (firstMenuLoad == true) {
-            ForwardTo('Menu)
 
             //preload commonly used modules
+            //TODO: (Preload issue?): Shortcuts does not work until after a tool has been activated through the menu.
             Preload('AngleGizmo, "com.siigna.module.base.create")
             Preload('Artline, "com.siigna.module.base.create")
             Preload('Fill, "com.siigna.module.base.create")
@@ -83,6 +87,7 @@ object Default extends Module {
             Preload('Polyline, "com.siigna.module.base.create")
             Preload('Rectangle, "com.siigna.module.base.create")
             Preload('Text, "com.siigna.module.base.create")
+            ForwardTo('Menu)
             firstMenuLoad = false
           }
           else ForwardTo('Menu)
@@ -191,8 +196,8 @@ object Default extends Module {
             }
             case 'l' => {
               if (previousKey == Some('c')) {
-                Siigna.display("polyline")
-                ForwardTo('Polyline)
+                Siigna.display("line")
+                ForwardTo('Line)
                 previousKey = Some('l')
               }
               else previousKey = Some('l')
@@ -218,6 +223,11 @@ object Default extends Module {
                 Siigna.display("print")
                 previousKey = Some('p')
                 ForwardTo('Print)
+              }
+              else if(previousKey == Some('c')) {
+                Siigna.display("polyline")
+                previousKey = Some('p')
+                ForwardTo('Polyline)
               }
               //open the PROPERTIES menu
               else {
@@ -254,7 +264,7 @@ object Default extends Module {
     // Draw boundary
     drawBoundary(g, t)
     // set title focus
-    titleFocus = Model.boundary.bottomRight.transform(t)
+    titleFocus = Some(Model.boundary.bottomRight.transform(t))
     centerFocus = Model.boundary.center.transform(t)
 
   }

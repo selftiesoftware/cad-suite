@@ -73,6 +73,7 @@ object Line extends Module{
       Create(shape)
 
       //reset the module vars
+      com.siigna.module.base.Default.previousModule = Some('Line)
       points = List[Vector2D]()
       shape = None
 

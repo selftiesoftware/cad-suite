@@ -71,6 +71,7 @@ object Circle extends Module {
           Create(CircleShape(center.get,radius.get))
 
           //clear the points list
+          com.siigna.module.base.Default.previousModule = Some('Circle)
           center = None
           radius = None
       })

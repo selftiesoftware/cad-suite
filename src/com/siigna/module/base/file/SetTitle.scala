@@ -30,7 +30,7 @@ object SetTitle extends Module {
 
     'Start -> ((events : List[Event]) => {
       //TODO: A CLICK IS NEEDED BEFORE SIIGNA REGISTERES KEY INPUT. TO BE FIXED.
-      com.siigna.app.view.View.zoom(com.siigna.module.base.Default.titleFocus, -3)
+      com.siigna.app.view.View.zoom(com.siigna.module.base.Default.titleFocus.get, -2)
       Siigna display "type a drawing title"
       Goto('TextInput)
     }),
