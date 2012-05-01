@@ -297,3 +297,7 @@ case class PointGuide(guide : Vector2D => Shape) extends Guide{
 case class PointGuides(guide : Vector2D => Traversable[Shape]) extends Guide{
   def apply(v : Vector2D) = guide(v)
 }
+
+object PointGuide {
+  def apply(part : PartialShape) = new PointGuide(p => part(TransformationMatrix(p, 1)))
+}
