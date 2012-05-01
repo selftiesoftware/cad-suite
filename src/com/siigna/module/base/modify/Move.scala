@@ -99,20 +99,20 @@ object Move extends Module {
         val translation = events match {
           case MouseDown(p, _, _) :: tail => {
             endPoint = Some(p)
-            p - startPoint.get
+            (p - startPoint.get)/2
           }
           case MouseDrag(p, _, _) :: tail => {
             endPoint = Some(p)
-            p - startPoint.get
+            (p - startPoint.get)/2
           }
           case MouseMove(p, _, _) :: tail => {
             endPoint = Some(p)
-            p - startPoint.get
+            (p - startPoint.get)/2
           }
           case MouseUp(p, _, _) :: tail => {
             ending = true
             endPoint = Some(p)
-            p - startPoint.get
+            (p - startPoint.get)/2
           }
           case _ => Vector2D(0, 0)
         }
@@ -139,13 +139,9 @@ object Move extends Module {
           events match {
             case Message (p : Vector2D) :: tail => {
               //move the object(s):
-              println("startpoint: "+startPoint)
-              println("P:" +p)
-
               transformation = Some(TransformationMatrix((p - startPoint.get)/2, 1))
               //Model.selection.get.transform(transformation2)
               Model.selection.get.transform(transformation.get)
-              //println("model transformation: "+Model.selection.get.getTransformation)
               Model.deselect()
               Goto('End)
             }
