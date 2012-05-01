@@ -96,32 +96,34 @@ object Move extends Module {
     'Move -> ((events : List[Event]) => {
       //if moving is performed with the mouse:
       if (startPoint.isDefined && moduleCallFromMenu == false) {
-        val translation = events match {
+        events match {
           case MouseDown(p, _, _) :: tail => {
             endPoint = Some(p)
-            (p - startPoint.get)/2
+            //(p - startPoint.get)/2
           }
           case MouseDrag(p, _, _) :: tail => {
             endPoint = Some(p)
-            (p - startPoint.get)/2
+            //(p - startPoint.get)/2
           }
           case MouseMove(p, _, _) :: tail => {
             endPoint = Some(p)
-            (p - startPoint.get)/2
+            //(p - startPoint.get)/2
           }
           case MouseUp(p, _, _) :: tail => {
             ending = true
             endPoint = Some(p)
-            (p - startPoint.get)/2
+            //(p - startPoint.get)/2
           }
           case _ => Vector2D(0, 0)
         }
         //TODO: if else hack to bypass unability to add Goto('End) in case MouseUp above (since it needs to return a value). Adding MouseUp -> 'End in the stateMap will cause the module to crach when double clicking.
         if (ending == false) {
-          transformation = Some(TransformationMatrix(translation, 1))
+          var move : Vector2D = (endPoint.get - startPoint.get)/2
+          transformation = Some(TransformationMatrix(move, 1))
           Model.selection.get.transform(transformation.get)
           } else {
-          transformation = Some(TransformationMatrix(translation, 1))
+          var move : Vector2D = (endPoint.get - startPoint.get)/2
+          transformation = Some(TransformationMatrix(move, 1))
           Model.selection.get.transform(transformation.get)
           Goto('End)
         }
@@ -139,8 +141,7 @@ object Move extends Module {
           events match {
             case Message (p : Vector2D) :: tail => {
               //move the object(s):
-              transformation = Some(TransformationMatrix((p - startPoint.get)/2, 1))
-              //Model.selection.get.transform(transformation2)
+              transformation = Some(TransformationMatrix(((p - startPoint.get)/2), 1))
               Model.selection.get.transform(transformation.get)
               Model.deselect()
               Goto('End)
