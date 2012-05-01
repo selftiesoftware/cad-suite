@@ -16,6 +16,8 @@ import com.siigna.app.model.drawing.activeDrawing._
 
 object SetTitle extends Module {
 
+  var boundary = Model.boundary
+
   val eventHandler = EventHandler(stateMap, stateMachine)
 
   var text         = ""
@@ -28,7 +30,7 @@ object SetTitle extends Module {
 
     'Start -> ((events : List[Event]) => {
       //TODO: A CLICK IS NEEDED BEFORE SIIGNA REGISTERES KEY INPUT. TO BE FIXED.
-      com.siigna.app.view.View.zoom(Vector2D(450,260), -3)
+      com.siigna.app.view.View.zoom(com.siigna.module.base.Default.titleFocus, -3)
       Siigna display "type a drawing title"
       Goto('TextInput)
     }),
@@ -56,11 +58,11 @@ object SetTitle extends Module {
       None
     }),
     'End -> ((events : List[Event]) => {
-      println("TITLE: "+text)
       //save a new name in the databasen (automatically corrects the applet's variable)
-      println(AppletParameters.readDrawingIdAsOption)
-      println(AppletParameters.getClient)
-      //com.siigna.app.controller.remote.SaveDrawingName(AppletParameters.readDrawingIdAsOption.get, text, AppletParameters.getClient)
+      Siigna display (com.siigna.app.controller.AppletParameters.saveNewDrawingName(text).get)
+      //save drawingOwnerName
+      com.siigna.app.controller.remote.saveDrawingOwnerName(AppletParameters.getDrawingId.get,AppletParameters.contributorName.get,AppletParameters.clientReference.get)
+
       //reset the vars
       text = ""
     })

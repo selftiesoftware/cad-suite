@@ -51,34 +51,28 @@ object Move extends Module {
     'Start -> ((events : List[Event]) => {
       //start 'Move only if there is a selection
       if (!Model.selection.isEmpty) {
+        if(moduleCallFromMenu == true) Goto('StartPoint, false)
+        else {
+          events match {
+            case Message(p : Option[Vector2D]) :: tail => startPoint = p
+            case MouseDown(p, _, _) :: tail => startPoint = Some(p)
+            case MouseMove(p, _, _) :: tail => startPoint = Some(p)
+            case MouseDrag(p, _, _) :: tail => {
 
-        events match {
-          case Message(p : Option[Vector2D]) :: tail => startPoint = p
-          case MouseDown(p, _, _) :: tail => startPoint = Some(p)
-          case MouseMove(p, _, _) :: tail => startPoint = Some(p)
-          case MouseDrag(p, _, _) :: tail => {
-
-            startPoint = Some(p)
-              if (Model.selection.isDefined && startPoint.isDefined) {
-                Goto('Move)
-              } else {
-                Goto('End)
+              startPoint = Some(p)
+                if (Model.selection.isDefined && startPoint.isDefined) {
+                  Goto('Move)
+                } else {
+                  Goto('End)
+              }
             }
+            //set startPoint conditions : 1) shape selected. 2) mouseUp 3) Move selected from the menu / shortcut
+            //goto End contitions: 1) shape selected 2) mouseUp 3) move called from selection
+            case MouseUp(p, _,_) :: MouseDown(_, _, _) :: tail => Goto('End)
+            case _ =>
           }
-          //set startPoint conditions : 1) shape selected. 2) mouseUp 3) Move selected from the menu / shortcut
-          //goto End contitions: 1) shape selected 2) mouseUp 3) move called from selection
-          case MouseUp(p, _,_) :: MouseDown(_, _, _) :: tail => {
-            if(moduleCallFromMenu == true) {
-              Goto('StartPoint)
-            }
-            else {
-              Goto('End)
-            }
-          }
-          case _ =>
         }
       }
-
       // if no selection is made, go to the selection module
       else{
         Siigna display "Select objects to move"
@@ -122,7 +116,7 @@ object Move extends Module {
           }
           case _ => Vector2D(0, 0)
         }
-        //TODO: if else hack to bypass unability to add Goto('End) in case MouseUp above (since it need to return a value). Adding MouseUp -> 'End in the stateMap will cause the module to crach when double clicking.
+        //TODO: if else hack to bypass unability to add Goto('End) in case MouseUp above (since it needs to return a value). Adding MouseUp -> 'End in the stateMap will cause the module to crach when double clicking.
         if (ending == false) {
           transformation = Some(TransformationMatrix(translation, 1))
           Model.selection.get.transform(transformation.get)
@@ -145,9 +139,10 @@ object Move extends Module {
           events match {
             case Message (p : Vector2D) :: tail => {
               //move the object(s):
-              var transformation2 : TransformationMatrix = TransformationMatrix(Vector2D(200,200), 1)
-              //println("selection in move: "+Model.selection.get.apply(transformation2))
-              transformation = Some(TransformationMatrix(p - startPoint.get, 1))
+              println("startpoint: "+startPoint)
+              println("P:" +p)
+
+              transformation = Some(TransformationMatrix((p - startPoint.get)/2, 1))
               //Model.selection.get.transform(transformation2)
               Model.selection.get.transform(transformation.get)
               //println("model transformation: "+Model.selection.get.getTransformation)

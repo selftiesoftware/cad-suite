@@ -14,6 +14,7 @@ import com.siigna._
 import com.siigna.module.base.radialmenu.category._
 import module.base.file.{SetTitle}
 import com.siigna.module.base.radialmenu.category.{Create => MenuCreate}
+import com.siigna.app.controller.AppletParameters
 
 /**
 * The default module for the base module pack. Works as access point to
@@ -26,7 +27,7 @@ object Default extends Module {
   var activeUser : Option[String] = None
   var activeDrawing : Option[Int] = None
 
-  var drawingName : Option[String] = Some("untitled")
+  var centerFocus : Vector2D = Vector2D(0,0)
 
   def eventHandler = EventHandler(stateMap, stateMachine)
 
@@ -46,6 +47,8 @@ object Default extends Module {
   //store the latest Key Event to be able to see whether a category (C,H,E,P, or F) was chosen before
   var previousKey :Option[Char] = None
 
+  var titleFocus : Vector2D = Vector2D(0,0)
+
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       //on startup, for some reason this value defaults to true even though it is set to false in 'Menu. This line forces it to be false.
@@ -60,9 +63,9 @@ object Default extends Module {
         Preload('SetTitle, "com.siigna.module.base.file")
         Siigna.display("Loading Siigna modules ver. 0.3.3")
         firstStart = false
-        //if (Controller.isNewDrawing == true) {
-        //  ForwardTo('SetTitle)
-        //}
+        if (AppletParameters.drawingIdReceivedAtStartup == false) {
+          ForwardTo('SetTitle)
+        }
       }
       events match {
         case MouseDown(point, MouseButtonLeft, _) :: tail           => ForwardTo('Selection)
@@ -250,6 +253,10 @@ object Default extends Module {
 
     // Draw boundary
     drawBoundary(g, t)
+    // set title focus
+    titleFocus = Model.boundary.bottomRight.transform(t)
+    centerFocus = Model.boundary.center.transform(t)
+
   }
 
   private def drawBoundary(g : Graphics, t : TransformationMatrix) {
@@ -267,13 +274,15 @@ object Default extends Module {
     val getURL = TextShape(" ", Vector2D(0, 0), headerHeight * 0.7)
 
     val headerWidth  = (scale.boundary.width + getURL.boundary.width) * 1.2
-    val headerBoundary = Rectangle2D(boundary.bottomRight, (boundary.bottomRight - Vector2D(headerWidth, -headerHeight)))
 
     val transformation : TransformationMatrix = t.concatenate(TransformationMatrix(boundary.bottomRight - Vector2D(headerWidth * 0.99, -headerHeight * 0.8), 1))
 
-    // Draw header
-    //g draw LineShape(boundary.bottomLeft, boundary.topLeft).transform(transformation)
-    //println(boundary.bottomLeft)
+    // Draw horizontal headerborder
+    g draw LineShape(boundary.bottomRight + Vector2D(0,(6*Siigna.paperScale)), Vector2D((boundary.bottomRight.x + boundary.bottomLeft.x)/2,boundary.bottomRight.y) + Vector2D(0,(6*Siigna.paperScale))).addAttribute("Color" -> "#CCCCCC".color).transform(t)
+
+    //Draw vertical headerborder
+    g draw LineShape(Vector2D((boundary.bottomRight.x + boundary.bottomLeft.x)/2,boundary.bottomRight.y), Vector2D((boundary.bottomRight.x + boundary.bottomLeft.x)/2,boundary.bottomRight.y) + Vector2D(0,(6*Siigna.paperScale))).addAttribute("Color" -> "#CCCCCC".color).transform(t)
+
     //g draw separator
     g.draw(scale.transform(transformation))
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
@@ -283,13 +292,16 @@ object Default extends Module {
       g draw(title.transform(transformation))
     }
 
-    if (drawingName.isDefined && com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.isDefined) {
-      val title = TextShape(drawingName.get, unitX(-50), headerHeight * 0.7)
-      val id = TextShape("ID: "+com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.get, unitX(-18), headerHeight * 0.7)
-      val contributor = TextShape("user: "+com.siigna.app.controller.AppletParameters.contributorName, unitX(-100), headerHeight * 0.7)
-
+    if (AppletParameters.readDrawingNameAsOption.isDefined && (AppletParameters.readDrawingNameAsOption.get.length() > 0)) {
+      val title = TextShape(AppletParameters.readDrawingNameAsOption.get, unitX(-50), headerHeight * 0.7)
       g draw(title.transform(transformation))
+    }
+    if (AppletParameters.readDrawingIdAsOption.isDefined) {
+      val id = TextShape("ID: "+com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.get, unitX(-18), headerHeight * 0.7)
       g draw(id.transform(transformation))
+    }
+    if (AppletParameters.contributorName.isDefined && (AppletParameters.contributorName.get.length() > 0)) {
+      val contributor = TextShape("author: "+com.siigna.app.controller.AppletParameters.contributorName.get, unitX(-100), headerHeight * 0.7)
       g draw(contributor.transform(transformation))
     }
   }
