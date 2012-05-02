@@ -253,12 +253,10 @@ object Default extends Module {
 
   override def paint(g : Graphics, t : TransformationMatrix) {
     if (nearestShape.isDefined) {
-      val shape = nearestShape.get._2
-      val p = Siigna.mousePosition
-      val closestPoint = shape.geometry.vertices.reduceLeft((a, b) => if (a.distanceTo(p) < b.distanceTo(p)) a else b)
-      if (closestPoint.distanceTo(p) < com.siigna.util.collection.Preferences.double("selectionDistance")) {
-        g draw t.transform(closestPoint)
-      }
+      val shape  = nearestShape.get._2
+      val part   = shape.getPart(Siigna.mousePosition)
+      val points = shape.getVertices(part) 
+      points.foreach(p => g.draw(t.transform(p)))
     }
 
     // Draw boundary

@@ -72,7 +72,7 @@ object Move extends Module {
         }
       }
       // if no selection is made, go to the selection module
-      else{
+      else {
         Siigna display "Select objects to move"
         Goto('End)
       }
@@ -92,19 +92,19 @@ object Move extends Module {
       }
     }),
     'Move -> ((events : List[Event]) => {
-      def repeatingCode(p : Vector2D) = {
+      def getEndPoint(p : Vector2D) = {
         endPoint = Some(p)
         (p - startPoint.get)
       }
       //if moving is performed with the mouse:
       if (startPoint.isDefined && moduleCallFromMenu == false) {
         val translation = events match {
-          case MouseDown(p, _, _) :: tail => repeatingCode(p)
-          case MouseDrag(p, _, _) :: tail => repeatingCode(p)
-          case MouseMove(p, _, _) :: tail => repeatingCode(p)
+          case MouseDown(p, _, _) :: tail => getEndPoint(p)
+          case MouseDrag(p, _, _) :: tail => getEndPoint(p)
+          case MouseMove(p, _, _) :: tail => getEndPoint(p)
           case MouseUp(p, _, _) :: tail => {
             ending = true
-            repeatingCode(p)
+            getEndPoint(p)
           }
           case _ => Vector2D(0, 0)
         }
@@ -154,6 +154,12 @@ object Move extends Module {
       moduleCallFromMenu = false
       startPoint = None
       endPoint = None
+      transformation = None
     })
   )
+
+  override def paint(g : Graphics, t : TransformationMatrix) {
+    Model.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))
+  }
+
 }
