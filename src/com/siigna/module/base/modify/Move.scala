@@ -60,7 +60,6 @@ object Move extends Module {
               startPoint = Some(p)
                 if (Model.selection.isDefined && startPoint.isDefined) {
                   Goto('Move)
-                  println("GOING TO MOVE")
                 } else {
                   Goto('End)
               }
