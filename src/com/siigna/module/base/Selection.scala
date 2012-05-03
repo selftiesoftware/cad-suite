@@ -36,7 +36,7 @@ object Selection extends Module {
   )
 
   Preload('Move, "com.siigna.module.base.modify")
-
+  Preload('Copy, "com.siigna.module.base.copy")
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {

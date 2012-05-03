@@ -59,34 +59,41 @@ object Default extends Module {
         nearestShape = if (nearest._2.distanceTo(m) < 5) Some(nearest) else None
       }
       //values to be retrieved only once
-      if (firstStart == true) {
-        Preload('SetTitle, "com.siigna.module.base.file")
+      else if (firstStart == true) {
+        //Preload('SetTitle, "com.siigna.module.base.file")
+
+        //set a default drawing title
+        com.siigna.app.controller.AppletParameters.saveNewDrawingName("untitled").get
+
+        com.siigna.app.controller.remote.saveDrawingOwnerName(AppletParameters.getDrawingId.get,AppletParameters.contributorName.get,AppletParameters.clientReference.get)
+
+
         Siigna.display("Loading Siigna modules ver. 0.4")
+        //preload commonly used modules
+        Preload('AngleGizmo, "com.siigna.module.base.create")
+        Preload('Artline, "com.siigna.module.base.create")
+        Preload('Fill, "com.siigna.module.base.create")
+        Preload('Line, "com.siigna.module.base.create")
+        Preload('Lineardim, "com.siigna.module.base.create")
+        Preload('Point, "com.siigna.module.base.create")
+        Preload('Polyline, "com.siigna.module.base.create")
+        Preload('Rectangle, "com.siigna.module.base.create")
+        Preload('Text, "com.siigna.module.base.create")
+
         firstStart = false
+      }
         //be sure to zoom to the title only after the boundary has been set, so that the correct zoom center can be retrieved.
-        if (AppletParameters.drawingIdReceivedAtStartup == false && titleFocus.isDefined) {
-          ForwardTo('SetTitle)
-        }
-        else if (AppletParameters.drawingIdReceivedAtStartup == false && !titleFocus.isDefined) {
-          Goto('Start)
-        }
+        //if (AppletParameters.drawingIdReceivedAtStartup == false && titleFocus.isDefined) {
+        //  ForwardTo('SetTitle)
+        //}
+      else if (AppletParameters.drawingIdReceivedAtStartup == false && !titleFocus.isDefined) {
+        Goto('Start)
       }
       events match {
         case MouseDown(point, MouseButtonLeft, _) :: tail           => ForwardTo('Selection)
         case MouseDown(point, MouseButtonRight, _) :: tail          => {
           if (firstMenuLoad == true) {
 
-            //preload commonly used modules
-            //TODO: (Preload issue?): Shortcuts does not work until after a tool has been activated through the menu.
-            Preload('AngleGizmo, "com.siigna.module.base.create")
-            Preload('Artline, "com.siigna.module.base.create")
-            Preload('Fill, "com.siigna.module.base.create")
-            Preload('Line, "com.siigna.module.base.create")
-            Preload('Lineardim, "com.siigna.module.base.create")
-            Preload('Point, "com.siigna.module.base.create")
-            Preload('Polyline, "com.siigna.module.base.create")
-            Preload('Rectangle, "com.siigna.module.base.create")
-            Preload('Text, "com.siigna.module.base.create")
             ForwardTo('Menu)
             firstMenuLoad = false
           }

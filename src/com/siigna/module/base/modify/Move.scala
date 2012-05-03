@@ -53,7 +53,8 @@ object Move extends Module {
         else {
           events match {
             case Message(p : Option[Vector2D]) :: tail => startPoint = p
-            case MouseDown(p, _, _) :: tail => startPoint = Some(p)
+            case MouseDown(p, MouseButtonLeft, _) :: tail => startPoint = Some(p)
+            case MouseDown(p, MouseButtonRight, _) :: tail => ForwardTo('Menu)
             case MouseMove(p, _, _) :: tail => startPoint = Some(p)
             case MouseDrag(p, _, _) :: tail => {
 
@@ -68,7 +69,9 @@ object Move extends Module {
             //goto End contitions: 1) shape selected 2) mouseUp 3) move called from selection
             case MouseUp(p, _,_) :: MouseDown(_, _, _) :: tail => Goto('End)
             //moving with keys
-            case KeyDown(Key., _) :: tail => {
+            case KeyDown(Key.arrowLeft, _) :: tail => {
+              println("left arrow")
+            }
             case _ =>
           }
         }
