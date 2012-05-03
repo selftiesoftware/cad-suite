@@ -93,13 +93,13 @@ object Point extends Module {
       events match {
 
         // Check for continued MouseDown
-        case Message(g : PointGuide) :: Message(p : Vector2D) :: MouseDown(_, MouseButtonLeft, _) :: tail => {
+        case Message(g : Guide) :: Message(p : Vector2D) :: MouseDown(_, MouseButtonLeft, _) :: tail => {
           pointGuide = Some(g)
           ForwardTo('AngleGizmo)
         }
 
         // Check for PointGuide
-        case Message(g : PointGuide) :: tail => {
+        case Message(g : Guide) :: tail => {
           pointGuide = Some(g)
           println("pointGuide: "+pointGuide)
         }
@@ -223,7 +223,6 @@ object Point extends Module {
       eventParser.clearSnap()
       currentSnap = None
       // Reset the point guide
-      pointGuide = None
       previousPoint = point
       //clear the point.
       val p = point
@@ -291,7 +290,7 @@ trait Guide extends (Vector2D => Traversable[Shape])
 /**
  * A class used to draw guides in the point module.
  */
-case class PointGuide(guide : Vector2D => Shape) extends Guide{
+case class PointGuide(guide : Vector2D => Shape) extends Guide {
   def apply(v : Vector2D) = Traversable(guide(v))
 }
 case class PointGuides(guide : Vector2D => Traversable[Shape]) extends Guide{
