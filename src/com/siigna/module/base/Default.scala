@@ -64,9 +64,9 @@ object Default extends Module {
 
         //set a default drawing title
         com.siigna.app.controller.AppletParameters.saveNewDrawingName("untitled").get
-
-        com.siigna.app.controller.remote.saveDrawingOwnerName(AppletParameters.getDrawingId.get,AppletParameters.contributorName.get,AppletParameters.clientReference.get)
-
+        if (AppletParameters.getDrawingId.isDefined && AppletParameters.contributorName.isDefined && AppletParameters.clientReference.isDefined) {
+          com.siigna.app.controller.remote.saveDrawingOwnerName(AppletParameters.getDrawingId.get,AppletParameters.contributorName.get,AppletParameters.clientReference.get)
+        }
 
         Siigna.display("Loading Siigna modules ver. 0.4")
         //preload commonly used modules
@@ -192,7 +192,7 @@ object Default extends Module {
             case 'm' => {
               if(previousKey == Some('m')) {
                 ForwardTo('Move)
-                previousKey = Some('m')
+                previousKey = None
               }
               else
               {
