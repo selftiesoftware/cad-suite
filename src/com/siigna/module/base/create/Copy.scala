@@ -99,19 +99,19 @@ object Copy extends Module {
       }
     }),
     'Copy -> ((events : List[Event]) => {
-      def repeatingCode(p : Vector2D) = {
+      def GetEndPoint (p : Vector2D) = {
         endPoint = Some(p)
         (p - startPoint.get)
       }
       //if moving is performed with the mouse:
       if (startPoint.isDefined && moduleCallFromMenu == false) {
         val translation = events match {
-          case MouseDown(p, _, _) :: tail => repeatingCode(p)
-          case MouseDrag(p, _, _) :: tail => repeatingCode(p)
-          case MouseMove(p, _, _) :: tail => repeatingCode(p)
+          case MouseDown(p, _, _) :: tail => GetEndPoint (p)
+          case MouseDrag(p, _, _) :: tail => GetEndPoint (p)
+          case MouseMove(p, _, _) :: tail => GetEndPoint (p)
           case MouseUp(p, _, _) :: tail => {
             ending = true
-            repeatingCode(p)
+            GetEndPoint (p)
           }
           case _ => Vector2D(0, 0)
         }
