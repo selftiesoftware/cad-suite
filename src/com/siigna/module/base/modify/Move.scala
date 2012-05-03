@@ -72,6 +72,11 @@ object Move extends Module {
             case KeyDown(Key.arrowLeft, _) :: tail => {
               println("left arrow")
             }
+            //catch 'MM' commands
+            case KeyUp(_, _) :: tail => {
+              moduleCallFromMenu = true
+              Goto('StartPoint, false)
+            }
             case _ =>
           }
         }

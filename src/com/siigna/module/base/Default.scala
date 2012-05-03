@@ -11,6 +11,7 @@
 
 package com.siigna.module.base
 import com.siigna._
+import com.siigna.module.base.Menu._
 import com.siigna.module.base.radialmenu.category._
 import module.base.file.{SetTitle}
 import com.siigna.module.base.radialmenu.category.{Create => MenuCreate}
@@ -105,7 +106,12 @@ object Default extends Module {
         case KeyDown(('y' | 'Y'), ModifierKeys(_, true, _)) :: tail => Model.redo
         case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => Model.selectAll
         case KeyDown((Key.Escape), ModifierKeys(_, _, _)) :: tail => Model.deselect()
-
+        case KeyDown(('c' | 'C'), ModifierKeys(_, true, _)) :: tail => {
+          if (Model.selection.isDefined) {
+          moduleCallFromMenu = true
+          ForwardTo('Copy, false)
+          }
+        }
 
         //ignore mouse up events
         case KeyUp(key, _) :: tail =>
@@ -120,9 +126,7 @@ object Default extends Module {
                 Delete(selected)
               }*/
             }
-            case Key.Control => {
-              //if (Model.isSelected) ForwardTo('Copy)
-            }
+
             case Key.Escape => {
               //Model.deselect
             }
