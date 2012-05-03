@@ -9,15 +9,18 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.properties
+package com.siigna.module.base.helpers
 import com.siigna._
 
 /**
- * Toggles Anti-aliasing on/off.
+ * Toggles snap on-off
  */
-object AntiAliasingToggle extends Module {
+
+object SnapToggle extends Module {
 
   val eventHandler = EventHandler(stateMap, stateMachine)
+
+  var isSnapping : Boolean = true
 
   lazy val stateMap = DirectedGraph (
     'Start    -> 'Event     -> 'End
@@ -31,7 +34,14 @@ object AntiAliasingToggle extends Module {
     }),
 
     'End -> ((events : List[Event]) => {
-      Preferences.toggle("anti-aliasing");
+      if (isSnapping == true) {
+        isSnapping = false
+        println("disable snap here")
+      }
+      else {
+        isSnapping = true
+        println("enable snap here")
+      }
       None
     })
   )

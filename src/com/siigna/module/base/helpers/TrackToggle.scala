@@ -9,15 +9,15 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.properties
+package com.siigna.module.base.helpers
+
 import com.siigna._
 
-/**
- * Toggles Anti-aliasing on/off.
- */
-object AntiAliasingToggle extends Module {
+object TrackToggle extends Module{
 
   val eventHandler = EventHandler(stateMap, stateMachine)
+
+  var isTracking : Boolean = true
 
   lazy val stateMap = DirectedGraph (
     'Start    -> 'Event     -> 'End
@@ -31,7 +31,14 @@ object AntiAliasingToggle extends Module {
     }),
 
     'End -> ((events : List[Event]) => {
-      Preferences.toggle("anti-aliasing");
+      if (isTracking == true) {
+        isTracking = false
+        println("disable track here")
+      }
+      else {
+        isTracking = true
+        println("enable track here")
+      }
       None
     })
   )

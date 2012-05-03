@@ -41,6 +41,7 @@ object Offset extends Module {
       Goto('End)
     }
     else {
+      Siigna display "type or click to set offset distance"
       events match {
 
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
@@ -71,7 +72,7 @@ object Offset extends Module {
   None
   }),
   'TextInput -> ((events : List[Event]) => {
-      events match {
+    events match {
         case KeyDown(Key.Backspace, _) :: tail => {
             if (text.length != 0) text = text.substring(0, text.length - 1)
             else Goto('End)

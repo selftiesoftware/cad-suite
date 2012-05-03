@@ -24,7 +24,7 @@ case class Helpers(parent : Option[MenuCategory]) extends MenuCategory {
   override def S = Some(MenuItemEmpty("Measure"))
   override def W = Some(MenuItemEmpty("Guidelines"))
 
-  override def ENE = Some(MenuItem('Polyline, RadialMenuIcon.endPointSnap))
+  override def ENE = Some(MenuItem('SnapToggle, RadialMenuIcon.endPointSnap, "helpers"))
   override def NNE = Some(MenuItem('Hide, RadialMenuIcon.hide))
   override def NNW = Some(MenuItem('Polyline, RadialMenuIcon.selectSame))
   override def WNW = Some(MenuItem('Polyline, RadialMenuIcon.grid))
