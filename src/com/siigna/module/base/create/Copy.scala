@@ -27,6 +27,8 @@ object Copy extends Module {
 
   var shapes : Option[Selection] = None
 
+  var text = ""
+
   //a guide to get Point to draw the shape(s) dynamically
   val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
     // Create a matrix
@@ -127,8 +129,8 @@ object Copy extends Module {
           transformation = Some(TransformationMatrix(translation, 1))
 
           Create(shapes.get.apply(transformation.get))
-
-          Goto('End)
+          Siigna display "type number of copies"
+          Goto('MultiCopy)
         }
       }
       //if moving is performed with a module call from the menu:
@@ -144,15 +146,47 @@ object Copy extends Module {
           events match {
             case Message (p : Vector2D) :: tail => {
               //copy the object(s):
+              endPoint = Some(p)
               transformation = Some(TransformationMatrix((p - startPoint.get), 1))
               Create(shapes.get.apply(transformation.get))
               Model.deselect()
-              Goto('End)
+              Siigna display "type number of copies"
+              Goto('MultiCopy)
             }
             case _ => None
           }
         }
       }
+    }),
+    'MultiCopy -> ((events : List[Event]) => {
+      events match {
+        case KeyDown(Key.Backspace, _) :: tail => {
+            if (text.length != 0) text = text.substring(0, text.length - 1)
+            else Goto('End)
+        }
+        case KeyDown(Key.Enter, _) :: tail => {
+          var numbers = text.toInt
+          //create the shapes
+          for(i <- 1 to numbers) {
+            transformation = Some(TransformationMatrix((endPoint.get - startPoint.get) * (i+1), 1))
+            Create(shapes.get.apply(transformation.get))
+            Model.deselect()
+          }
+          Goto('End)
+        }
+        case KeyDown(Key.Esc, _) :: tail => {
+          text = ""
+          Goto('End)
+        }
+        case KeyDown(key, _) :: tail => {
+          text += key.toChar.toString.toLowerCase
+          Siigna display text
+        }
+        case MouseMove(_, _, _) :: tail => Goto('End)
+        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
+        case _ =>
+      }
+      None
     }),
     'End   -> ((events : List[Event]) => {
       //deselect, but only if an objects has been moved.
