@@ -167,8 +167,8 @@ object Copy extends Module {
         case KeyDown(Key.Enter, _) :: tail => {
           var numbers = text.toInt
           //create the shapes
-          for(i <- 1 to numbers) {
-            transformation = Some(TransformationMatrix((endPoint.get - startPoint.get) * (i+1), 1))
+          for(i <- 0 to numbers) {
+            transformation = Some(TransformationMatrix((endPoint.get - startPoint.get) * i, 1))
             Create(shapes.get.apply(transformation.get))
             Model.deselect()
           }

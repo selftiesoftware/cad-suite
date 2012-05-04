@@ -14,6 +14,7 @@ package com.siigna.module.base.modify
 import com.siigna._
 import module.base.create.{PointGuides, PointGuide, AngleSnap}
 import com.siigna.module.base.Menu._
+import com.siigna.app.controller.remote._
 
 object Move extends Module {
 
@@ -140,10 +141,14 @@ object Move extends Module {
         else if(gotEndPoint == true) {
           events match {
             case Message (p : Vector2D) :: tail => {
-              //move the object(s):
-              transformation = Some(TransformationMatrix((p - startPoint.get), 1))
-              //Model.selection.get.transform(transformation2)
+              var oldShapes:Map[Int,Shape] = Map()
+              Model.selection.get.shapes.foreach(tuple => {
+                oldShapes += tuple
+              })
               Model.selection.get.transform(transformation.get)
+              Model.selection.get.shapes.foreach(tuple => {
+                UpdateShape(AppletParameters.getDrawingId.get, tuple._1, oldShapes(tuple._1), tuple._2, AppletParameters.getClient)
+              })
               Model.deselect()
               Goto('End)
             }
