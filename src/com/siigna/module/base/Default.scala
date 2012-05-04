@@ -16,6 +16,7 @@ import com.siigna.module.base.radialmenu.category._
 import module.base.file.{SetTitle}
 import com.siigna.module.base.radialmenu.category.{Create => MenuCreate}
 import com.siigna.app.controller.AppletParameters
+import com.siigna.app.controller.remote._
 
 /**
 * The default module for the base module pack. Works as access point to
@@ -62,12 +63,13 @@ object Default extends Module {
       //values to be retrieved only once
       else if (firstStart == true) {
         //Preload('SetTitle, "com.siigna.module.base.file")
-
         //set a default drawing title
-        com.siigna.app.controller.AppletParameters.saveNewDrawingName("untitled").get
-        if (AppletParameters.getDrawingId.isDefined && AppletParameters.contributorName.isDefined && AppletParameters.clientReference.isDefined) {
-          com.siigna.app.controller.remote.saveDrawingOwnerName(AppletParameters.getDrawingId.get,AppletParameters.contributorName.get,AppletParameters.clientReference.get)
-        }
+        //if (AppletParameters.getDrawingId.isDefined && AppletParameters.contributorName.isDefined && AppletParameters.clientReference.isDefined) {
+        //  if(DrawingName == None) {
+        //  com.siigna.app.controller.AppletParameters.saveNewDrawingName("untitled").get
+        //  saveDrawingOwnerName(AppletParameters.getDrawingId.get,AppletParameters.contributorName.get,AppletParameters.clientReference.get)
+        //  }
+        //}
 
         Siigna.display("Loading Siigna modules ver. 0.4")
         //preload commonly used modules

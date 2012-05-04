@@ -141,14 +141,15 @@ object Move extends Module {
         else if(gotEndPoint == true) {
           events match {
             case Message (p : Vector2D) :: tail => {
-              var oldShapes:Map[Int,Shape] = Map()
-              Model.selection.get.shapes.foreach(tuple => {
-                oldShapes += tuple
-              })
+              //var oldShapes:Map[Int,Shape] = Map()
+              //Model.selection.get.shapes.foreach(tuple => {
+              //  oldShapes += tuple
+              //})
+              transformation = Some(TransformationMatrix((p - startPoint.get), 1))
               Model.selection.get.transform(transformation.get)
-              Model.selection.get.shapes.foreach(tuple => {
-                UpdateShape(AppletParameters.getDrawingId.get, tuple._1, oldShapes(tuple._1), tuple._2, AppletParameters.getClient)
-              })
+              //Model.selection.get.shapes.foreach(tuple => {
+              //  UpdateShape(AppletParameters.getDrawingId.get, tuple._1, oldShapes(tuple._1), tuple._2, AppletParameters.getClient)
+              //})
               Model.deselect()
               Goto('End)
             }
