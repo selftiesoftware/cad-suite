@@ -106,6 +106,7 @@ object Move extends Module {
     'Move -> ((events : List[Event]) => {
 
       def getEndPoint(p : Vector2D) = {
+        endPoint = Some(p)
         (p - startPoint.get)
       }
       //if moving is initiated and completed by dragging the mouse:
@@ -116,6 +117,7 @@ object Move extends Module {
           case MouseMove(p, _, _) :: tail => getEndPoint(p)
           case MouseUp(p, _, _) :: tail => {
             ending = true
+            println("got mouseUp")
             getEndPoint(p)
           }
           case _ => Vector2D(0, 0)
@@ -161,7 +163,9 @@ object Move extends Module {
     }),
     'End   -> ((events : List[Event]) => {
       //deselect, but only if an objects has been moved.
-      if (Model.selection.isDefined && startPoint.isDefined && endPoint.isDefined && (startPoint.get - endPoint.get != Vector2D(0, 0))) {
+      //if (Model.selection.isDefined && startPoint.isDefined && endPoint.isDefined && (startPoint.get - endPoint.get != Vector2D(0, 0))) {
+      if (Model.selection.isDefined && startPoint.isDefined && endPoint.isDefined) {
+
         Model.deselect()
       }
       //clear the vars
