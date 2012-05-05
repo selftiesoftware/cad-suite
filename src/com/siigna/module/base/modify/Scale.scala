@@ -14,13 +14,12 @@ package com.siigna.module.base.modify
 import com.siigna._
 import module.base.create.{PointGuides, PointGuide, AngleSnap}
 
-// TODO: add object selection logic.
 
 object Scale extends Module {
 
-  var endPoint : Option[Vector2D] = None
-
   var ending : Boolean = false
+
+  var endPoint : Option[Vector2D] = None
 
   var gotEndPoint : Boolean = false
 
@@ -45,92 +44,72 @@ object Scale extends Module {
 
   def stateMap     = DirectedGraph(
     'Start -> 'KeyDown -> 'End,
-    'Move  -> 'KeyDown -> 'End
+    'EndPoint  -> 'KeyDown -> 'End,
+    'Scale  -> 'KeyDown -> 'End
   )
 
   lazy val stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
-      //start 'Scale only if there is a selection
-      if (!Model.selection.isEmpty) {
+    'Start ->   ((events : List[Event]) => {
+      if (Model.selection.isDefined) {
+        Siigna display "set startpoint"
         events match {
-          case Message(p : Option[Vector2D]) :: tail => startPoint = p
-          case MouseDown(p, MouseButtonLeft, _) :: tail => startPoint = Some(p)
-          case MouseDown(p, MouseButtonRight, _) :: tail => ForwardTo('Menu)
-          case MouseMove(p, _, _) :: tail => startPoint = Some(p)
-          case MouseDrag(p, _, _) :: tail => {
-
+          case Message(p : Vector2D) :: tail => {
             startPoint = Some(p)
-              if (Model.selection.isDefined && startPoint.isDefined) {
-                Goto('Move)
-              } else {
-                Goto('End)
-            }
+            Goto('EndPoint, false)
           }
-          case MouseUp(p, _,_) :: MouseDown(_, _, _) :: tail => Goto('End)
+          case MouseUp(p, _, _) :: MouseDown(_ ,_ ,_) :: tail => {
+            ForwardTo('Point)
+          }
           case _ =>
         }
       }
-      // if no selection is made, go to the selection module
-      else {
-        Siigna display "Select objects to scale"
-        Goto('End)
-      }
-    }),
-    'StartPoint ->   ((events : List[Event]) => {
-      Siigna display "set startpoint"
-      events match {
-        case Message(p : Vector2D) :: tail => {
-          startPoint = Some(p)
-          Goto('EndPoint)
-        }
-        case MouseUp(p, _, _) :: MouseDown(_ ,_ ,_) :: tail => {
-          ForwardTo('Point)
-          Controller ! Message(PointGuides(shapeGuide))
-        }
-        case _ =>
-      }
+      // TODO: add object selection logic.
+      else Siigna display "Select objects first"
     }),
     'EndPoint ->   ((events : List[Event]) => {
       Siigna display "set endpoint"
+
       events match {
         case Message(p : Vector2D) :: tail => {
           endPoint = Some(p)
+          Controller ! Message(PointGuides(shapeGuide))
           Goto('Scale)
         }
         case MouseUp(p, _, _) :: MouseDown(_ ,_ ,_) :: tail => {
           ForwardTo('Point)
-          Controller ! Message(PointGuides(shapeGuide))
         }
         case _ =>
       }
     }),
     'Scale -> ((events : List[Event]) => {
+
+      val refScale : Vector2D = startPoint.get - endPoint.get
       Siigna display "set scale factor"
-      var refScale : Vector2D = startPoint.get - endPoint.get
 
       def getScaleFactor (p : Vector2D) = {
-        endPoint = Some(p)
-        (p - startPoint.get).length/refScale.length
+        scaleFactor = Some(p)
+        ((p - startPoint.get).length/refScale.length).toDouble
       }
-      //if scaling is performed with the mouse:
+
       if (startPoint.isDefined) {
-        val translation = events match {
-          case MouseDown(p, _, _) :: tail => getScaleFactor(p)
-          case MouseDrag(p, _, _) :: tail => getScaleFactor(p)
-          case MouseMove(p, _, _) :: tail => getScaleFactor(p)
+        val translation : Double = events match {
+          case MouseDown(p, _, _) :: tail => getScaleFactor(p).toDouble
+          case MouseDrag(p, _, _) :: tail => getScaleFactor(p).toDouble
+          case MouseMove(p, _, _) :: tail => getScaleFactor(p).toDouble
           case MouseUp(p, _, _) :: tail => {
             ending = true
-            getScaleFactor(p)
+            getScaleFactor(p).toDouble
           }
-          case _ => Vector2D(0, 0)
+          case _ => 1
         }
+        println("translation: "+translation)
         //TODO: if else hack to bypass unability to add Goto('End) in case MouseUp above (since it needs to return a value). Adding MouseUp -> 'End in the stateMap will cause the module to crach when double clicking.
         if (ending == false) {
-          //transformation = Some(TransformationMatrix(translation, 1))
-          //Model.selection.get.transform(transformation.get)
+          transformation = Some(TransformationMatrix(Vector2D(0,0),1))
+          Model.selection.get.transform(transformation.get.scale(translation))
         } else {
-          //transformation = Some(TransformationMatrix(translation, 1))
-          //Model.selection.get.transform(transformation.get)
+          transformation = Some(TransformationMatrix(Vector2D(0,0),1))
+          Model.selection.get.transform(transformation.get.scale(translation))
           Goto('End)
         }
       }
@@ -169,7 +148,7 @@ object Scale extends Module {
         Model.deselect()
       }
       //clear the vars
-      com.siigna.module.base.Default.previousModule = Some('Move)
+      com.siigna.module.base.Default.previousModule = Some('Scale)
       ending = false
       gotEndPoint = false
       startPoint = None
@@ -177,7 +156,6 @@ object Scale extends Module {
       transformation = None
     })
   )
-
   override def paint(g : Graphics, t : TransformationMatrix) {
     Model.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))
   }
