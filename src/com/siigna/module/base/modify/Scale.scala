@@ -30,7 +30,7 @@ object Scale extends Module {
     var scaleFactor = ((v - startPoint.get).length/refScale.length).toDouble
     // Create a matrix
     val t : TransformationMatrix = if (startPoint.isDefined) {
-      TransformationMatrix(startPoint.get, 1).scale(scaleFactor,startPoint.get)
+      TransformationMatrix(Vector2D(0,0), 1).scale(scaleFactor,startPoint.get)
     // If no startPoint has been defined - create an empty matrix
     } else TransformationMatrix()
     // Return the shape, transformed
@@ -131,7 +131,7 @@ object Scale extends Module {
             val refScale : Vector2D = startPoint.get - endPoint.get
             var scaleFactor = ((p - startPoint.get).length/refScale.length).toDouble
 
-            transformation = Some(TransformationMatrix(startPoint.get,1))
+            transformation = Some(TransformationMatrix(Vector2D(0,0),1))
             Model.selection.get.transform(transformation.get.scale(scaleFactor,startPoint.get))
             //Model.selection.get.shapes.foreach(tuple => {
             //  UpdateShape(AppletParameters.getDrawingId.get, tuple._1, oldShapes(tuple._1), tuple._2, AppletParameters.getClient)
