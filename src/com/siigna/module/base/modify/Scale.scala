@@ -27,9 +27,14 @@ object Scale extends Module {
 
   //a guide to get Point to draw the shape(s) dynamically
   val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
+
+    val refScale : Vector2D = startPoint.get - endPoint.get
+
+    var scaleFactor = ((v - startPoint.get).length/refScale.length).toDouble
+
     // Create a matrix
     val t : TransformationMatrix = if (startPoint.isDefined) {
-      TransformationMatrix(v - startPoint.get, 1)
+      TransformationMatrix(Vector2D(0,0), 1).scale(scaleFactor)
     // If no startPoint has been defined - create an empty matrix
     } else TransformationMatrix()
     // Return the shape, transformed
@@ -68,77 +73,50 @@ object Scale extends Module {
     }),
     'EndPoint ->   ((events : List[Event]) => {
       Siigna display "set endpoint"
-
       events match {
         case Message(p : Vector2D) :: tail => {
           endPoint = Some(p)
-          Controller ! Message(PointGuides(shapeGuide))
           Goto('Scale)
         }
         case MouseUp(p, _, _) :: MouseDown(_ ,_ ,_) :: tail => {
           ForwardTo('Point)
+          Controller ! Message(PointGuides(shapeGuide))
         }
         case _ =>
       }
     }),
     'Scale -> ((events : List[Event]) => {
-
-      val refScale : Vector2D = startPoint.get - endPoint.get
       Siigna display "set scale factor"
 
-      def getScaleFactor (p : Vector2D) = {
-        scaleFactor = Some(p)
-        ((p - startPoint.get).length/refScale.length).toDouble
+      //check if the endPoint is set. If not, goto 'Point.
+      if (gotEndPoint == false) {
+        gotEndPoint = true
+        ForwardTo('Point)
       }
+      //if the message arrives after the gotEndPoint flag is set, use it to define the endpoint:
+      //TODO: this is a hack, could probably be made alot nicer...
+      else if(gotEndPoint == true) {
+        events match {
+          case MouseMove (p, _, _) :: tail =>
+          case Message (p : Vector2D) :: tail => {
+            //var oldShapes:Map[Int,Shape] = Map()
+            //Model.selection.get.shapes.foreach(tuple => {
+            //  oldShapes += tuple
+            //})
 
-      if (startPoint.isDefined) {
-        val translation : Double = events match {
-          case MouseDown(p, _, _) :: tail => getScaleFactor(p).toDouble
-          case MouseDrag(p, _, _) :: tail => getScaleFactor(p).toDouble
-          case MouseMove(p, _, _) :: tail => getScaleFactor(p).toDouble
-          case MouseUp(p, _, _) :: tail => {
-            ending = true
-            getScaleFactor(p).toDouble
+            val refScale : Vector2D = startPoint.get - endPoint.get
+
+            var scaleFactor = ((p - startPoint.get).length/refScale.length).toDouble
+
+            transformation = Some(TransformationMatrix(Vector2D(0,0),1))
+            Model.selection.get.transform(transformation.get.scale(scaleFactor))
+            //Model.selection.get.shapes.foreach(tuple => {
+            //  UpdateShape(AppletParameters.getDrawingId.get, tuple._1, oldShapes(tuple._1), tuple._2, AppletParameters.getClient)
+            //})
+            Model.deselect()
+            Goto('End)
           }
-          case _ => 1
-        }
-        println("translation: "+translation)
-        //TODO: if else hack to bypass unability to add Goto('End) in case MouseUp above (since it needs to return a value). Adding MouseUp -> 'End in the stateMap will cause the module to crach when double clicking.
-        if (ending == false) {
-          transformation = Some(TransformationMatrix(Vector2D(0,0),1))
-          Model.selection.get.transform(transformation.get.scale(translation))
-        } else {
-          transformation = Some(TransformationMatrix(Vector2D(0,0),1))
-          Model.selection.get.transform(transformation.get.scale(translation))
-          Goto('End)
-        }
-      }
-      //if moving is performed with a module call from the menu:
-      else if (startPoint.isDefined) {
-        //check if the endPoint is set. If not, goto 'Point.
-        if (gotEndPoint == false) {
-          gotEndPoint = true
-          ForwardTo('Point)
-        }
-        //if the message arrives after the gotEndPoint flag is set, use it to define the endpoint:
-        //TODO: this is a hack, could probably be made alot nicer...
-        else if(gotEndPoint == true) {
-          events match {
-            case Message (p : Vector2D) :: tail => {
-              //var oldShapes:Map[Int,Shape] = Map()
-              //Model.selection.get.shapes.foreach(tuple => {
-              //  oldShapes += tuple
-              //})
-              transformation = Some(TransformationMatrix((p - startPoint.get), 1))
-              Model.selection.get.transform(transformation.get)
-              //Model.selection.get.shapes.foreach(tuple => {
-              //  UpdateShape(AppletParameters.getDrawingId.get, tuple._1, oldShapes(tuple._1), tuple._2, AppletParameters.getClient)
-              //})
-              Model.deselect()
-              Goto('End)
-            }
-            case _ => None
-          }
+          case _ => None
         }
       }
     }),

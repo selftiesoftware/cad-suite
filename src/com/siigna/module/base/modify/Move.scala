@@ -104,11 +104,11 @@ object Move extends Module {
       }
     }),
     'Move -> ((events : List[Event]) => {
+
       def getEndPoint(p : Vector2D) = {
-        endPoint = Some(p)
         (p - startPoint.get)
       }
-      //if moving is performed with the mouse:
+      //if moving is initiated and completed by dragging the mouse:
       if (startPoint.isDefined && moduleCallFromMenu == false) {
         val translation = events match {
           case MouseDown(p, _, _) :: tail => getEndPoint(p)
