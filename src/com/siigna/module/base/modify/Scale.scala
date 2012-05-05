@@ -30,7 +30,7 @@ object Scale extends Module {
     var scaleFactor = ((v - startPoint.get).length/refScale.length).toDouble
     // Create a matrix
     val t : TransformationMatrix = if (startPoint.isDefined) {
-      TransformationMatrix(startPoint.get, 1).scale(scaleFactor)
+      TransformationMatrix(startPoint.get, 1).scale(scaleFactor,startPoint.get)
     // If no startPoint has been defined - create an empty matrix
     } else TransformationMatrix()
     // Return the shape, transformed
@@ -81,6 +81,7 @@ object Scale extends Module {
         case _ =>
       }
     }),
+    //TODO: find a way to allow textInput after Mouse Moves in 'Scale
     'TextInput -> ((events : List[Event]) => {
       events match {
         case MouseMove (p, _, _) :: tail => Goto('Scale)
@@ -131,7 +132,7 @@ object Scale extends Module {
             var scaleFactor = ((p - startPoint.get).length/refScale.length).toDouble
 
             transformation = Some(TransformationMatrix(startPoint.get,1))
-            Model.selection.get.transform(transformation.get.scale(scaleFactor))
+            Model.selection.get.transform(transformation.get.scale(scaleFactor,startPoint.get))
             //Model.selection.get.shapes.foreach(tuple => {
             //  UpdateShape(AppletParameters.getDrawingId.get, tuple._1, oldShapes(tuple._1), tuple._2, AppletParameters.getClient)
             //})
