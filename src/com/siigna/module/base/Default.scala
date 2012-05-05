@@ -33,18 +33,20 @@ object Default extends Module {
 
   def eventHandler = EventHandler(stateMap, stateMachine)
 
-  def stateMap     = DirectedGraph( 'Start -> 'Event -> 'Start )
-
   def fullScreenBox = Rectangle2D(View.screen.bottomRight - Vector2D(20, -5), View.screen.bottomRight - Vector2D(40, -25))
 
   var firstStart : Boolean = true
   var firstMenuLoad : Boolean = true
+
+  var gridIsOn = false
 
    //The nearest shape to the current mouse position.
   var nearestShape : Option[(Int, Shape)] = None
 
   //The last module this module forwarded to, if any.
   var previousModule : Option[Symbol] = None
+
+  def stateMap     = DirectedGraph( 'Start -> 'Event -> 'Start )
 
   //store the latest Key Event to be able to see whether a category (C,H,E,P, or F) was chosen before
   var previousKey :Option[Char] = None
@@ -270,10 +272,13 @@ object Default extends Module {
     }))
 
   override def paint(g : Graphics, t : TransformationMatrix) {
+    //draw a grid if toggled in through the Helpers menu
+    if(gridIsOn == true) com.siigna.module.base.helpers.Grid.paint(g : Graphics, t : TransformationMatrix)
+    //draw selected/highlighted vertices
     if (nearestShape.isDefined) {
       val shape  = nearestShape.get._2
       val part   = shape.getPart(Siigna.mousePosition)
-      val points = shape.getVertices(part) 
+      val points = shape.getVertices(part)
       points.foreach(p => g.draw(t.transform(p)))
     }
 
