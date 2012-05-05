@@ -228,7 +228,12 @@ object Default extends Module {
                 ForwardTo('Rectangle)
                 previousKey = Some('r')
               }
-              else previousKey = Some('l')
+              else if (previousKey == Some('m')) {
+                Siigna.display("rotate")
+                ForwardTo('Rotate)
+                previousKey = Some('r')
+              }
+              else previousKey = Some('r')
             }
             //open the PROPERTIES menu
             case 'p' => {

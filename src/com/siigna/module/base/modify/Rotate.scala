@@ -26,7 +26,7 @@ object Rotate extends Module {
   private var rotation : Double = 0
   private var startVector : Option[Vector2D] = None
   private var startVectorSet = false
-  private var transformation = new TransformationMatrix()
+  private var transformation : Option[TransformationMatrix] = None
 
 
   def eventHandler = EventHandler(stateMap, stateMachine)
@@ -43,15 +43,15 @@ object Rotate extends Module {
         val t : TransformationMatrix = if (startVector.isDefined && centerPoint.isDefined) {
           // To find the angle between two vectors (lines)
           // First calculate the separate angles
-          val a1 : Double = (startVector.get - centerPoint.get).angle
-          val a2 : Double = (v - centerPoint.get).angle
+            val a1 : Double = (startVector.get - centerPoint.get).angle
+            val a2 : Double = (v - centerPoint.get).angle
           // ... And then subtract the second from the first
-          TransformationMatrix(centerPoint.get, 1).rotate(a2 - a1)
+            TransformationMatrix(Vector2D(0,0), 1).rotate(a2 - a1, centerPoint.get)
         // If no start- (or center-) point has been defined - create empty matrix
         } else TransformationMatrix()
         // Return the shape, transformed
         //Model.selection.get.apply(t)
-        Model.selection.get.shapes.values
+        Model.selection.get.apply(t)
       }
 
       //if the center for the rotation has not been set, then set it:
@@ -68,6 +68,7 @@ object Rotate extends Module {
             if(firstMouseDown == false)
               firstMouseDown = true
             else {
+              println("setting center now")
               centerPoint = Some(p)
               ForwardTo('Point, false)
             }
@@ -79,6 +80,7 @@ object Rotate extends Module {
       else if(!startVector.isDefined){
         events match{
           case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
+            //send the selected shapes as a guide to 'Point to draw them dynamically while waiting for the end Vector.
             Controller ! Message(PointGuides(shapeGuide))
             startVector = Some(p)
             ForwardTo('Point)
@@ -91,10 +93,26 @@ object Rotate extends Module {
       }
       //if both a center and a startAngle is set, set the final point of the rotation.
       else if(centerPoint.isDefined && startVector.isDefined){
+        def getEndVector(p : Vector2D) = {
+          endVector = Some(p)
+         (p - startVector.get)
+        }
+         val translation = events match {
+          case MouseDown(p, _, _) :: tail => getEndVector(p)
+          case MouseDrag(p, _, _) :: tail => getEndVector(p)
+          case MouseMove(p, _, _) :: tail => getEndVector(p)
+          case MouseUp(p, _, _) :: tail => {
+            getEndVector(p)
+          }
+          case _ => Vector2D(0, 0)
+        }
+
         events match{
+
           case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
             endVector = Some(p)
             rotation = ((startVector.get - centerPoint.get) - (endVector.get - centerPoint.get)).angle
+            transformation = Some(TransformationMatrix(translation, 1))
             println("ANGLE: " +rotation)
             Goto('End)
           }
@@ -107,7 +125,15 @@ object Rotate extends Module {
     'End   -> ((events : List[Event]) => {
       events match {
         case Message(p : Vector2D) :: tail => {
-          val t = transformation.rotate(rotation,centerPoint.get)
+
+          //do the rotation:
+            val t : TransformationMatrix = {
+            val a1 : Double = (startVector.get - centerPoint.get).angle
+            val a2 : Double = (endVector.get - centerPoint.get).angle
+
+            TransformationMatrix(Vector2D(0,0), 1).rotate(a2 - a1, centerPoint.get)
+          }
+          //val t = transformation.get.rotate(rotation,centerPoint.get)
           Model.selection.get.transform(t)
           Model.deselect()
         }
@@ -127,16 +153,14 @@ object Rotate extends Module {
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    println(startVector.isDefined)
-    if(startVector.isDefined){
-    }
-    else if(centerPoint.isDefined && !startVector.isDefined){
-      g draw (CircleShape(centerPoint.get,(centerPoint.get + Vector2D(0,3)))).transform(t)
-    }
-    else if(startVector.isDefined) {
-      var marker : CircleShape = CircleShape(startVector.get, Vector2D(10,0))
+    println("CENTER POINT: "+centerPoint)
 
-      //g draw marker.transform(t)
+    Model.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))
+
+    if(startVector.isDefined) g draw (CircleShape(startVector.get,(startVector.get + Vector2D(0,9)))).transform(t)
+    else if(centerPoint.isDefined && !startVector.isDefined) {
+      g draw (CircleShape(startVector.get,(startVector.get + Vector2D(10,0)))).transform(t)
+      g draw (CircleShape(centerPoint.get,(centerPoint.get + Vector2D(10,0)))).transform(t)
     }
   }
 }
