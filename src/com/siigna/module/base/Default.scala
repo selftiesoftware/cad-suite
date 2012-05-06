@@ -300,7 +300,7 @@ object Default extends Module {
     val headerHeight = scala.math.min(boundary.height, boundary.width) * 0.025
 
     // Paper scale
-    val scale = TextShape("Scale 1:"+Siigna.paperScale, unitX(1), headerHeight * 0.7)
+    val scale = TextShape("Scale 1:"+Siigna.paperScale, unitX(-10), headerHeight * 0.7)
     // Get URL
     val getURL = TextShape(" ", Vector2D(0, 0), headerHeight * 0.7)
 
@@ -319,20 +319,21 @@ object Default extends Module {
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
     // Draw ID and title
     if (!SetTitle.text.isEmpty) {
-      val title = TextShape(SetTitle.text, unitX(-50), headerHeight * 0.7)
+      val title = TextShape(SetTitle.text, unitX(-72), headerHeight * 0.7)
       g draw(title.transform(transformation))
     }
-
-    if (AppletParameters.readDrawingNameAsOption.isDefined && (AppletParameters.readDrawingNameAsOption.get.length() > 0)) {
-      val title = TextShape(AppletParameters.readDrawingNameAsOption.get, unitX(-50), headerHeight * 0.7)
+    //draw title
+    if (AppletParameters.readDrawingNameAsOption.isDefined && (AppletParameters.readDrawingNameAsOption.get.length() > 0) && SetTitle.text.isEmpty) {
+      val title = TextShape(AppletParameters.readDrawingNameAsOption.get, unitX(-72), headerHeight * 0.7)
       g draw(title.transform(transformation))
     }
+    //draw ID
     if (AppletParameters.readDrawingIdAsOption.isDefined) {
-      val id = TextShape("ID: "+com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.get, unitX(-18), headerHeight * 0.7)
+      val id = TextShape("ID: "+com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.get, unitX(-28), headerHeight * 0.7)addAttribute("Color" -> "#AAAAAA".color)
       g draw(id.transform(transformation))
     }
     if (AppletParameters.contributorName.isDefined && (AppletParameters.contributorName.get.length() > 0)) {
-      val contributor = TextShape("author: "+com.siigna.app.controller.AppletParameters.contributorName.get, unitX(-100), headerHeight * 0.7)
+      val contributor = TextShape("author: "+com.siigna.app.controller.AppletParameters.contributorName.get, unitX(-120), headerHeight * 0.7)
       g draw(contributor.transform(transformation))
     }
   }
