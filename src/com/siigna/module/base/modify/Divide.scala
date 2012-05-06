@@ -55,15 +55,16 @@ object Divide extends Module {
           shape match {
             case LineShape(p1, p2, _) => {
 
-              var deltaX = p2.x - p1.x
-              var deltaY = p2.y - p1.y
+              var spacingX = (p2.x - p1.x)/divisions
+              var spacingY = (p2.y - p1.y)/divisions
 
-              //create the divisions
-              for(i <- 0 to divisions) {
-                var divisionX = p1.x + deltaX/i
-                var divisionY = p1.y + deltaY/i
+              //create the divisions  - one added to loop to prevent multiply by zero.
+              for(i <- 1 to divisions +1 ) {
+                var divisionX = p1.x + spacingX * i - spacingX
+                var divisionY = p1.y + spacingY * i - spacingY
                 var divisionPoint = Vector2D(divisionX, divisionY)
-                var radius = Vector2D(10,0)
+                var radius = divisionPoint + Vector2D(2,0)
+                println(divisionPoint)
                 Create(CircleShape(divisionPoint, radius))
               }
             }

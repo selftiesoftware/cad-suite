@@ -42,7 +42,7 @@ object Line extends Module{
     }),
     'SetPoint -> ((events : List[Event]) => {
 
-      def getPointGuide = (p : Vector2D) => LineShape(points(0),p)
+      def getPointGuide = (p : Vector2D) => LineShape(points.head,p)
 
       events match {
         // Exit strategy
