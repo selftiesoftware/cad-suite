@@ -42,14 +42,17 @@ object Line extends Module{
     }),
     'SetPoint -> ((events : List[Event]) => {
 
-      def getPointGuide = (p : Vector2D) => LineShape(points.head,p)
+      def getPointGuide = (p : Vector2D) =>
+        //TODO: find a better way to avoid empty list error when no point is set.
+        if(points.size == 0) LineShape((p),(p))
+        else LineShape(points(0),p)
 
       events match {
-        // Exit strategy
+        // exit strategy
         case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
 
         case Message(p : Vector2D) :: tail => {
-          // Save the point
+          // save the point
           points = points :+ p
           // Define shape if there is enough points
           if (points.size == 1) {
@@ -61,7 +64,7 @@ object Line extends Module{
           }
         }
 
-        // Match on everything else
+        // match on everything else
         case _ => {
           ForwardTo('Point)
           Controller ! Message(PointGuide(getPointGuide))

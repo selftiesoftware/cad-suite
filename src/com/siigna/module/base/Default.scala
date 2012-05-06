@@ -73,7 +73,7 @@ object Default extends Module {
         //  }
         //}
 
-        Siigna.display("Loading Siigna modules ver. 0.4.5")
+        Siigna.display("Loading Siigna modules ver. 0.5")
         //preload commonly used modules
         Preload('AngleGizmo, "com.siigna.module.base.create")
         Preload('Artline, "com.siigna.module.base.create")
