@@ -19,6 +19,8 @@ object Selection extends Module {
 
   private var box : Option[Rectangle2D] = None
 
+  private var selectFullyEnclosed : Boolean = false
+
   // The starting point of the rectangle
   private var startPoint : Option[Vector2D] = None
 
@@ -59,15 +61,29 @@ object Selection extends Module {
       } else {
         events match {
           case MouseDrag(p, _, _) :: tail => {
-            box = Some(Rectangle2D(startPoint.get, p))
+            var startX = startPoint.get.x
+            if(startPoint.get.x < p.x) {
+              selectFullyEnclosed = true
+              box = Some(Rectangle2D(startPoint.get, p))
+            }
+            else {
+              selectFullyEnclosed = false
+              box = Some(Rectangle2D(startPoint.get, p))
+            }
           }
           case _ => Goto('End)
         }
       }
     }),
     'End -> ((events : List[Event]) => {
-      if (box.isDefined) {
-        Select(box.get)
+      //if the selection is drawn from left to right, select fully enclosed shapes only.:
+      if (box.isDefined && selectFullyEnclosed == true) {
+        Select(box.get, true)
+        box = None
+      }
+      //if the selection is drawn from right to left, select partially enclosed shapes as well.:
+      else {
+        Select(box.get, false)
         box = None
       }
     })

@@ -32,5 +32,4 @@ case class Geometry(parent : Option[MenuCategory]) extends MenuCategory {
   override def WNW = Some(MenuItem('ParamTest, RadialMenuIcon.rectangle,"create"))
   override def W = Some(MenuItemEmpty("Parametric"))
   //override def WSW = Some(MenuItem('Stair, RadialMenuIcon.arc , "create"))
-
 }
