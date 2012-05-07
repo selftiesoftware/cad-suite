@@ -149,7 +149,6 @@ object Copy extends Module {
               endPoint = Some(p)
               transformation = Some(TransformationMatrix((p - startPoint.get), 1))
               Create(shapes.get.apply(transformation.get))
-              Model.deselect()
               Siigna display "type number of copies"
               Goto('MultiCopy)
             }
@@ -183,7 +182,14 @@ object Copy extends Module {
           text += key.toChar.toString.toLowerCase
           Siigna display text
         }
-        case MouseMove(_, _, _) :: tail => Goto('End)
+        case MouseMove(_, _, _) :: tail => {
+          ending = false
+          endPoint = None
+          gotEndPoint = false
+          //TODO: add ability to set multiple copies with the mouse.
+          Goto('End)
+          //Goto('Copy)
+        }
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
         case _ =>
       }
@@ -195,6 +201,7 @@ object Copy extends Module {
         Model.deselect()
       }
       //clear the vars
+      Model.deselect()
       com.siigna.module.base.Default.previousModule = Some('Copy)
       ending = false
       gotEndPoint = false

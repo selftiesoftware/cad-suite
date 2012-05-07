@@ -11,8 +11,6 @@
 
 package com.siigna.module.base.create
 
-///* 2012 (C) Copyright by Siigna, all rights reserved. */
-
 import com.siigna._
 import app.controller.Controller
 
