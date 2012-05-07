@@ -75,8 +75,8 @@ object Fill extends Module {
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    if(!firstPoint.isEmpty && mousePosition.isDefined && previousPoint.isDefined && points.length > 0)
+    if(!firstPoint.isEmpty && mousePosition.isDefined && previousPoint.isDefined && points.length > 0) {
       g draw shape.transform(t)
-
+    }
   }
 }

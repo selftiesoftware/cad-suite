@@ -74,8 +74,6 @@ object Open extends Module {
     'End   -> ((events : List[Event]) => {
 
       Siigna display "loading file... please wait"
-      println("Beder om ny shapeid")
-      GetNewShapeId(com.siigna.app.controller.AppletParameters.getClient)
 
       //connect to database and get all ShapeType and object IDs in it.
 
