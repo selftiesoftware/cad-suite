@@ -31,7 +31,7 @@ object AntiAliasingToggle extends Module {
     }),
 
     'End -> ((events : List[Event]) => {
-      Preferences.toggle("anti-aliasing");
+      Preferences.toggle("anti-aliasing")
       None
     })
   )

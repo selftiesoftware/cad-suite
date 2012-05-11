@@ -12,6 +12,7 @@
 package com.siigna.module.base.file
 
 import com.siigna._
+import app.controller.remote.SaveDrawingOwnerName
 import com.siigna.app.model.drawing.activeDrawing._
 
 object SetTitle extends Module {
@@ -61,7 +62,11 @@ object SetTitle extends Module {
       //save a new name in the databasen (automatically corrects the applet's variable)
       Siigna display (com.siigna.app.controller.AppletParameters.saveNewDrawingName(text).get)
       //save drawingOwnerName
-      com.siigna.app.controller.remote.saveDrawingOwnerName(AppletParameters.getDrawingId.get,AppletParameters.contributorName.get,AppletParameters.clientReference.get)
+
+      val client = AppletParameters.getClient
+      if (client.isDefined) {
+        SaveDrawingOwnerName(AppletParameters.getDrawingId.get, AppletParameters.contributorName.get, client.get)
+      }
 
       //reset the vars
       text = ""

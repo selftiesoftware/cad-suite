@@ -17,7 +17,7 @@ import com.siigna._
 A freehand Artline pen
  */
 
-object Artline extends Module{
+object Artline extends Module {
 
     var currentMouse = Vector2D(0,0)
 

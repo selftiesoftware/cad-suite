@@ -33,18 +33,20 @@ object Default extends Module {
 
   def eventHandler = EventHandler(stateMap, stateMachine)
 
-  def stateMap     = DirectedGraph( 'Start -> 'Event -> 'Start )
-
   def fullScreenBox = Rectangle2D(View.screen.bottomRight - Vector2D(20, -5), View.screen.bottomRight - Vector2D(40, -25))
 
   var firstStart : Boolean = true
   var firstMenuLoad : Boolean = true
+
+  var gridIsOn = false
 
    //The nearest shape to the current mouse position.
   var nearestShape : Option[(Int, Shape)] = None
 
   //The last module this module forwarded to, if any.
   var previousModule : Option[Symbol] = None
+
+  def stateMap     = DirectedGraph( 'Start -> 'Event -> 'Start )
 
   //store the latest Key Event to be able to see whether a category (C,H,E,P, or F) was chosen before
   var previousKey :Option[Char] = None
@@ -71,7 +73,7 @@ object Default extends Module {
         //  }
         //}
 
-        Siigna.display("Loading Siigna modules ver. 0.4.5")
+        Siigna.display("Loading Siigna modules ver. 0.5")
         //preload commonly used modules
         Preload('AngleGizmo, "com.siigna.module.base.create")
         Preload('Artline, "com.siigna.module.base.create")
@@ -270,10 +272,13 @@ object Default extends Module {
     }))
 
   override def paint(g : Graphics, t : TransformationMatrix) {
+    //draw a grid if toggled in through the Helpers menu
+    if(gridIsOn == true) com.siigna.module.base.helpers.Grid.paint(g : Graphics, t : TransformationMatrix)
+    //draw selected/highlighted vertices
     if (nearestShape.isDefined) {
       val shape  = nearestShape.get._2
       val part   = shape.getPart(Siigna.mousePosition)
-      val points = shape.getVertices(part) 
+      val points = shape.getVertices(part)
       points.foreach(p => g.draw(t.transform(p)))
     }
 
@@ -295,7 +300,7 @@ object Default extends Module {
     val headerHeight = scala.math.min(boundary.height, boundary.width) * 0.025
 
     // Paper scale
-    val scale = TextShape("Scale 1:"+Siigna.paperScale, unitX(1), headerHeight * 0.7)
+    val scale = TextShape("Scale 1:"+Siigna.paperScale, unitX(-10), headerHeight * 0.7)
     // Get URL
     val getURL = TextShape(" ", Vector2D(0, 0), headerHeight * 0.7)
 
@@ -314,20 +319,21 @@ object Default extends Module {
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
     // Draw ID and title
     if (!SetTitle.text.isEmpty) {
-      val title = TextShape(SetTitle.text, unitX(-50), headerHeight * 0.7)
+      val title = TextShape(SetTitle.text, unitX(-72), headerHeight * 0.7)
       g draw(title.transform(transformation))
     }
-
-    if (AppletParameters.readDrawingNameAsOption.isDefined && (AppletParameters.readDrawingNameAsOption.get.length() > 0)) {
-      val title = TextShape(AppletParameters.readDrawingNameAsOption.get, unitX(-50), headerHeight * 0.7)
+    //draw title
+    if (AppletParameters.readDrawingNameAsOption.isDefined && (AppletParameters.readDrawingNameAsOption.get.length() > 0) && SetTitle.text.isEmpty) {
+      val title = TextShape(AppletParameters.readDrawingNameAsOption.get, unitX(-72), headerHeight * 0.7)
       g draw(title.transform(transformation))
     }
+    //draw ID
     if (AppletParameters.readDrawingIdAsOption.isDefined) {
-      val id = TextShape("ID: "+com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.get, unitX(-18), headerHeight * 0.7)
+      val id = TextShape("ID: "+com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.get, unitX(-28), headerHeight * 0.7)addAttribute("Color" -> "#AAAAAA".color)
       g draw(id.transform(transformation))
     }
     if (AppletParameters.contributorName.isDefined && (AppletParameters.contributorName.get.length() > 0)) {
-      val contributor = TextShape("author: "+com.siigna.app.controller.AppletParameters.contributorName.get, unitX(-100), headerHeight * 0.7)
+      val contributor = TextShape("author: "+com.siigna.app.controller.AppletParameters.contributorName.get, unitX(-120), headerHeight * 0.7)
       g draw(contributor.transform(transformation))
     }
   }

@@ -22,11 +22,11 @@ object Rectangle extends Module {
 
   var points = List[Vector2D]()
 
-  def stateMap = DirectedGraph(
+  val stateMap = DirectedGraph(
     'Start       -> 'Message   -> 'SetPoint
   )
 
-  def stateMachine = Map(
+  lazy val stateMachine = Map(
     //TODO: draw a dummy rectangle of eg. 1/15 * 1/15 of the paper height/width dynamically before first point is set
     'Start -> ((events : List[Event]) => {
       events match {
