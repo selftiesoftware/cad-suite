@@ -29,7 +29,7 @@ case object Start extends MenuCategory {
   //drawing tools in the default menu:
   override def ENE = Some(MenuItem('SnapToggle, RadialMenuIcon.snap, "helpers"))
   override def NNE = Some(MenuItem('Polyline, RadialMenuIcon.polyline))
-  override def NNW = Some(MenuItem('Artline, RadialMenuIcon.artline))
+  //override def NNW = Some(MenuItem('Artline, RadialMenuIcon.artline))
   override def WNW = Some(MenuItem('Weight, RadialMenuIcon.weight, "properties"))
   override def WSW = Some(MenuItem('ColorWheel, RadialMenuIcon.colorWheel, "properties"))
   override def SSW = Some(MenuItem('Rotate, RadialMenuIcon.rotate, "modify"))

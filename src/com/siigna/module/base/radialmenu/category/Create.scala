@@ -29,7 +29,7 @@ case class Create(parent : Option[MenuCategory]) extends MenuCategory {
   override def NNE = Some(MenuItem('Rectangle, RadialMenuIcon.rectangle))
   //override def NNW = Some(new MenuItem('Circle, RadialMenuIcon.circle))
   override def WNW = Some(MenuItem('Text, RadialMenuIcon.text))
-  override def NNW = Some(MenuItem('Fill, RadialMenuIcon.raster, "create"))
+  //override def NNW = Some(MenuItem('Fill, RadialMenuIcon.raster, "create"))
   override def SSW = Some(MenuItem('Polyline, RadialMenuIcon.group))
   override def SSE = Some(MenuItem('Polyline, RadialMenuIcon.explode))
   override def WSW = Some(MenuItem('Lineardim, RadialMenuIcon.linearDimension))
