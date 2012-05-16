@@ -117,7 +117,6 @@ object Move extends Module {
           case MouseMove(p, _, _) :: tail => getEndPoint(p)
           case MouseUp(p, _, _) :: tail => {
             ending = true
-            println("got mouseUp")
             getEndPoint(p)
           }
           case _ => Vector2D(0, 0)

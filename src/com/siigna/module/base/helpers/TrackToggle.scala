@@ -33,11 +33,9 @@ object TrackToggle extends Module{
     'End -> ((events : List[Event]) => {
       if (isTracking == true) {
         isTracking = false
-        println("disable track here")
       }
       else {
         isTracking = true
-        println("enable track here")
       }
       None
     })

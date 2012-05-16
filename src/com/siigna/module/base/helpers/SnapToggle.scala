@@ -36,11 +36,9 @@ object SnapToggle extends Module {
     'End -> ((events : List[Event]) => {
       if (isSnapping == true) {
         isSnapping = false
-        println("disable snap here")
       }
       else {
         isSnapping = true
-        println("enable snap here")
       }
       None
     })

@@ -48,7 +48,6 @@ object Import extends Module {
           val shapes : List[Shape] = sections.map(_.toShape.getOrElse(None)).filterNot(_ == None).asInstanceOf[List[Shape]]
           Siigna display "Loading completed."
           frameIsLoaded = true
-          println("ending")
           Goto('End)
           Create(shapes) // Create the shapes
 
@@ -62,7 +61,6 @@ object Import extends Module {
     }),
     // Dispose of the frame so the thread can close down.
     'End   -> ((events : List[Event]) => {
-      println("in end")
       frameIsLoaded = false
       frame.dispose()
     })

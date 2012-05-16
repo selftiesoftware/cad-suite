@@ -15,7 +15,7 @@ import com.siigna._
 
 object Selection extends Module {
 
-  lazy val eventHandler = EventHandler(stateMap, stateMachine)
+  val eventHandler = EventHandler(stateMap, stateMachine)
 
   private var box : Option[Rectangle2D] = None
 
@@ -82,10 +82,10 @@ object Selection extends Module {
         box = None
       }
       //if the selection is drawn from right to left, select partially enclosed shapes as well.:
-      else {
+      else if (box.isDefined && selectFullyEnclosed == false) {
         Select(box.get, false)
         box = None
-      }
+      } else None
     })
   )
 

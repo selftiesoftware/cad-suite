@@ -20,11 +20,11 @@ object Rectangle extends Module {
 
   var points = List[Vector2D]()
 
-  val stateMap = DirectedGraph(
+  def stateMap = DirectedGraph(
     'Start       -> 'Message   -> 'SetPoint
   )
 
-  lazy val stateMachine = Map(
+  def stateMachine = Map(
     //TODO: draw a dummy rectangle of eg. 1/15 * 1/15 of the paper height/width dynamically before first point is set
     'Start -> ((events : List[Event]) => {
       events match {
@@ -38,7 +38,11 @@ object Rectangle extends Module {
       //A function that passes a rectangleShape to the point module to be drawn dynamically
       //from the first point to the mouse position
       val getRectGuide : Vector2D => PolylineShape = (v : Vector2D) => {
-        PolylineShape.fromRectangle(Rectangle2D(points.head, v))
+        if(points.size > 0) {
+          PolylineShape.fromRectangle(Rectangle2D(points.head, v))
+        }
+        //TODO: a hack to prevent Error when calling Rectangle: Unexpected error in processing state map
+        else PolylineShape.fromRectangle(Rectangle2D(Vector2D(0,0), Vector2D(0,0)))
       }
 
       events match {

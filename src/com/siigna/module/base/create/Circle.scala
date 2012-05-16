@@ -19,8 +19,8 @@ object Circle extends Module {
 
   val eventHandler = EventHandler(stateMap, stateMachine)
 
-  private var center : Option[Vector2D] = None
-  private var radius : Option[Vector2D] = None
+  var center : Option[Vector2D] = None
+  var radius : Option[Vector2D] = None
 
   def stateMap = DirectedGraph(
     'Start        -> 'KeyEscape  -> 'End,
@@ -30,12 +30,10 @@ object Circle extends Module {
   def stateMachine = Map(
     //Start: Defines a centerpoint for the circle and forwards to 'SetRadius
     'Start -> ((events : List[Event]) => {
-      println(events)
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
         case Message(p : Vector2D) :: tail => Goto('SetRadius)
         case _ => {
-          println("got:  "+events.head)
           ForwardTo('Point, false)
         }
       }
@@ -46,7 +44,9 @@ object Circle extends Module {
     'SetRadius -> ((events : List[Event]) => {
 
      val getCircleGuide : Vector2D => CircleShape = (v : Vector2D) => {
-       CircleShape(center.get, v)
+       if (center.isDefined) {
+         CircleShape(center.get, v)
+       } else CircleShape(Vector2D(0,0), Vector2D(0,0))
      }
 
       events match {

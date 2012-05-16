@@ -64,7 +64,6 @@ object Divide extends Module {
                 var divisionY = p1.y + spacingY * i - spacingY
                 var divisionPoint = Vector2D(divisionX, divisionY)
                 var radius = divisionPoint + Vector2D(2,0)
-                println(divisionPoint)
                 Create(CircleShape(divisionPoint, radius))
               }
             }

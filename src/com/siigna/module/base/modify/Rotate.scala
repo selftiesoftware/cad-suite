@@ -68,7 +68,6 @@ object Rotate extends Module {
             if(firstMouseDown == false)
               firstMouseDown = true
             else {
-              println("setting center now")
               centerPoint = Some(p)
               ForwardTo('Point, false)
             }
@@ -113,7 +112,6 @@ object Rotate extends Module {
             endVector = Some(p)
             rotation = ((startVector.get - centerPoint.get) - (endVector.get - centerPoint.get)).angle
             transformation = Some(TransformationMatrix(translation, 1))
-            println("ANGLE: " +rotation)
             Goto('End)
           }
           case _ => {
@@ -153,7 +151,6 @@ object Rotate extends Module {
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    println("CENTER POINT: "+centerPoint)
 
     Model.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))
 

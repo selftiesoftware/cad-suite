@@ -77,7 +77,6 @@ object Arc extends Module {
     }
   }),
   'SetArc -> ((events : List[Event]) => {
-    println(events)
     inSetArc = true
     val arcGuide : Vector2D => ArcShape = (v : Vector2D) => {
        val radius = (points(0)-points(1)).length

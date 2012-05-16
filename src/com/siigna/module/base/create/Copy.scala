@@ -53,7 +53,6 @@ object Copy extends Module {
 
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println(moduleCallFromMenu)
       //start 'Move only if there is a selection
       if (!Model.selection.isEmpty) {
         //save the original shapes
