@@ -129,7 +129,6 @@ object Import extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
     g draw loadFrame.transform(t)
     if (fileLength > 0 && ((System.currentTimeMillis() - startTime.get) / (fileLength / 30000)) < 394) {
-      println(((System.currentTimeMillis() - startTime.get) / (fileLength / 30000)).toInt)
       g draw loadBar(((System.currentTimeMillis() - startTime.get) / (fileLength / 30000)).toInt).transform(t)
     } else if (fileLength > 0 && ((System.currentTimeMillis() - startTime.get) / (fileLength / 30000)) > 394)
       g draw loadBar(390).transform(t)

@@ -17,6 +17,7 @@ import module.base.file.{SetTitle}
 import com.siigna.module.base.radialmenu.category.{Create => MenuCreate}
 import com.siigna.app.controller.AppletParameters
 import com.siigna.app.controller.remote._
+import java.awt.Color
 
 /**
 * The default module for the base module pack. Works as access point to
@@ -29,6 +30,8 @@ object Default extends Module {
   var activeUser : Option[String] = None
   var activeDrawing : Option[Int] = None
 
+  lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, 1.00f)
+
   var centerFocus : Vector2D = Vector2D(0,0)
 
   def eventHandler = EventHandler(stateMap, stateMachine)
@@ -40,7 +43,11 @@ object Default extends Module {
 
   var gridIsOn = false
 
-   //The nearest shape to the current mouse position.
+  //graphics to show modules loading progress
+  def loadBar(point : Int): Shape = PolylineShape.fromRectangle(Rectangle2D(Vector2D(-197*Siigna.paperScale,-3*Siigna.paperScale), Vector2D(-197*Siigna.paperScale + point*Siigna.paperScale,3*Siigna.paperScale))).setAttribute(("raster" -> anthracite))
+  def loadFrame : Shape = PolylineShape.fromRectangle(Rectangle2D(Vector2D(-200*Siigna.paperScale,-6*Siigna.paperScale), Vector2D(200*Siigna.paperScale,6*Siigna.paperScale)))
+
+  //The nearest shape to the current mouse position.
   var nearestShape : Option[(Int, Shape)] = None
 
   //The last module this module forwarded to, if any.
@@ -50,6 +57,8 @@ object Default extends Module {
 
   //store the latest Key Event to be able to see whether a category (C,H,E,P, or F) was chosen before
   var previousKey :Option[Char] = None
+
+  private var startTime : Option[Long] = None
 
   var titleFocus : Option[Vector2D] = None
 
@@ -72,6 +81,9 @@ object Default extends Module {
         //  saveDrawingOwnerName(AppletParameters.getDrawingId.get,AppletParameters.contributorName.get,AppletParameters.clientReference.get)
         //  }
         //}
+
+        //start the loading bar timer
+        startTime =  Some(System.currentTimeMillis().toLong)
 
         Siigna.display("Loading Siigna modules ver. 0.5")
         //preload commonly used modules
@@ -98,7 +110,6 @@ object Default extends Module {
         case MouseDown(point, MouseButtonLeft, _) :: tail           => ForwardTo('Selection)
         case MouseDown(point, MouseButtonRight, _) :: tail          => {
           if (firstMenuLoad == true) {
-
             ForwardTo('Menu)
             firstMenuLoad = false
           }
@@ -272,6 +283,18 @@ object Default extends Module {
     }))
 
   override def paint(g : Graphics, t : TransformationMatrix) {
+    //draw a loading bar when modules are loading.
+    if(firstStart == true && startTime.isDefined){
+      var loadingProgress = System.currentTimeMillis() - startTime.get
+      println(loadingProgress)
+      g draw loadFrame.transform(t)
+      if ((System.currentTimeMillis() - startTime.get) < 394) {
+        g draw loadBar(loadingProgress.toInt).transform(t)
+      }
+      else if ((System.currentTimeMillis() - startTime.get)> 394) {
+        g draw loadBar(390).transform(t)
+      }
+    }
     //draw a grid if toggled in through the Helpers menu
     if(gridIsOn == true) com.siigna.module.base.helpers.Grid.paint(g : Graphics, t : TransformationMatrix)
     //draw selected/highlighted vertices
