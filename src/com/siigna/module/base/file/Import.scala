@@ -16,7 +16,7 @@ package com.siigna.module.base.file
 //java
 
 import fileformats.dxf.{DXFSection, DXFValue}
-import java.io.File
+import java.io.{File}
 import java.awt.{Color, FileDialog, Frame}
 
 //siigna

@@ -32,6 +32,8 @@ object Point extends Module {
 
   private def difference : Vector2D = if (previousPoint.isDefined) previousPoint.get else Vector2D(0, 0)
 
+  private var distance : Option[Double] = None
+
   private var filteredX : Option[Double] = None
 
   //a function to add a typed distance to a line, after the Angle Gizmo has redined a radial.
@@ -57,6 +59,8 @@ object Point extends Module {
   private var point : Option[Vector2D] = None
 
   var pointGuide : Option[Guide] = None
+
+  var moving : Boolean = false
 
   //Store the mousePosition, so we get the snap-coordinates
   private var mousePosition : Option[Vector2D] = None
@@ -95,6 +99,7 @@ object Point extends Module {
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       if (com.siigna.module.base.Default.previousModule == Some('Rotate)) rotation = true
+      if (com.siigna.module.base.Default.previousModule == Some('Move)) moving = true
       events match {
 
         // Check for continued MouseDown
@@ -141,9 +146,13 @@ object Point extends Module {
             angle = Some(coordinateX.get)
             Goto('End)
           }
-          if (!currentSnap.isDefined && coordinateX.isEmpty && coordinateValue.length == 0) Goto('End)
+          if (moving == true && !coordinateValue.isEmpty) {
+            distance = Some(coordinateValue.toDouble)
+            Goto('End)
+          }
+          else if (!currentSnap.isDefined && coordinateX.isEmpty && coordinateValue.length == 0) Goto('End)
           //when ENTER is pressed, and a value is det, this valus is passed as the first coordinate relative to 0,0
-          if (!currentSnap.isDefined && coordinateX.isEmpty && coordinateValue.length > 0) {
+          else if (!currentSnap.isDefined && coordinateX.isEmpty && coordinateValue.length > 0) {
             coordinateX = Some(java.lang.Double.parseDouble(coordinateValue))
             //a hack used in paint to get the point input used to draw the position without transformation
             filteredX = Some(coordinateX.get + difference.x)
@@ -182,9 +191,8 @@ object Point extends Module {
         case _ =>
       }
       // END CASE MATCHES.
-
       // Format the x and y coordinate and store the message in a value
-      val message = if (coordinateValue.length > 0 && rotation == false) {
+      val message = if (coordinateValue.length > 0 && rotation == false && moving == false) {
         val x = if (coordinateX.isDefined) "%.3f" format coordinateX.get
                 else coordinateValue
         val y = if (coordinateY.isDefined) "%.3f" format coordinateY.get
@@ -193,7 +201,7 @@ object Point extends Module {
 
         // Save the message
         "point (X: "+x+", Y: "+y+")."
-      } else if (mousePosition.isDefined && rotation == false) {
+      } else if (mousePosition.isDefined && rotation == false && moving == false) {
         val x = "%.3f" format (if (coordinateX.isDefined) coordinateX.get else mousePosition.get.x)
         val y = "%.3f" format mousePosition.get.y
         "point (X: "+x+", Y: "+y+")."
@@ -202,7 +210,9 @@ object Point extends Module {
         else if (rotation == true && x.isDefined) {
           "rotation angle: "+ x.get
         }
-
+        else if (moving == true) {
+          "distance: "+ coordinateValue
+        }
         else {
         "click or type point"
       }
@@ -233,23 +243,36 @@ object Point extends Module {
       coordinateValue = ""
       filteredX = None
       eventParser.clearSnap()
-      currentSnap = None
+
       // Reset the point guide
       previousPoint = point
       //clear the point.
+      val d = distance
+      val distAngle = currentSnap
       val p = point
       val r = angle
       angle = None
+      currentSnap = None
       point = None
-
+      distance = None
       rotation = false
+      moving = false
 
       // Return a point if it is defined
       if (p.isDefined) {
         // Return the point
         Message(p.get)
       }
-      // Return an angle if it is defines
+      // Return a distance if moving
+      if (d.isDefined) {
+
+        // Calculate the point based on angle and distance, and return it.
+       // val t : TransformationMatrix = TransformationMatrix(Vector2D(0,0), 1).rotate(distAngle.get.degree)
+       // println("sending: "+Vector2D(d.get,0).transform(t))
+       // Message(Vector2D(d.get,0).transform(t))
+        Message(p)
+      }
+      // Return an angle if it is defined
       if (r.isDefined) {
         Message(r.get)
       }

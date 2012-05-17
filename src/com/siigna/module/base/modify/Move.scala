@@ -43,8 +43,8 @@ object Move extends Module {
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap     = DirectedGraph(
-    'Start -> 'KeyDown -> 'End,
-    'Move  -> 'KeyDown -> 'End
+    'Start -> 'KeyEscape -> 'End,
+    'Move  -> 'KeyEscape -> 'End
   )
   
   lazy val stateMachine = Map(
@@ -97,6 +97,7 @@ object Move extends Module {
           Goto('Move)
         }
         case MouseUp(p, _, _) :: MouseDown(_ ,_ ,_) :: tail => {
+          com.siigna.module.base.Default.previousModule = Some('Move)
           ForwardTo('Point)
           Controller ! Message(PointGuides(shapeGuide))
         }
@@ -104,7 +105,11 @@ object Move extends Module {
       }
     }),
     'Move -> ((events : List[Event]) => {
-
+      //events match{
+      //  case KeyDown(_,_) :: tail => Goto('End)
+      //}
+      println(events)
+      println(ending)
       def getEndPoint(p : Vector2D) = {
         endPoint = Some(p)
         (p - startPoint.get)
@@ -135,6 +140,7 @@ object Move extends Module {
       else if (startPoint.isDefined && moduleCallFromMenu == true) {
         //check if the endPoint is set. If not, goto 'Point.
         if (gotEndPoint == false) {
+          println("A")
           gotEndPoint = true
           ForwardTo('Point)
         }
@@ -142,6 +148,7 @@ object Move extends Module {
         //TODO: this is a hack, could probably be made alot nicer...
         else if(gotEndPoint == true) {
           events match {
+            //if an EndPoint is returned from 'Point:
             case Message (p : Vector2D) :: tail => {
               //var oldShapes:Map[Int,Shape] = Map()
               //Model.selection.get.shapes.foreach(tuple => {
@@ -161,6 +168,7 @@ object Move extends Module {
       }
     }),
     'End   -> ((events : List[Event]) => {
+      println("MOVE- END")
       //deselect, but only if an objects has been moved.
       //if (Model.selection.isDefined && startPoint.isDefined && endPoint.isDefined && (startPoint.get - endPoint.get != Vector2D(0, 0))) {
       if (Model.selection.isDefined && startPoint.isDefined && endPoint.isDefined) {
@@ -168,7 +176,6 @@ object Move extends Module {
         Model.deselect()
       }
       //clear the vars
-      com.siigna.module.base.Default.previousModule = Some('Move)
       ending = false
       gotEndPoint = false
       moduleCallFromMenu = false
