@@ -14,12 +14,12 @@ package com.siigna.module.base.file
 /* 2010 (C) Copyright by Siigna, all rights reserved. */
 
 //java
+
+import fileformats.dxf.{DXFSection, DXFValue}
 import java.awt.{FileDialog, Frame}
 import java.io.File
-
 //siigna
 import com.siigna._
-import com.siigna.util.dxf._
 
 object Import extends Module {
 

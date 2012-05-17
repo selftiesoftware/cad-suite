@@ -15,9 +15,10 @@ package com.siigna.module.base.file
 
 import java.awt.{FileDialog, Frame}
 import java.io.{BufferedWriter, FileWriter}
+import fileformats.dxf.{DXFFile}
+
 
 import com.siigna._
-import com.siigna.util.dxf._
 
 object Export extends Module {
 
@@ -61,7 +62,8 @@ object Export extends Module {
     val dxf = new DXFFile
     val writer = new FileWriter(directory+filename)
     val file   = new BufferedWriter(writer)
-    dxf ++ Model.map(_._2.toDXF).seq.toSeq
+    //TODO: reimplement toDXF methods in mainline.
+    //dxf ++ Model.map(_._2.toDXF).seq.toSeq
     file.write(dxf.toString)
     file.flush
     file.close
