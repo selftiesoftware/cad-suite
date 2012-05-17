@@ -15,6 +15,8 @@ import com.siigna._
 
 object Point extends Module {
 
+  private var angle : Option[Double] = None
+
   //a placeholder for the active AngleSnap - needed if the user wants to type a length of a line segment
   private var currentSnap : Option[AngleSnap] = None
 
@@ -64,6 +66,8 @@ object Point extends Module {
    */
   private var previousPoint : Option[Vector2D] = None
 
+  var rotation : Boolean = false
+
   var snapAngle : Option[Double] = None
 
   // Save the X value, if any
@@ -90,6 +94,7 @@ object Point extends Module {
   )
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      if (com.siigna.module.base.Default.previousModule == Some('Rotate)) rotation = true
       events match {
 
         // Check for continued MouseDown
@@ -132,7 +137,10 @@ object Point extends Module {
         }
         //goto second coordinate if ENTER, COMMA, or TAB is pressed
         case KeyDown(Key.Enter | Key.Tab | ',', _) :: tail => {
-
+          if (rotation == true && coordinateX.isDefined) {
+            angle = Some(coordinateX.get)
+            Goto('End)
+          }
           if (!currentSnap.isDefined && coordinateX.isEmpty && coordinateValue.length == 0) Goto('End)
           //when ENTER is pressed, and a value is det, this valus is passed as the first coordinate relative to 0,0
           if (!currentSnap.isDefined && coordinateX.isEmpty && coordinateValue.length > 0) {
@@ -176,7 +184,7 @@ object Point extends Module {
       // END CASE MATCHES.
 
       // Format the x and y coordinate and store the message in a value
-      val message = if (coordinateValue.length > 0) {
+      val message = if (coordinateValue.length > 0 && rotation == false) {
         val x = if (coordinateX.isDefined) "%.3f" format coordinateX.get
                 else coordinateValue
         val y = if (coordinateY.isDefined) "%.3f" format coordinateY.get
@@ -185,12 +193,17 @@ object Point extends Module {
 
         // Save the message
         "point (X: "+x+", Y: "+y+")."
-      } else if (mousePosition.isDefined) {
+      } else if (mousePosition.isDefined && rotation == false) {
         val x = "%.3f" format (if (coordinateX.isDefined) coordinateX.get else mousePosition.get.x)
         val y = "%.3f" format mousePosition.get.y
-
         "point (X: "+x+", Y: "+y+")."
-      } else {
+        }
+
+        else if (rotation == true && x.isDefined) {
+          "rotation angle: "+ x.get
+        }
+
+        else {
         "click or type point"
       }
 
@@ -225,12 +238,20 @@ object Point extends Module {
       previousPoint = point
       //clear the point.
       val p = point
+      val r = angle
+      angle = None
       point = None
+
+      rotation = false
 
       // Return a point if it is defined
       if (p.isDefined) {
         // Return the point
         Message(p.get)
+      }
+      // Return an angle if it is defines
+      if (r.isDefined) {
+        Message(r.get)
       }
       else events match {
         case MouseDown(p, MouseButtonLeft, _) :: tail => {
@@ -278,7 +299,7 @@ object Point extends Module {
         guide(Vector2D(filteredX.get, mousePosition.get.y)).foreach(s => g draw s.transform(t))
       } else if (mousePosition.isDefined) {
         guide(mousePosition.get).foreach(s => g draw s.transform(t))
-      }
+      } else None
     }
   }
 

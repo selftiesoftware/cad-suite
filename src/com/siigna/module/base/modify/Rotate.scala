@@ -20,12 +20,14 @@ import module.base.create.{PointGuides, PointGuide, AngleSnap}
  */
 object Rotate extends Module {
 
+  private var rotationFromPoint : Option[Double] = None
   private var firstMouseDown = false
   private var centerPoint : Option[Vector2D] = None
   private var endVector : Option[Vector2D] = None
   private var rotation : Double = 0
   private var startVector : Option[Vector2D] = None
   private var startVectorSet = false
+  private var text = ""
   private var transformation : Option[TransformationMatrix] = None
 
 
@@ -37,6 +39,7 @@ object Rotate extends Module {
 
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+
       //a guide to get Point to dynamically draw the shape(s) and their rotation
       val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
         // Create a matrix
@@ -57,6 +60,8 @@ object Rotate extends Module {
       //if the center for the rotation has not been set, then set it:
       if(!centerPoint.isDefined){
         Siigna.display("Select a base point for the rotation")
+        //set the previous module to rotation so 'Point knows 'Rotate is calling, so that it can ask for a rotation angle instead of a point.
+        com.siigna.module.base.Default.previousModule = Some('Rotate)
         events match{
           //exit mechanisms
           case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
@@ -83,6 +88,12 @@ object Rotate extends Module {
             Controller ! Message(PointGuides(shapeGuide))
             startVector = Some(p)
             ForwardTo('Point)
+          }
+          //match rotation angles sent from 'Point
+          case Message(r : Double) :: KeyDown(_ ,_) :: tail => {
+            //if 'Point returns a rotation, Goto 'End to do the rotation.
+            rotationFromPoint = Some(r)
+            Goto('End)
           }
           case _ => {
             Siigna.display("Select a starting point for the rotation")
@@ -121,27 +132,37 @@ object Rotate extends Module {
       }
     }),
     'End   -> ((events : List[Event]) => {
-      events match {
-        case Message(p : Vector2D) :: tail => {
+      //if an angle was typed, perform the rotation directly:
+      if(rotationFromPoint.isDefined){
+        val t : TransformationMatrix = TransformationMatrix(Vector2D(0,0), 1).rotate(-rotationFromPoint.get, centerPoint.get)
+        Model.selection.get.transform(t)
+        Model.deselect()
+      } else {
 
-          //do the rotation:
-            val t : TransformationMatrix = {
-            val a1 : Double = (startVector.get - centerPoint.get).angle
-            val a2 : Double = (endVector.get - centerPoint.get).angle
+        //if Start and EndVectors were defined in 'Point, rotate on that basis:
+        events match {
+          case Message(p : Vector2D) :: tail => {
 
-            TransformationMatrix(Vector2D(0,0), 1).rotate(a2 - a1, centerPoint.get)
+            //do the rotation:
+              val t : TransformationMatrix = {
+              val a1 : Double = (startVector.get - centerPoint.get).angle
+              val a2 : Double = (endVector.get - centerPoint.get).angle
+              println("rotation: "+ (a2 - a1))
+              TransformationMatrix(Vector2D(0,0), 1).rotate(a2 - a1, centerPoint.get)
+            }
+            //val t = transformation.get.rotate(rotation,centerPoint.get)
+            Model.selection.get.transform(t)
+            Model.deselect()
           }
-          //val t = transformation.get.rotate(rotation,centerPoint.get)
-          Model.selection.get.transform(t)
-          Model.deselect()
-        }
-        case _ => {
-          Goto('End, false)
+          case _ => {
+            Goto('End, false)
+          }
         }
       }
       //clear vars
-      com.siigna.module.base.Default.previousModule = Some('Rotate)
+      rotationFromPoint = None
       centerPoint = None
+      firstMouseDown = false
       endVector = None
       firstMouseDown = false
       rotation = 0
@@ -156,8 +177,8 @@ object Rotate extends Module {
 
     if(startVector.isDefined) g draw (CircleShape(startVector.get,(startVector.get + Vector2D(0,9)))).transform(t)
     else if(centerPoint.isDefined && !startVector.isDefined) {
-      g draw (CircleShape(startVector.get,(startVector.get + Vector2D(10,0)))).transform(t)
-      g draw (CircleShape(centerPoint.get,(centerPoint.get + Vector2D(10,0)))).transform(t)
+      //g draw (CircleShape(startVector.get,(startVector.get + Vector2D(10,0)))).transform(t)
+      //g draw (CircleShape(centerPoint.get,(centerPoint.get + Vector2D(10,0)))).transform(t)
     }
   }
 }
