@@ -16,15 +16,29 @@ package com.siigna.module.base.file
 //java
 
 import fileformats.dxf.{DXFSection, DXFValue}
-import java.awt.{FileDialog, Frame}
 import java.io.File
+import java.awt.{Color, FileDialog, Frame}
+
 //siigna
 import com.siigna._
 
 object Import extends Module {
 
+  lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, 1.00f)
+
+  val color = "Color" -> "#AAAAAA".color
+
   val frame = new Frame
   var frameIsLoaded = false
+
+  var fileLength : Int = 0
+
+  //graphics to show the loading progress
+  def loadBar(point : Int): Shape = PolylineShape.fromRectangle(Rectangle2D(Vector2D(-197*Siigna.paperScale,-3*Siigna.paperScale), Vector2D(-197*Siigna.paperScale + point*Siigna.paperScale,3*Siigna.paperScale))).setAttribute(("raster" -> anthracite))
+  def loadFrame : Shape = PolylineShape.fromRectangle(Rectangle2D(Vector2D(-200*Siigna.paperScale,-6*Siigna.paperScale), Vector2D(200*Siigna.paperScale,6*Siigna.paperScale))).addAttribute(color)
+
+  private var startTime : Option[Long] = None
+
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 
   lazy val stateMap     = DirectedGraph('Start     -> 'KeyEscape -> 'End)
@@ -40,11 +54,14 @@ object Import extends Module {
           val fileName = dialog.getFile
           val fileDir = dialog.getDirectory
           val file = new File(fileDir + fileName)
+          startTime =  Some(System.currentTimeMillis().toLong)
+
+          //TODO: find the correct scaling factor to make loading bar fit large DXF files.
+          fileLength = file.length().toInt * 4
 
           Siigna display "Loading file... Please wait."
 
           val sections : List[DXFSection] = sanitize(file)
-
           val shapes : List[Shape] = sections.map(_.toShape.getOrElse(None)).filterNot(_ == None).asInstanceOf[List[Shape]]
           Siigna display "Loading completed."
           frameIsLoaded = true
@@ -61,8 +78,10 @@ object Import extends Module {
     }),
     // Dispose of the frame so the thread can close down.
     'End   -> ((events : List[Event]) => {
+      fileLength = 0
       frameIsLoaded = false
       frame.dispose()
+      startTime = None
     })
   )
 
@@ -105,5 +124,15 @@ object Import extends Module {
     })
 
     dxfSections
+  }
+  //draw a loading bar
+  override def paint(g : Graphics, t : TransformationMatrix) {
+    g draw loadFrame.transform(t)
+    if (fileLength > 0 && ((System.currentTimeMillis() - startTime.get) / (fileLength / 30000)) < 394) {
+      println(((System.currentTimeMillis() - startTime.get) / (fileLength / 30000)).toInt)
+      g draw loadBar(((System.currentTimeMillis() - startTime.get) / (fileLength / 30000)).toInt).transform(t)
+    } else if (fileLength > 0 && ((System.currentTimeMillis() - startTime.get) / (fileLength / 30000)) > 394)
+      g draw loadBar(390).transform(t)
+
   }
 }

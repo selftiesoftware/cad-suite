@@ -17,6 +17,7 @@ import scala.collection.generic.{Addable, Subtractable}
 
 import com.siigna.app.model.shape._
 import com.siigna.util.geom.{Vector2D, Vector}
+import com.siigna.{Graphics, TransformationMatrix}
 
 /**
  * A DXF section, represented by list of DXFValues.
