@@ -100,6 +100,7 @@ object Point extends Module {
     'Start -> ((events : List[Event]) => {
       if (com.siigna.module.base.Default.previousModule == Some('Rotate)) rotation = true
       if (com.siigna.module.base.Default.previousModule == Some('Move)) moving = true
+      println("moving: " +moving)
       events match {
 
         // Check for continued MouseDown
@@ -146,7 +147,7 @@ object Point extends Module {
             angle = Some(coordinateX.get)
             Goto('End)
           }
-          if (moving == true && !coordinateValue.isEmpty) {
+          if (angle.isDefined && moving == true && !coordinateValue.isEmpty) {
             distance = Some(coordinateValue.toDouble)
             Goto('End)
           }
@@ -192,7 +193,7 @@ object Point extends Module {
       }
       // END CASE MATCHES.
       // Format the x and y coordinate and store the message in a value
-      val message = if (coordinateValue.length > 0 && rotation == false && moving == false) {
+      val message = if (coordinateValue.length > 0 ) {
         val x = if (coordinateX.isDefined) "%.3f" format coordinateX.get
                 else coordinateValue
         val y = if (coordinateY.isDefined) "%.3f" format coordinateY.get
@@ -207,10 +208,18 @@ object Point extends Module {
         "point (X: "+x+", Y: "+y+")."
         }
 
+        //typing a move point
+        else if (mousePosition.isDefined && rotation == false && moving == true && !angle.isDefined) {
+        println(angle.isDefined)
+        val x = "%.3f" format (if (coordinateX.isDefined) coordinateX.get else mousePosition.get.x)
+        val y = "%.3f" format mousePosition.get.y
+        "point (X: "+x+", Y: "+y+")."
+        }
+
         else if (rotation == true && x.isDefined) {
           "rotation angle: "+ x.get
         }
-        else if (moving == true) {
+        else if (moving == true && angle.isDefined) {
           "distance: "+ coordinateValue
         }
         else {
@@ -237,43 +246,42 @@ object Point extends Module {
       }
     }),
     'End -> ((events : List[Event]) => {
-      //Clear the variables
-      coordinateX = None
-      coordinateY = None
-      coordinateValue = ""
-      filteredX = None
-      eventParser.clearSnap()
-
       // Reset the point guide
       previousPoint = point
-      //clear the point.
+      //transfer variables to be able to use them for sending messages after module variables have been cleared
       val d = distance
       val distAngle = currentSnap
       val p = point
       val r = angle
+
+      //clear vars.
       angle = None
+      coordinateX = None
+      coordinateY = None
+      coordinateValue = ""
       currentSnap = None
-      point = None
       distance = None
-      rotation = false
+      eventParser.clearSnap()
+      filteredX = None
       moving = false
+      point = None
+      rotation = false
 
       // Return a point if it is defined
       if (p.isDefined) {
         // Return the point
         Message(p.get)
       }
-      // Return a distance if moving
-      if (d.isDefined) {
-
+      // Return a point for moving, if one has been typed and the Angle Gizmo used to specify an angle for the move operation.
+      else if (d.isDefined && distAngle.isDefined) {
         // Calculate the point based on angle and distance, and return it.
-       // val t : TransformationMatrix = TransformationMatrix(Vector2D(0,0), 1).rotate(distAngle.get.degree)
-       // println("sending: "+Vector2D(d.get,0).transform(t))
-       // Message(Vector2D(d.get,0).transform(t))
-        Message(p)
+        val t : TransformationMatrix = TransformationMatrix(Vector2D(0,0), 1).rotate(distAngle.get.degree)
+        val m = Vector2D(d.get,0).transform(t)
+        Message(m)
+
       }
       // Return an angle if it is defined
-      if (r.isDefined) {
+      else if (r.isDefined) {
         Message(r.get)
       }
       else events match {

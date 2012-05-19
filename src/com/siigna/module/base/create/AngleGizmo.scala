@@ -186,6 +186,7 @@ object AngleGizmo extends Module {
       //draw inactive Angle Gizmo shapes
       def getLine(d1 : Int, d2 : Int, mode : Int) = LineShape(Vector2D(startPoint.get.x, startPoint.get.y + d1), Vector2D(startPoint.get.x, startPoint.get.y + d2), Attributes("Color" -> (if (gizmoMode == mode) "#999999" else "#CDCDCD").color))
 
+
       // Draw the radians
       (0 to 360 by 45).foreach(radian => g draw getLine(50, 100, 45).transform(t.rotate(radian, startPoint.get)))
       (0 to 360 by 10).foreach(radian => g draw getLine(100, 170, 10).transform(t.rotate(radian, startPoint.get)))

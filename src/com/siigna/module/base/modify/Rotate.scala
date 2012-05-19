@@ -96,7 +96,7 @@ object Rotate extends Module {
             Goto('End)
           }
           case _ => {
-            Siigna.display("Select a starting point for the rotation")
+            Siigna.display("Select a starting point, or type an angle")
             ForwardTo('Point, false)
           }
         }
