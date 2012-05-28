@@ -44,7 +44,7 @@ object Print extends Module {
         }
 
         val paper = new Paper()
-        val margin = Siigna.printMargin
+        val margin = Siigna.double("printMargin").getOrElse(13.0)
         paper.setImageableArea(margin, margin, paper.getWidth() - margin * 2, paper.getHeight() - margin * 2);
         pageFormat.setPaper(paper)
 

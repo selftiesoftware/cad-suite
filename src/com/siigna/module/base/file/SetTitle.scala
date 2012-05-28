@@ -12,8 +12,6 @@
 package com.siigna.module.base.file
 
 import com.siigna._
-import app.controller.remote.SaveDrawingOwnerName
-import com.siigna.app.model.drawing.activeDrawing._
 
 object SetTitle extends Module {
 
@@ -65,7 +63,8 @@ object SetTitle extends Module {
 
       val client = AppletParameters.getClient
       if (client.isDefined) {
-        SaveDrawingOwnerName(AppletParameters.getDrawingId.get, AppletParameters.contributorName.get, client.get)
+        // TODO: Implement this
+        //SaveDrawingOwnerName(AppletParameters.getDrawingId.get, AppletParameters.contributorName.get, client.get)
       }
 
       //reset the vars
