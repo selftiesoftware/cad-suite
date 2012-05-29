@@ -1,10 +1,12 @@
-'     _____  _____
-'     \   /  \   /
-'      \ /    \ /
-'       |      |
-'       |      |
-'       |      |
-'       |      |
+<pre>
+     _____  _____
+     \   /  \   /
+      \ /    \ /
+       |      |
+       |      |
+       |      |
+       |      |
+</pre>
 
   ## ABOUT SIIGNA
 
@@ -24,7 +26,8 @@
   text, linework and polygons. So in principle, Siigna could be expanded to become a 
   platform for digital text editing, typesetting and layout, scripting based graphics, 
   electronic circuit board creation. 
-  '- Anything which can be represented as text and/or linework.
+
+  '- Anything which can be represented as text and/or line work.
 
   ''Read more on the [https://github.com/siigna/module/wiki wiki pages]''.
 
