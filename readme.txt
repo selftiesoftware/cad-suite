@@ -35,4 +35,4 @@
   COPYRIGHT
   Siigna is released under the creative commons license, see
   siigna_license.pdf for further info.
-  (c) siigna 2012
+  (c) siigna 2008 - 2012
