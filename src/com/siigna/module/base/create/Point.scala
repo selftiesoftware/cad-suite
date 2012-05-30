@@ -62,9 +62,6 @@ object Point extends Module {
 
   var moving : Boolean = false
 
-  //Store the mousePosition, so we get the snap-coordinates
-  private var mousePosition : Option[Vector2D] = None
-
   /**
    * The previous point saved as the relative value to the next.
    */
@@ -127,10 +124,6 @@ object Point extends Module {
         case (MouseDown(_, _, _) | MouseUp(_, _, _)) :: tail => {
           Goto('End)
         }
-
-        // Mouse position
-        case MouseMove(p, _, _) :: tail => mousePosition = Some(p)
-        //case MouseDrag(p, _, _) :: tail => mousePosition = Some(p)
 
         // Exit strategy
         case KeyDown(Key.Esc, _) :: tail => Goto('End)
@@ -202,17 +195,17 @@ object Point extends Module {
 
         // Save the message
         "point (X: "+x+", Y: "+y+")."
-      } else if (mousePosition.isDefined && rotation == false && moving == false) {
-        val x = "%.3f" format (if (coordinateX.isDefined) coordinateX.get else mousePosition.get.x)
-        val y = "%.3f" format mousePosition.get.y
+      } else if (rotation == false && moving == false) {
+        val x = "%.3f" format (if (coordinateX.isDefined) coordinateX.get else mousePosition.x)
+        val y = "%.3f" format mousePosition.y
         "point (X: "+x+", Y: "+y+")."
         }
 
         //typing a move point
-        else if (mousePosition.isDefined && rotation == false && moving == true && !angle.isDefined) {
+        else if (rotation == false && moving == true && !angle.isDefined) {
         println(angle.isDefined)
-        val x = "%.3f" format (if (coordinateX.isDefined) coordinateX.get else mousePosition.get.x)
-        val y = "%.3f" format mousePosition.get.y
+        val x = "%.3f" format (if (coordinateX.isDefined) coordinateX.get else mousePosition.x)
+        val y = "%.3f" format mousePosition.y
         "point (X: "+x+", Y: "+y+")."
         }
 
@@ -322,14 +315,14 @@ object Point extends Module {
       // Draw the point guide depending on which information is available
       if (x.isDefined && y.isDefined) {
         guide(Vector2D(x.get + difference.x, y.get)).foreach(s => g draw s.transform(t))
-      } else if (x.isDefined && mousePosition.isDefined && !filteredX.isDefined && !currentSnap.isDefined) {
-        guide(Vector2D(x.get, mousePosition.get.y)).foreach(s => g draw s.transform(t))
-      } else if (x.isDefined && mousePosition.isDefined && !filteredX.isDefined && currentSnap.isDefined) {
+      } else if (x.isDefined && !filteredX.isDefined && !currentSnap.isDefined) {
+        guide(Vector2D(x.get, mousePosition.y)).foreach(s => g draw s.transform(t))
+      } else if (x.isDefined && !filteredX.isDefined && currentSnap.isDefined) {
         guide(lengthVector(x.get - difference.x)).foreach(s => g draw s.transform(t))
-      } else if (x.isDefined && mousePosition.isDefined && filteredX.isDefined) {
-        guide(Vector2D(filteredX.get, mousePosition.get.y)).foreach(s => g draw s.transform(t))
-      } else if (mousePosition.isDefined) {
-        guide(mousePosition.get).foreach(s => g draw s.transform(t))
+      } else if (x.isDefined && filteredX.isDefined) {
+        guide(Vector2D(filteredX.get, mousePosition.y)).foreach(s => g draw s.transform(t))
+      } else if (mousePosition.x != Double.NaN) {
+        guide(mousePosition).foreach(s => g draw s.transform(t))
       } else None
     }
   }

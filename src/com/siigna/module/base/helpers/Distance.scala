@@ -24,7 +24,6 @@ object Distance extends Module {
   var points = List[Vector2D]()
   var p1 : Option[Vector2D] = None
   var p2 : Option[Vector2D] = None
-  var mousePosition  = Vector2D(0, 0)
 
 
   lazy val stateMap = DirectedGraph(
@@ -67,7 +66,6 @@ object Distance extends Module {
     'Buffer -> ((events : List[Event]) => {
       events match {
         case MouseMove(point ,_,_) :: tail  =>  {
-          mousePosition = point
           if ((mousePosition - p2.get).length > 20)
              Goto ('End)
         }

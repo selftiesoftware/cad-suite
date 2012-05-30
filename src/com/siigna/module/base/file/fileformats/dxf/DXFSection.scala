@@ -17,16 +17,16 @@ import scala.collection.generic.{Addable, Subtractable}
 
 import com.siigna.app.model.shape._
 import com.siigna.util.geom.{Vector2D, Vector}
-import com.siigna.{Graphics, TransformationMatrix}
 
 /**
  * A DXF section, represented by list of DXFValues.
  */
-case class DXFSection(values : Seq[DXFValue]) extends Addable[DXFValue, DXFSection] with Subtractable[DXFValue, DXFSection] {
+case class DXFSection(values : Seq[DXFValue]) extends Subtractable[DXFValue, DXFSection] {
 
-  def +(value : DXFValue)     = DXFSection(values.:+(value))
-  def +(section : DXFSection) = DXFSection(values ++ section.values)
-  def -(value : DXFValue)     = DXFSection(values.filterNot(_ == value))
+  def +(value : DXFValue)            = DXFSection(values.:+(value))
+  def ++(xs : Traversable[DXFValue]) = DXFSection(values ++ xs)
+  def +(section : DXFSection)        = DXFSection(values ++ section.values)
+  def -(value : DXFValue)            = DXFSection(values.filterNot(_ == value))
 
   def repr = this
 
