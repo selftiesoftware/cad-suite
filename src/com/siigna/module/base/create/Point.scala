@@ -100,7 +100,6 @@ object Point extends Module {
     'Start -> ((events : List[Event]) => {
       if (com.siigna.module.base.Default.previousModule == Some('Rotate)) rotation = true
       if (com.siigna.module.base.Default.previousModule == Some('Move)) moving = true
-      println("moving: " +moving)
       events match {
 
         // Check for continued MouseDown
@@ -210,7 +209,6 @@ object Point extends Module {
 
         //typing a move point
         else if (mousePosition.isDefined && rotation == false && moving == true && !angle.isDefined) {
-        println(angle.isDefined)
         val x = "%.3f" format (if (coordinateX.isDefined) coordinateX.get else mousePosition.get.x)
         val y = "%.3f" format mousePosition.get.y
         "point (X: "+x+", Y: "+y+")."
