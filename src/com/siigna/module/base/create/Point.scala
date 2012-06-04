@@ -100,7 +100,6 @@ object Point extends Module {
     'Start -> ((events : List[Event]) => {
       if (com.siigna.module.base.Default.previousModule == Some('Rotate)) rotation = true
       if (com.siigna.module.base.Default.previousModule == Some('Move)) moving = true
-      println("moving: " +moving)
       events match {
 
         // Check for continued MouseDown
@@ -121,10 +120,10 @@ object Point extends Module {
         // Avoid ending if the mouse up comes after setting the angle in the AngleGizmo
         case MouseDown(p, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail => previousPoint = Some(p)
 
-        case MouseUp(_, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail =>
+        case MouseUp(_, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail => println("AHA")
 
         // Exit strategy
-        case (MouseDown(_, _, _) | MouseUp(_, _, _)) :: tail => {
+        case (MouseDown(_, _, _) | MouseUp(_ , _, _)) :: tail => {
           Goto('End)
         }
 
@@ -210,7 +209,6 @@ object Point extends Module {
 
         //typing a move point
         else if (mouseLocation.isDefined && rotation == false && moving == true && !angle.isDefined) {
-        println(angle.isDefined)
         val x = "%.3f" format (if (coordinateX.isDefined) coordinateX.get else mouseLocation.get.x)
         val y = "%.3f" format mouseLocation.get.y
         "point (X: "+x+", Y: "+y+")."
@@ -246,8 +244,10 @@ object Point extends Module {
       }
     }),
     'End -> ((events : List[Event]) => {
-      // Reset the point guide
-      previousPoint = point
+      // If a point was set (unless it is the first point, in which case it will be set in 'End), save it as the PreviousPoint.
+      if(point.isDefined) {
+        previousPoint = point
+      }
       //transfer variables to be able to use them for sending messages after module variables have been cleared
       val d = distance
       val distAngle = currentSnap
@@ -284,13 +284,15 @@ object Point extends Module {
       else if (r.isDefined) {
         Message(r.get)
       }
+      // if it is the first point, return it:
       else events match {
         case MouseDown(p, MouseButtonLeft, _) :: tail => {
-          if (previousPoint.isEmpty) previousPoint = Some(p)
+          previousPoint = Some(p)
           Message(p)
+
         }
         case MouseUp(p, MouseButtonLeft, _) :: tail => {
-          if (previousPoint.isEmpty) previousPoint = Some(p)
+          previousPoint = Some(p)
           Message(p)
         }
         case _ =>

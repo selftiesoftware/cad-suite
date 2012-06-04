@@ -91,6 +91,7 @@ object Move extends Module {
     }),
     'StartPoint ->   ((events : List[Event]) => {
       Siigna display "set base point"
+      //println(events)
       events match {
         case Message(p : Vector2D) :: tail => {
           startPoint = Some(p)
@@ -108,7 +109,6 @@ object Move extends Module {
       events match{
         case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End, false)
         case _ => {
-          //println(ending)
           def getEndPoint(p : Vector2D) = {
             endPoint = Some(p)
             (p - startPoint.get)
@@ -139,7 +139,6 @@ object Move extends Module {
           else if (startPoint.isDefined && moduleCallFromMenu == true) {
             //check if the endPoint is set. If not, goto 'Point.
             if (gotEndPoint == false) {
-              println("A")
               gotEndPoint = true
               ForwardTo('Point)
             }
