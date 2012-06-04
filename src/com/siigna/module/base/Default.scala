@@ -15,7 +15,6 @@ import com.siigna.module.base.Menu._
 import com.siigna.module.base.radialmenu.category._
 import module.base.file.{SetTitle}
 import com.siigna.module.base.radialmenu.category.{Create => MenuCreate}
-import com.siigna.app.controller.AppletParameters
 import com.siigna.app.controller.remote._
 import java.awt.Color
 
@@ -98,12 +97,12 @@ object Default extends Module {
         Preload('Text, "com.siigna.module.base.create")
 
         firstStart = false
-      }
+
         //be sure to zoom to the title only after the boundary has been set, so that the correct zoom center can be retrieved.
         //if (AppletParameters.drawingIdReceivedAtStartup == false && titleFocus.isDefined) {
         //  ForwardTo('SetTitle)
         //}
-      else if (AppletParameters.drawingIdReceivedAtStartup == false && !titleFocus.isDefined) {
+      } else if (Siigna.drawing.id.isDefined && !titleFocus.isDefined) {
         Goto('Start)
       }
       events match {
@@ -346,17 +345,17 @@ object Default extends Module {
       g draw(title.transform(transformation))
     }
     //draw title
-    if (AppletParameters.readDrawingNameAsOption.isDefined && (AppletParameters.readDrawingNameAsOption.get.length() > 0) && SetTitle.text.isEmpty) {
-      val title = TextShape(AppletParameters.readDrawingNameAsOption.get, unitX(-72), headerHeight * 0.7)
+    if (Siigna.drawing.title.isDefined && (Siigna.drawing.title.get.length() > 0) && SetTitle.text.isEmpty) {
+      val title = TextShape(Siigna.drawing.title.get, unitX(-72), headerHeight * 0.7)
       g draw(title.transform(transformation))
     }
     //draw ID
-    if (AppletParameters.readDrawingIdAsOption.isDefined) {
-      val id = TextShape("ID: "+com.siigna.app.controller.AppletParameters.readDrawingIdAsOption.get, unitX(-28), headerHeight * 0.7)addAttribute("Color" -> "#AAAAAA".color)
+    if (Siigna.drawing.id.isDefined) {
+      val id = TextShape("ID: "+Siigna.drawing.id.get, unitX(-28), headerHeight * 0.7, Attributes("Color" -> "#AAAAAA".color))
       g draw(id.transform(transformation))
     }
-    if (AppletParameters.contributorName.isDefined && (AppletParameters.contributorName.get.length() > 0)) {
-      val contributor = TextShape("author: "+com.siigna.app.controller.AppletParameters.contributorName.get, unitX(-120), headerHeight * 0.7)
+    if (Siigna.user.isDefined && Siigna.user.get.name.length() > 0) {
+      val contributor = TextShape("author: "+Siigna.user.get.name, unitX(-120), headerHeight * 0.7)
       g draw(contributor.transform(transformation))
     }
   }

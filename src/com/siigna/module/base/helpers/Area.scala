@@ -43,9 +43,6 @@ object Area extends Module {
   //save the first point and used it to close the fill area.
   private var firstPoint : Option[Vector2D] = None
 
-  //current position of the mouse
-  private var mousePosition : Option[Vector2D] = None
-
   // The points of the raster
   private var points = List[Vector2D]()
 
@@ -65,8 +62,6 @@ object Area extends Module {
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {
-        case MouseMove(point, _, _) :: tail => mousePosition = Some(point)
-        case MouseDrag(point, _, _) :: tail => mousePosition = Some(point)
         case MouseUp(_, MouseButtonRight, _) :: tail => {
           Goto('End)
         }
@@ -118,8 +113,8 @@ object Area extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
     if (points.length > 0 && previousPoint.isDefined) {
 
-      g draw LineShape(mousePosition.get, previousPoint.get).transform(t)
-      g draw LineShape(mousePosition.get, firstPoint.get).transform(t)
+      g draw LineShape(mousePosition, previousPoint.get).transform(t)
+      g draw LineShape(mousePosition, firstPoint.get).transform(t)
 
     } else None
     g draw shape.transform(t)

@@ -11,8 +11,6 @@
 
 package com.siigna.module.base.file
 
-import com.siigna.app.model.drawing.activeDrawing._
-
 //TODO: update the way IDs are generated, so that all shapes in a saved model area assigned a global coordinate in the Siigna Universe.
 //Example: one model with two shapes: ID=000130000000, x,y, ID=000230000000, x,y where 0001 and 0002 is a running number and 30000000 the position.
 

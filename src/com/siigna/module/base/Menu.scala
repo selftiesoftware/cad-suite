@@ -55,9 +55,6 @@ object Menu extends Module {
 
   var moduleCallFromMenu : Boolean = false
 
-  // The position of the mouse at any given time
-  private var mousePosition  = Vector2D(0, 0)
-
   // the center after the radial menu is closed. Used if other modules need to know where it was (used in Color Wheel)
   var oldCenter = Vector2D(0 ,0)
 
@@ -134,7 +131,6 @@ object Menu extends Module {
             case None => if (level == 3) currentCategory = Start
           }
         }
-        case MouseMove(p, _, _) :: tail => mousePosition = p
         case MouseWheel(point, _, _, delta) :: tail => {
 
           val direction = this.direction(point)
@@ -162,7 +158,6 @@ object Menu extends Module {
     'InteractionTestDrag -> ((events : List[Event]) => {
       events match {
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-        case MouseDrag(point, _,_) :: tail => mousePosition = point
         case _ => {}
       }
     }),
