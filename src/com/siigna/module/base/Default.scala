@@ -89,6 +89,7 @@ object Default extends Module {
         Preload('AngleGizmo, "com.siigna.module.base.create")
         //Preload('Artline, "com.siigna.module.base.create")
         //Preload('Fill, "com.siigna.module.base.create")
+        Preload('Circle, "com.siigna.module.base.create")
         Preload('Line, "com.siigna.module.base.create")
         Preload('Lineardim, "com.siigna.module.base.create")
         Preload('Point, "com.siigna.module.base.create")
@@ -166,7 +167,8 @@ object Default extends Module {
               }
               else if(previousKey == Some('c')) {
                 Siigna.display("circle")
-                ForwardTo('Circle, false)
+                ForwardTo('Circle)
+                previousKey = None
               }
               //open the CREATE menu
               else {
