@@ -120,7 +120,7 @@ object Point extends Module {
         // Avoid ending if the mouse up comes after setting the angle in the AngleGizmo
         case MouseDown(p, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail => previousPoint = Some(p)
 
-        case MouseUp(_, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail => println("AHA")
+        case MouseUp(_, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail =>
 
         // Exit strategy
         case (MouseDown(_, _, _) | MouseUp(_ , _, _)) :: tail => {

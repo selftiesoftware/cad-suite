@@ -43,8 +43,8 @@ object Default extends Module {
   var gridIsOn = false
 
   //graphics to show modules loading progress
-  def loadBar(point : Int): Shape = PolylineShape.fromRectangle(Rectangle2D(Vector2D(-197*Siigna.paperScale,-3*Siigna.paperScale), Vector2D(-197*Siigna.paperScale + point*Siigna.paperScale,3*Siigna.paperScale))).setAttribute(("raster" -> anthracite))
-  def loadFrame : Shape = PolylineShape.fromRectangle(Rectangle2D(Vector2D(-200*Siigna.paperScale,-6*Siigna.paperScale), Vector2D(200*Siigna.paperScale,6*Siigna.paperScale)))
+  def loadBar(point : Int): Shape = PolylineShape.fromRectangle(Rectangle2D(Vector2D(103,297),Vector2D(point+103,303))).setAttribute("raster" -> anthracite)
+  def loadFrame : Shape = PolylineShape.fromRectangle(Rectangle2D(Vector2D(100,294), Vector2D(500,306))).addAttribute(color)
 
   //The nearest shape to the current mouse position.
   var nearestShape : Option[(Int, Shape)] = None
@@ -287,7 +287,6 @@ object Default extends Module {
     //draw a loading bar when modules are loading.
     if(firstStart == true && startTime.isDefined){
       var loadingProgress = System.currentTimeMillis() - startTime.get
-      println(loadingProgress)
       g draw loadFrame.transform(t)
       if ((System.currentTimeMillis() - startTime.get) < 394) {
         g draw loadBar(loadingProgress.toInt).transform(t)
