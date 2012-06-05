@@ -168,7 +168,6 @@ object Move extends Module {
       }
     }),
     'End   -> ((events : List[Event]) => {
-      println("MOVE- END")
       //deselect, but only if an objects has been moved.
       //if (Model.selection.isDefined && startPoint.isDefined && endPoint.isDefined && (startPoint.get - endPoint.get != Vector2D(0, 0))) {
       if (Model.selection.isDefined && startPoint.isDefined && endPoint.isDefined) {

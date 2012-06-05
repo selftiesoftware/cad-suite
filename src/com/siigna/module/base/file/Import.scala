@@ -34,8 +34,8 @@ object Import extends Module {
   var fileLength : Int = 0
 
   //graphics to show the loading progress
-  def loadBar(point : Int): Shape = PolylineShape.fromRectangle(Rectangle2D(Vector2D(-197*Siigna.paperScale,-3*Siigna.paperScale), Vector2D(-197*Siigna.paperScale + point*Siigna.paperScale,3*Siigna.paperScale))).setAttribute(("raster" -> anthracite))
-  def loadFrame : Shape = PolylineShape.fromRectangle(Rectangle2D(Vector2D(-200*Siigna.paperScale,-6*Siigna.paperScale), Vector2D(200*Siigna.paperScale,6*Siigna.paperScale))).addAttribute(color)
+  def loadBar(point : Int): Shape = PolylineShape.fromRectangle(Rectangle2D(Vector2D(103,297),Vector2D(point+103,303))).setAttribute("raster" -> anthracite)
+  def loadFrame : Shape = PolylineShape.fromRectangle(Rectangle2D(Vector2D(100,294), Vector2D(500,306))).addAttribute(color)
 
   private var startTime : Option[Long] = None
 
@@ -127,11 +127,11 @@ object Import extends Module {
   }
   //draw a loading bar
   override def paint(g : Graphics, t : TransformationMatrix) {
-    g draw loadFrame.transform(t)
+    g draw loadFrame
     if (fileLength > 0 && ((System.currentTimeMillis() - startTime.get) / (fileLength / 30000)) < 394) {
-      g draw loadBar(((System.currentTimeMillis() - startTime.get) / (fileLength / 30000)).toInt).transform(t)
+      g draw loadBar(((System.currentTimeMillis() - startTime.get) / (fileLength / 30000)).toInt)
     } else if (fileLength > 0 && ((System.currentTimeMillis() - startTime.get) / (fileLength / 30000)) > 394)
-      g draw loadBar(390).transform(t)
+      g draw loadBar(390)
 
   }
 }

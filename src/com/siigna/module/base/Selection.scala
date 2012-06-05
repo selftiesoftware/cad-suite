@@ -76,7 +76,6 @@ object Selection extends Module {
       }
     }),
     'End -> ((events : List[Event]) => {
-      println("in End, selection")
       //if the selection is drawn from left to right, select fully enclosed shapes only.:
       if (box.isDefined && selectFullyEnclosed == true) {
         Select(box.get, true)

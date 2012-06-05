@@ -333,10 +333,10 @@ object Default extends Module {
     val transformation : TransformationMatrix = t.concatenate(TransformationMatrix(boundary.bottomRight - Vector2D(headerWidth * 0.99, -headerHeight * 0.8), 1))
 
     // Draw horizontal headerborder
-    g draw LineShape(boundary.bottomRight + Vector2D(0,(6*Siigna.paperScale)), Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y) + Vector2D(0,(6*Siigna.paperScale))).addAttribute("Color" -> "#CCCCCC".color).transform(t)
+    g draw LineShape(boundary.bottomRight + Vector2D(0,(6*(Siigna.paperScale+1))), Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y) + Vector2D(0,(6*(Siigna.paperScale+1)))).addAttribute("Color" -> "#CCCCCC".color).transform(t)
 
     //Draw vertical headerborder
-    g draw LineShape(Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y), Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y) + Vector2D(0,(6*Siigna.paperScale))).addAttribute("Color" -> "#CCCCCC".color).transform(t)
+    g draw LineShape(Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y), Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y) + Vector2D(0,(6*(Siigna.paperScale+1)))).addAttribute("Color" -> "#CCCCCC".color).transform(t)
 
     //g draw separator
     g.draw(scale.transform(transformation))

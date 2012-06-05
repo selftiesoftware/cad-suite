@@ -31,7 +31,7 @@ object Menu extends Module {
   // The event handler
   def eventHandler = new EventHandler(RadialMenuStateMap, stateMachine)
 
-  // The center of the wheel
+  // The center of the radial menu
   var center : Option[Vector2D]         = None
 
   // The current active category
