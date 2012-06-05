@@ -39,10 +39,10 @@ object Rectangle extends Module {
       //from the first point to the mouse position
       val getRectGuide : Vector2D => PolylineShape = (v : Vector2D) => {
         if(points.size > 0) {
-          PolylineShape.fromRectangle(Rectangle2D(points.head, v))
+          PolylineShape(Rectangle2D(points.head, v))
         }
         //TODO: a hack to prevent Error when calling Rectangle: Unexpected error in processing state map
-        else PolylineShape.fromRectangle(Rectangle2D(Vector2D(0,0), Vector2D(0,0)))
+        else PolylineShape(Rectangle2D(Vector2D(0,0), Vector2D(0,0)))
       }
 
       events match {
@@ -61,7 +61,7 @@ object Rectangle extends Module {
     }),
     'End -> ((events : List[Event]) => {
       if (points.length == 2) {
-        Create(PolylineShape.fromRectangle(Rectangle2D(points(0), points(1))))
+        Create(PolylineShape(Rectangle2D(points(0), points(1))))
       }
 
       // Clear variables

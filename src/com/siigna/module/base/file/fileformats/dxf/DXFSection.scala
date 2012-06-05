@@ -88,9 +88,9 @@ case class DXFSection(values : Seq[DXFValue]) extends Subtractable[DXFValue, DXF
             }
             case _ =>
           })
-          println(PolylineShape.fromPoints(points))
+          println(PolylineShape(points))
           if (points.length > 1){
-            Some(PolylineShape.fromPoints(points))
+            Some(PolylineShape(points))
           } else None
         }
         // Other stuff...

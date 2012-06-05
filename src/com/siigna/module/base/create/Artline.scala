@@ -59,13 +59,13 @@ object Artline extends Module {
                 points = points :+ startPoint.get
                 startPoint = currentPoint
                //draw a polyline from the points saved in shape
-               shape =  PolylineShape.fromPoints(points)
+               shape =  PolylineShape(points)
               }
             }
             case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
             case MouseUp(p, _, _) :: tail => {
               points = points :+p
-              shape = PolylineShape.fromPoints(points)
+              shape = PolylineShape(points)
               Create(shape.asInstanceOf[Shape])
               //clear the list
               shape = PolylineShape.empty

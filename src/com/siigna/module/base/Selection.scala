@@ -94,7 +94,7 @@ object Selection extends Module {
     val focused  = "Color" -> "#FF9999".color
 
     if (box.isDefined) {
-      g draw PolylineShape.fromRectangle(box.get).addAttribute("Color" -> (if (isEnclosed) enclosed else focused)).transform(t)
+      g draw PolylineShape(box.get).addAttribute("Color" -> (if (isEnclosed) enclosed else focused)).transform(t)
     }
 
   }

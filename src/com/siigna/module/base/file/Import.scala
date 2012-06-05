@@ -34,8 +34,8 @@ object Import extends Module {
   var fileLength : Int = 0
 
   //graphics to show the loading progress
-  def loadBar(point : Int): Shape = PolylineShape.fromRectangle(Rectangle2D(Vector2D(103,297),Vector2D(point+103,303))).setAttribute("raster" -> anthracite)
-  def loadFrame : Shape = PolylineShape.fromRectangle(Rectangle2D(Vector2D(100,294), Vector2D(500,306))).addAttribute(color)
+  def loadBar(point : Int): Shape = PolylineShape(Rectangle2D(Vector2D(103,297),Vector2D(point+103,303))).setAttribute("raster" -> anthracite)
+  def loadFrame : Shape = PolylineShape(Rectangle2D(Vector2D(100,294), Vector2D(500,306))).addAttribute(color)
 
   private var startTime : Option[Long] = None
 

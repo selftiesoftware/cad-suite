@@ -50,7 +50,7 @@ object Fill extends Module {
 
           // Set shape
           if (points.size > 0) {
-            shape = PolylineShape.fromPoints(points).setAttribute(("raster" -> anthracite))
+            shape = PolylineShape(points).setAttribute(("raster" -> anthracite))
           }
         }
         case _ =>

@@ -40,9 +40,9 @@ object Polyline extends Module {
   'SetPoint -> ((events : List[Event]) => {
     def getPointGuide = (p : Vector2D) => {
       if(!points.isEmpty) {
-      PolylineShape.fromPoints(points :+ p)
+      PolylineShape(points :+ p)
     }
-      else PolylineShape.fromPoints(Vector2D(0,0),Vector2D(0,0))
+      else PolylineShape(Vector2D(0,0),Vector2D(0,0))
     }
     events match {
       // Exit strategy
@@ -53,7 +53,7 @@ object Polyline extends Module {
         points = points :+ p
         // Define shape if there is enough points
         if (points.size > 1) {
-          shape = Some(PolylineShape.fromPoints(points))
+          shape = Some(PolylineShape(points))
         }
         ForwardTo('Point, false)
         Controller ! Message(PointGuide(getPointGuide))
