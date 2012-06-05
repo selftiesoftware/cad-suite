@@ -324,7 +324,7 @@ object Default extends Module {
     val headerHeight = scala.math.min(boundary.height, boundary.width) * 0.025
 
     // Paper scale
-    val scale = TextShape("Scale 1:"+Siigna.paperScale, unitX(-10), headerHeight * 0.7)
+    val scale = TextShape("Scale 1:"+ (Siigna.paperScale+1), unitX(-10), headerHeight * 0.7)
     // Get URL
     val getURL = TextShape(" ", Vector2D(0, 0), headerHeight * 0.7)
 
