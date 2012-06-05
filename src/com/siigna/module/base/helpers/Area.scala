@@ -88,7 +88,7 @@ object Area extends Module {
       }
     if (points.size > 0)
 
-    shape = PolylineShape.fromPoints(points)
+    shape = PolylineShape(points)
     }),
     'End -> ((events : List[Event]) => {
 

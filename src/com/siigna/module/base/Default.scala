@@ -43,8 +43,8 @@ object Default extends Module {
   var gridIsOn = false
 
   //graphics to show modules loading progress
-  def loadBar(point : Int): Shape = PolylineShape.fromRectangle(Rectangle2D(Vector2D(-197*Siigna.paperScale,-3*Siigna.paperScale), Vector2D(-197*Siigna.paperScale + point*Siigna.paperScale,3*Siigna.paperScale))).setAttribute(("raster" -> anthracite))
-  def loadFrame : Shape = PolylineShape.fromRectangle(Rectangle2D(Vector2D(-200*Siigna.paperScale,-6*Siigna.paperScale), Vector2D(200*Siigna.paperScale,6*Siigna.paperScale)))
+  def loadBar(point : Int): Shape = PolylineShape(Rectangle2D(Vector2D(-197*Siigna.paperScale,-3*Siigna.paperScale), Vector2D(-197*Siigna.paperScale + point*Siigna.paperScale,3*Siigna.paperScale))).setAttribute(("raster" -> anthracite))
+  def loadFrame : Shape = PolylineShape(Rectangle2D(Vector2D(-200*Siigna.paperScale,-6*Siigna.paperScale), Vector2D(200*Siigna.paperScale,6*Siigna.paperScale)))
 
   //The nearest shape to the current mouse position.
   var nearestShape : Option[(Int, Shape)] = None
