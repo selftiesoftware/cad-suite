@@ -287,12 +287,12 @@ object Default extends Module {
     //draw a loading bar when modules are loading.
     if(firstStart == true && startTime.isDefined){
       var loadingProgress = System.currentTimeMillis() - startTime.get
-      g draw loadFrame.transform(t)
+      g draw loadFrame
       if ((System.currentTimeMillis() - startTime.get) < 394) {
-       g draw loadBar(loadingProgress.toInt).transform(t)
+       g draw loadBar(loadingProgress.toInt)
       }
       else if ((System.currentTimeMillis() - startTime.get)> 394) {
-        g draw loadBar(390).transform(t)
+        g draw loadBar(390)
       }
     }
     //draw a grid if toggled in through the Helpers menu

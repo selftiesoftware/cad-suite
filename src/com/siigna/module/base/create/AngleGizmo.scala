@@ -12,11 +12,11 @@
 package com.siigna.module.base.create
 
 import com.siigna._
+import scala.Predef._
 
 /**
  * An object that handles the angle-gizmo.
  */
-//TODO: multiply with zoomscale to get a fixed size gizmo
 
 object AngleGizmo extends Module {
 
@@ -34,6 +34,9 @@ object AngleGizmo extends Module {
   var guideLength = 0
   var gizmoMode = 45
   val gizmoRadius = 220
+
+  val gizmoScale = 0.7
+
   val gizmoShapes = List[Shape]()
 
   //time to press and hold the mouse button before the gizmo mode is activated
@@ -170,12 +173,18 @@ object AngleGizmo extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
 
     if (startPoint.isDefined && (startTime.isDefined && System.currentTimeMillis() - startTime.get > gizmoTime)) {
+
+      //modify the TransformationMatrix to preserve AngleGizmo scaling.
+      def scaling(a : Double) = scala.math.pow(a,-1)
+
+      val transformation : TransformationMatrix = t.scale((scaling(View.zoom)*gizmoScale), startPoint.get)
+
       //Set Angle Gizmo mode based on distance to center
       def distanceToStart = Siigna.mousePosition - startPoint.get
-      if (distanceToStart.length < 50) gizmoMode = 90
-      else if (distanceToStart.length > 50 && distanceToStart.length < 100) gizmoMode = 45
-      else if (distanceToStart.length > 100 && distanceToStart.length < 170) gizmoMode = 10
-      else if (distanceToStart.length > 170 && distanceToStart.length < 200) gizmoMode = 5
+      if (distanceToStart.length < 50*scaling(View.zoom)*gizmoScale) gizmoMode = 90
+      else if (distanceToStart.length > 50*scaling(View.zoom)*gizmoScale && distanceToStart.length < 100*scaling(View.zoom)*gizmoScale) gizmoMode = 45
+      else if (distanceToStart.length > 100*scaling(View.zoom)*gizmoScale && distanceToStart.length < 170*scaling(View.zoom)*gizmoScale) gizmoMode = 10
+      else if (distanceToStart.length > 170*scaling(View.zoom)*gizmoScale && distanceToStart.length < 200*scaling(View.zoom)*gizmoScale) gizmoMode = 5
       else gizmoMode = 1
 
       if (gizmoMode == 1) {guideLength = 195 }
@@ -186,17 +195,16 @@ object AngleGizmo extends Module {
       //draw inactive Angle Gizmo shapes
       def getLine(d1 : Int, d2 : Int, mode : Int) = LineShape(Vector2D(startPoint.get.x, startPoint.get.y + d1), Vector2D(startPoint.get.x, startPoint.get.y + d2), Attributes("Color" -> (if (gizmoMode == mode) "#999999" else "#CDCDCD").color))
 
-
       // Draw the radians
-      (0 to 360 by 45).foreach(radian => g draw getLine(50, 100, 45).transform(t.rotate(radian, startPoint.get)))
-      (0 to 360 by 10).foreach(radian => g draw getLine(100, 170, 10).transform(t.rotate(radian, startPoint.get)))
-      (0 to 360 by 5).foreach(radian => g draw getLine(170, 200, 5).transform(t.rotate(radian, startPoint.get)))
-      (0 to 360 by 1).foreach(radian => g draw getLine(200, 220, 1).transform(t.rotate(radian, startPoint.get)))
+      (0 to 360 by 45).foreach(radian => g draw getLine(50, 100, 45).transform(transformation.rotate(radian, startPoint.get)))
+      (0 to 360 by 10).foreach(radian => g draw getLine(100, 170, 10).transform(transformation.rotate(radian, startPoint.get)))
+      (0 to 360 by 5).foreach(radian => g draw getLine(170, 200, 5).transform(transformation.rotate(radian, startPoint.get)))
+      (0 to 360 by 1).foreach(radian => g draw getLine(200, 220, 1).transform(transformation.rotate(radian, startPoint.get)))
 
       // Draw the text and the active angle
       if (degrees.isDefined) {
-        g draw TextShape((roundSnap(degrees.get)).toString, Vector2D(startPoint.get.x, startPoint.get.y + 240).transform(t.rotate(roundSnap(-degrees.get), startPoint.get)), 12, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector2D(0.5,0.5)))
-        g draw LineShape(startPoint.get,Vector2D(startPoint.get.x, startPoint.get.y+guideLength)).transform(t.rotate(-roundSnap(degrees.get), startPoint.get))
+        g draw TextShape((roundSnap(degrees.get)).toString, Vector2D(startPoint.get.x, startPoint.get.y + 240).transform(transformation.rotate(roundSnap(-degrees.get), startPoint.get)), 12, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector2D(0.5,0.5)))
+        g draw LineShape(startPoint.get,Vector2D(startPoint.get.x, startPoint.get.y+guideLength)).transform(transformation.rotate(-roundSnap(degrees.get), startPoint.get))
       }
     }
   }
