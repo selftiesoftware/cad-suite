@@ -13,11 +13,9 @@ package com.siigna.module.base.file
 
 /* 2010 (C) Copyright by Siigna, all rights reserved. */
 
+import fileformats.dxf.{DXFSection, DXFFile}
 import java.awt.{FileDialog, Frame}
 import java.io.{BufferedWriter, FileWriter}
-import fileformats.dxf.{DXFFile}
-
-
 import com.siigna._
 
 object Export extends Module {
@@ -40,7 +38,8 @@ object Export extends Module {
         filetype match {
           case "dxf" => exportToDXF(filename, directory)
           case ""    => {
-              exportToDXF(filename+".dxf", directory) // TODO: Change default?
+            // TODO: Change default?
+              exportToDXF(filename+".dxf", directory)
             Siigna display "No fileextension found. Exporting DXF as default to "+filename+".dxf."
           }
           case t => Siigna display "Unsupported file extension. Export cancelled."
@@ -62,8 +61,9 @@ object Export extends Module {
     val dxf = new DXFFile
     val writer = new FileWriter(directory+filename)
     val file   = new BufferedWriter(writer)
-    //TODO: reimplement toDXF methods in mainline.
-    //dxf ++ Model.map(_._2.toDXF).seq.toSeq
+
+    dxf ++ Model.map(t => DXFSection.toDXF(t._2)).toSeq
+
     file.write(dxf.toString)
     file.flush
     file.close

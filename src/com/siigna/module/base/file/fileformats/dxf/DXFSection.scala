@@ -103,7 +103,6 @@ case class DXFSection(values : Seq[DXFValue]) extends Subtractable[DXFValue, DXF
       }
     }
   }
-
   override def toString = values.mkString
 
 }
@@ -122,5 +121,36 @@ object DXFSection {
    */
   def fromVector(vector : Vector2D) = {
     DXFSection(DXFValue(100, "AcDbPoint"), DXFValue(10, vector.x), DXFValue(20, vector.y))
+  }
+
+  //****EXPORT FUNCTIONS ****
+  //write selected shape to DXF:
+  def toDXF(shape : Shape) : DXFSection = {
+    try {
+      shape match {
+        //export lineShapes
+        case l : LineShape => {
+          println("exported one line")
+          println(scala.util.Random.nextInt(16 << 5).toHexString)
+
+          DXFSection(DXFValue(0, "LWPOLYLINE"),
+          DXFValue(5, (scala.util.Random.nextInt(16 << 5).toHexString)),
+          DXFValue(100, "AcDbEntity"),
+          //layer
+          DXFValue(8, 0),
+          DXFValue(100, "AcDbPolyline"),
+          //number of points
+          DXFValue(90, 2),
+          DXFValue(70, 0),
+          //LineWeight
+          DXFValue(43, 0.0),
+          //Points
+          DXFValue(10, l.p1.x),
+          DXFValue(20, l.p1.y),
+          DXFValue(10, l.p2.x),
+          DXFValue(20, l.p2.y))
+        }
+      }
+    }
   }
 }
