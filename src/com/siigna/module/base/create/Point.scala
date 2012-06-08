@@ -98,6 +98,7 @@ object Point extends Module {
   )
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      println("PT events; "+events)
       if (com.siigna.module.base.Default.previousModule == Some('Rotate)) rotation = true
       if (com.siigna.module.base.Default.previousModule == Some('Move)) moving = true
       events match {
@@ -123,7 +124,7 @@ object Point extends Module {
         case MouseUp(_, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail =>
 
         // Exit strategy
-        case (MouseDown(_, _, _) | MouseUp(_ , _, _)) :: tail => {
+        case (MouseDown(_, _, _) | MouseUp(_ , MouseButtonRight, _)) :: tail => {
           Goto('End)
         }
 

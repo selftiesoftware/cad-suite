@@ -44,6 +44,8 @@ object Scale extends Module {
 
   def stateMap     = DirectedGraph(
     'Start -> 'KeyDown -> 'End,
+    'Start -> 'Message -> 'StartPoint,
+    'StartPoint -> 'Message -> 'EndPoint,
     'EndPoint  -> 'KeyDown -> 'End,
     'Scale  -> 'KeyDown -> 'End
   )
@@ -52,31 +54,31 @@ object Scale extends Module {
     'Start ->   ((events : List[Event]) => {
       if (Model.selection.isDefined) {
         Siigna display "set startpoint"
-        events match {
-          case Message(p : Vector2D) :: tail => {
-            startPoint = Some(p)
-            Goto('EndPoint, false)
-          }
-          case MouseUp(p, _, _) :: MouseDown(_ ,_ ,_) :: tail => {
-            ForwardTo('Point)
-          }
-          case _ =>
-        }
+        ForwardTo('Point, false)
       }
-      // TODO: add object selection logic.
-      else Siigna display "Select objects first"
+      else {
+        Siigna display "Select objects first"
+        Goto('End)
+      }
+    }),
+    'StartPoint -> ((events : List[Event]) => {
+      events match {
+        case Message(p : Vector2D) :: tail => {
+          startPoint = Some(p)
+          Siigna display "set endpoint"
+          ForwardTo('Point, false)
+        }
+        case _ =>
+      }
     }),
     'EndPoint ->   ((events : List[Event]) => {
-      Siigna display "set endpoint"
+     // println(events)
+
       events match {
         case Message(p : Vector2D) :: tail => {
           endPoint = Some(p)
           Siigna display "type or click to set scale factor"
           Goto('TextInput)
-        }
-        case MouseUp(p, _, _) :: MouseDown(_ ,_ ,_) :: tail => {
-          ForwardTo('Point)
-          Controller ! Message(PointGuides(shapeGuide))
         }
         case _ =>
       }
@@ -115,6 +117,7 @@ object Scale extends Module {
       //check if the endPoint is set. If not, goto 'Point.
       if (gotEndPoint == false) {
         gotEndPoint = true
+        Controller ! Message(PointGuides(shapeGuide))
         ForwardTo('Point)
       }
       //if the message arrives after the gotEndPoint flag is set, use it to define the endpoint:
@@ -151,7 +154,6 @@ object Scale extends Module {
       com.siigna.module.base.Default.previousModule = Some('Scale)
       ending = false
       gotEndPoint = false
-      println("startPoint in End: "+startPoint)
       startPoint = None
       endPoint = None
       transformation = None
