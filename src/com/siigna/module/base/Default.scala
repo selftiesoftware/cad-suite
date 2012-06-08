@@ -110,11 +110,24 @@ object Default extends Module {
         case MouseDown(point, MouseButtonLeft, _) :: tail           => ForwardTo('Selection)
         case MouseDown(point, MouseButtonRight, _) :: tail          => {
           if (firstMenuLoad == true) {
+            firstMenuLoad = false
+          }
+          ForwardTo('Menu,false)
+          Controller ! Message(point)
+        }
+        /*
+        case MouseUp(point, MouseButtonRight, _) :: tail          => {
+          println("MU")
+          if (firstMenuLoad == true) {
             ForwardTo('Menu)
             firstMenuLoad = false
           }
-          else ForwardTo('Menu)
+          else {
+            println("OPENING MENU")
+            ForwardTo('Menu)
+          }
         }
+        */
 
         //special key inputs
         case KeyDown(('z' | 'Z'), ModifierKeys(_, true, _)) :: tail => Model.undo
@@ -135,11 +148,9 @@ object Default extends Module {
         case KeyDown(key, _) :: tail => {
           key.toChar match {
             case Key.Backspace | Key.Delete => {
-              /*if (Model.isSelected) {
-                val selected = Model.selected
-                Model.deselect
-                Delete(selected)
-              }*/
+              if (Model.selection.isDefined) {
+                Delete(Model.selection.get)
+              }
             }
 
             case Key.Escape => {
@@ -156,7 +167,7 @@ object Default extends Module {
               }
               else if(previousKey == Some('h')) {
                 Siigna.display("click to measure area")
-                ForwardTo('Area)
+               ForwardTo('Area)
                 previousKey = Some('a')
               }
               else previousKey = Some('a')

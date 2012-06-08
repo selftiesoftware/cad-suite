@@ -91,10 +91,10 @@ object Scale extends Module {
         }
         case KeyDown(Key.Enter, _) :: tail => {
           var numbers = text.toDouble
-          transformation = Some(TransformationMatrix(startPoint.get,1))
-
+          transformation = Some(TransformationMatrix(Vector2D(0,0),1))
           //perform scaling:
-          Model.selection.get.transform(transformation.get.scale(numbers))
+          //Model.selection.get.transform(transformation.get.scale(numbers))
+          Model.selection.get.transform(transformation.get.scale(numbers,startPoint.get))
 
           text = ""
 
@@ -130,7 +130,6 @@ object Scale extends Module {
 
             val refScale : Vector2D = startPoint.get - endPoint.get
             var scaleFactor = ((p - startPoint.get).length/refScale.length).toDouble
-
             transformation = Some(TransformationMatrix(Vector2D(0,0),1))
             Model.selection.get.transform(transformation.get.scale(scaleFactor,startPoint.get))
             //Model.selection.get.shapes.foreach(tuple => {
@@ -152,6 +151,7 @@ object Scale extends Module {
       com.siigna.module.base.Default.previousModule = Some('Scale)
       ending = false
       gotEndPoint = false
+      println("startPoint in End: "+startPoint)
       startPoint = None
       endPoint = None
       transformation = None

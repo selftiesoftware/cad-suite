@@ -53,8 +53,6 @@ object Menu extends Module {
   //a var to pass on the last key down back to Default, to check if it is needed to activate a shortcut
   var lastKey : Option[KeyDown] = None
 
-  var menuIsActive : Boolean = false
-
   var moduleCallFromMenu : Boolean = false
 
   // the center after the radial menu is closed. Used if other modules need to know where it was (used in Color Wheel)
@@ -77,36 +75,28 @@ object Menu extends Module {
           currentCategory = category
           initializeMenu()
         }
-        case MouseDown(point, MouseButtonRight, _) :: tail => {
-          //call the menu if it is not already open:
-          if(menuIsActive == false) {
-            menuIsActive = true
-            val p = point.transform(View.physical.flipY)
-            // Move the menu if the distance from the center to the screen
-            // is less than the radius of the menu
-            val d : Vector2D = if (View.screen.distanceTo(p) < radius) {
-              val dBot = View.screen.borderBottom.distanceTo(p)
-              val dTop = View.screen.borderTop.distanceTo(p)
-              val dLeft = View.screen.borderLeft.distanceTo(p)
-              val dRight = View.screen.borderRight.distanceTo(p)
-              Vector2D(
-                     if (dLeft < dRight && dLeft < radius)  radius - dLeft
-                else if (dLeft > dRight && dRight < radius) dRight - radius
-                else 0,
-                     if (dTop < dBot && dTop < radius) dTop - radius
-                else if (dTop > dBot && dBot < radius) radius - dBot
-                else 0)
-            } else Vector2D(0, 0)
+        case Message(point : Vector2D) :: tail => {
+          //call the menu:
+          val p = point.transform(View.physical.flipY)
+          // Move the menu if the distance from the center to the screen
+          // is less than the radius of the menu
+          val d : Vector2D = if (View.screen.distanceTo(p) < radius) {
+            val dBot = View.screen.borderBottom.distanceTo(p)
+            val dTop = View.screen.borderTop.distanceTo(p)
+            val dLeft = View.screen.borderLeft.distanceTo(p)
+            val dRight = View.screen.borderRight.distanceTo(p)
+            Vector2D(
+                   if (dLeft < dRight && dLeft < radius)  radius - dLeft
+              else if (dLeft > dRight && dRight < radius) dRight - radius
+              else 0,
+                   if (dTop < dBot && dTop < radius) dTop - radius
+              else if (dTop > dBot && dBot < radius) radius - dBot
+              else 0)
+          } else Vector2D(0, 0)
 
-            center = Some(point + d)
-            currentCategory = Start
-            initializeMenu()
-          }
-          //if it is open, then close it again.
-          else {
-            menuIsActive = false
-            Goto('End, false)
-          }
+          center = Some(point + d)
+          currentCategory = Start
+          initializeMenu()
         }
         case _ => Goto('InteractionTest, false)
       }
@@ -119,7 +109,9 @@ object Menu extends Module {
           Goto('End)
         }
 
-        case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
+        case MouseDown(_, MouseButtonRight, _) :: tail => {
+          Goto('End, false)
+        }
         case MouseUp(point, _, _) :: tail => {
           val direction = this.direction(point)
           val level     = if (this.distance < 68) 3 else if (this.distance < 102) 2 else 1
