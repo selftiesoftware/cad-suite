@@ -73,7 +73,10 @@ object Line extends Module{
     }),
     'End -> ((events : List[Event]) => {
       //create the line
-      Create(shape)
+      if(Siigna.double("activeLineWeight").isDefined && shape.isDefined) {
+        Create(shape.get.addAttribute("StrokeWidth" -> Siigna.double("activeLineWeight").get))
+      }
+      else Create(shape)
 
       //reset the module vars
       com.siigna.module.base.Default.previousModule = Some('Line)

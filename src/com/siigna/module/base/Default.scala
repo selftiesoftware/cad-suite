@@ -95,6 +95,7 @@ object Default extends Module {
         Preload('Point, "com.siigna.module.base.create")
         Preload('Polyline, "com.siigna.module.base.create")
         Preload('Rectangle, "com.siigna.module.base.create")
+        Preload('Scale, "com.siigna.module.base.modify")
         Preload('Text, "com.siigna.module.base.create")
 
         firstStart = false
@@ -260,6 +261,15 @@ object Default extends Module {
               }
               else previousKey = Some('r')
             }
+            case 's' => {
+              if (previousKey == Some('m')) {
+                Siigna.display("scale")
+                ForwardTo('Scale)
+                previousKey = Some('s')
+              }
+              else previousKey = Some('s')
+            }
+
             //open the PROPERTIES menu
             case 'p' => {
               if(previousKey == Some('f')) {
@@ -343,10 +353,10 @@ object Default extends Module {
     val transformation : TransformationMatrix = t.concatenate(TransformationMatrix(boundary.bottomRight - Vector2D(headerWidth * 0.99, -headerHeight * 0.8), 1))
 
     // Draw horizontal headerborder
-    g draw LineShape(boundary.bottomRight + Vector2D(0,(6*(Siigna.paperScale+1))), Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y) + Vector2D(0,(6*(Siigna.paperScale+1)))).addAttribute("Color" -> "#CCCCCC".color).transform(t)
+    g draw LineShape(boundary.bottomRight + Vector2D(0,(6*(Siigna.paperScale+1))), Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y) + Vector2D(0,(6*(Siigna.paperScale+1)))).transform(t)
 
     //Draw vertical headerborder
-    g draw LineShape(Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y), Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y) + Vector2D(0,(6*(Siigna.paperScale+1)))).addAttribute("Color" -> "#CCCCCC".color).transform(t)
+    g draw LineShape(Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y), Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y) + Vector2D(0,(6*(Siigna.paperScale+1)))).transform(t)
 
     //g draw separator
     g.draw(scale.transform(transformation))

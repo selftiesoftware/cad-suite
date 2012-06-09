@@ -75,7 +75,6 @@ object Weight extends Module {
     'Start  ->   'KeyEscape   ->  'End
 
   )
-
   def stateMachine = Map(
     //select a color
     'Start -> ((events : List[Event]) => {
@@ -126,8 +125,18 @@ object Weight extends Module {
       }
     }),
     'End -> ((events : List[Event]) => {
+      //if no objects are selected, make the chosen lineWeight the default lineWeight
+      if(Model.selection.isEmpty) {
+        Siigna("activeLineWeight") = activeLine
+      }
+      //if a selection is defined, change lineweight of the selected shapes.
+      else {
+        //Model.selection.get.attributes
+      }
+
       //clear values and reactivate navigation
       println("ACTIVE LINE: "+activeLine)
+      println("SiignaActiveLineWeight: "+Siigna.double("activeLineWeight"))
       startPoint = None
       relativeMousePosition = None
       eventParser.enable

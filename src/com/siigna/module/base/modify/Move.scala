@@ -97,12 +97,11 @@ object Move extends Module {
           startPoint = Some(p)
           Goto('Move)
         }
-        case MouseUp(p, _, _) :: MouseDown(_ ,_ ,_) :: tail => {
+        case _ => {
           com.siigna.module.base.Default.previousModule = Some('Move)
           ForwardTo('Point)
           Controller ! Message(PointGuides(shapeGuide))
         }
-        case _ =>
       }
     }),
     'Move -> ((events : List[Event]) => {
