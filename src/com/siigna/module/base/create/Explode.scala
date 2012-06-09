@@ -30,46 +30,70 @@ object Explode extends Module{
   lazy val eventHandler = new EventHandler(stateMap, stateMachine)
 
   lazy val stateMap = DirectedGraph(
-    'Start     -> 'KeyEscape  -> 'End
+    'Start     -> 'KeyDown  -> 'End
   )
 
-  val shapes : List[Shape] = List[]
+  var explodedPolylines : Int = 0
 
   lazy val stateMachine = Map(
 
     'Start -> ((events : List[Event]) => {
-      if(Model.selection.isDefined) Goto('Explode)
+      events match {
+        // GENERAL NOTE: after the Menu forwards to a module with the (presumably) last events,
+        // other events may be registered while the ForwardTo mechanism is running.
+        // These events can trigger Goto events in the module unless ruled out by case matches.
+        case MouseUp(_, _, _) :: tail => {
+          if(Model.selection.isDefined) {
+            Goto('Explode)
+          }
+        }
+        case _ =>
+      }
     }),
 
     'Explode -> ((events : List[Event]) => {
-      def explode (shape : Shape) = {
+      def explode (shape : Shape) : Seq[Shape] = {
         try {
           shape match {
             case a : ArcShape => {
-              println("found LineShape - this shape cannot be exploded.: "+a)
-
+              println("found LineShape - this shape cannot be exploded"+a)
+              Seq()
             }
             case c : CircleShape => {
-              println("found CircleShape - this shape cannot be exploded yet.: "+c)
-
+              println("found CircleShape - this shape cannot be exploded yet"+c)
+              Seq()
             }
             case p : PolylineShape => {
-              println("explode polylines here: "+p)
+              //println("explode polylines here: "+p)
+              explodedPolylines += 1
+
+              p.shapes
 
             }
             case l : LineShape => {
-              println("found LineShape - this shape cannot be exploded.: "+l)
-
+              println("found LineShape - this shape cannot be exploded")
+              Seq()
             }
             case _ => Siigna display "Some shapes could not be exploded"
+            Seq()
           }
         }
       }
+      //filter everything from the Seq that is empty.
+      //run the explode def on the rest, and save the restults to the explodeableShapes val.
+      val explodeableShapes = Model.selection.get.shapes.map(t => t._1 -> explode(t._2)).filter(t => !t._2.isEmpty)
+
+      if(!explodeableShapes.isEmpty) {
+        //use the IDs from the Seq to delete the original shapes
+        Delete(explodeableShapes.keys)
+        //use the shapeParts to create the exploded shapes
+        Create(explodeableShapes.values.flatten)
+      }
+
+      Siigna display "Exploded "+explodedPolylines+" polylines to lines"
       Goto('End)
     }),
-
     'End -> ((events : List[Event]) => {
-      Siigna display "Explode XXX objects"
    })
   )
 }

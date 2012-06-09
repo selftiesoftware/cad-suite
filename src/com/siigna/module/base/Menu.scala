@@ -126,7 +126,6 @@ object Menu extends Module {
                   Goto('End)
                   Preload(item.module, item.modulePath)
                   ForwardTo(item.module)
-
                   // Save the previous module
                   Default.previousModule = Some(item.module)
                 }
