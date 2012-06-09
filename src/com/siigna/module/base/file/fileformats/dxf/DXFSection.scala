@@ -46,7 +46,7 @@ case class DXFSection(values : Seq[DXFValue]) extends Subtractable[DXFValue, DXF
           })
           if (start.isDefined && end.isDefined && centerX.isDefined && centerY.isDefined && r.isDefined) {
             if (r.get > 0 && start.get != end.get)
-              Some(ArcShape(Vector(centerX.get, centerY.get), r.get, end.get, start.get)) // DXF counts CW, not CCW
+              Some(ArcShape(Vector2D(centerX.get, centerY.get), r.get, end.get, start.get)) // DXF counts CW, not CCW
             else None
           } else None
         }
@@ -61,7 +61,7 @@ case class DXFSection(values : Seq[DXFValue]) extends Subtractable[DXFValue, DXF
           })
 
           if (x.isDefined && y.isDefined && r.isDefined) {
-            Some(CircleShape(Vector(x.get, y.get), Vector(x.get + r.get, y.get)))
+            Some(CircleShape(Vector2D(x.get, y.get), Vector2D(x.get + r.get, y.get)))
           } else None
         }
         // RHINO Polylines
@@ -88,12 +88,29 @@ case class DXFSection(values : Seq[DXFValue]) extends Subtractable[DXFValue, DXF
             }
             case _ =>
           })
-          println(PolylineShape(points))
           if (points.length > 1){
             Some(PolylineShape(points))
           } else None
         }
-        // Other stuff...
+        //(Multiline?) text
+        case DXFValue(0, "MTEXT") => {
+          var x, y, h, w : Option[Double] = None
+          var text : String = ""
+
+          values.foreach((value : DXFValue) => value match {
+            case DXFValue(10, _) => x = value.toDouble
+            case DXFValue(20, _) => y = value.toDouble
+            case DXFValue(40, _) => h = value.toDouble
+            case DXFValue(41, _) => w = value.toDouble
+            case DXFValue(1, string : String) => text = string
+            case _ =>
+          })
+          if(!text.isEmpty){
+            Some(TextShape(text,(Vector2D(x.get,y.get)),h.get))
+          } else None
+        }
+        // Add support for additional import types here:
+
         case _ => None
       }
     } catch {
