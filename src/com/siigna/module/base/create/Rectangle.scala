@@ -60,9 +60,10 @@ object Rectangle extends Module {
       }
     }),
     'End -> ((events : List[Event]) => {
-      if (points.length == 2) {
-        Create(PolylineShape(Rectangle2D(points(0), points(1))))
+      if (Siigna.double("activeLineWeight").isDefined && points.length == 2) {
+        Create(PolylineShape(Rectangle2D(points(0), points(1))).addAttribute("StrokeWidth" -> Siigna.double("activeLineWeight").get))
       }
+      else Create(PolylineShape(Rectangle2D(points(0), points(1))))
 
       // Clear variables
       points = List[Vector2D]()
