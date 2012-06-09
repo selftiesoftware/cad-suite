@@ -55,7 +55,7 @@ object Lineardim extends Module {
   def hasBothPoints = (points.size >= 2)
 
   def normalShape(point : Vector2D) = if (hasBothPoints)
-      Some(LineShape((point - normalUnitVector2D(points(1),points(0)) * (scale/2)) , (point + normalUnitVector2D(points(0),points(1)) * scale)))
+      Some(LineShape((point - normalUnitVector2D(points(1),points(0)) * (scale/2)) , (point + normalUnitVector2D(points(0),points(1)) * scale)).addAttribute(color))
     else
       None
 
@@ -77,12 +77,12 @@ object Lineardim extends Module {
   //    None
 
   def simpleA : Option[Shape] = if (currentMouse.isDefined && points.length > 0)
-      Some(LineShape(currentMouse.get,(points(0))))
+      Some(LineShape(currentMouse.get,(points(0))).addAttribute(color))
     else
       None
 
   def shapeA : Option[Shape] = if (hasBothPoints)
-      Some(LineShape((points(1) + normalUnitVector2D(points(0),points(1)) * scale) , (points(0) + normalUnitVector2D(points(0),points(1)) * scale)))
+      Some(LineShape((points(1) + normalUnitVector2D(points(0),points(1)) * scale) , (points(0) + normalUnitVector2D(points(0),points(1)) * scale)).addAttribute(color))
     else
       None
 
