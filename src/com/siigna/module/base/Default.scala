@@ -84,7 +84,7 @@ object Default extends Module {
         //start the loading bar timer
         startTime =  Some(System.currentTimeMillis().toLong)
 
-        Siigna.display("Loading Siigna modules ver. 0.5")
+        Siigna.display("Loading Siigna modules ver. 0.6")
         //preload commonly used modules
         Preload('AngleGizmo, "com.siigna.module.base.create")
         //Preload('Artline, "com.siigna.module.base.create")
@@ -130,7 +130,7 @@ object Default extends Module {
         */
 
         //special key inputs
-        case KeyDown(('z' | 'Z'), ModifierKeys(_, true, _)) :: tail => Model.undo
+        case KeyDown(('z' | 'Z'), ModifierKeys(_, true, _)) :: tail => Model.undo()
         case KeyDown(('y' | 'Y'), ModifierKeys(_, true, _)) :: tail => Model.redo
         case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => Model.selectAll
         case KeyDown((Key.Escape), ModifierKeys(_, _, _)) :: tail => Model.deselect()

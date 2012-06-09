@@ -41,14 +41,13 @@ object Text extends Module {
   var scale : Int  = 4
   var attributes = Attributes( "TextSize" -> 10)
   var shape : Option[TextShape] = None
-  var startPoint = false
 
 //  var currentState = 0
 //  var number   = 0
 
   def stateMap = DirectedGraph(
 
-    'Start      -> 'KeyDown     -> 'TextInput,
+    //'Start      -> 'KeyDown     -> 'TextInput,
     'Start      -> 'KeyEscape   -> 'End,
     'TextInput  -> 'KeyEscape   -> 'End,
     'Start      -> 'KeyEscape   -> 'End
@@ -58,14 +57,11 @@ object Text extends Module {
     'Start -> ((events : List[Event]) => {
       Siigna.display("click to set text")
       events match {
-        case MouseDown(p, _, _) :: tail => {
-          if(startPoint == true){
-            position = Some(p)
-            Goto('TextInput)
-          }
-          startPoint = true
+        case Message(p : Vector2D) :: tail => {
+          position = Some(p)
+          Goto('TextInput)
         }
-        case _ =>
+        case _ => ForwardTo('Point, false)
       }
       None
     }),
@@ -91,7 +87,6 @@ object Text extends Module {
     'End -> ((events : List[Event]) => {
       events match {
         case _ =>
-          startPoint = false
           if (text.length > 0) {
             //move the text so that the lower left corner is located at the starting position
             var textPosition = Vector2D((position.get.x),(position.get.y+(Siigna.paperScale + 1)*4))

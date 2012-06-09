@@ -21,40 +21,45 @@ import com.siigna._
 object Export extends Module {
 
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
-
+  private var frameIsLoaded : Boolean = false
   lazy val stateMap     = DirectedGraph('Start     -> 'KeyEscape -> 'End)
 
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      try {
-        val frame  = new Frame()
-        val dialog = new FileDialog(frame, "Export to file", FileDialog.SAVE)
-        dialog.setVisible(true)
+      println("export, start")
+      //a hack to prevent the dialog from opening twice
+      if (frameIsLoaded == false) {
+        try {
+          frameIsLoaded = true
+          val frame  = new Frame()
+          val dialog = new FileDialog(frame, "Export to file", FileDialog.SAVE)
+          dialog.setVisible(true)
 
-        val directory = dialog.getDirectory
-        val filename  = dialog.getFile
-        val filetype  = filename.substring(filename.lastIndexOf('.')+1, filename.length());
+          val directory = dialog.getDirectory
+          val filename  = dialog.getFile
+          val filetype  = filename.substring(filename.lastIndexOf('.')+1, filename.length());
 
-        filetype match {
-          case "dxf" => exportToDXF(filename, directory)
-          case ""    => {
-            // TODO: Change default?
-              exportToDXF(filename+".dxf", directory)
-            Siigna display "No fileextension found. Exporting DXF as default to "+filename+".dxf."
+          filetype match {
+            case "dxf" => exportToDXF(filename, directory)
+            case ""    => {
+              // TODO: Change default?
+                exportToDXF(filename+".dxf", directory)
+              Siigna display "No fileextension found. Exporting DXF as default to "+filename+".dxf."
+            }
+            case t => Siigna display "Unsupported file extension. Export cancelled."
           }
-          case t => Siigna display "Unsupported file extension. Export cancelled."
+
+          dialog.dispose
+          frame.dispose
+
+        } catch {
+          case e => Siigna display "Export cancelled."
         }
-
-        dialog.dispose
-        frame.dispose
-
-      } catch {
-        case e => Siigna display "Export cancelled."
       }
       Goto('End)
       None
     }),
-    'End   -> ((events : List[Event]) => { None })
+    'End   -> ((events : List[Event]) => {frameIsLoaded = false })
   )
 
   def exportToDXF(filename : String, directory : String) = {

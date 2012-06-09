@@ -17,7 +17,15 @@ import com.siigna.module.Module
 
 import com.siigna._
 
-object Group extends Module {
+/**
+ * Created by IntelliJ IDEA.
+ * User: oep
+ * Date: 09-06-12
+ * Time: 11:48
+ * To change this template use File | Settings | File Templates.
+ */
+
+object Explode extends Module{
 
   lazy val eventHandler = new EventHandler(stateMap, stateMachine)
 
@@ -25,16 +33,43 @@ object Group extends Module {
     'Start     -> 'KeyEscape  -> 'End
   )
 
+  val shapes : List[Shape] = List[]
+
   lazy val stateMachine = Map(
+
     'Start -> ((events : List[Event]) => {
-      events match {
-        case MouseDown(point, MouseButtonLeft, _) :: tail => ForwardTo('Select)
-        case MouseDrag(point, MouseButtonRight, _) :: tail => ForwardTo('Select)
-        case _ =>
+      if(Model.selection.isDefined) Goto('Explode)
+    }),
+
+    'Explode -> ((events : List[Event]) => {
+      def explode (shape : Shape) = {
+        try {
+          shape match {
+            case a : ArcShape => {
+              println("found LineShape - this shape cannot be exploded.: "+a)
+
+            }
+            case c : CircleShape => {
+              println("found CircleShape - this shape cannot be exploded yet.: "+c)
+
+            }
+            case p : PolylineShape => {
+              println("explode polylines here: "+p)
+
+            }
+            case l : LineShape => {
+              println("found LineShape - this shape cannot be exploded.: "+l)
+
+            }
+            case _ => Siigna display "Some shapes could not be exploded"
+          }
+        }
       }
+      Goto('End)
     }),
 
     'End -> ((events : List[Event]) => {
+      Siigna display "Explode XXX objects"
    })
   )
 }
