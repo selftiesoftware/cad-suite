@@ -126,15 +126,19 @@ object DXFSection {
   //****EXPORT FUNCTIONS ****
   //write selected shape to DXF:
   def toDXF(shape : Shape) : DXFSection = {
+
+    def vectorToDXF(v : Vector2D) = {
+      Seq(DXFValue(10,v.x),
+      DXFValue(20,v.y))
+    }
+
     try {
       shape match {
         //export lineShapes
         case l : LineShape => {
-          println("exported one line")
-          println(scala.util.Random.nextInt(16 << 5).toHexString)
-
           DXFSection(DXFValue(0, "LWPOLYLINE"),
-          DXFValue(5, (scala.util.Random.nextInt(16 << 5).toHexString)),
+          //random identifier number (HEX)
+          DXFValue(5, (scala.util.Random.nextInt.toHexString)),
           DXFValue(100, "AcDbEntity"),
           //layer
           DXFValue(8, 0),
@@ -145,10 +149,73 @@ object DXFSection {
           //LineWeight
           DXFValue(43, 0.0),
           //Points
-          DXFValue(10, l.p1.x),
-          DXFValue(20, l.p1.y),
-          DXFValue(10, l.p2.x),
-          DXFValue(20, l.p2.y))
+          DXFValue(10, l.p1.x),DXFValue(20, l.p1.y),DXFValue(10, l.p2.x),DXFValue(20, l.p2.y))
+        }
+        case p : PolylineShape => {
+          val vertices = p.geometry.vertices
+          val numberOfVertices = vertices.length
+
+          DXFSection(
+
+            DXFValue(0, "LWPOLYLINE"),
+          //random identifier number (HEX)
+            DXFValue(5, (scala.util.Random.nextInt.toHexString)),
+            DXFValue(100, "AcDbEntity"),
+            //layer
+            DXFValue(8, 0),
+            DXFValue(100, "AcDbPolyline"),
+            //number of points
+            DXFValue(90, numberOfVertices),
+            DXFValue(70, 0),
+            //LineWeight
+            DXFValue(43, 0.0)
+            //Points
+          ) ++ vertices.map(vectorToDXF).flatten
+        }
+        case c : CircleShape => {
+          DXFSection(DXFValue(0, "CIRCLE"),
+          //random identifier number (HEX)
+          DXFValue(5, (scala.util.Random.nextInt.toHexString)),
+          DXFValue(100, "AcDbEntity"),
+          //layer
+          DXFValue(8, 0),
+          DXFValue(100, "AcDbCircle"),
+          //number of points
+          DXFValue(90, 2),
+          DXFValue(70, 0),
+          //LineWeight
+          DXFValue(43, 0.0),
+          //Center point
+          DXFValue(20, c.center.x),DXFValue(30, c.center.y),
+          //radius
+          DXFValue(40, c.radius)
+          )
+        }
+        case t : TextShape => {
+          println(t.position.x)
+          println(t.position.y)
+          DXFSection(DXFValue(0, "MTEXT"),
+          //random identifier number (HEX)
+          DXFValue(5, (scala.util.Random.nextInt.toHexString)),
+          DXFValue(100, "AcDbEntity"),
+          //layer
+          DXFValue(8, 0),
+          DXFValue(100, "AcDbMText"),
+          //placement
+          DXFValue(10, t.position.x),
+          DXFValue(20, t.position.y),
+          DXFValue(30, 0.0),
+          //text height
+          DXFValue(40, t.scale/1.2),
+          //text rectangle width
+          DXFValue(41, t.geometry.width),
+          //attachment point
+          DXFValue(71, 1),
+          //drawing direction
+          DXFValue(72, 1),
+          //text string
+          DXFValue(1, t.text)
+          )
         }
       }
     }
