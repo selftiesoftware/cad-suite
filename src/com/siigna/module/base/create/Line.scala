@@ -79,8 +79,8 @@ object Line extends Module{
       set("activeLineWeight", "StrokeWidth")
       set("activeColor", "Color")
 
-
       if(shape.isDefined) Create(shape.get.setAttributes(attributes))
+
       //reset the module vars
       com.siigna.module.base.Default.previousModule = Some('Line)
       points = List[Vector2D]()

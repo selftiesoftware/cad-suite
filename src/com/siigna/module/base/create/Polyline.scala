@@ -67,10 +67,13 @@ object Polyline extends Module {
     }
   }),
   'End -> ((events : List[Event]) => {
-    // If the shape is defined, then create it!
-    if (Siigna.double("activeLineWeight").isDefined && shape.isDefined)
-      Create(shape.get.setAttribute("StrokeWidth" -> Siigna.double("activeLineWeight").get))
-    else Create(shape)
+    var attributes : Attributes = Attributes()
+    def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
+
+    set("activeLineWeight", "StrokeWidth")
+    set("activeColor", "Color")
+
+    if(shape.isDefined) Create(shape.get.setAttributes(attributes))
 
     //clear the vars
     shape = None

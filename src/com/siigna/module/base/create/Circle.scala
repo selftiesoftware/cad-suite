@@ -67,11 +67,20 @@ object Circle extends Module {
     'End -> ((events : List[Event]) => (
       events match {
         case _ =>
+          //if(Siigna.double("activeLineWeight").isDefined && center.isDefined && radius.isDefined) {
+          //  Create(CircleShape(center.get,radius.get).setAttribute("StrokeWidth" -> Siigna.double("activeLineWeight").get))
+          //}
+          //else Create(CircleShape(center.get,radius.get))
+
           //create the circle
-          if(Siigna.double("activeLineWeight").isDefined && center.isDefined && radius.isDefined) {
-            Create(CircleShape(center.get,radius.get).setAttribute("StrokeWidth" -> Siigna.double("activeLineWeight").get))
-          }
-          else Create(CircleShape(center.get,radius.get))
+          var attributes : Attributes = Attributes()
+          def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
+
+          set("activeLineWeight", "StrokeWidth")
+          set("activeColor", "Color")
+
+          if(center.isDefined && radius.isDefined) Create(CircleShape(center.get,radius.get).setAttributes(attributes))
+
           //clear the points list
           com.siigna.module.base.Default.previousModule = Some('Circle)
           center = None
