@@ -23,7 +23,7 @@ object Lineardim extends Module {
   val color = "Color" -> "#AAAAAA".color
 
   def diaMark(point : Vector2D) = if (hasBothPoints)
-      Some(LineShape((diaRotation1.get + point + normalUnitVector2D(points(0),points(1)) * scale) , (diaRotation2.get + point + normalUnitVector2D(points(0),points(1)) * scale)).addAttribute(color))
+      Some(LineShape((diaRotation1.get + point + normalUnitVector2D(points(0),points(1)) * scale) , (diaRotation2.get + point + normalUnitVector2D(points(0),points(1)) * scale)).setAttribute(color))
     else
       None
   def diaMark1 = if (hasBothPoints) diaMark(points(0)) else None
@@ -55,7 +55,7 @@ object Lineardim extends Module {
   def hasBothPoints = (points.size >= 2)
 
   def normalShape(point : Vector2D) = if (hasBothPoints)
-      Some(LineShape((point - normalUnitVector2D(points(1),points(0)) * (scale/2)) , (point + normalUnitVector2D(points(0),points(1)) * scale)).addAttribute(color))
+      Some(LineShape((point - normalUnitVector2D(points(1),points(0)) * (scale/2)) , (point + normalUnitVector2D(points(0),points(1)) * scale)).setAttribute(color))
     else
       None
 
@@ -72,17 +72,17 @@ object Lineardim extends Module {
   var offsetSide : Boolean = false
 
   //def dynamicA : Option[Shape] = if (currentMouse.isDefined)
-  //    Some(LineShape((currentMouse.get + normalUnitVector2D(points(1),currentMouse.get) * scale) , (points(1) + normalUnitVector2D(points(1),currentMouse.get) * scale)).addAttributes(color))
+  //    Some(LineShape((currentMouse.get + normalUnitVector2D(points(1),currentMouse.get) * scale) , (points(1) + normalUnitVector2D(points(1),currentMouse.get) * scale)).setAttributes(color))
   //  else
   //    None
 
   def simpleA : Option[Shape] = if (currentMouse.isDefined && points.length > 0)
-      Some(LineShape(currentMouse.get,(points(0))).addAttribute(color))
+      Some(LineShape(currentMouse.get,(points(0))).setAttribute(color))
     else
       None
 
   def shapeA : Option[Shape] = if (hasBothPoints)
-      Some(LineShape((points(1) + normalUnitVector2D(points(0),points(1)) * scale) , (points(0) + normalUnitVector2D(points(0),points(1)) * scale)).addAttribute(color))
+      Some(LineShape((points(1) + normalUnitVector2D(points(0),points(1)) * scale) , (points(0) + normalUnitVector2D(points(0),points(1)) * scale)).setAttribute(color))
     else
       None
 

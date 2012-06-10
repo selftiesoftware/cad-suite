@@ -135,8 +135,6 @@ object Weight extends Module {
       }
 
       //clear values and reactivate navigation
-      println("ACTIVE LINE: "+activeLine)
-      println("SiignaActiveLineWeight: "+Siigna.double("activeLineWeight"))
       startPoint = None
       relativeMousePosition = None
       eventParser.enable
@@ -153,25 +151,25 @@ object Weight extends Module {
       val t  = TransformationMatrix(sp,1.3)
 
       //function to rotate the graphics
-      def drawLine (rotation : Int) {
+      def drawLine (rotation : Int, weight : Double) {
 
-          g draw line.transform(t.rotate(activeAngle-180))
+          g draw line.transform(t.rotate(activeAngle-180)).setAttribute("StrokeWidth" -> weight)
         }
 
       //TODO: add differentiated lineweight
       //draw the lines
-      drawLine(0)
-      drawLine(30)
-      drawLine(60)
-      drawLine(90)
-      drawLine(120)
-      drawLine(150)
-      drawLine(180)
-      drawLine(210)
-      drawLine(240)
-      drawLine(270)
-      drawLine(300)
-      drawLine(330)
+      drawLine(0, 0.01)
+      drawLine(30, 0.05)
+      drawLine(60, 0.09)
+      drawLine(90, 0.12)
+      drawLine(120, 0.18)
+      drawLine(150, 0.20)
+      drawLine(180, 0.25)
+      drawLine(210, 0.30)
+      drawLine(240, 0.40)
+      drawLine(270, 0.60)
+      drawLine(300, 0.80)
+      drawLine(330, 1.00)
 
       //draw an outline of the menu
       g draw CircleShape(Vector2D(0,0), Vector2D(0,80)).transform(t)

@@ -113,7 +113,7 @@ object Text extends Module {
       var x2 = Some(position.get.x+(4+length*2 * (Siigna.paperScale + 1)))
       var y2 = Some(position.get.y+((Siigna.paperScale + 1)*4))
       boundingRectangle = Some(Rectangle2D(position.get,Vector2D(x2.get,y2.get)))
-      g draw PolylineShape(boundingRectangle.get).addAttribute("Color" -> "#66CC66".color).transform(t)
+      g draw PolylineShape(boundingRectangle.get).setAttribute("Color" -> "#66CC66".color).transform(t)
     }
   }
 

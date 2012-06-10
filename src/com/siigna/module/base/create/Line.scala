@@ -13,6 +13,7 @@ package com.siigna.module.base.create
 
 import com.siigna._
 import app.controller.Controller
+import app.Siigna
 
 /**
  * A line module (draws one line-segment)
@@ -72,12 +73,14 @@ object Line extends Module{
       }
     }),
     'End -> ((events : List[Event]) => {
-      //create the line
-      if(Siigna.double("activeLineWeight").isDefined && shape.isDefined) {
-        Create(shape.get.addAttribute("StrokeWidth" -> Siigna.double("activeLineWeight").get))
-      }
-      else Create(shape)
+      var attributes : Attributes = Attributes()
+      def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
 
+      set("activeLineWeight", "StrokeWidth")
+      set("activeColor", "Color")
+
+
+      if(shape.isDefined) Create(shape.get.setAttributes(attributes))
       //reset the module vars
       com.siigna.module.base.Default.previousModule = Some('Line)
       points = List[Vector2D]()

@@ -69,7 +69,7 @@ object Polyline extends Module {
   'End -> ((events : List[Event]) => {
     // If the shape is defined, then create it!
     if (Siigna.double("activeLineWeight").isDefined && shape.isDefined)
-      Create(shape.get.addAttribute("StrokeWidth" -> Siigna.double("activeLineWeight").get))
+      Create(shape.get.setAttribute("StrokeWidth" -> Siigna.double("activeLineWeight").get))
     else Create(shape)
 
     //clear the vars

@@ -191,15 +191,19 @@ object Menu extends Module {
       // Draws a Category at a given level
       def drawCategory(category : MenuCategory, scale : Double = 1) {
         // Determines whether the given menu-event is active.
-        def isActive(event : MenuEvent) = (distance > (100 * scale) && distance < (160 * scale) && this.direction(mousePosition) == event)
+        def isActive(event : MenuEvent) = {
+          (distance > (100 * scale) && distance < (160 * scale) && this.direction(mousePosition) == event)
+        }
 
         // Determines whether the current event is active and returns a set of
         // attributes accordingly.
         def getAttr(event : MenuEvent) =
-          if (isActive(event))
+          if (isActive(event)) {
             "Color" -> "#222222".color
-          else
+          }
+          else {
             "Color" -> "#BBBBBB".color
+          }
 
         // Gets a transformation matrix from a given event.
         // TODO: Refactor!
@@ -236,7 +240,7 @@ object Menu extends Module {
 
           // Draw Category Description (C,H,E,P letter) in inner circles.
           if (item != currentCategory) {
-            event.icon.foreach(s => g.draw(s.addAttribute(getAttr(event)).transform(newT)))
+            event.icon.foreach(s => g.draw(s.setAttribute(getAttr(event)).transform(newT)))
             if (scale < 1)
               //draws the first letter of the inactive menus in the inner circle
               g draw TextShape(item.name.substring(0, 1), Vector2D(0, 0), newT.scaleFactor * 44, Attributes("TextAlignment" -> Vector2D(0.5, 0.5), "Color" -> "#777777".color)).transform(newT)
@@ -265,7 +269,7 @@ object Menu extends Module {
           // Icons
           item.icon.foreach(s => g.draw(s.transform(newT)))
           event.icon.foreach(s => {
-            g.draw(s.addAttribute(getAttr(event)).transform(newT))
+            g.draw(s.setAttribute(getAttr(event)).transform(newT))
           })
         }
 
@@ -283,7 +287,7 @@ object Menu extends Module {
               case category : MenuCategory => category.name
               case _ => " "
             }
-            g draw TextShape(tooltip, menuCenter + Vector2D(0, -40), 10).addAttribute("TextAlignment" -> Vector2D(0.5, 0))
+            g draw TextShape(tooltip, menuCenter + Vector2D(0, -40), 10).setAttribute("TextAlignment" -> Vector2D(0.5, 0))
           }
         })
         // Draws the parent category recursively
@@ -319,10 +323,10 @@ object Menu extends Module {
       drawCategory(currentCategory)
 
       // Draw the outlines of the categories in the four corners of the world
-      RadialMenuIcon.NOutline.foreach(s => g.draw(s.addAttribute("Color" -> "#CCCCCC".color).transform(t)))
-      RadialMenuIcon.WOutline.foreach(s => g.draw(s.addAttribute("Color" -> "#CCCCCC".color).transform(t)))
-      RadialMenuIcon.SOutline.foreach(s => g.draw(s.addAttribute("Color" -> "#CCCCCC".color).transform(t)))
-      RadialMenuIcon.EOutline.foreach(s => g.draw(s.addAttribute("Color" -> "#CCCCCC".color).transform(t)))
+      RadialMenuIcon.NOutline.foreach(s => g.draw(s.setAttribute("Color" -> "#CCCCCC".color).transform(t)))
+      RadialMenuIcon.WOutline.foreach(s => g.draw(s.setAttribute("Color" -> "#CCCCCC".color).transform(t)))
+      RadialMenuIcon.SOutline.foreach(s => g.draw(s.setAttribute("Color" -> "#CCCCCC".color).transform(t)))
+      RadialMenuIcon.EOutline.foreach(s => g.draw(s.setAttribute("Color" -> "#CCCCCC".color).transform(t)))
     }
   }
 

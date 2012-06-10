@@ -89,12 +89,12 @@ object Grid extends Module{
     //draw major horizontal lines
     for(i <- 0 to ((boundary.height*0.96)/scale).toInt) {
       var offsetY = Vector2D(0,i*scale)
-      g draw LineShape(topRight - offsetY, topLeft - offsetY).addAttribute("Color" -> "#EEEEEE".color).transform(t)
+      g draw LineShape(topRight - offsetY, topLeft - offsetY).setAttribute("Color" -> "#EEEEEE".color).transform(t)
     }
     //draw major vertical lines
     for(i <- 0 to (boundary.width/scale).toInt) {
       var offsetX = Vector2D(i*scale,0)
-      g draw LineShape(topLeft + offsetX, Vector2D(bottomLeft.x, bottomLeft.y + boundary.height*0.04) + offsetX).addAttribute("Color" -> "#EEEEEE".color).transform(t)
+      g draw LineShape(topLeft + offsetX, Vector2D(bottomLeft.x, bottomLeft.y + boundary.height*0.04) + offsetX).setAttribute("Color" -> "#EEEEEE".color).transform(t)
     }
   }
 }

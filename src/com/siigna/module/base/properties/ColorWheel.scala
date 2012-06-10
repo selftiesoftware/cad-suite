@@ -100,29 +100,29 @@ object ColorWheel extends Module {
             relativeMousePosition = Some(point)
             //set the color
             if (activeAngle == 0) {activeColor = Some(black)}
-            else if (activeAngle == 15) {activeColor = Some(yellowGreen)}
-            else if (activeAngle == 30) {activeColor = Some(lime)}
-            else if (activeAngle == 45) {activeColor = Some(green)}
-            else if (activeAngle == 60) {activeColor = Some(caribbean)}
-            else if (activeAngle == 75) {activeColor = Some(turquise)}
-            else if (activeAngle == 90) {activeColor = Some(cyan)}
-            else if (activeAngle == 105) {activeColor = Some(pasificBlue)}
-            else if (activeAngle == 120) {activeColor = Some(navyBlue)}
-            else if (activeAngle == 135) {activeColor = Some(blue)}
-            else if (activeAngle == 150) {activeColor = Some(purple)}
-            else if (activeAngle == 165) {activeColor = Some(plum)}
-            else if (activeAngle == 180) {activeColor = Some(magenta)}
-            else if (activeAngle == 195) {activeColor = Some(violetRed)}
-            else if (activeAngle == 210) {activeColor = Some(radicalRed)}
-            else if (activeAngle == 225) {activeColor = Some(red)}
-            else if (activeAngle == 240) {activeColor = Some(orangeRed)}
-            else if (activeAngle == 255) {activeColor = Some(orange)}
-            else if (activeAngle == 270) {activeColor = Some(yellow)}
-            else if (activeAngle == 285) {activeColor = Some(lightGrey)}
-            else if (activeAngle == 300) {activeColor = Some(darkGrey)}
-            else if (activeAngle == 315) {activeColor = Some(grey)}
-            else if (activeAngle == 330) {activeColor = Some(dimgrey)}
-            else if (activeAngle == 345) {activeColor = Some(anthracite)}
+            else if (activeAngle == 15) activeColor = Some(yellowGreen)
+            else if (activeAngle == 30) activeColor = Some(lime)
+            else if (activeAngle == 45) activeColor = Some(green)
+            else if (activeAngle == 60) activeColor = Some(caribbean)
+            else if (activeAngle == 75) activeColor = Some(turquise)
+            else if (activeAngle == 90) activeColor = Some(cyan)
+            else if (activeAngle == 105) activeColor = Some(pasificBlue)
+            else if (activeAngle == 120) activeColor = Some(navyBlue)
+            else if (activeAngle == 135) activeColor = Some(blue)
+            else if (activeAngle == 150) activeColor = Some(purple)
+            else if (activeAngle == 165) activeColor = Some(plum)
+            else if (activeAngle == 180) activeColor = Some(magenta)
+            else if (activeAngle == 195) activeColor = Some(violetRed)
+            else if (activeAngle == 210) activeColor = Some(radicalRed)
+            else if (activeAngle == 225) activeColor = Some(red)
+            else if (activeAngle == 240) activeColor = Some(orangeRed)
+            else if (activeAngle == 255) activeColor = Some(orange)
+            else if (activeAngle == 270) activeColor = Some(yellow)
+            else if (activeAngle == 285) activeColor = Some(lightGrey)
+            else if (activeAngle == 300) activeColor = Some(darkGrey)
+            else if (activeAngle == 315) activeColor = Some(grey)
+            else if (activeAngle == 330) activeColor = Some(dimgrey)
+            else if (activeAngle == 345) activeColor = Some(anthracite)
             gotMouseDown = false
             Goto('End)
           }
@@ -148,6 +148,16 @@ object ColorWheel extends Module {
       }
     }),
     'End -> ((events : List[Event]) => {
+
+      if(Model.selection.isEmpty) {
+        if(activeColor.isDefined) Siigna("activeColor") = activeColor.get
+      }
+      //if a selection is defined, change lineweight of the selected shapes.
+      else {
+        //Model.selection.get.attributes
+      }
+
+
       //clear values and reactivate navigation
       startPoint = None
       relativeMousePosition = None
@@ -176,30 +186,31 @@ object ColorWheel extends Module {
       }
 
       // Draw the color icons
-      drawFill(black,0)
-      drawFill(anthracite,345)
-      drawFill(dimgrey,330)
-      drawFill(grey,315)
-      drawFill(darkGrey,300)
-      drawFill(lightGrey,285)
-      drawFill(yellow,270)
-      drawFill(orange,255)
-      drawFill(orangeRed,240)
-      drawFill(red,225)
-      drawFill(radicalRed,210)
-      drawFill(violetRed,195)
-      drawFill(magenta,180)
-      drawFill(plum,165)
-      drawFill(purple,150)
+      drawFill(black,270)
+      drawFill(yellowGreen,255)
+      drawFill(lime,240)
+      drawFill(green,225)
+      drawFill(caribbean,210)
+      drawFill(turquise,195)
+      drawFill(cyan,180)
+      drawFill(pasificBlue,165)
+      drawFill(navyBlue,150)
       drawFill(blue,135)
-      drawFill(navyBlue,120)
-      drawFill(pasificBlue,105)
-      drawFill(cyan,90)
-      drawFill(turquise,75)
-      drawFill(caribbean,60)
-      drawFill(green,45)
-      drawFill(lime,30)
-      drawFill(yellowGreen,15)
+      drawFill(purple,120)
+      drawFill(plum,105)
+      drawFill(magenta,90)
+      drawFill(violetRed,75)
+      drawFill(radicalRed,60)
+      drawFill(red,45)
+      drawFill(orangeRed,30)
+      drawFill(orange,15)
+      drawFill(yellow,0)
+      drawFill(lightGrey,345)
+      drawFill(darkGrey,330)
+      drawFill(grey,315)
+      drawFill(dimgrey,300)
+      drawFill(anthracite,285)
+
 
       //draw a border around the active color
       val distanceToCentre = startPoint.get - relativeMousePosition.get

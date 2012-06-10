@@ -69,7 +69,7 @@ object Circle extends Module {
         case _ =>
           //create the circle
           if(Siigna.double("activeLineWeight").isDefined && center.isDefined && radius.isDefined) {
-            Create(CircleShape(center.get,radius.get).addAttribute("StrokeWidth" -> Siigna.double("activeLineWeight").get))
+            Create(CircleShape(center.get,radius.get).setAttribute("StrokeWidth" -> Siigna.double("activeLineWeight").get))
           }
           else Create(CircleShape(center.get,radius.get))
           //clear the points list

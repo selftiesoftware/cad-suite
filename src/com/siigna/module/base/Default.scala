@@ -44,7 +44,7 @@ object Default extends Module {
 
   //graphics to show modules loading progress
   def loadBar(point : Int): Shape = PolylineShape(Rectangle2D(Vector2D(103,297),Vector2D(point+103,303))).setAttribute("raster" -> anthracite)
-  def loadFrame : Shape = PolylineShape(Rectangle2D(Vector2D(100,294), Vector2D(500,306))).addAttribute("Color" -> "#AAAAAA".color)
+  def loadFrame : Shape = PolylineShape(Rectangle2D(Vector2D(100,294), Vector2D(500,306))).setAttribute("Color" -> "#AAAAAA".color)
 
   //The nearest shape to the current mouse position.
   var nearestShape : Option[(Int, Shape)] = None
@@ -324,8 +324,10 @@ object Default extends Module {
       val part   = shape.getPart(Siigna.mousePosition)
       val points = shape.getVertices(part)
       points.foreach(p => g.draw(t.transform(p)))
-    }
 
+      g draw shape.setAttributes("Color" -> "#FFFFFF", "StrokeWidth" -> 1.0).transform(t)
+
+    }
     // Draw boundary
     drawBoundary(g, t)
     // set title focus
@@ -344,7 +346,7 @@ object Default extends Module {
     val headerHeight = scala.math.min(boundary.height, boundary.width) * 0.025
 
     // Paper scale
-    val scale = TextShape("Scale 1:"+ (Siigna.paperScale+1), unitX(-10), headerHeight * 0.7)
+    val scale = TextShape("Scale 1:"+ (Siigna.paperScale), unitX(-10), headerHeight * 0.7)
     // Get URL
     val getURL = TextShape(" ", Vector2D(0, 0), headerHeight * 0.7)
 
@@ -353,10 +355,10 @@ object Default extends Module {
     val transformation : TransformationMatrix = t.concatenate(TransformationMatrix(boundary.bottomRight - Vector2D(headerWidth * 0.99, -headerHeight * 0.8), 1))
 
     // Draw horizontal headerborder
-    g draw LineShape(boundary.bottomRight + Vector2D(0,(6*(Siigna.paperScale+1))), Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y) + Vector2D(0,(6*(Siigna.paperScale+1)))).transform(t)
+    g draw LineShape(boundary.bottomRight + Vector2D(0,(6*(Siigna.paperScale))), Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y) + Vector2D(0,(6*(Siigna.paperScale)))).transform(t)
 
     //Draw vertical headerborder
-    g draw LineShape(Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y), Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y) + Vector2D(0,(6*(Siigna.paperScale+1)))).transform(t)
+    g draw LineShape(Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y), Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y) + Vector2D(0,(6*(Siigna.paperScale)))).transform(t)
 
     //g draw separator
     g.draw(scale.transform(transformation))
