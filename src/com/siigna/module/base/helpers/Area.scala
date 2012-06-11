@@ -58,7 +58,9 @@ object Area extends Module {
   //TODO: Add a function to display cm2 or m2 instead of mm2 for large areas.
 
   def stateMap = DirectedGraph(
-    'Start    ->   'Message  ->    'SetPoint
+
+    'Start    ->   'Message  ->    'SetPoint,
+    'Start    ->   'KeyDown  ->    'End
   )
 
   def stateMachine = Map(
@@ -90,6 +92,7 @@ object Area extends Module {
       case Message(p : Vector2D) :: tail => {
         // Save the point
         points = points :+ p
+        println(points.size)
         // Define shape if there is enough points
         ForwardTo('Point, false)
         Controller ! Message(PointGuide(getPointGuide))
@@ -106,7 +109,8 @@ object Area extends Module {
 
       //add a line segment from the last to the first point in the list to close the fill area
       if (points.size > 2) {
-        Siigna.display("Area: "+area(points) +"mm2")
+        println(points.size)
+        Siigna.display("Area: "+area(points :+ points(0)) +"mm2")
       }
 
       //Clear the variables
