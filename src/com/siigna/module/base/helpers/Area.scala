@@ -18,7 +18,6 @@ import com.siigna.module.base.create._
 
 import java.awt.Color
 
-
 /**
  * A module that measures and displays an area.
  */
@@ -92,7 +91,6 @@ object Area extends Module {
       case Message(p : Vector2D) :: tail => {
         // Save the point
         points = points :+ p
-        println(points.size)
         // Define shape if there is enough points
         ForwardTo('Point, false)
         Controller ! Message(PointGuide(getPointGuide))
@@ -109,7 +107,6 @@ object Area extends Module {
 
       //add a line segment from the last to the first point in the list to close the fill area
       if (points.size > 2) {
-        println(points.size)
         Siigna.display("Area: "+area(points :+ points(0)) +"mm2")
       }
 

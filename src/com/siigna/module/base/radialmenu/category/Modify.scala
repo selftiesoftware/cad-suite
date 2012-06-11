@@ -26,10 +26,10 @@ case class Modify(parent : Option[MenuCategory]) extends MenuCategory {
 
   //override def NNE = Some(MenuItem('Polyline, RadialMenuIcon.align))
   override def NNW = Some(MenuItem('Scale, RadialMenuIcon.scale, "modify"))
-  override def ENE = Some(MenuItem('Fillet, RadialMenuIcon.fillet, "modify"))
+  //override def ENE = Some(MenuItem('Fillet, RadialMenuIcon.fillet, "modify"))
   //override def ESE = Some(MenuItem('Polyline, RadialMenuIcon.chamfer))
-  override def SSW = Some(MenuItem('Trim, RadialMenuIcon.trim, "modify"))
-  override def SSE = Some(MenuItem('Polyline, RadialMenuIcon.extend))
+  //override def SSW = Some(MenuItem('Trim, RadialMenuIcon.trim, "modify"))
+  //override def SSE = Some(MenuItem('Polyline, RadialMenuIcon.extend))
   override def WNW = Some(MenuItem('Divide, RadialMenuIcon.divide, "modify"))
 
 }
