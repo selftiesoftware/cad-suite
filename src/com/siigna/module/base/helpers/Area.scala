@@ -112,6 +112,8 @@ object Area extends Module {
 
       //Clear the variables
       points = List[Vector2D]()
+      com.siigna.module.base.Default.previousModule = Some('Area)
+
     })
   )
 }

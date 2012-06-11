@@ -11,67 +11,78 @@
 
 package com.siigna.module.base.create
 
-import java.awt.Color
 import com.siigna._
+import app.Siigna
+import com.siigna.module.Module
+import app.controller.Controller
+
+import java.awt.Color
 
 object Fill extends Module {
 
-  //raster color value
-  lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, 1.00f)
+  lazy val eventHandler = new EventHandler(stateMap, stateMachine)
 
-  //save the first point and used it to close the fill area.
-  private var firstPoint : Option[Vector2D] = None
+  var points = List[Vector2D]()
 
-  // The points of the raster
-  private var points = List[Vector2D]()
-
-  private var previousPoint : Option[Vector2D] = None
-
-  // The closed, filled polyline so far
-  private var shape : PolylineShape = PolylineShape.empty
-
-  val eventHandler = EventHandler(stateMap, stateMachine)
+  lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, 0.30f)
 
   def stateMap = DirectedGraph(
-    'Start        -> 'KeyEscape  -> 'End
+
+    'Start    ->   'Message  ->    'SetPoint,
+    'Start    ->   'KeyDown  ->    'End
   )
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {
-        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-        case MouseDown(point, MouseButtonLeft, _):: tail => {
-          if (!firstPoint.isEmpty) {
-            firstPoint = Some(point)
-            points = points :+ point
-            previousPoint = Some(point)
+        case MouseDown(_, MouseButtonRight, _) :: tail => {
+          Goto('End)
         }
-          else firstPoint = Some(point)
-
-          // Set shape
-          if (points.size > 0) {
-            shape = PolylineShape(points).setAttribute(("raster" -> anthracite))
-          }
-        }
-        case _ =>
+        case _ => ForwardTo('Point, false)
       }
     }),
-    'End -> ((events : List[Event]) => {
+  'SetPoint -> ((events : List[Event]) => {
 
+    //send a guide drawing the area dynamically as points are added:
+    def getPointGuide = (p : Vector2D) => {
+
+      if(!points.isEmpty) {
+        val closedPolyline = points.reverse :+ p
+        val areaGuide = closedPolyline.reverse :+ p
+          if(Siigna.get("activeColor")isDefined) PolylineShape((areaGuide)).setAttributes("raster" -> Siigna("activeColor"), "StrokeWidth" -> 0.0)
+          else PolylineShape((areaGuide)).setAttributes("raster" -> anthracite, "StrokeWidth" -> 0.0)
+    }
+      else PolylineShape(Vector2D(0,0),Vector2D(0,0))
+    }
+    events match {
+      // Exit strategy
+      case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
+
+      case Message(p : Vector2D) :: tail => {
+        // Save the point
+        points = points :+ p
+        // Define shape if there is enough points
+        ForwardTo('Point, false)
+        Controller ! Message(PointGuide(getPointGuide))
+      }
+
+      // Match on everything else
+      case _ => {
+        ForwardTo('Point)
+        Controller ! Message(PointGuide(getPointGuide))
+      }
+    }
+  }),
+    'End -> ((events : List[Event]) => {
       //add a line segment from the last to the first point in the list to close the fill area
-      if (shape.shapes.size > 0) Create(shape.asInstanceOf[Shape])
+      if (points.size > 2 && Siigna.get("activeColor").isDefined)
+        Create(PolylineShape(points :+ points(0)).setAttributes("raster" -> Siigna("activeColor"), "StrokeWidth" -> 0.0))
+      else Create(PolylineShape(points :+ points(0)).setAttributes("raster" -> anthracite, "StrokeWidth" -> 0.0))
 
       //Clear the variables
-      firstPoint = None
       points = List[Vector2D]()
-      previousPoint = None
-      shape = PolylineShape.empty
+      com.siigna.module.base.Default.previousModule = Some('Area)
+
     })
   )
-
-  override def paint(g : Graphics, t : TransformationMatrix) {
-    if(!firstPoint.isEmpty && previousPoint.isDefined && points.length > 0) {
-      g draw shape.transform(t)
-    }
-  }
 }

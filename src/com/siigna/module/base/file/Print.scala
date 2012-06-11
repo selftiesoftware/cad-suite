@@ -24,7 +24,7 @@ object Print extends Module {
 
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 
-  lazy val stateMap     = DirectedGraph('Start     -> 'KeyEscape -> 'End)
+  lazy val stateMap     = DirectedGraph('Start     -> 'KeyDown -> 'End)
 
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {

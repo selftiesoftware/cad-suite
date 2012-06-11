@@ -87,9 +87,11 @@ object Default extends Module {
         Siigna.display("Loading Siigna modules ver. 0.6")
         //preload commonly used modules
         Preload('AngleGizmo, "com.siigna.module.base.create")
+        Preload('Area, "com.siigna.module.base.helpers")
         //Preload('Artline, "com.siigna.module.base.create")
-        //Preload('Fill, "com.siigna.module.base.create")
+        Preload('Fill, "com.siigna.module.base.create")
         Preload('Circle, "com.siigna.module.base.create")
+        Preload('Distance, "com.siigna.module.base.helpers")
         Preload('Line, "com.siigna.module.base.create")
         Preload('Lineardim, "com.siigna.module.base.create")
         Preload('Point, "com.siigna.module.base.create")
