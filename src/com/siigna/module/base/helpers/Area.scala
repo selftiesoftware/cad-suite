@@ -11,10 +11,19 @@
 
 package com.siigna.module.base.helpers
 
-/* 2012 (C) Copyright by Siigna, all rights reserved. */
-
 import com.siigna._
+import com.siigna.module.Module
+import app.controller.Controller
+import com.siigna.module.base.create._
 
+import java.awt.Color
+
+
+/**
+ * A module that measures and displays an area.
+ */
+
+//TODO: add ability to measure the area of one or more selected, closed polylines.
 object Area extends Module {
 
   //a function to calculate an area defined by points.
@@ -40,83 +49,68 @@ object Area extends Module {
     area.toInt
   }
 
-  //save the first point and used it to close the fill area.
-  private var firstPoint : Option[Vector2D] = None
+  lazy val eventHandler = new EventHandler(stateMap, stateMachine)
 
-  // The points of the raster
-  private var points = List[Vector2D]()
+  var points = List[Vector2D]()
 
-  private var previousPoint : Option[Vector2D] = None
-  //a flag used to bypass the first MouseDown event coming from Default when the module is called
-  private var setFirstPoint = false
+  lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, 0.30f)
 
-  // The closed, filled polyline so far
-  private var shape : PolylineShape = PolylineShape.empty
-
-  val eventHandler = EventHandler(stateMap, stateMachine)
+  //TODO: Add a function to display cm2 or m2 instead of mm2 for large areas.
 
   def stateMap = DirectedGraph(
-    'Start        -> 'KeyEscape  -> 'End
+    'Start    ->   'Message  ->    'SetPoint
   )
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {
-        case MouseUp(_, MouseButtonRight, _) :: tail => {
+        case MouseDown(_, MouseButtonRight, _) :: tail => {
           Goto('End)
         }
-        case MouseDown(point, MouseButtonLeft, _):: tail => {
-          //mechanism to bypass the MouseDown coming from Default
-          if(setFirstPoint == false) {
-            setFirstPoint = true
-            Goto('Start, false)
-          }
-          else if(!firstPoint.isDefined) {
-            firstPoint = Some(point)
-            points = points :+ point
-            previousPoint = Some(point)
-          }
-          else {
-            points = points :+ point
-            previousPoint = Some(point)
-          }
-        }
-        case MouseUp(_, MouseButtonRight, _):: tail => {
-          Goto ('End)
-        }
-        case _ =>
+        case _ => ForwardTo('Point, false)
       }
-    if (points.size > 0)
-
-    shape = PolylineShape(points)
     }),
+  'SetPoint -> ((events : List[Event]) => {
+
+    //send a guide drawing the area dynamically as points are added:
+    def getPointGuide = (p : Vector2D) => {
+
+      if(!points.isEmpty) {
+        val closedPolyline = points.reverse :+ p
+        val areaGuide = closedPolyline.reverse :+ p
+        Siigna.display("Area: "+area(areaGuide) +"mm2")
+        PolylineShape(areaGuide).setAttributes("raster" -> anthracite, "StrokeWidth" -> 0.12)
+    }
+      else PolylineShape(Vector2D(0,0),Vector2D(0,0))
+    }
+    events match {
+      // Exit strategy
+      case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
+
+      case Message(p : Vector2D) :: tail => {
+        // Save the point
+        points = points :+ p
+        // Define shape if there is enough points
+        ForwardTo('Point, false)
+        Controller ! Message(PointGuide(getPointGuide))
+      }
+
+      // Match on everything else
+      case _ => {
+        ForwardTo('Point)
+        Controller ! Message(PointGuide(getPointGuide))
+      }
+    }
+  }),
     'End -> ((events : List[Event]) => {
 
       //add a line segment from the last to the first point in the list to close the fill area
-      if (points.size > 0 && firstPoint.isDefined) {
-        points = points :+ firstPoint.get
-
-        Siigna.display("Area: "+area(points))
-
-        //TODO: add a textShape object displaying the area if measurement is successful.
-        //Create(shape)
+      if (points.size > 2) {
+        Siigna.display("Area: "+area(points) +"mm2")
       }
 
       //Clear the variables
-      setFirstPoint = false
-      firstPoint = None
       points = List[Vector2D]()
-      previousPoint = None
-      shape = PolylineShape.empty
     })
   )
-  override def paint(g : Graphics, t : TransformationMatrix) {
-    if (points.length > 0 && previousPoint.isDefined) {
-
-      g draw LineShape(mousePosition, previousPoint.get).transform(t)
-      g draw LineShape(mousePosition, firstPoint.get).transform(t)
-
-    } else None
-    g draw shape.transform(t)
-  }
 }

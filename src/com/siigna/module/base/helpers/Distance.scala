@@ -11,8 +11,6 @@
 
 package com.siigna.module.base.helpers
 
-/* 2010 (C) Copyright by Siigna, all rights reserved. */
-
 import com.siigna._
 import com.siigna.module.Module
 import app.controller.Controller
