@@ -164,6 +164,7 @@ object Menu extends Module {
       }
     }),
     'End -> ((events : List[Event]) => {
+      println("menu end")
       // Set everything back to normal
       Siigna.navigation = true
       if(center.isDefined)

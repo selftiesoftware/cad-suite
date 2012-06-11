@@ -318,6 +318,7 @@ object Default extends Module {
     }
     //draw a grid if toggled in through the Helpers menu
     if(gridIsOn == true) com.siigna.module.base.helpers.Grid.paint(g : Graphics, t : TransformationMatrix)
+
     //draw selected/highlighted vertices
     if (nearestShape.isDefined) {
       val shape  = nearestShape.get._2
@@ -325,7 +326,7 @@ object Default extends Module {
       val points = shape.getVertices(part)
       points.foreach(p => g.draw(t.transform(p)))
 
-      g draw shape.setAttributes("Color" -> "#FFFFFF", "StrokeWidth" -> 1.0).transform(t)
+      g draw shape.setAttributes("Color" -> "#22FFFF".color, "StrokeWidth" -> 1.0).transform(t)
 
     }
     // Draw boundary
@@ -342,6 +343,9 @@ object Default extends Module {
     // Get the boundary
     val boundary = Model.boundary
 
+    val br = boundary.bottomRight
+    val bl = boundary.bottomLeft
+
     // Define header
     val headerHeight = scala.math.min(boundary.height, boundary.width) * 0.025
 
@@ -354,11 +358,17 @@ object Default extends Module {
 
     val transformation : TransformationMatrix = t.concatenate(TransformationMatrix(boundary.bottomRight - Vector2D(headerWidth * 0.99, -headerHeight * 0.8), 1))
 
+    val oversize1 = (boundary.bottomLeft + Vector2D(-2 * Siigna.paperScale, -2 * Siigna.paperScale))
+    val oversize2 = (boundary.topRight + Vector2D(2 * Siigna.paperScale, 2 * Siigna.paperScale))
+
+    //draw frame to indicate level of openness:
+    g draw PolylineShape(Rectangle2D(oversize1, oversize2)).transform(t).setAttributes("Color" -> new Color(0.25f, 0.85f, 0.25f, 0.20f), "StrokeWidth" -> 4.0)
+
     // Draw horizontal headerborder
-    g draw LineShape(boundary.bottomRight + Vector2D(0,(6*(Siigna.paperScale))), Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y) + Vector2D(0,(6*(Siigna.paperScale)))).transform(t)
+    g draw LineShape(br + Vector2D(0,(6*(Siigna.paperScale))), Vector2D((br.x/2 + bl.x),br.y) + Vector2D(0,(6*(Siigna.paperScale)))).setAttribute("StrokeWidth" -> 0.3).transform(t)
 
     //Draw vertical headerborder
-    g draw LineShape(Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y), Vector2D((boundary.bottomRight.x/2 + boundary.bottomLeft.x),boundary.bottomRight.y) + Vector2D(0,(6*(Siigna.paperScale)))).transform(t)
+    g draw LineShape(Vector2D((br.x/2 + bl.x),br.y), Vector2D((br.x/2 + bl.x),br.y) + Vector2D(0,(6*(Siigna.paperScale)))).setAttribute("StrokeWidth" -> 0.3).transform(t)
 
     //g draw separator
     g.draw(scale.transform(transformation))
