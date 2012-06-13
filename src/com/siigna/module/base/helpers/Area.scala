@@ -26,7 +26,7 @@ import java.awt.Color
 object Area extends Module {
 
   //a function to calculate an area defined by points.
-  def area(points : List[Vector2D]) : Int = {
+  def area(points : List[Vector2D]) = {
 
     var area : Double = 0
     var i : Int = 0
@@ -46,6 +46,13 @@ object Area extends Module {
     }
     area = scala.math.abs(area * 0.5)
     area.toInt
+  }
+
+  //change display different units based on area size
+  def units(a : Int) = {
+    if(a < 100) a+ " mm2"
+    else if(a >= 100 && a < 500000) "%.2f".format(a/100.toDouble)+" cm2"
+    else "%.2f".format(a/1000000.toDouble) +" m2"
   }
 
   lazy val eventHandler = new EventHandler(stateMap, stateMachine)
@@ -75,11 +82,11 @@ object Area extends Module {
 
     //send a guide drawing the area dynamically as points are added:
     def getPointGuide = (p : Vector2D) => {
-
       if(!points.isEmpty) {
         val closedPolyline = points.reverse :+ p
         val areaGuide = closedPolyline.reverse :+ p
-        Siigna.display("Area: "+area(areaGuide) +"mm2")
+
+        Siigna.display("Area: "+units(area(areaGuide)))
         PolylineShape(areaGuide).setAttributes("raster" -> anthracite, "StrokeWidth" -> 0.12)
     }
       else PolylineShape(Vector2D(0,0),Vector2D(0,0))
@@ -107,7 +114,7 @@ object Area extends Module {
 
       //add a line segment from the last to the first point in the list to close the fill area
       if (points.size > 2) {
-        Siigna.display("Area: "+area(points :+ points(0)) +"mm2")
+        Siigna.display("Area: "+units(area(points :+ points(0))))
       }
 
       //Clear the variables

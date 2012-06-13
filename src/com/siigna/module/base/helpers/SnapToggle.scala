@@ -35,9 +35,11 @@ object SnapToggle extends Module {
 
     'End -> ((events : List[Event]) => {
       if (isSnapping == true) {
+        Siigna display "snap is off"
         isSnapping = false
       }
       else {
+        Siigna display "snap is on"
         isSnapping = true
       }
       None
