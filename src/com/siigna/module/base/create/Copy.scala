@@ -95,11 +95,10 @@ object Copy extends Module {
           startPoint = Some(p)
           Goto('Copy)
         }
-        case MouseUp(p, _, _) :: MouseDown(_ ,_ ,_) :: tail => {
+        case _ => {
           ForwardTo('Point)
           Controller ! Message(PointGuides(shapeGuide))
         }
-        case _ =>
       }
     }),
     'Copy -> ((events : List[Event]) => {

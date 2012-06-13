@@ -17,6 +17,9 @@ import com.siigna._
 
 object Circle extends Module {
 
+  var attributes : Attributes = Attributes()
+  def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
+
   val eventHandler = EventHandler(stateMap, stateMachine)
 
   var center : Option[Vector2D] = None
@@ -30,6 +33,7 @@ object Circle extends Module {
   def stateMachine = Map(
     //Start: Defines a centerpoint for the circle and forwards to 'SetRadius
     'Start -> ((events : List[Event]) => {
+      com.siigna.module.base.Default.previousModule = Some('Circle)
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
         case Message(p : Vector2D) :: tail => Goto('SetRadius)
@@ -45,7 +49,9 @@ object Circle extends Module {
 
      val getCircleGuide : Vector2D => CircleShape = (v : Vector2D) => {
        if (center.isDefined) {
-         CircleShape(center.get, v)
+         set("activeLineWeight", "StrokeWidth")
+         set("activeColor", "Color")
+         CircleShape(center.get, v).setAttributes(attributes)
        } else CircleShape(Vector2D(0,0), Vector2D(0,0))
      }
 
@@ -67,11 +73,18 @@ object Circle extends Module {
     'End -> ((events : List[Event]) => (
       events match {
         case _ =>
+          //if(Siigna.double("activeLineWeight").isDefined && center.isDefined && radius.isDefined) {
+          //  Create(CircleShape(center.get,radius.get).setAttribute("StrokeWidth" -> Siigna.double("activeLineWeight").get))
+          //}
+          //else Create(CircleShape(center.get,radius.get))
+
           //create the circle
-          Create(CircleShape(center.get,radius.get))
+          set("activeLineWeight", "StrokeWidth")
+          set("activeColor", "Color")
+
+          if(center.isDefined && radius.isDefined) Create(CircleShape(center.get,radius.get).setAttributes(attributes))
 
           //clear the points list
-          com.siigna.module.base.Default.previousModule = Some('Circle)
           center = None
           radius = None
       })

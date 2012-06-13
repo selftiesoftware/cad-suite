@@ -81,7 +81,7 @@ object ColorWheel extends Module {
 
   def stateMap = DirectedGraph(
 
-    'Start  ->   'KeyEscape   ->  'End
+    'Start  ->   'KeyDown  ->  'End
 
   )
 
@@ -90,49 +90,53 @@ object ColorWheel extends Module {
     'Start -> ((events : List[Event]) => {
       Siigna.navigation = false // Make sure the rest of the program doesn't move
       eventParser.disable // Disable tracking and snapping
+      startPoint = if (Menu.center.isDefined) Some(Menu.center.get) else Some(Vector2D(0,0))
+
       events match {
         case MouseMove(point, _, _) :: tail => relativeMousePosition = Some(point)
+        case MouseDown(point, MouseButtonRight, _) :: tail => Goto('End)
 
         //selects the color to use
-        case MouseDown(point, _, _) :: tail => {
+        case MouseDown(point, MouseButtonLeft, _) :: tail => {
+          println("a")
+          //catch first Mouse Down
+          if (gotMouseDown == false) {
+            relativeMousePosition = Some(point)
+            gotMouseDown = true
+          }
           //if the mouse has been pressed once, set the color and go to 'End.
-          if (gotMouseDown == true) {
+          else {
             relativeMousePosition = Some(point)
             //set the color
             if (activeAngle == 0) {activeColor = Some(black)}
-            else if (activeAngle == 15) {activeColor = Some(yellowGreen)}
-            else if (activeAngle == 30) {activeColor = Some(lime)}
-            else if (activeAngle == 45) {activeColor = Some(green)}
-            else if (activeAngle == 60) {activeColor = Some(caribbean)}
-            else if (activeAngle == 75) {activeColor = Some(turquise)}
-            else if (activeAngle == 90) {activeColor = Some(cyan)}
-            else if (activeAngle == 105) {activeColor = Some(pasificBlue)}
-            else if (activeAngle == 120) {activeColor = Some(navyBlue)}
-            else if (activeAngle == 135) {activeColor = Some(blue)}
-            else if (activeAngle == 150) {activeColor = Some(purple)}
-            else if (activeAngle == 165) {activeColor = Some(plum)}
-            else if (activeAngle == 180) {activeColor = Some(magenta)}
-            else if (activeAngle == 195) {activeColor = Some(violetRed)}
-            else if (activeAngle == 210) {activeColor = Some(radicalRed)}
-            else if (activeAngle == 225) {activeColor = Some(red)}
-            else if (activeAngle == 240) {activeColor = Some(orangeRed)}
-            else if (activeAngle == 255) {activeColor = Some(orange)}
-            else if (activeAngle == 270) {activeColor = Some(yellow)}
-            else if (activeAngle == 285) {activeColor = Some(lightGrey)}
-            else if (activeAngle == 300) {activeColor = Some(darkGrey)}
-            else if (activeAngle == 315) {activeColor = Some(grey)}
-            else if (activeAngle == 330) {activeColor = Some(dimgrey)}
-            else if (activeAngle == 345) {activeColor = Some(anthracite)}
+            else if (activeAngle == 15) activeColor = Some(yellowGreen)
+            else if (activeAngle == 30) activeColor = Some(lime)
+            else if (activeAngle == 45) activeColor = Some(green)
+            else if (activeAngle == 60) activeColor = Some(caribbean)
+            else if (activeAngle == 75) activeColor = Some(turquise)
+            else if (activeAngle == 90) activeColor = Some(cyan)
+            else if (activeAngle == 105) activeColor = Some(pasificBlue)
+            else if (activeAngle == 120) activeColor = Some(navyBlue)
+            else if (activeAngle == 135) activeColor = Some(blue)
+            else if (activeAngle == 150) activeColor = Some(purple)
+            else if (activeAngle == 165) activeColor = Some(plum)
+            else if (activeAngle == 180) activeColor = Some(magenta)
+            else if (activeAngle == 195) activeColor = Some(violetRed)
+            else if (activeAngle == 210) activeColor = Some(radicalRed)
+            else if (activeAngle == 225) activeColor = Some(red)
+            else if (activeAngle == 240) activeColor = Some(orangeRed)
+            else if (activeAngle == 255) activeColor = Some(orange)
+            else if (activeAngle == 270) activeColor = Some(yellow)
+            else if (activeAngle == 285) activeColor = Some(lightGrey)
+            else if (activeAngle == 300) activeColor = Some(darkGrey)
+            else if (activeAngle == 315) activeColor = Some(grey)
+            else if (activeAngle == 330) activeColor = Some(dimgrey)
+            else if (activeAngle == 345) activeColor = Some(anthracite)
             gotMouseDown = false
             Goto('End)
           }
 
-          else {
-            //catch the first mouse down
-            startPoint = Some(Menu.oldCenter)
-            relativeMousePosition = Some(point)
-            gotMouseDown = true
-          }
+
         }
         case _ =>
 
@@ -148,6 +152,14 @@ object ColorWheel extends Module {
       }
     }),
     'End -> ((events : List[Event]) => {
+
+      if(Model.selection.isEmpty) {
+        if(activeColor.isDefined) Siigna("activeColor") = activeColor.get
+      }
+      //if a selection is defined, change lineweight of the selected shapes.
+      else {
+        //Model.selection.get.attributes
+      }
       //clear values and reactivate navigation
       startPoint = None
       relativeMousePosition = None
@@ -157,6 +169,7 @@ object ColorWheel extends Module {
   )
   override def paint(g : Graphics, transform : TransformationMatrix) = {
     if (startPoint.isDefined && relativeMousePosition.isDefined) {
+      //centerPoint for the colorWheel
       val sp = startPoint.get.transform(transform)
       val t  = TransformationMatrix(sp,1.3)
 
@@ -176,30 +189,30 @@ object ColorWheel extends Module {
       }
 
       // Draw the color icons
-      drawFill(black,0)
-      drawFill(anthracite,345)
-      drawFill(dimgrey,330)
-      drawFill(grey,315)
-      drawFill(darkGrey,300)
-      drawFill(lightGrey,285)
-      drawFill(yellow,270)
-      drawFill(orange,255)
-      drawFill(orangeRed,240)
-      drawFill(red,225)
-      drawFill(radicalRed,210)
-      drawFill(violetRed,195)
-      drawFill(magenta,180)
-      drawFill(plum,165)
-      drawFill(purple,150)
-      drawFill(blue,135)
-      drawFill(navyBlue,120)
-      drawFill(pasificBlue,105)
-      drawFill(cyan,90)
-      drawFill(turquise,75)
-      drawFill(caribbean,60)
-      drawFill(green,45)
-      drawFill(lime,30)
-      drawFill(yellowGreen,15)
+      drawFill(magenta,0)
+      drawFill(violetRed,15)
+      drawFill(radicalRed,30)
+      drawFill(red,45)
+      drawFill(orangeRed,60)
+      drawFill(orange,75)
+      drawFill(yellow,90)
+      drawFill(lightGrey,105)
+      drawFill(darkGrey,120)
+      drawFill(grey,135)
+      drawFill(dimgrey,150)
+      drawFill(anthracite,165)
+      drawFill(black,180)
+      drawFill(yellowGreen,195)
+      drawFill(lime,210)
+      drawFill(green,225)
+      drawFill(caribbean,240)
+      drawFill(turquise,255)
+      drawFill(cyan,270)
+      drawFill(pasificBlue,285)
+      drawFill(navyBlue,300)
+      drawFill(blue,315)
+      drawFill(purple,330)
+      drawFill(plum,345)
 
       //draw a border around the active color
       val distanceToCentre = startPoint.get - relativeMousePosition.get

@@ -20,17 +20,17 @@ case class Helpers(parent : Option[MenuCategory]) extends MenuCategory {
   def name = "Helpers"
 
   override def N = Some(MenuItemEmpty("Objects"))
-  override def E = Some(MenuItemEmpty("Toggle snap"))
+  override def E = Some(MenuItemEmpty("Snap Settings"))
   override def S = Some(MenuItemEmpty("Measure"))
   override def W = Some(MenuItemEmpty("Guidelines"))
 
-  override def ENE = Some(MenuItem('SnapToggle, RadialMenuIcon.endPointSnap, "helpers"))
-  override def NNE = Some(MenuItem('Hide, RadialMenuIcon.hide))
-  override def NNW = Some(MenuItem('Polyline, RadialMenuIcon.selectSame))
+  //override def ENE = Some(MenuItem('SnapToggle, RadialMenuIcon.endPointSnap, "helpers"))
+  //override def NNE = Some(MenuItem('Hide, RadialMenuIcon.hide))
+  //override def NNW = Some(MenuItem('Polyline, RadialMenuIcon.selectSame))
   override def WNW = Some(MenuItem('Grid, RadialMenuIcon.grid, "helpers"))
   //override def WSW = Some(MenuItem('Polyline, RadialMenuIcon.perspective))
-  override def SSW = Some(MenuItem('Area, RadialMenuIcon.area))
+  override def SSW = Some(MenuItem('Area, RadialMenuIcon.area, "helpers"))
   override def SSE = Some(MenuItem('Distance, RadialMenuIcon.distance, "helpers"))
-  override def ESE = Some(MenuItem('Polyline, RadialMenuIcon.midPointSnap))
+  //override def ESE = Some(MenuItem('Polyline, RadialMenuIcon.midPointSnap))
 
 }

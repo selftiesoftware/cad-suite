@@ -46,7 +46,7 @@ case class DXFSection(values : Seq[DXFValue]) extends Subtractable[DXFValue, DXF
           })
           if (start.isDefined && end.isDefined && centerX.isDefined && centerY.isDefined && r.isDefined) {
             if (r.get > 0 && start.get != end.get)
-              Some(ArcShape(Vector(centerX.get, centerY.get), r.get, end.get, start.get)) // DXF counts CW, not CCW
+              Some(ArcShape(Vector2D(centerX.get, centerY.get), r.get, end.get, start.get)) // DXF counts CW, not CCW
             else None
           } else None
         }
@@ -61,7 +61,7 @@ case class DXFSection(values : Seq[DXFValue]) extends Subtractable[DXFValue, DXF
           })
 
           if (x.isDefined && y.isDefined && r.isDefined) {
-            Some(CircleShape(Vector(x.get, y.get), Vector(x.get + r.get, y.get)))
+            Some(CircleShape(Vector2D(x.get, y.get), Vector2D(x.get + r.get, y.get)))
           } else None
         }
         // RHINO Polylines
@@ -88,12 +88,29 @@ case class DXFSection(values : Seq[DXFValue]) extends Subtractable[DXFValue, DXF
             }
             case _ =>
           })
-          println(PolylineShape(points))
           if (points.length > 1){
             Some(PolylineShape(points))
           } else None
         }
-        // Other stuff...
+        //(Multiline?) text
+        case DXFValue(0, "MTEXT") => {
+          var x, y, h, w : Option[Double] = None
+          var text : String = ""
+
+          values.foreach((value : DXFValue) => value match {
+            case DXFValue(10, _) => x = value.toDouble
+            case DXFValue(20, _) => y = value.toDouble
+            case DXFValue(40, _) => h = value.toDouble
+            case DXFValue(41, _) => w = value.toDouble
+            case DXFValue(1, string : String) => text = string
+            case _ =>
+          })
+          if(!text.isEmpty){
+            Some(TextShape(text,(Vector2D(x.get,y.get)),h.get))
+          } else None
+        }
+        // Add support for additional import types here:
+
         case _ => None
       }
     } catch {
@@ -103,7 +120,6 @@ case class DXFSection(values : Seq[DXFValue]) extends Subtractable[DXFValue, DXF
       }
     }
   }
-
   override def toString = values.mkString
 
 }
@@ -122,5 +138,103 @@ object DXFSection {
    */
   def fromVector(vector : Vector2D) = {
     DXFSection(DXFValue(100, "AcDbPoint"), DXFValue(10, vector.x), DXFValue(20, vector.y))
+  }
+
+  //****EXPORT FUNCTIONS ****
+  //write selected shape to DXF:
+  def toDXF(shape : Shape) : DXFSection = {
+
+    def vectorToDXF(v : Vector2D) = {
+      Seq(DXFValue(10,v.x),
+      DXFValue(20,v.y))
+    }
+
+    try {
+      shape match {
+        //export lineShapes
+        case l : LineShape => {
+          DXFSection(DXFValue(0, "LWPOLYLINE"),
+          //random identifier number (HEX)
+          DXFValue(5, (scala.util.Random.nextInt.toHexString)),
+          DXFValue(100, "AcDbEntity"),
+          //layer
+          DXFValue(8, 0),
+          DXFValue(100, "AcDbPolyline"),
+          //number of points
+          DXFValue(90, 2),
+          DXFValue(70, 0),
+          //LineWeight
+          DXFValue(43, 0.0),
+          //Points
+          DXFValue(10, l.p1.x),DXFValue(20, l.p1.y),DXFValue(10, l.p2.x),DXFValue(20, l.p2.y))
+        }
+        case p : PolylineShape => {
+          val vertices = p.geometry.vertices
+          val numberOfVertices = vertices.length
+
+          DXFSection(
+
+            DXFValue(0, "LWPOLYLINE"),
+          //random identifier number (HEX)
+            DXFValue(5, (scala.util.Random.nextInt.toHexString)),
+            DXFValue(100, "AcDbEntity"),
+            //layer
+            DXFValue(8, 0),
+            DXFValue(100, "AcDbPolyline"),
+            //number of points
+            DXFValue(90, numberOfVertices),
+            DXFValue(70, 0),
+            //LineWeight
+            DXFValue(43, 0.0)
+            //Points
+          ) ++ vertices.map(vectorToDXF).flatten
+        }
+        case c : CircleShape => {
+          DXFSection(DXFValue(0, "CIRCLE"),
+          //random identifier number (HEX)
+          DXFValue(5, (scala.util.Random.nextInt.toHexString)),
+          DXFValue(100, "AcDbEntity"),
+          //layer
+          DXFValue(8, 0),
+          DXFValue(100, "AcDbCircle"),
+          //number of points
+          DXFValue(90, 2),
+          DXFValue(70, 0),
+          //LineWeight
+          DXFValue(43, 0.0),
+          //Center point
+          DXFValue(20, c.center.x),DXFValue(30, c.center.y),
+          //radius
+          DXFValue(40, c.radius)
+          )
+        }
+        case t : TextShape => {
+          println(t.position.x)
+          println(t.position.y)
+          DXFSection(DXFValue(0, "MTEXT"),
+          //random identifier number (HEX)
+          DXFValue(5, (scala.util.Random.nextInt.toHexString)),
+          DXFValue(100, "AcDbEntity"),
+          //layer
+          DXFValue(8, 0),
+          DXFValue(100, "AcDbMText"),
+          //placement
+          DXFValue(10, t.position.x),
+          DXFValue(20, t.position.y),
+          DXFValue(30, 0.0),
+          //text height
+          DXFValue(40, t.scale/1.2),
+          //text rectangle width
+          DXFValue(41, t.geometry.width),
+          //attachment point
+          DXFValue(71, 1),
+          //drawing direction
+          DXFValue(72, 1),
+          //text string
+          DXFValue(1, t.text)
+          )
+        }
+      }
+    }
   }
 }

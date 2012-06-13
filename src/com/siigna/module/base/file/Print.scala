@@ -24,40 +24,46 @@ object Print extends Module {
 
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 
-  lazy val stateMap     = DirectedGraph('Start     -> 'KeyEscape -> 'End)
+  var firstOpen : Boolean = true
+
+  lazy val stateMap     = DirectedGraph('Start     -> 'KeyDown -> 'End)
 
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      try {
-        val printerJob = PrinterJob.getPrinterJob
-        val pageFormat = printerJob.defaultPage
+      //a hack to prevent the print dialog from opening over and over again. Caused by an error in the Message system.
+      if (firstOpen == true) {
+        firstOpen = false
+        try {
+          val printerJob = PrinterJob.getPrinterJob
+          val pageFormat = printerJob.defaultPage
 
-        printerJob.setJobName("Siigna Printout");
-        printerJob.setCopies(1);
+          printerJob.setJobName("Siigna Printout");
+          printerJob.setCopies(1);
 
-        if (Model.boundary.width >= Model.boundary.height) {
-          // The origin is at the bottom left of the paper with x running bottom to top and y running left to right.
-          pageFormat.setOrientation(PageFormat.LANDSCAPE)
-        } else {
-          // The origin is at the top left of the paper with x running to the right and y running down the paper.
-          pageFormat.setOrientation(PageFormat.PORTRAIT)
+          if (Model.boundary.width >= Model.boundary.height) {
+            // The origin is at the bottom left of the paper with x running bottom to top and y running left to right.
+            pageFormat.setOrientation(PageFormat.LANDSCAPE)
+          } else {
+            // The origin is at the top left of the paper with x running to the right and y running down the paper.
+            pageFormat.setOrientation(PageFormat.PORTRAIT)
+          }
+
+          val paper = new Paper()
+          val margin = Siigna.double("printMargin").getOrElse(13.0)
+          paper.setImageableArea(margin, margin, paper.getWidth() - margin * 2, paper.getHeight() - margin * 2);
+          pageFormat.setPaper(paper)
+
+          printerJob.setPrintable(new MyPrintable, pageFormat)
+
+          if (printerJob.printDialog() != false) {// choose printer
+              printerJob.print()
+          }
+
+        } catch {
+          case e => println(e)
         }
-
-        val paper = new Paper()
-        val margin = Siigna.double("printMargin").getOrElse(13.0)
-        paper.setImageableArea(margin, margin, paper.getWidth() - margin * 2, paper.getHeight() - margin * 2);
-        pageFormat.setPaper(paper)
-
-        printerJob.setPrintable(new MyPrintable, pageFormat)
-
-        if (printerJob.printDialog() != false) {// choose printer
-            printerJob.print()
-        }
-
-      } catch {
-        case e => println(e)
       }
-
+    else firstOpen = false
       Goto('End)
     }),
     'End   -> ((events : List[Event]) => {

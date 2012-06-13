@@ -14,6 +14,8 @@ package com.siigna.module.base.properties
 import com.siigna.app.view.Graphics
 import com.siigna._
 import com.siigna.module.base.Menu
+import java.awt.Color
+
 /**
  * a wheel to select weights (and styles?) for lines
  *
@@ -29,17 +31,17 @@ object Weight extends Module {
   //TODO: make this dynamic so that each line is drawn by the same function, only changing the .
   //a list of the possible lines
   lazy val line0 = 0.00
-  lazy val line30 = 0.05
-  lazy val line60 = 0.09
-  lazy val line90 = 0.12
-  lazy val line120 = 0.18
-  lazy val line150 = 0.20
-  lazy val line180 = 0.25
-  lazy val line210 = 0.30
-  lazy val line240 = 0.40
-  lazy val line270 = 0.60
-  lazy val line300 = 0.80
-  lazy val line330 = 1.00
+  lazy val line30 = 0.09
+  lazy val line60 = 0.18
+  lazy val line90 = 0.25
+  lazy val line120 = 0.30
+  lazy val line150 = 0.40
+  lazy val line180 = 0.60
+  lazy val line210 = 0.80
+  lazy val line240 = 1.00
+  lazy val line270 = 1.50
+  lazy val line300 = 2.00
+  lazy val line330 = 3.00
 
   var relativeMousePosition : Option[Vector2D] = None
   var startPoint : Option[Vector2D] = None
@@ -72,24 +74,31 @@ object Weight extends Module {
 
   def stateMap = DirectedGraph(
 
-    'Start  ->   'KeyEscape   ->  'End
+    'Start  ->   'KeyDown   ->  'End
 
   )
-
   def stateMachine = Map(
-    //select a color
+
     'Start -> ((events : List[Event]) => {
       Siigna.navigation = false // Make sure the rest of the program doesn't move
       eventParser.disable // Disable tracking and snapping
+      startPoint = if (Menu.center.isDefined) Some(Menu.center.get) else Some(Vector2D(0,0))
+
       events match {
-        case MouseUp(point, _, _) :: tail => startPoint = Some(Menu.oldCenter)
         case MouseMove(point, _, _) :: tail => relativeMousePosition = Some(point)
+        case MouseDown(point, MouseButtonRight, _) :: tail => Goto('End)
         //selects the color to use
-        case MouseDown(point, _, _) :: tail => {
-          //if the mouse has been pressed once, set the color and go to 'End.
-          if (gotMouseDown == true) {
+        case MouseDown(point, MouseButtonLeft, _) :: tail => {
+          //catch first Mouse Down
+          if (gotMouseDown == false) {
             relativeMousePosition = Some(point)
-            //set the color
+            gotMouseDown = true
+          }
+          //if the mouse has been pressed once, set the color and go to 'End.
+          else {
+            relativeMousePosition = Some(point)
+
+            //set the Weight
             if (activeAngle == 0) {activeLine = line0}
             else if (activeAngle == 30) {activeLine = line30}
             else if (activeAngle == 60) {activeLine = line60}
@@ -102,15 +111,9 @@ object Weight extends Module {
             else if (activeAngle == 270) {activeLine = line270}
             else if (activeAngle == 300) {activeLine = line300}
             else if (activeAngle == 330) {activeLine = line330}
+
             gotMouseDown = false
             Goto('End)
-          }
-
-          else {
-            //catch the first mouse down
-            startPoint = Some(Menu.oldCenter)
-            relativeMousePosition = Some(point)
-            gotMouseDown = true
           }
         }
         case _ =>
@@ -122,12 +125,20 @@ object Weight extends Module {
         if (calculatedAngle > 360)
           activeAngle = calculatedAngle - 360
         else activeAngle = calculatedAngle
-          activeAngle = ((activeAngle +7.5)/30).toInt * 30
+          activeAngle = ((activeAngle + 15)/30).toInt * 30
       }
     }),
     'End -> ((events : List[Event]) => {
+      //if no objects are selected, make the chosen lineWeight the default lineWeight
+      if(Model.selection.isEmpty) {
+        Siigna("activeLineWeight") = activeLine
+      }
+      //if a selection is defined, change lineweight of the selected shapes.
+      else {
+        //Model.selection.get.attributes
+      }
+
       //clear values and reactivate navigation
-      println("ACTIVE LINE: "+activeLine)
       startPoint = None
       relativeMousePosition = None
       eventParser.enable
@@ -138,21 +149,25 @@ object Weight extends Module {
     if (startPoint.isDefined && relativeMousePosition.isDefined) {
 
       //template for lines
-      val line = LineShape(Vector2D(47,100), Vector2D(-15,83))
+      def line(width : Double) = LineShape(Vector2D(47,100), Vector2D(-15,83)).setAttribute("StrokeWidth" -> width)
 
       val sp = startPoint.get.transform(transform)
       val t  = TransformationMatrix(sp,1.3)
-
+      var i : Int = 0
+      var weights : List[Double] = List(0.60,0.40,0.30,0.25,0.18,0.09,0.00,3.00,2.00,1.50,1.00,0.80,0.00)
       //function to rotate the graphics
       def drawLine (rotation : Int) {
-
-          g draw line.transform(t.rotate(activeAngle-180))
+          var activeLine = {
+            LineShape(Vector2D(47,100), Vector2D(-15,83)).setAttributes("StrokeWidth" -> 4.0, "Color" -> new Color(0.75f, 0.75f, 0.75f, 0.80f))
+          }
+          //draw the active weight
+          g draw activeLine.transform(t.rotate(activeAngle-180))
         }
 
       //TODO: add differentiated lineweight
       //draw the lines
       drawLine(0)
-      drawLine(30)
+      drawLine(3)
       drawLine(60)
       drawLine(90)
       drawLine(120)
@@ -165,11 +180,14 @@ object Weight extends Module {
       drawLine(330)
 
       //draw an outline of the menu
-      g draw CircleShape(Vector2D(0,0), Vector2D(0,80)).transform(t)
-      g draw CircleShape(Vector2D(0,0), Vector2D(0,118)).transform(t)
+      //g draw CircleShape(Vector2D(0,0), Vector2D(0,80)).transform(t)
+      //g draw CircleShape(Vector2D(0,0), Vector2D(0,118)).transform(t)
 
       //draw the lines
-      radians(30).foreach(radian => { g draw line.transform(t.rotate(radian))})
+      radians(30).foreach(radian => {
+        i+=1
+        g draw line(weights(i-1)).transform(t.rotate(radian))
+      })
 
       //TODO: this is a hack! refactor.
       //draw a text description

@@ -91,24 +91,23 @@ object Move extends Module {
     }),
     'StartPoint ->   ((events : List[Event]) => {
       Siigna display "set base point"
+      //println(events)
       events match {
         case Message(p : Vector2D) :: tail => {
           startPoint = Some(p)
           Goto('Move)
         }
-        case MouseUp(p, _, _) :: MouseDown(_ ,_ ,_) :: tail => {
+        case _ => {
           com.siigna.module.base.Default.previousModule = Some('Move)
           ForwardTo('Point)
           Controller ! Message(PointGuides(shapeGuide))
         }
-        case _ =>
       }
     }),
     'Move -> ((events : List[Event]) => {
       events match{
         case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End, false)
         case _ => {
-          //println(ending)
           def getEndPoint(p : Vector2D) = {
             endPoint = Some(p)
             (p - startPoint.get)
@@ -139,7 +138,6 @@ object Move extends Module {
           else if (startPoint.isDefined && moduleCallFromMenu == true) {
             //check if the endPoint is set. If not, goto 'Point.
             if (gotEndPoint == false) {
-              println("A")
               gotEndPoint = true
               ForwardTo('Point)
             }
@@ -169,7 +167,6 @@ object Move extends Module {
       }
     }),
     'End   -> ((events : List[Event]) => {
-      println("MOVE- END")
       //deselect, but only if an objects has been moved.
       //if (Model.selection.isDefined && startPoint.isDefined && endPoint.isDefined && (startPoint.get - endPoint.get != Vector2D(0, 0))) {
       if (Model.selection.isDefined && startPoint.isDefined && endPoint.isDefined) {

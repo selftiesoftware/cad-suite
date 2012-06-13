@@ -62,6 +62,9 @@ object Point extends Module {
 
   var moving : Boolean = false
 
+  //Store the mousePosition, so we get the snap-coordinates
+  private var mouseLocation : Option[Vector2D] = None
+
   /**
    * The previous point saved as the relative value to the next.
    */
@@ -97,7 +100,6 @@ object Point extends Module {
     'Start -> ((events : List[Event]) => {
       if (com.siigna.module.base.Default.previousModule == Some('Rotate)) rotation = true
       if (com.siigna.module.base.Default.previousModule == Some('Move)) moving = true
-      println("moving: " +moving)
       events match {
 
         // Check for continued MouseDown
@@ -121,9 +123,13 @@ object Point extends Module {
         case MouseUp(_, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail =>
 
         // Exit strategy
-        case (MouseDown(_, _, _) | MouseUp(_, _, _)) :: tail => {
+        case (MouseDown(_, _, _) | MouseUp(_ , MouseButtonRight, _)) :: tail => {
           Goto('End)
         }
+
+        // Mouse position
+        case MouseMove(p, _, _) :: tail => mouseLocation = Some(p)
+        //case MouseDrag(p, _, _) :: tail => mousePosition = Some(p)
 
         // Exit strategy
         case KeyDown(Key.Esc, _) :: tail => Goto('End)
@@ -187,25 +193,32 @@ object Point extends Module {
       // END CASE MATCHES.
       // Format the x and y coordinate and store the message in a value
       val message = if (coordinateValue.length > 0 ) {
-        val x = if (coordinateX.isDefined) "%.3f" format coordinateX.get
+        val x = if (coordinateX.isDefined) "%.2f" format coordinateX.get
                 else coordinateValue
-        val y = if (coordinateY.isDefined) "%.3f" format coordinateY.get
+        val y = if (coordinateY.isDefined) "%.2f" format coordinateY.get
                 else if (coordinateX.isDefined) coordinateValue
                 else ""
 
-        // Save the message
         "point (X: "+x+", Y: "+y+")."
-      } else if (rotation == false && moving == false) {
-        val x = "%.3f" format (if (coordinateX.isDefined) coordinateX.get else mousePosition.x)
-        val y = "%.3f" format mousePosition.y
-        "point (X: "+x+", Y: "+y+")."
+
+        // Save the message - this version displays the point coords dynamically as the mouse is moved.
+
+      //} else if (mouseLocation.isDefined && rotation == false && moving == false) {
+        //val x = "%.2f" format (if (coordinateX.isDefined) coordinateX.get) //else mouseLocation.get.x)
+        //val y = "%.2f" format mouseLocation.get.y
+        //"point (X: "+x+")"+", Y: "+y+")."
+        //}
+
+        //this version displays the coords only when typed. Makes room for a display of the active module when entering 'Point.
+      } else if (mouseLocation.isDefined && rotation == false && moving == false && coordinateX.isDefined) {
+        var prevModule = com.siigna.module.base.Default.previousModule.get.toString
+        "point (X: "+x+")"
         }
 
         //typing a move point
-        else if (rotation == false && moving == true && !angle.isDefined) {
-        println(angle.isDefined)
-        val x = "%.3f" format (if (coordinateX.isDefined) coordinateX.get else mousePosition.x)
-        val y = "%.3f" format mousePosition.y
+        else if (mouseLocation.isDefined && rotation == false && moving == true && !angle.isDefined) {
+        val x = "%.2f" format (if (coordinateX.isDefined) coordinateX.get else mouseLocation.get.x)
+        val y = "%.2f" format mouseLocation.get.y
         "point (X: "+x+", Y: "+y+")."
         }
 
@@ -216,7 +229,7 @@ object Point extends Module {
           "distance: "+ coordinateValue
         }
         else {
-        "click or type point"
+        com.siigna.module.base.Default.previousModule.get.toString
       }
 
       // Display the message
@@ -239,8 +252,10 @@ object Point extends Module {
       }
     }),
     'End -> ((events : List[Event]) => {
-      // Reset the point guide
-      previousPoint = point
+      // If a point was set (unless it is the first point, in which case it will be set in 'End), save it as the PreviousPoint.
+      if(point.isDefined) {
+        previousPoint = point
+      }
       //transfer variables to be able to use them for sending messages after module variables have been cleared
       val d = distance
       val distAngle = currentSnap
@@ -277,13 +292,15 @@ object Point extends Module {
       else if (r.isDefined) {
         Message(r.get)
       }
+      // if it is the first point, return it:
       else events match {
         case MouseDown(p, MouseButtonLeft, _) :: tail => {
-          if (previousPoint.isEmpty) previousPoint = Some(p)
+          previousPoint = Some(p)
           Message(p)
+
         }
         case MouseUp(p, MouseButtonLeft, _) :: tail => {
-          if (previousPoint.isEmpty) previousPoint = Some(p)
+          previousPoint = Some(p)
           Message(p)
         }
         case _ =>
@@ -315,14 +332,14 @@ object Point extends Module {
       // Draw the point guide depending on which information is available
       if (x.isDefined && y.isDefined) {
         guide(Vector2D(x.get + difference.x, y.get)).foreach(s => g draw s.transform(t))
-      } else if (x.isDefined && !filteredX.isDefined && !currentSnap.isDefined) {
-        guide(Vector2D(x.get, mousePosition.y)).foreach(s => g draw s.transform(t))
-      } else if (x.isDefined && !filteredX.isDefined && currentSnap.isDefined) {
+      } else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && !currentSnap.isDefined) {
+        guide(Vector2D(x.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
+      } else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && currentSnap.isDefined) {
         guide(lengthVector(x.get - difference.x)).foreach(s => g draw s.transform(t))
-      } else if (x.isDefined && filteredX.isDefined) {
-        guide(Vector2D(filteredX.get, mousePosition.y)).foreach(s => g draw s.transform(t))
-      } else if (mousePosition.x != Double.NaN) {
-        guide(mousePosition).foreach(s => g draw s.transform(t))
+      } else if (x.isDefined && mouseLocation.isDefined && filteredX.isDefined) {
+        guide(Vector2D(filteredX.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
+      } else if (mouseLocation.isDefined) {
+        guide(mouseLocation.get).foreach(s => g draw s.transform(t))
       } else None
     }
   }

@@ -31,7 +31,7 @@ object Menu extends Module {
   // The event handler
   def eventHandler = new EventHandler(RadialMenuStateMap, stateMachine)
 
-  // The center of the wheel
+  // The center of the radial menu
   var center : Option[Vector2D]         = None
 
   // The current active category
@@ -55,9 +55,6 @@ object Menu extends Module {
 
   var moduleCallFromMenu : Boolean = false
 
-  // the center after the radial menu is closed. Used if other modules need to know where it was (used in Color Wheel)
-  var oldCenter = Vector2D(0 ,0)
-
   /**
    * The radius of the wheel. Can be adjusted to adjust the size of the wheel.
    */
@@ -75,7 +72,8 @@ object Menu extends Module {
           currentCategory = category
           initializeMenu()
         }
-        case MouseDown(point, MouseButtonRight, _) :: tail => {
+        case Message(point : Vector2D) :: tail => {
+          //call the menu:
           val p = point.transform(View.physical.flipY)
           // Move the menu if the distance from the center to the screen
           // is less than the radius of the menu
@@ -108,7 +106,9 @@ object Menu extends Module {
           Goto('End)
         }
 
-        case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
+        case MouseDown(_, MouseButtonRight, _) :: tail => {
+          Goto('End, false)
+        }
         case MouseUp(point, _, _) :: tail => {
           val direction = this.direction(point)
           val level     = if (this.distance < 68) 3 else if (this.distance < 102) 2 else 1
@@ -120,10 +120,11 @@ object Menu extends Module {
                 if (item.module != 'None) {
                 //set a flag to destinguish between mouse-induced and menu-induced module calls. (Used in 'Move)
                  moduleCallFromMenu = true
+                  //TODO fix this-- a hack to reactivate navigation when Menu Forwards to a new module but fails to Goto End.
+                  Siigna.navigation = true
                   Goto('End)
                   Preload(item.module, item.modulePath)
                   ForwardTo(item.module)
-
                   // Save the previous module
                   Default.previousModule = Some(item.module)
                 }
@@ -146,6 +147,9 @@ object Menu extends Module {
             case Some(item : MenuItem)         => {
                 if (item.module != 'None) {
                   Goto('End)
+                  //TODO fix this-- a hack to reactivate navigation when Menu Forwards to a new module but fails to Goto End.
+                  Siigna.navigation = true
+
                   ForwardTo(item.module)
                 }
             }
@@ -164,8 +168,6 @@ object Menu extends Module {
     'End -> ((events : List[Event]) => {
       // Set everything back to normal
       Siigna.navigation = true
-      if(center.isDefined)
-        oldCenter = center.get
       center = None
       if(lastKey.isDefined)
         Controller ! lastKey.get
@@ -189,15 +191,19 @@ object Menu extends Module {
       // Draws a Category at a given level
       def drawCategory(category : MenuCategory, scale : Double = 1) {
         // Determines whether the given menu-event is active.
-        def isActive(event : MenuEvent) = (distance > (100 * scale) && distance < (160 * scale) && this.direction(mousePosition) == event)
+        def isActive(event : MenuEvent) = {
+          (distance > (100 * scale) && distance < (160 * scale) && this.direction(mousePosition) == event)
+        }
 
         // Determines whether the current event is active and returns a set of
         // attributes accordingly.
         def getAttr(event : MenuEvent) =
-          if (isActive(event))
+          if (isActive(event)) {
             "Color" -> "#222222".color
-          else
+          }
+          else {
             "Color" -> "#BBBBBB".color
+          }
 
         // Gets a transformation matrix from a given event.
         // TODO: Refactor!
@@ -234,7 +240,7 @@ object Menu extends Module {
 
           // Draw Category Description (C,H,E,P letter) in inner circles.
           if (item != currentCategory) {
-            event.icon.foreach(s => g.draw(s.addAttribute(getAttr(event)).transform(newT)))
+            event.icon.foreach(s => g.draw(s.setAttribute(getAttr(event)).transform(newT)))
             if (scale < 1)
               //draws the first letter of the inactive menus in the inner circle
               g draw TextShape(item.name.substring(0, 1), Vector2D(0, 0), newT.scaleFactor * 44, Attributes("TextAlignment" -> Vector2D(0.5, 0.5), "Color" -> "#777777".color)).transform(newT)
@@ -263,7 +269,7 @@ object Menu extends Module {
           // Icons
           item.icon.foreach(s => g.draw(s.transform(newT)))
           event.icon.foreach(s => {
-            g.draw(s.addAttribute(getAttr(event)).transform(newT))
+            g.draw(s.setAttribute(getAttr(event)).transform(newT))
           })
         }
 
@@ -281,7 +287,7 @@ object Menu extends Module {
               case category : MenuCategory => category.name
               case _ => " "
             }
-            g draw TextShape(tooltip, menuCenter + Vector2D(0, -40), 10).addAttribute("TextAlignment" -> Vector2D(0.5, 0))
+            g draw TextShape(tooltip, menuCenter + Vector2D(0, -40), 10).setAttribute("TextAlignment" -> Vector2D(0.5, 0))
           }
         })
         // Draws the parent category recursively
@@ -317,10 +323,10 @@ object Menu extends Module {
       drawCategory(currentCategory)
 
       // Draw the outlines of the categories in the four corners of the world
-      RadialMenuIcon.NOutline.foreach(s => g.draw(s.addAttribute("Color" -> "#CCCCCC".color).transform(t)))
-      RadialMenuIcon.WOutline.foreach(s => g.draw(s.addAttribute("Color" -> "#CCCCCC".color).transform(t)))
-      RadialMenuIcon.SOutline.foreach(s => g.draw(s.addAttribute("Color" -> "#CCCCCC".color).transform(t)))
-      RadialMenuIcon.EOutline.foreach(s => g.draw(s.addAttribute("Color" -> "#CCCCCC".color).transform(t)))
+      RadialMenuIcon.NOutline.foreach(s => g.draw(s.setAttribute("Color" -> "#CCCCCC".color).transform(t)))
+      RadialMenuIcon.WOutline.foreach(s => g.draw(s.setAttribute("Color" -> "#CCCCCC".color).transform(t)))
+      RadialMenuIcon.SOutline.foreach(s => g.draw(s.setAttribute("Color" -> "#CCCCCC".color).transform(t)))
+      RadialMenuIcon.EOutline.foreach(s => g.draw(s.setAttribute("Color" -> "#CCCCCC".color).transform(t)))
     }
   }
 

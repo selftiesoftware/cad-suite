@@ -24,16 +24,18 @@ case class File(parent : Option[MenuCategory]) extends MenuCategory {
   def name = "File"
 
   override def E = Some(MenuItemEmpty("local"))
-  override def N = Some(MenuItemEmpty("startup"))
-  override def W = Some(MenuItemEmpty("server"))
+  override def N = Some(MenuItemEmpty("settings"))
+  //override def W = Some(MenuItemEmpty("server"))
   override def S = Some(MenuItemEmpty("print"))
 
   override def NNE = Some(MenuItem('SetTitle, TextShape("title", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "file"))
+  override def NNW = Some(MenuItem('SetTitle, TextShape("openness", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "file"))
+
   override def SSE = Some(MenuItem('Print, RadialMenuIcon.print, "file"))
-  override def SSW = Some(MenuItem('ClearDatabase, RadialMenuIcon.clearDB, "file"))
+  //override def SSW = Some(MenuItem('ClearDatabase, RadialMenuIcon.clearDB, "file"))
   override def ESE = Some(MenuItem('Export, RadialMenuIcon.exportDXF, "file"))
   override def ENE = Some(MenuItem('Import, RadialMenuIcon.importDXF, "file"))
-  override def WSW = Some(MenuItem('Open, RadialMenuIcon.load, "file"))
-  override def WNW = Some(MenuItem('Save, RadialMenuIcon.save, "file"))
+  //override def WSW = Some(MenuItem('Open, RadialMenuIcon.load, "file"))
+  //override def WNW = Some(MenuItem('Save, RadialMenuIcon.save, "file"))
 
 }

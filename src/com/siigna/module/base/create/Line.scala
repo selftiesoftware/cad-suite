@@ -13,6 +13,7 @@ package com.siigna.module.base.create
 
 import com.siigna._
 import app.controller.Controller
+import app.Siigna
 
 /**
  * A line module (draws one line-segment)
@@ -20,11 +21,16 @@ import app.controller.Controller
 
 object Line extends Module{
 
+  var attributes : Attributes = Attributes()
+  def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
+
   val eventHandler = EventHandler(stateMap, stateMachine)
 
   private var points = List[Vector2D]()
 
   private var shape  : Option[LineShape] = None
+
+
 
   def stateMap = DirectedGraph(
     'Start    ->   'Message  ->    'SetPoint
@@ -32,6 +38,7 @@ object Line extends Module{
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      com.siigna.module.base.Default.previousModule = Some('Line)
       //Log.level += Log.DEBUG + Log.SUCCESS
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => {
@@ -45,7 +52,11 @@ object Line extends Module{
       def getPointGuide = (p : Vector2D) =>
         //TODO: find a better way to avoid empty list error when no point is set.
         if(points.size == 0) LineShape((p),(p))
-        else LineShape(points(0),p)
+        else {
+          set("activeLineWeight", "StrokeWidth")
+          set("activeColor", "Color")
+          LineShape(points(0),p).setAttributes(attributes)
+        }
 
       events match {
         // exit strategy
@@ -72,11 +83,13 @@ object Line extends Module{
       }
     }),
     'End -> ((events : List[Event]) => {
-      //create the line
-      Create(shape)
+
+      set("activeLineWeight", "StrokeWidth")
+      set("activeColor", "Color")
+
+      if(shape.isDefined) Create(shape.get.setAttributes(attributes))
 
       //reset the module vars
-      com.siigna.module.base.Default.previousModule = Some('Line)
       points = List[Vector2D]()
       shape = None
 

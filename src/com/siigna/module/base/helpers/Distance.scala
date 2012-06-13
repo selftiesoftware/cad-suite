@@ -11,68 +11,76 @@
 
 package com.siigna.module.base.helpers
 
-/* 2010 (C) Copyright by Siigna, all rights reserved. */
-
-import com.siigna.module.Module
-
 import com.siigna._
+import com.siigna.module.Module
+import app.controller.Controller
+import com.siigna.module.base.create._
+
+/**
+ * A module that measures and displays a distance between two points
+ */
 
 object Distance extends Module {
 
   lazy val eventHandler = new EventHandler(stateMap, stateMachine)
 
   var points = List[Vector2D]()
-  var p1 : Option[Vector2D] = None
-  var p2 : Option[Vector2D] = None
 
 
-  lazy val stateMap = DirectedGraph(
-    'Start       -> 'MouseDown  -> 'FirstPoint,
-    'FirstPoint  -> 'MouseUp   -> 'SecondPoint,
-    'SecondPoint -> 'KeyEscape   -> 'Draw,
-    'SecondPoint -> 'MouseUp  -> 'Draw,
-    'Start       -> 'KeyEscape   -> 'Draw,
-    'Draw        -> 'MouseMove  -> 'Buffer,
-    'Draw        -> 'MouseUp  -> 'Buffer,
-    'Draw        -> 'KeyEscape  -> 'Buffer,
-    'Buffer      -> 'MouseUp  -> 'End,
-    'Buffer      -> 'KeyEscape  -> 'End
+  def stateMap = DirectedGraph(
+    'Start    ->   'Message  ->    'SetPoint
   )
 
-  lazy val stateMachine = Map(
-    'FirstPoint -> ((events : List[Event]) => {
+  def stateMachine = Map(
+    'Start -> ((events : List[Event]) => {
       events match {
-        case MouseDown(point, MouseButtonLeft, _) :: tail => p1 = Some(point)
-        case MouseUp(point, MouseButtonRight, _) :: tail => Goto ('End)
-        case _ =>
-      }
-    }),
-
-    'SecondPoint -> ((events : List[Event]) => {
-      events match {
-        case MouseDown(point, MouseButtonLeft, _) :: tail => {
-         p2 = Some(point)
+        case MouseDown(_, MouseButtonRight, _) :: tail => {
+          Goto('End)
         }
-        case _ =>
+        case _ => ForwardTo('Point, false)
       }
     }),
+    'SetPoint -> ((events : List[Event]) => {
 
-    'Draw -> ((events : List[Event]) => {
-      if (p1.isDefined && p2.isDefined) {
-        Siigna.display("distance:  " + ((p2.get-p1.get).length.round) + " millimeters")
-      }
-    }),
+      def getPointGuide = (p : Vector2D) =>
 
-    'Buffer -> ((events : List[Event]) => {
-      events match {
-        case MouseMove(point ,_,_) :: tail  =>  {
-          if ((mousePosition - p2.get).length > 20)
-             Goto ('End)
+        if(points.size == 0) LineShape((p),(p))
+        else {
+          Siigna.display("distance:  " + (p-points(0)).length.round + " millimeters")
+          LineShape(points(0),p)
         }
-        case _=>
+
+      events match {
+        // exit strategy
+        case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
+
+        case Message(p : Vector2D) :: tail => {
+          // save the point
+          points = points :+ p
+          // Define shape if there is enough points
+          if (points.size == 1) {
+            ForwardTo('Point, false)
+            Controller ! Message(PointGuide(getPointGuide))
+          } else Goto('End)
+        }
+
+        // match on everything else
+        case _ => {
+          ForwardTo('Point)
+          Controller ! Message(PointGuide(getPointGuide))
+        }
       }
     }),
+
     'End -> ((events : List[Event]) => {
-   })
- )
+      if (points.size == 2) {
+        Siigna.display("distance:  " + ((points(1)-points(0)).length.round) + " millimeters")
+      }
+
+      //clear the points list
+      points = List()
+      com.siigna.module.base.Default.previousModule = Some('Distance)
+
+    })
+  )
 }

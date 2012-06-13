@@ -15,6 +15,9 @@ import com.siigna._
 
 object Polyline extends Module {
 
+  var attributes : Attributes = Attributes()
+  def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
+
   // The points of the polyline
   private var points   = List[Vector2D]()
 
@@ -40,7 +43,9 @@ object Polyline extends Module {
   'SetPoint -> ((events : List[Event]) => {
     def getPointGuide = (p : Vector2D) => {
       if(!points.isEmpty) {
-      PolylineShape(points :+ p)
+        set("activeLineWeight", "StrokeWidth")
+        set("activeColor", "Color")
+        PolylineShape(points :+ p).setAttributes(attributes)
     }
       else PolylineShape(Vector2D(0,0),Vector2D(0,0))
     }
@@ -67,11 +72,14 @@ object Polyline extends Module {
     }
   }),
   'End -> ((events : List[Event]) => {
-    // If the shape is defined, then create it!
-    if (shape.isDefined)
-      Create(shape.get)
+
+    set("activeLineWeight", "StrokeWidth")
+    set("activeColor", "Color")
+
+    if(shape.isDefined) Create(shape.get.setAttributes(attributes))
 
     //clear the vars
+    com.siigna.module.base.Default.previousModule = Some('Polyline)
     shape = None
     points = List()
   }))

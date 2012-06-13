@@ -38,17 +38,16 @@ object Text extends Module {
   var text     = ""
   var position : Option[Vector2D] = None
   var rect : Option[Rectangle2D] = None
-  var scale    = 1.5
+  var scale : Int  = 4
   var attributes = Attributes( "TextSize" -> 10)
   var shape : Option[TextShape] = None
-  var startPoint = false
 
 //  var currentState = 0
 //  var number   = 0
 
   def stateMap = DirectedGraph(
 
-    'Start      -> 'KeyDown     -> 'TextInput,
+    //'Start      -> 'KeyDown     -> 'TextInput,
     'Start      -> 'KeyEscape   -> 'End,
     'TextInput  -> 'KeyEscape   -> 'End,
     'Start      -> 'KeyEscape   -> 'End
@@ -58,14 +57,11 @@ object Text extends Module {
     'Start -> ((events : List[Event]) => {
       Siigna.display("click to set text")
       events match {
-        case MouseDown(p, _, _) :: tail => {
-          if(startPoint == true){
-            position = Some(p)
-            Goto('TextInput)
-          }
-          startPoint = true
+        case Message(p : Vector2D) :: tail => {
+          position = Some(p)
+          Goto('TextInput)
         }
-        case _ =>
+        case _ => ForwardTo('Point, false)
       }
       None
     }),
@@ -91,11 +87,10 @@ object Text extends Module {
     'End -> ((events : List[Event]) => {
       events match {
         case _ =>
-          startPoint = false
           if (text.length > 0) {
             //move the text so that the lower left corner is located at the starting position
-            var textPosition = Vector2D((position.get.x),(position.get.y+(scale+scale/4)))
-            shape = Some(TextShape(text+" ", textPosition, scale * Siigna.paperScale, attributes))
+            var textPosition = Vector2D((position.get.x),(position.get.y+(Siigna.paperScale + 1)*4))
+            shape = Some(TextShape(text+" ", textPosition, scale * (Siigna.paperScale + 1), attributes))
             Create(shape)
 
             //clear the vars
@@ -110,15 +105,15 @@ object Text extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
     //move the text so that the lower left corner is located at the starting position
     if (position.isDefined){
-      var textPosition = Vector2D((position.get.x),(position.get.y+(scale+scale/4)))
-      shape = Some(TextShape(text+" ", textPosition, (scale * Siigna.paperScale), attributes))
+      var textPosition = Vector2D((position.get.x),(position.get.y+(Siigna.paperScale + 1)*4))
+      shape = Some(TextShape(text+" ", textPosition, (scale * (Siigna.paperScale + 1)), attributes))
       g draw shape.get.transform(t)
       length = text.length
       //draw a bounding rectangle guide for the text
-      var x2 = Some(position.get.x+(4+length*3.5 * Siigna.paperScale))
-      var y2 = Some(position.get.y+(Siigna.paperScale + scale/2))
+      var x2 = Some(position.get.x+(4+length*2 * (Siigna.paperScale + 1)))
+      var y2 = Some(position.get.y+((Siigna.paperScale + 1)*4))
       boundingRectangle = Some(Rectangle2D(position.get,Vector2D(x2.get,y2.get)))
-      g draw PolylineShape(boundingRectangle.get).addAttribute("Color" -> "#66CC66".color).transform(t)
+      g draw PolylineShape(boundingRectangle.get).setAttribute("Color" -> "#66CC66".color).transform(t)
     }
   }
 

@@ -36,5 +36,5 @@ object Group extends Module {
 
     'End -> ((events : List[Event]) => {
    })
- )
+  )
 }
