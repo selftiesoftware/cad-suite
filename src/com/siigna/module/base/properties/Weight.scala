@@ -14,6 +14,8 @@ package com.siigna.module.base.properties
 import com.siigna.app.view.Graphics
 import com.siigna._
 import com.siigna.module.base.Menu
+import java.awt.Color
+
 /**
  * a wheel to select weights (and styles?) for lines
  *
@@ -29,17 +31,17 @@ object Weight extends Module {
   //TODO: make this dynamic so that each line is drawn by the same function, only changing the .
   //a list of the possible lines
   lazy val line0 = 0.00
-  lazy val line30 = 0.05
-  lazy val line60 = 0.09
-  lazy val line90 = 0.12
-  lazy val line120 = 0.18
-  lazy val line150 = 0.20
-  lazy val line180 = 0.25
-  lazy val line210 = 0.30
-  lazy val line240 = 0.40
-  lazy val line270 = 0.60
-  lazy val line300 = 0.80
-  lazy val line330 = 1.00
+  lazy val line30 = 0.09
+  lazy val line60 = 0.18
+  lazy val line90 = 0.25
+  lazy val line120 = 0.30
+  lazy val line150 = 0.40
+  lazy val line180 = 0.60
+  lazy val line210 = 0.80
+  lazy val line240 = 1.00
+  lazy val line270 = 1.50
+  lazy val line300 = 2.00
+  lazy val line330 = 3.00
 
   var relativeMousePosition : Option[Vector2D] = None
   var startPoint : Option[Vector2D] = None
@@ -121,7 +123,7 @@ object Weight extends Module {
         if (calculatedAngle > 360)
           activeAngle = calculatedAngle - 360
         else activeAngle = calculatedAngle
-          activeAngle = ((activeAngle +7.5)/30).toInt * 30
+          activeAngle = ((activeAngle + 15)/30).toInt * 30
       }
     }),
     'End -> ((events : List[Event]) => {
@@ -145,38 +147,45 @@ object Weight extends Module {
     if (startPoint.isDefined && relativeMousePosition.isDefined) {
 
       //template for lines
-      val line = LineShape(Vector2D(47,100), Vector2D(-15,83))
+      def line(width : Double) = LineShape(Vector2D(47,100), Vector2D(-15,83)).setAttribute("StrokeWidth" -> width)
 
       val sp = startPoint.get.transform(transform)
       val t  = TransformationMatrix(sp,1.3)
-
+      var i : Int = 0
+      var weights : List[Double] = List(0.60,0.40,0.30,0.25,0.18,0.09,0.00,3.00,2.00,1.50,1.00,0.80,0.00)
       //function to rotate the graphics
-      def drawLine (rotation : Int, weight : Double) {
-
-          g draw line.transform(t.rotate(activeAngle-180)).setAttribute("StrokeWidth" -> weight)
+      def drawLine (rotation : Int) {
+          var activeLine = {
+            LineShape(Vector2D(47,100), Vector2D(-15,83)).setAttributes("StrokeWidth" -> 4.0, "Color" -> new Color(0.75f, 0.75f, 0.75f, 0.80f))
+          }
+          //draw the active weight
+          g draw activeLine.transform(t.rotate(activeAngle-180))
         }
 
       //TODO: add differentiated lineweight
       //draw the lines
-      drawLine(0, 0.01)
-      drawLine(30, 0.05)
-      drawLine(60, 0.09)
-      drawLine(90, 0.12)
-      drawLine(120, 0.18)
-      drawLine(150, 0.20)
-      drawLine(180, 0.25)
-      drawLine(210, 0.30)
-      drawLine(240, 0.40)
-      drawLine(270, 0.60)
-      drawLine(300, 0.80)
-      drawLine(330, 1.00)
+      drawLine(0)
+      drawLine(3)
+      drawLine(60)
+      drawLine(90)
+      drawLine(120)
+      drawLine(150)
+      drawLine(180)
+      drawLine(210)
+      drawLine(240)
+      drawLine(270)
+      drawLine(300)
+      drawLine(330)
 
       //draw an outline of the menu
-      g draw CircleShape(Vector2D(0,0), Vector2D(0,80)).transform(t)
-      g draw CircleShape(Vector2D(0,0), Vector2D(0,118)).transform(t)
+      //g draw CircleShape(Vector2D(0,0), Vector2D(0,80)).transform(t)
+      //g draw CircleShape(Vector2D(0,0), Vector2D(0,118)).transform(t)
 
       //draw the lines
-      radians(30).foreach(radian => { g draw line.transform(t.rotate(radian))})
+      radians(30).foreach(radian => {
+        i+=1
+        g draw line(weights(i-1)).transform(t.rotate(radian))
+      })
 
       //TODO: this is a hack! refactor.
       //draw a text description

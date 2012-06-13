@@ -22,6 +22,7 @@ import java.awt.Color
 * The default module for the base module pack. Works as access point to
 * the rest of the modules.
  */
+
 object Default extends Module {
 
   Preload('Selection)
@@ -89,7 +90,7 @@ object Default extends Module {
         Preload('AngleGizmo, "com.siigna.module.base.create")
         Preload('Area, "com.siigna.module.base.helpers")
         //Preload('Artline, "com.siigna.module.base.create")
-        Preload('Fill, "com.siigna.module.base.create")
+        //Preload('Fill, "com.siigna.module.base.create")
         Preload('Circle, "com.siigna.module.base.create")
         Preload('Distance, "com.siigna.module.base.helpers")
         Preload('Line, "com.siigna.module.base.create")
@@ -207,8 +208,8 @@ object Default extends Module {
             //open the FILE menu
             case 'f' => {
             if (previousKey == Some('c')) {
-                Siigna.display("create fill")
-                ForwardTo('Fill)
+                Siigna.display("fill is not available yet")
+                //ForwardTo('Fill)
                 previousKey = Some('f')
               } else {
                 Controller ! Message(File(Some(Start)))
@@ -306,6 +307,14 @@ object Default extends Module {
       }
     }))
 
+  /**
+  * In paint, all graphics that needs to be omnipresent is drawn:
+  * - dynamic display of active geometry ie. objects that the mouse is hovering above (vertices / lines / text)
+  * - a grid (if toggled)
+  * - a boundary displaying the level of openness
+  * - the drawing header
+  */
+
   override def paint(g : Graphics, t : TransformationMatrix) {
     //draw a loading bar when modules are loading.
     if(firstStart == true && startTime.isDefined){
@@ -321,16 +330,24 @@ object Default extends Module {
     //draw a grid if toggled in through the Helpers menu
     if(gridIsOn == true) com.siigna.module.base.helpers.Grid.paint(g : Graphics, t : TransformationMatrix)
 
-    //draw selected/highlighted vertices
+    //draw highlighted vertices and segments that are selectable (close to the mouse)
     if (nearestShape.isDefined) {
       val shape  = nearestShape.get._2
-      val part   = shape.getPart(Siigna.mousePosition)
+      val part = shape.getPart(Siigna.mousePosition)
       val points = shape.getVertices(part)
       points.foreach(p => g.draw(t.transform(p)))
 
-      g draw shape.setAttributes("Color" -> "#22FFFF".color, "StrokeWidth" -> 1.0).transform(t)
+      //TODO: activate this -> implement adding attributes to parts in mainline
+      //g draw part.setAttributes("Color" -> "#22FFFF".color, "StrokeWidth" -> 1.0).transform(t)
 
     }
+    //highlight selected shapes, if any.
+    if (Model.selection.isDefined) {
+      var selection : Option[Selection] = Model.selection
+      var shapes = selection.get.shapes
+      shapes.foreach(p => g draw p._2.transform(t).setAttributes("Color" -> "#22FFFF".color))
+    }
+
     // Draw boundary
     drawBoundary(g, t)
     // set title focus
@@ -352,7 +369,7 @@ object Default extends Module {
     val headerHeight = scala.math.min(boundary.height, boundary.width) * 0.025
 
     // Paper scale
-    val scale = TextShape("Scale 1:"+ (Siigna.paperScale), unitX(-10), headerHeight * 0.7)
+    val scale = TextShape("Scale 1:"+ (Siigna.paperScale), unitX(-10 * Siigna.paperScale), headerHeight * 0.7)
     // Get URL
     val getURL = TextShape(" ", Vector2D(0, 0), headerHeight * 0.7)
 
@@ -375,6 +392,9 @@ object Default extends Module {
     //g draw separator
     g.draw(scale.transform(transformation))
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
+
+    //TODO: letter width: 50% letter spacing: 200%
+
     // Draw ID and title
     if (!SetTitle.text.isEmpty) {
       val title = TextShape(SetTitle.text, unitX(-72), headerHeight * 0.7)

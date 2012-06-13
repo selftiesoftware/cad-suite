@@ -22,15 +22,15 @@ case class Properties(parent : Option[MenuCategory]) extends MenuCategory {
 
   def name = "Properties"
 
-  override def E   = Some(new MenuPreferences(Some(this)))
+  //override def E   = Some(new MenuPreferences(Some(this)))
   override def ESE = Some(MenuItem('Performancetest, RadialMenuIcon.test, "properties"))
-  override def ENE = Some(MenuItem('AntiAliasingToggle, TextShape("units", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "properties"))
-  override def N   = Some(MenuItemEmpty("style"))
+  override def ENE = Some(MenuItem('AntiAliasingToggle, TextShape("antiAliasing", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "properties"))
+  //override def N   = Some(MenuItemEmpty("style"))
   //override def NNE = Some(MenuItem('Polyline, TextShape("line style", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "properties"))
   //override def NNW = Some(MenuItem('Polyline, TextShape("text style", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "properties"))
   //override def WNW = Some(MenuItem('Polyline, TextShape("mm", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
   //override def W   = Some(MenuItemEmpty("units"))
   //override def WSW = Some(MenuItem('Polyline, TextShape("Feet", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
   //override def SSE = Some(MenuItem('Polyline, RadialMenuIcon.sampleProperties))
-  override def S   = Some(MenuItemEmpty("sampling"))
+  //override def S   = Some(MenuItemEmpty("sampling"))
 }

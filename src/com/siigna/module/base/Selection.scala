@@ -19,7 +19,11 @@ object Selection extends Module {
 
   private var box : Option[Rectangle2D] = None
 
+  var nearestShape : Option[(Int, Shape)] = None
+
   private var selectFullyEnclosed : Boolean = false
+
+  var selectedShape : Option[Shape] = None
 
   // The starting point of the rectangle
   private var startPoint : Option[Vector2D] = None
@@ -41,10 +45,27 @@ object Selection extends Module {
   Preload('Copy, "com.siigna.module.base.create")
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      //find nearestShape, if any:
+      val m = Siigna.mousePosition
+      if (Model(m).size > 0) {
+        val nearest = Model(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+        nearestShape = if (nearest._2.distanceTo(m) < 5) Some(nearest) else None
+      }
+
       events match {
+        //select a full shape (if present) when a double click is registered
+        case MouseDown(p1, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: MouseDown(p2, MouseButtonLeft ,_) :: tail => {
+          if(nearestShape.isDefined){
+            selectedShape = Some(nearestShape.get._2)
+            ForwardTo('Move)
+          }
+        }
         case MouseDown(p, _, _) :: tail => startPoint = Some(p)
         case MouseMove(p, _, _) :: tail => startPoint = Some(p)
         case MouseDrag(p, _, _) :: tail => startPoint = Some(p)
+
+
+
         case _ =>
       }
       if (Default.nearestShape.isDefined) {
