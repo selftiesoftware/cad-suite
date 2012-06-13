@@ -38,6 +38,7 @@ object Line extends Module{
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      com.siigna.module.base.Default.previousModule = Some('Line)
       //Log.level += Log.DEBUG + Log.SUCCESS
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => {
@@ -89,7 +90,6 @@ object Line extends Module{
       if(shape.isDefined) Create(shape.get.setAttributes(attributes))
 
       //reset the module vars
-      com.siigna.module.base.Default.previousModule = Some('Line)
       points = List[Vector2D]()
       shape = None
 

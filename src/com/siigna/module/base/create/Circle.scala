@@ -33,6 +33,7 @@ object Circle extends Module {
   def stateMachine = Map(
     //Start: Defines a centerpoint for the circle and forwards to 'SetRadius
     'Start -> ((events : List[Event]) => {
+      com.siigna.module.base.Default.previousModule = Some('Circle)
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
         case Message(p : Vector2D) :: tail => Goto('SetRadius)
@@ -84,7 +85,6 @@ object Circle extends Module {
           if(center.isDefined && radius.isDefined) Create(CircleShape(center.get,radius.get).setAttributes(attributes))
 
           //clear the points list
-          com.siigna.module.base.Default.previousModule = Some('Circle)
           center = None
           radius = None
       })

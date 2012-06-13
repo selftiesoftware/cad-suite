@@ -98,7 +98,6 @@ object Point extends Module {
   )
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println(Siigna.navigation)
       if (com.siigna.module.base.Default.previousModule == Some('Rotate)) rotation = true
       if (com.siigna.module.base.Default.previousModule == Some('Move)) moving = true
       events match {
@@ -194,24 +193,32 @@ object Point extends Module {
       // END CASE MATCHES.
       // Format the x and y coordinate and store the message in a value
       val message = if (coordinateValue.length > 0 ) {
-        val x = if (coordinateX.isDefined) "%.3f" format coordinateX.get
+        val x = if (coordinateX.isDefined) "%.2f" format coordinateX.get
                 else coordinateValue
-        val y = if (coordinateY.isDefined) "%.3f" format coordinateY.get
+        val y = if (coordinateY.isDefined) "%.2f" format coordinateY.get
                 else if (coordinateX.isDefined) coordinateValue
                 else ""
 
-        // Save the message
         "point (X: "+x+", Y: "+y+")."
-      } else if (mouseLocation.isDefined && rotation == false && moving == false) {
-        val x = "%.3f" format (if (coordinateX.isDefined) coordinateX.get else mouseLocation.get.x)
-        val y = "%.3f" format mouseLocation.get.y
-        "point (X: "+x+", Y: "+y+")."
+
+        // Save the message - this version displays the point coords dynamically as the mouse is moved.
+
+      //} else if (mouseLocation.isDefined && rotation == false && moving == false) {
+        //val x = "%.2f" format (if (coordinateX.isDefined) coordinateX.get) //else mouseLocation.get.x)
+        //val y = "%.2f" format mouseLocation.get.y
+        //"point (X: "+x+")"+", Y: "+y+")."
+        //}
+
+        //this version displays the coords only when typed. Makes room for a display of the active module when entering 'Point.
+      } else if (mouseLocation.isDefined && rotation == false && moving == false && coordinateX.isDefined) {
+        var prevModule = com.siigna.module.base.Default.previousModule.get.toString
+        "point (X: "+x+")"
         }
 
         //typing a move point
         else if (mouseLocation.isDefined && rotation == false && moving == true && !angle.isDefined) {
-        val x = "%.3f" format (if (coordinateX.isDefined) coordinateX.get else mouseLocation.get.x)
-        val y = "%.3f" format mouseLocation.get.y
+        val x = "%.2f" format (if (coordinateX.isDefined) coordinateX.get else mouseLocation.get.x)
+        val y = "%.2f" format mouseLocation.get.y
         "point (X: "+x+", Y: "+y+")."
         }
 
@@ -222,7 +229,7 @@ object Point extends Module {
           "distance: "+ coordinateValue
         }
         else {
-        "click or type point"
+        com.siigna.module.base.Default.previousModule.get.toString
       }
 
       // Display the message
