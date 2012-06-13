@@ -25,6 +25,9 @@ import java.awt.Color
 //TODO: add ability to measure the area of one or more selected, closed polylines.
 object Area extends Module {
 
+  //color for the dynamically drawn area
+  lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, 0.30f)
+
   //a function to calculate an area defined by points.
   def area(points : List[Vector2D]) = {
 
@@ -59,7 +62,7 @@ object Area extends Module {
 
   var points = List[Vector2D]()
 
-  lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, 0.30f)
+  var savedArea : Double = 0
 
   //TODO: Add a function to display cm2 or m2 instead of mm2 for large areas.
 
@@ -102,6 +105,12 @@ object Area extends Module {
         ForwardTo('Point, false)
         Controller ! Message(PointGuide(getPointGuide))
       }
+      //TODO: add ability to start new measurement, adding to the existing, by pressing CTRL.
+      //case KeyDown(Key.Control, _) :: tail => {
+      //  savedArea = area(points :+ points(0))
+      //  println(savedArea)
+      //  Goto('Start)
+      //}
 
       // Match on everything else
       case _ => {

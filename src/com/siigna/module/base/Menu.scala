@@ -123,6 +123,8 @@ object Menu extends Module {
                 if (item.module != 'None) {
                 //set a flag to destinguish between mouse-induced and menu-induced module calls. (Used in 'Move)
                  moduleCallFromMenu = true
+                  //TODO fix this-- a hack to reactivate navigation when Menu Forwards to a new module but fails to Goto End.
+                  Siigna.navigation = true
                   Goto('End)
                   Preload(item.module, item.modulePath)
                   ForwardTo(item.module)
@@ -148,6 +150,9 @@ object Menu extends Module {
             case Some(item : MenuItem)         => {
                 if (item.module != 'None) {
                   Goto('End)
+                  //TODO fix this-- a hack to reactivate navigation when Menu Forwards to a new module but fails to Goto End.
+                  Siigna.navigation = true
+
                   ForwardTo(item.module)
                 }
             }

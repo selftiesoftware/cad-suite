@@ -64,6 +64,7 @@ object Default extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+
       //on startup, for some reason this value defaults to true even though it is set to false in 'Menu. This line forces it to be false.
       com.siigna.module.base.Menu.moduleCallFromMenu = false
       val m = Siigna.mousePosition
@@ -369,7 +370,7 @@ object Default extends Module {
     val headerHeight = scala.math.min(boundary.height, boundary.width) * 0.025
 
     // Paper scale
-    val scale = TextShape("Scale 1:"+ (Siigna.paperScale), unitX(-10 * Siigna.paperScale), headerHeight * 0.7)
+    val scale = TextShape("Scale 1:"+ (Siigna.paperScale), unitX(-10), headerHeight * 0.7)
     // Get URL
     val getURL = TextShape(" ", Vector2D(0, 0), headerHeight * 0.7)
 
