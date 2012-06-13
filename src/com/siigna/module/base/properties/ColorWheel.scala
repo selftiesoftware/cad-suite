@@ -81,7 +81,7 @@ object ColorWheel extends Module {
 
   def stateMap = DirectedGraph(
 
-    'Start  ->   'KeyEscape   ->  'End
+    'Start  ->   'KeyDown  ->  'End
 
   )
 
@@ -90,13 +90,22 @@ object ColorWheel extends Module {
     'Start -> ((events : List[Event]) => {
       Siigna.navigation = false // Make sure the rest of the program doesn't move
       eventParser.disable // Disable tracking and snapping
+      startPoint = if (Menu.center.isDefined) Some(Menu.center.get) else Some(Vector2D(0,0))
+
       events match {
         case MouseMove(point, _, _) :: tail => relativeMousePosition = Some(point)
+        case MouseDown(point, MouseButtonRight, _) :: tail => Goto('End)
 
         //selects the color to use
-        case MouseDown(point, _, _) :: tail => {
+        case MouseDown(point, MouseButtonLeft, _) :: tail => {
+          println("a")
+          //catch first Mouse Down
+          if (gotMouseDown == false) {
+            relativeMousePosition = Some(point)
+            gotMouseDown = true
+          }
           //if the mouse has been pressed once, set the color and go to 'End.
-          if (gotMouseDown == true) {
+          else {
             relativeMousePosition = Some(point)
             //set the color
             if (activeAngle == 0) {activeColor = Some(black)}
@@ -127,12 +136,7 @@ object ColorWheel extends Module {
             Goto('End)
           }
 
-          else {
-            //catch the first mouse down
-            startPoint = Some(Menu.oldCenter)
-            relativeMousePosition = Some(point)
-            gotMouseDown = true
-          }
+
         }
         case _ =>
 
@@ -156,8 +160,6 @@ object ColorWheel extends Module {
       else {
         //Model.selection.get.attributes
       }
-
-
       //clear values and reactivate navigation
       startPoint = None
       relativeMousePosition = None
@@ -167,6 +169,7 @@ object ColorWheel extends Module {
   )
   override def paint(g : Graphics, transform : TransformationMatrix) = {
     if (startPoint.isDefined && relativeMousePosition.isDefined) {
+      //centerPoint for the colorWheel
       val sp = startPoint.get.transform(transform)
       val t  = TransformationMatrix(sp,1.3)
 

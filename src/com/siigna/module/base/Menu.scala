@@ -55,9 +55,6 @@ object Menu extends Module {
 
   var moduleCallFromMenu : Boolean = false
 
-  // the center after the radial menu is closed. Used if other modules need to know where it was (used in Color Wheel)
-  var oldCenter = Vector2D(0 ,0)
-
   /**
    * The radius of the wheel. Can be adjusted to adjust the size of the wheel.
    */
@@ -171,8 +168,6 @@ object Menu extends Module {
     'End -> ((events : List[Event]) => {
       // Set everything back to normal
       Siigna.navigation = true
-      if(center.isDefined)
-        oldCenter = center.get
       center = None
       if(lastKey.isDefined)
         Controller ! lastKey.get

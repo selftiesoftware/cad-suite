@@ -74,23 +74,31 @@ object Weight extends Module {
 
   def stateMap = DirectedGraph(
 
-    'Start  ->   'KeyEscape   ->  'End
+    'Start  ->   'KeyDown   ->  'End
 
   )
   def stateMachine = Map(
-    //select a color
+
     'Start -> ((events : List[Event]) => {
       Siigna.navigation = false // Make sure the rest of the program doesn't move
       eventParser.disable // Disable tracking and snapping
+      startPoint = if (Menu.center.isDefined) Some(Menu.center.get) else Some(Vector2D(0,0))
+
       events match {
-        case MouseUp(point, _, _) :: tail => startPoint = Some(Menu.oldCenter)
         case MouseMove(point, _, _) :: tail => relativeMousePosition = Some(point)
+        case MouseDown(point, MouseButtonRight, _) :: tail => Goto('End)
         //selects the color to use
-        case MouseDown(point, _, _) :: tail => {
-          //if the mouse has been pressed once, set the color and go to 'End.
-          if (gotMouseDown == true) {
+        case MouseDown(point, MouseButtonLeft, _) :: tail => {
+          //catch first Mouse Down
+          if (gotMouseDown == false) {
             relativeMousePosition = Some(point)
-            //set the color
+            gotMouseDown = true
+          }
+          //if the mouse has been pressed once, set the color and go to 'End.
+          else {
+            relativeMousePosition = Some(point)
+
+            //set the Weight
             if (activeAngle == 0) {activeLine = line0}
             else if (activeAngle == 30) {activeLine = line30}
             else if (activeAngle == 60) {activeLine = line60}
@@ -103,15 +111,9 @@ object Weight extends Module {
             else if (activeAngle == 270) {activeLine = line270}
             else if (activeAngle == 300) {activeLine = line300}
             else if (activeAngle == 330) {activeLine = line330}
+
             gotMouseDown = false
             Goto('End)
-          }
-
-          else {
-            //catch the first mouse down
-            startPoint = Some(Menu.oldCenter)
-            relativeMousePosition = Some(point)
-            gotMouseDown = true
           }
         }
         case _ =>

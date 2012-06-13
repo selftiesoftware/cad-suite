@@ -86,7 +86,7 @@ object Default extends Module {
         //start the loading bar timer
         startTime =  Some(System.currentTimeMillis().toLong)
 
-        Siigna.display("Loading Siigna modules ver. 0.6")
+        Siigna.display("Loading Siigna modules ver. 0.7")
         //preload commonly used modules
         Preload('AngleGizmo, "com.siigna.module.base.create")
         Preload('Area, "com.siigna.module.base.helpers")
