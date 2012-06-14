@@ -12,6 +12,7 @@
 package com.siigna.module.base.create
 
 import com.siigna._
+import com.siigna.module.base.Default._
 
 object Point extends Module {
 
@@ -70,8 +71,6 @@ object Point extends Module {
    */
   private var previousPoint : Option[Vector2D] = None
 
-  var rotation : Boolean = false
-
   var snapAngle : Option[Double] = None
 
   // Save the X value, if any
@@ -98,8 +97,6 @@ object Point extends Module {
   )
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      if (com.siigna.module.base.Default.previousModule == Some('Rotate)) rotation = true
-      if (com.siigna.module.base.Default.previousModule == Some('Move)) moving = true
       events match {
 
         // Check for continued MouseDown
@@ -142,10 +139,7 @@ object Point extends Module {
         }
         //goto second coordinate if ENTER, COMMA, or TAB is pressed
         case KeyDown(Key.Enter | Key.Tab | ',', _) :: tail => {
-          if (rotation == true && coordinateX.isDefined) {
-            angle = Some(coordinateX.get)
-            Goto('End)
-          }
+          //move!
           if (angle.isDefined && moving == true && !coordinateValue.isEmpty) {
             distance = Some(coordinateValue.toDouble)
             Goto('End)
@@ -154,6 +148,15 @@ object Point extends Module {
           //when ENTER is pressed, and a value is det, this valus is passed as the first coordinate relative to 0,0
           else if (!currentSnap.isDefined && coordinateX.isEmpty && coordinateValue.length > 0) {
             coordinateX = Some(java.lang.Double.parseDouble(coordinateValue))
+
+            //rotate!
+            if (previousModule == Some('Rotate)) {
+              if(coordinateX.isDefined) {
+                angle = Some(coordinateX.get)
+                Goto('End)
+              }
+            }
+
             //a hack used in paint to get the point input used to draw the position without transformation
             filteredX = Some(coordinateX.get + difference.x)
 
@@ -179,9 +182,8 @@ object Point extends Module {
         //get the input from the keyboard if it is numbers, (-) or (.)
         case KeyDown(code, _) :: tail => {
           val char = code.toChar
-          if (char.isDigit) {
+          if (char.isDigit)
             coordinateValue += char
-          }
           else if ((char == '.') && !coordinateValue.contains('.'))
             coordinateValue += "."
           else if (char == '-' && coordinateValue.length < 1)
@@ -192,7 +194,8 @@ object Point extends Module {
       }
       // END CASE MATCHES.
       // Format the x and y coordinate and store the message in a value
-      val message = if (coordinateValue.length > 0 ) {
+      val message = if (coordinateValue.length > 0  && previousModule != Some('Rotate)) {
+
         val x = if (coordinateX.isDefined) "%.2f" format coordinateX.get
                 else coordinateValue
         val y = if (coordinateY.isDefined) "%.2f" format coordinateY.get
@@ -210,20 +213,22 @@ object Point extends Module {
         //}
 
         //this version displays the coords only when typed. Makes room for a display of the active module when entering 'Point.
-      } else if (mouseLocation.isDefined && rotation == false && moving == false && coordinateX.isDefined) {
+      } else if (mouseLocation.isDefined && previousModule != Some('Rotate) && moving == false && coordinateX.isDefined) {
         var prevModule = com.siigna.module.base.Default.previousModule.get.toString
         "point (X: "+x+")"
         }
 
         //typing a move point
-        else if (mouseLocation.isDefined && rotation == false && moving == true && !angle.isDefined) {
+        else if (mouseLocation.isDefined && previousModule != Some('Rotate) && moving == true && !angle.isDefined) {
         val x = "%.2f" format (if (coordinateX.isDefined) coordinateX.get else mouseLocation.get.x)
         val y = "%.2f" format mouseLocation.get.y
         "point (X: "+x+", Y: "+y+")."
         }
-
-        else if (rotation == true && x.isDefined) {
-          "rotation angle: "+ x.get
+        else if (previousModule == Some('Rotate) && !x.isDefined) {
+          "set origin or type angle: "+ coordinateValue
+        }
+        else if (previousModule == Some('Rotate) && coordinateValue.length > 0) {
+          "rotation angle: "+ coordinateValue
         }
         else if (moving == true && angle.isDefined) {
           "distance: "+ coordinateValue
@@ -273,7 +278,6 @@ object Point extends Module {
       filteredX = None
       moving = false
       point = None
-      rotation = false
 
       // Return a point if it is defined
       if (p.isDefined) {

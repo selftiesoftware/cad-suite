@@ -49,6 +49,8 @@ object Move extends Module {
   
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      //TODO: a hack to force startPoint value to None (to draw a correct Guide). Find out why StartPoint is not always reset/ Module does not reach 'End.
+      startPoint = None
       //start 'Move only if there is a selection
       if (!Model.selection.isEmpty) {
         if(moduleCallFromMenu == true) Goto('StartPoint, false)
@@ -99,6 +101,7 @@ object Move extends Module {
         }
         case _ => {
           com.siigna.module.base.Default.previousModule = Some('Move)
+          println("going to point")
           ForwardTo('Point)
           Controller ! Message(PointGuides(shapeGuide))
         }
@@ -182,7 +185,7 @@ object Move extends Module {
       transformation = None
     })
   )
-
+  //draw the moving geometry when dragging the mouse
   override def paint(g : Graphics, t : TransformationMatrix) {
     Model.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))
   }

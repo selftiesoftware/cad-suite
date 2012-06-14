@@ -77,6 +77,11 @@ object Rotate extends Module {
               ForwardTo('Point, false)
             }
           }
+          //if the module is called with space (hack, could probably be nicer..)
+          case KeyDown(Key.Space , _) :: tail => {
+            if(firstMouseDown == false)
+              firstMouseDown = true
+          }
           case _ =>
         }
       }
@@ -147,7 +152,6 @@ object Rotate extends Module {
               val t : TransformationMatrix = {
               val a1 : Double = (startVector.get - centerPoint.get).angle
               val a2 : Double = (endVector.get - centerPoint.get).angle
-              println("rotation: "+ (a2 - a1))
               TransformationMatrix(Vector2D(0,0), 1).rotate(a2 - a1, centerPoint.get)
             }
             //val t = transformation.get.rotate(rotation,centerPoint.get)
@@ -162,12 +166,12 @@ object Rotate extends Module {
       //clear vars
       rotationFromPoint = None
       centerPoint = None
-      firstMouseDown = false
       endVector = None
       firstMouseDown = false
       rotation = 0
       startVectorSet = false
       startVector = None
+
     })
   )
 
