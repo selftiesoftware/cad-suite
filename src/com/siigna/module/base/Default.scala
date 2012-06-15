@@ -86,7 +86,7 @@ object Default extends Module {
         //start the loading bar timer
         startTime =  Some(System.currentTimeMillis().toLong)
 
-        Siigna.display("Loading Siigna modules ver. 0.7")
+        Siigna.display("Loading Siigna modules ver. 0.8")
         //preload commonly used modules
         Preload('AngleGizmo, "com.siigna.module.base.create")
         Preload('Area, "com.siigna.module.base.helpers")
@@ -153,7 +153,6 @@ object Default extends Module {
           key.toChar match {
             case Key.Backspace | Key.Delete => {
               if (Model.selection.isDefined) {
-                println("Deleting selection: " + Model.selection)
                 Delete(Model.selection.get)
               }
             }
