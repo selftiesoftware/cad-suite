@@ -71,7 +71,7 @@ object Move extends Module {
             }
             //set startPoint conditions : 1) shape selected. 2) mouseUp 3) Move selected from the menu / shortcut
             //goto End contitions: 1) shape selected 2) mouseUp 3) move called from selection
-            case MouseUp(p, _,_) :: MouseDown(_, _, _) :: tail => Goto('End)
+            case MouseUp(p, _,_) :: tail => Goto('End)
             //moving with keys
             //case KeyDown(Key.arrowLeft, _) :: tail => {
             //  println("left arrow")

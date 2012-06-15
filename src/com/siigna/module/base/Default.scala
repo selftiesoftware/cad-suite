@@ -138,7 +138,6 @@ object Default extends Module {
         case KeyDown(('z' | 'Z'), ModifierKeys(_, true, _)) :: tail => Model.undo()
         case KeyDown(('y' | 'Y'), ModifierKeys(_, true, _)) :: tail => Model.redo
         case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => Model.selectAll
-        case KeyDown((Key.Escape), ModifierKeys(_, _, _)) :: tail => Model.deselect()
         case KeyDown(('c' | 'C'), ModifierKeys(_, true, _)) :: tail => {
           if (Model.selection.isDefined) {
           moduleCallFromMenu = true
@@ -154,12 +153,13 @@ object Default extends Module {
           key.toChar match {
             case Key.Backspace | Key.Delete => {
               if (Model.selection.isDefined) {
+                println("Deleting selection: " + Model.selection)
                 Delete(Model.selection.get)
               }
             }
 
             case Key.Escape => {
-              //Model.deselect
+              Model.deselect()
             }
             case Key.Space => {
               if (previousModule.isDefined) ForwardTo(previousModule.get)
