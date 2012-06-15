@@ -87,8 +87,8 @@ object ColorWheel extends Module {
 
   def stateMachine = Map(
     //select a color
-    'Start -> ((events : List[Event]) => {
-      Siigna.navigation = false // Make sure the rest of the program doesn't move
+  'Start -> ((events : List[Event]) => {
+    Siigna.navigation = false // Make sure the rest of the program doesn't move
       eventParser.disable // Disable tracking and snapping
       startPoint = if (Menu.center.isDefined) Some(Menu.center.get) else Some(Vector2D(0,0))
 
@@ -98,7 +98,7 @@ object ColorWheel extends Module {
 
         //selects the color to use
         case MouseDown(point, MouseButtonLeft, _) :: tail => {
-          println("a")
+
           //catch first Mouse Down
           if (gotMouseDown == false) {
             relativeMousePosition = Some(point)
@@ -161,6 +161,7 @@ object ColorWheel extends Module {
         //Model.selection.get.attributes
       }
       //clear values and reactivate navigation
+      gotMouseDown = false
       startPoint = None
       relativeMousePosition = None
       eventParser.enable

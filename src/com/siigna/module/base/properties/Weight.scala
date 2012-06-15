@@ -139,6 +139,7 @@ object Weight extends Module {
       }
 
       //clear values and reactivate navigation
+      gotMouseDown = false
       startPoint = None
       relativeMousePosition = None
       eventParser.enable
