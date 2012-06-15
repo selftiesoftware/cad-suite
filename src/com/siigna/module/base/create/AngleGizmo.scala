@@ -13,6 +13,7 @@ package com.siigna.module.base.create
 
 import com.siigna._
 import scala.Predef._
+import com.siigna.module.base.create.Point._
 
 /**
  * An object that handles the angle-gizmo.
@@ -172,7 +173,20 @@ object AngleGizmo extends Module {
   //Draw the Angle Gizmo perimeter
   override def paint(g : Graphics, t : TransformationMatrix) {
 
+    //get the point Guide from the calling module:
+    val guide : Vector2D => Traversable[Shape] = {
+        pointGuide.get
+      }
+
     if (startPoint.isDefined && (startTime.isDefined && System.currentTimeMillis() - startTime.get > gizmoTime)) {
+
+      //draw the shape under creation:
+      var parsedPoint = Vector2D(startPoint.get.x, startPoint.get.y+guideLength)
+      println("mousePosition: "+mousePosition)
+      println("parsedPoint: "+parsedPoint)
+      //using startPoint is a hack to prevent the line from the last point to the mousePosition being drawn on top of the angle guide.
+      //TODO: use a guide that allows rectangles to be drawn dynamically ( mousePosition works, but is not snapped to the radians.) parsedPoint does not work??
+      if(pointGuide.isDefined) guide(startPoint.get).foreach(s => g draw s.transform(t))
 
       //modify the TransformationMatrix to preserve AngleGizmo scaling.
       def scaling(a : Double) = scala.math.pow(a,-1)
@@ -204,7 +218,7 @@ object AngleGizmo extends Module {
       // Draw the text and the active angle
       if (degrees.isDefined) {
         g draw TextShape((roundSnap(degrees.get)).toString, Vector2D(startPoint.get.x, startPoint.get.y + 240).transform(transformation.rotate(roundSnap(-degrees.get), startPoint.get)), 12, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector2D(0.5,0.5)))
-        g draw LineShape(startPoint.get,Vector2D(startPoint.get.x, startPoint.get.y+guideLength)).transform(transformation.rotate(-roundSnap(degrees.get), startPoint.get))
+        g draw LineShape(startPoint.get,parsedPoint).transform(transformation.rotate(-roundSnap(degrees.get), startPoint.get))
       }
     }
   }
