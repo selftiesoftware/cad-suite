@@ -36,32 +36,38 @@ case class DXFSection(values : Seq[DXFValue]) extends Subtractable[DXFValue, DXF
         // Arc
         case DXFValue(0, "ARC") => {
           var start, end, centerX, centerY, r : Option[Double] = None
+          var width : Option[Double] = None
+
           values.foreach((value : DXFValue) => value match {
             case DXFValue(10, _) => centerX = value.toDouble
             case DXFValue(20, _) => centerY = value.toDouble
             case DXFValue(40, _) => r = value.toDouble
             case DXFValue(50, _) => start = value.toDouble
             case DXFValue(51, _) => end = value.toDouble
+            case DXFValue(370, _) => width = Some(value.toDouble.get)
             case _ =>
           })
           if (start.isDefined && end.isDefined && centerX.isDefined && centerY.isDefined && r.isDefined) {
             if (r.get > 0 && start.get != end.get)
-              Some(ArcShape(Vector2D(centerX.get, centerY.get), r.get, end.get, start.get)) // DXF counts CW, not CCW
+              // DXF counts CW, not CCW
+              Some(ArcShape(Vector2D(centerX.get, centerY.get), r.get, end.get, start.get).setAttributes("StrokeWidth" -> width.get / 100))
             else None
           } else None
         }
         // Circle
         case DXFValue(0, "CIRCLE") => {
+          var width : Option[Double] = None
           var x, y, r : Option[Double] = None
           values.foreach((value : DXFValue) => value match {
             case DXFValue(10, _) => x = value.toDouble
             case DXFValue(20, _) => y = value.toDouble
             case DXFValue(40, _) => r = value.toDouble
+            case DXFValue(370, _) => width = Some(value.toDouble.get)
             case _ =>
           })
 
           if (x.isDefined && y.isDefined && r.isDefined) {
-            Some(CircleShape(Vector2D(x.get, y.get), Vector2D(x.get + r.get, y.get)))
+            Some(CircleShape(Vector2D(x.get, y.get), Vector2D(x.get + r.get, y.get)).setAttributes("StrokeWidth" -> width.get / 100))
           } else None
         }
         // RHINO Polylines
@@ -74,6 +80,7 @@ case class DXFSection(values : Seq[DXFValue]) extends Subtractable[DXFValue, DXF
         // Polylines
         case DXFValue(0, "LWPOLYLINE") => {
           var points = List[Vector2D]()
+          var width : Option[Double] = None
           var x, y : Option[Double] = None
           values.foreach((value : DXFValue) => value match {
             case DXFValue(10, _) => x = value.toDouble
@@ -86,10 +93,11 @@ case class DXFSection(values : Seq[DXFValue]) extends Subtractable[DXFValue, DXF
                 y = None
               }
             }
+            case DXFValue(370, _) => width = Some(value.toDouble.get)
             case _ =>
           })
           if (points.length > 1){
-            Some(PolylineShape(points))
+            Some(PolylineShape(points).setAttributes("StrokeWidth" -> width.get / 100))
           } else None
         }
         //(Multiline?) text
@@ -160,6 +168,8 @@ object DXFSection {
           //layer
           DXFValue(8, 0),
           DXFValue(100, "AcDbPolyline"),
+          //width
+          DXFValue(370, if(!shape.attributes.get("StrokeWidth").isEmpty) shape.attributes.get("StrokeWidth").get.toString.toDouble * 100 else 0),
           //number of points
           DXFValue(90, 2),
           DXFValue(70, 0),
@@ -175,12 +185,14 @@ object DXFSection {
           DXFSection(
 
             DXFValue(0, "LWPOLYLINE"),
-          //random identifier number (HEX)
+            //random identifier number (HEX)
             DXFValue(5, (scala.util.Random.nextInt.toHexString)),
             DXFValue(100, "AcDbEntity"),
             //layer
             DXFValue(8, 0),
             DXFValue(100, "AcDbPolyline"),
+            //width
+            DXFValue(370, if(!shape.attributes.get("StrokeWidth").isEmpty) shape.attributes.get("StrokeWidth").get.toString.toDouble * 100 else 0),
             //number of points
             DXFValue(90, numberOfVertices),
             DXFValue(70, 0),
@@ -197,6 +209,8 @@ object DXFSection {
           //layer
           DXFValue(8, 0),
           DXFValue(100, "AcDbCircle"),
+          //width
+          DXFValue(370, if(!shape.attributes.get("StrokeWidth").isEmpty) shape.attributes.get("StrokeWidth").get.toString.toDouble * 100 else 0),
           //number of points
           DXFValue(90, 2),
           DXFValue(70, 0),

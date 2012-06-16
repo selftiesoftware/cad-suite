@@ -25,9 +25,9 @@ case class Create(parent : Option[MenuCategory]) extends MenuCategory {
   override def S = Some(MenuItemEmpty("Collection"))
   //override def S = Some(new Dimension(Some(this)))
 
-  //override def ENE = Some(MenuItem('Copy, RadialMenuIcon.copy, "create"))
-  override def NNE = Some(MenuItem('Rectangle, RadialMenuIcon.rectangle))
-  //override def NNW = Some(new MenuItem('Circle, RadialMenuIcon.circle))
+  override def NNW = Some(MenuItem('Rectangle, RadialMenuIcon.rectangle))
+  override def NNE = Some(MenuItem('Line, RadialMenuIcon.line , "create"))
+
   override def WNW = Some(MenuItem('Text, RadialMenuIcon.text))
   //override def NNW = Some(MenuItem('Fill, RadialMenuIcon.raster, "create"))
   //override def SSW = Some(MenuItem('Polyline, RadialMenuIcon.group))

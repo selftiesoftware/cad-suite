@@ -20,10 +20,11 @@ object Lineardim extends Module {
 
   var currentMouse : Option[Vector2D] = None
 
-  val color = "Color" -> "#AAAAAA".color
+  val color = "Color" -> "#666666".color
 
   def diaMark(point : Vector2D) = if (hasBothPoints)
-      Some(LineShape((diaRotation1.get + point + normalUnitVector2D(points(0),points(1)) * scale) , (diaRotation2.get + point + normalUnitVector2D(points(0),points(1)) * scale)).setAttribute(color))
+      Some(LineShape((diaRotation1.get + point + normalUnitVector2D(points(0),points(1)) * scale * offsetDistance),
+                     (diaRotation2.get + point + normalUnitVector2D(points(0),points(1)) * scale * offsetDistance)))
     else
       None
   def diaMark1 = if (hasBothPoints) diaMark(points(0)) else None
@@ -34,17 +35,22 @@ object Lineardim extends Module {
       Some(transformation.rotate(degree).transform(normalUnitVector2D(points(0),points(1)) * (scale/4)))
     else
       None
-  def diaRotation1 = diaRotation(45)
 
+  def diaRotation1 = diaRotation(45)
   def diaRotation2 = diaRotation(225)
 
   def dimText : Option[Shape] = if (hasBothPoints)
-      Some(TextShape((points(1)-(points(0))).length.toInt.toString , ((points(0) + normalUnitVector2D(points(0),points(1)) * scale*4.5) + (points(1)-points(0))/2) , scale, Attributes("AdjustToScale" -> true)))
+      Some(TextShape((points(1)-(points(0))).length.toInt.toString,
+                    ((points(0) + normalUnitVector2D(points(0),points(1))) + (points(1)-points(0))/2),
+                      scale))
     else
       None
 
   def dynamicDimText : Option[Shape] = if (!hasBothPoints)
-      Some(TextShape((currentMouse.get-(points(0))).length.toInt.toString , ((points(0) + normalUnitVector2D(points(0),currentMouse.get) * scale*4.5) + (currentMouse.get-points(0))/2) , scale, Attributes("AdjustToScale" -> true)))
+
+    Some(TextShape((currentMouse.get-(points(0))).length.toInt.toString,
+                    ((points(0) + normalUnitVector2D(points(0),currentMouse.get)) + (currentMouse.get-points(0))/2),
+                      scale))
     else
       None
 
@@ -55,7 +61,8 @@ object Lineardim extends Module {
   def hasBothPoints = (points.size >= 2)
 
   def normalShape(point : Vector2D) = if (hasBothPoints)
-      Some(LineShape((point - normalUnitVector2D(points(1),points(0)) * (scale/2)) , (point + normalUnitVector2D(points(0),points(1)) * scale)).setAttribute(color))
+      Some(LineShape((point - normalUnitVector2D(points(1),points(0)) * (scale/2 * offsetDistance)),
+                     (point + normalUnitVector2D(points(0),points(1)) * scale * offsetDistance)))
     else
       None
 
@@ -66,31 +73,38 @@ object Lineardim extends Module {
   def normalUnitVector2D(v1 : Vector2D, v2 : Vector2D) = {
     if (offsetSide == true)
       Vector2D((v2.x - v1.x) , (v2.y - v1.y)).normal.unit
-    else //TODO: position text better when offsetSide is false.
-      Vector2D((v2.y - v1.y), -(v2.x - v1.x)).unit // Normal*3 = Vector2D(y, -x)
+    else
+      Vector2D((v2.y - v1.y), -(v2.x - v1.x)).unit
   }
-  var offsetSide : Boolean = false
 
-  //def dynamicA : Option[Shape] = if (currentMouse.isDefined)
-  //    Some(LineShape((currentMouse.get + normalUnitVector2D(points(1),currentMouse.get) * scale) , (points(1) + normalUnitVector2D(points(1),currentMouse.get) * scale)).setAttributes(color))
-  //  else
-  //    None
+  var offsetSide : Boolean = false
+  var offsetDistance = 2
+  private var points : List[Vector2D] = List()
+  private var scale = com.siigna.app.model.Model.boundaryScale * 5
 
   def simpleA : Option[Shape] = if (currentMouse.isDefined && points.length > 0)
-      Some(LineShape(currentMouse.get,(points(0))).setAttribute(color))
+      Some(LineShape(currentMouse.get,(points(0))))
     else
       None
 
   def shapeA : Option[Shape] = if (hasBothPoints)
-      Some(LineShape((points(1) + normalUnitVector2D(points(0),points(1)) * scale) , (points(0) + normalUnitVector2D(points(0),points(1)) * scale)).setAttribute(color))
+                   //first point
+    Some(LineShape((points(1) + normalUnitVector2D(points(0),points(1)) * scale * offsetDistance),
+                   //second point: almost half the distance - leaving a gap for the text field.
+                   (points(0)+ ((points(1) - points(0))/1.8) + normalUnitVector2D(points(0),points(1)) * scale * offsetDistance)))
+    else
+      None
+
+  def shapeB : Option[Shape] = if (hasBothPoints)
+                   //first point
+    Some(LineShape((points(0) + normalUnitVector2D(points(0),points(1)) * scale * offsetDistance),
+                   //second point: almost half the distance - leaving a gap for the text field.
+                   (points(1)+ ((points(0) - points(1))/1.8) + normalUnitVector2D(points(0),points(1)) * scale * offsetDistance)))
     else
       None
 
   private var transformation = TransformationMatrix()
-  private var norm = Vector2D(0,0)
-  private var points : List[Vector2D] = List()
-  private var previousPoint : Option[Vector2D] = None
-  private var scale = com.siigna.app.model.Model.boundaryScale * 5
+
 
   def stateMap = DirectedGraph(
 
@@ -158,7 +172,15 @@ object Lineardim extends Module {
             offsetSide = false
           else
             offsetSide = true
-          Create(shapeA.get,normalShape1.get,normalShape2.get,diaMark1.get,diaMark2.get,dimText.get)
+          Create(
+            shapeA.get.setAttributes(color, "StrokeWidth" -> 0.25),
+            shapeB.get.setAttributes(color, "StrokeWidth" -> 0.25),
+            normalShape1.get.setAttributes(color, "StrokeWidth" -> 0.25),
+            normalShape2.get.setAttributes(color, "StrokeWidth" -> 0.25),
+            diaMark1.get.setAttributes("Color" -> "#777777".color, "StrokeWidth" -> 1.6),
+            diaMark2.get.setAttributes("Color" -> "#777777".color, "StrokeWidth" -> 1.6),
+            dimText.get.setAttribute(color)
+          )
           //clear the list of points
           points = List[Vector2D]()
       Default.previousModule = Some('Lineardim)
@@ -166,15 +188,16 @@ object Lineardim extends Module {
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
     if (currentMouse.isDefined && simpleA.isDefined && dynamicDimText.isDefined) {
-      g draw simpleA.get.transform(t)
+      g draw simpleA.get.transform(t).setAttribute(color)
       g draw dynamicDimText.get.transform(t)
     }
     else if (hasBothPoints) {
-      g draw shapeA.get.transform(t)
-      g draw normalShape1.get.transform(t)
-      g draw normalShape2.get.transform(t)
-      g draw diaMark1.get.transform(t)
-      g draw diaMark2.get.transform(t)
+      g draw shapeA.get.transform(t).setAttributes(color, "StrokeWidth" -> 0.25)
+      g draw shapeB.get.transform(t).setAttributes(color, "StrokeWidth" -> 0.25)
+      g draw normalShape1.get.transform(t).setAttributes(color, "StrokeWidth" -> 0.25)
+      g draw normalShape2.get.transform(t).setAttributes(color, "StrokeWidth" -> 0.25)
+      g draw diaMark1.get.transform(t).setAttributes("Color" -> "#777777".color, "StrokeWidth" -> 1.6)
+      g draw diaMark2.get.transform(t).setAttributes("Color" -> "#777777".color, "StrokeWidth" -> 1.6)
       g draw dimText.get.transform(t)
     }
   }

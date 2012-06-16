@@ -25,11 +25,10 @@ case class Geometry(parent : Option[MenuCategory]) extends MenuCategory {
   override def NNW = Some(MenuItem('Arc, RadialMenuIcon.arc , "create"))
 
   //EAST
-  override def ENE = Some(MenuItem('Line, RadialMenuIcon.line , "create"))
-  override def E = Some(MenuItemEmpty("Euclid"))
+  //override def E = Some(MenuItemEmpty("Euclid"))
 
   //West
-  override def WNW = Some(MenuItem('ParamTest, RadialMenuIcon.rectangle,"create"))
-  override def W = Some(MenuItemEmpty("Parametric"))
+  //override def WNW = Some(MenuItem('ParamTest, RadialMenuIcon.rectangle,"create"))
+  //override def W = Some(MenuItemEmpty("Parametric"))
   //override def WSW = Some(MenuItem('Stair, RadialMenuIcon.arc , "create"))
 }
