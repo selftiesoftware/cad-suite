@@ -135,7 +135,7 @@ object Weight extends Module {
       }
       //if a selection is defined, change lineweight of the selected shapes.
       else {
-        //Model.selection.get.attributes
+        Model.selection.foreach(s => s.setAttributes("StrokeWidth" -> activeLine))
       }
 
       //clear values and reactivate navigation
