@@ -16,9 +16,13 @@ import app.controller.Controller
 
 object Rectangle extends Module {
 
+  var attributes : Attributes = Attributes()
+
   val eventHandler = new EventHandler(stateMap, stateMachine)
 
   var points = List[Vector2D]()
+
+  def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
 
   def stateMap = DirectedGraph(
     'Start       -> 'Message   -> 'SetPoint
@@ -27,6 +31,9 @@ object Rectangle extends Module {
   def stateMachine = Map(
     //TODO: draw a dummy rectangle of eg. 1/15 * 1/15 of the paper height/width dynamically before first point is set
     'Start -> ((events : List[Event]) => {
+      set("activeLineWeight", "StrokeWidth")
+      set("activeColor", "Color")
+
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End)
         case Message(p : Vector2D) :: tail => Goto('SetPoint)
@@ -39,7 +46,7 @@ object Rectangle extends Module {
       //from the first point to the mouse position
       val getRectGuide : Vector2D => PolylineShape = (v : Vector2D) => {
         if(points.size > 0) {
-          PolylineShape(Rectangle2D(points.head, v))
+          PolylineShape(Rectangle2D(points.head, v)).setAttributes(attributes)
         }
         //TODO: a hack to prevent Error when calling Rectangle: Unexpected error in processing state map
         else PolylineShape(Rectangle2D(Vector2D(0,0), Vector2D(0,0)))
@@ -60,14 +67,7 @@ object Rectangle extends Module {
       }
     }),
     'End -> ((events : List[Event]) => {
-      var attributes : Attributes = Attributes()
-      def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
-
-      set("activeLineWeight", "StrokeWidth")
-      set("activeColor", "Color")
-
       if(!points.isEmpty) Create(PolylineShape(Rectangle2D(points(0), points(1))).setAttributes(attributes))
-
 
       // Clear variables
       points = List[Vector2D]()

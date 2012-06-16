@@ -41,6 +41,10 @@ object Polyline extends Module {
     }
   }),
   'SetPoint -> ((events : List[Event]) => {
+
+    set("activeLineWeight", "StrokeWidth")
+    set("activeColor", "Color")
+
     def getPointGuide = (p : Vector2D) => {
       if(!points.isEmpty) {
         set("activeLineWeight", "StrokeWidth")
@@ -72,10 +76,6 @@ object Polyline extends Module {
     }
   }),
   'End -> ((events : List[Event]) => {
-
-    set("activeLineWeight", "StrokeWidth")
-    set("activeColor", "Color")
-
     if(shape.isDefined) Create(shape.get.setAttributes(attributes))
 
     //clear the vars

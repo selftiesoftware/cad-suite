@@ -38,6 +38,10 @@ object Line extends Module{
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+
+      set("activeLineWeight", "StrokeWidth")
+      set("activeColor", "Color")
+
       com.siigna.module.base.Default.previousModule = Some('Line)
       //Log.level += Log.DEBUG + Log.SUCCESS
       events match {
@@ -83,10 +87,6 @@ object Line extends Module{
       }
     }),
     'End -> ((events : List[Event]) => {
-
-      set("activeLineWeight", "StrokeWidth")
-      set("activeColor", "Color")
-
       if(shape.isDefined) Create(shape.get.setAttributes(attributes))
 
       //reset the module vars

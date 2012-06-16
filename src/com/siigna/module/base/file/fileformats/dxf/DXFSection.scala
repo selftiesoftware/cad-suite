@@ -62,12 +62,12 @@ case class DXFSection(values : Seq[DXFValue]) extends Subtractable[DXFValue, DXF
             case DXFValue(10, _) => x = value.toDouble
             case DXFValue(20, _) => y = value.toDouble
             case DXFValue(40, _) => r = value.toDouble
-            case DXFValue(370, _) => width = Some(value.toDouble.get)
+            case DXFValue(370, _) => width = Some(value.toDouble.get/100)
             case _ =>
           })
 
           if (x.isDefined && y.isDefined && r.isDefined) {
-            Some(CircleShape(Vector2D(x.get, y.get), Vector2D(x.get + r.get, y.get)).setAttributes("StrokeWidth" -> width.get / 100))
+            Some(CircleShape(Vector2D(x.get, y.get), Vector2D(x.get + r.get, y.get)).setAttributes("StrokeWidth" -> width.getOrElse(0.5)))
           } else None
         }
         // RHINO Polylines
@@ -93,11 +93,11 @@ case class DXFSection(values : Seq[DXFValue]) extends Subtractable[DXFValue, DXF
                 y = None
               }
             }
-            case DXFValue(370, _) => width = Some(value.toDouble.get)
+            case DXFValue(370, _) => width = Some(value.toDouble.get/100)
             case _ =>
           })
           if (points.length > 1){
-            Some(PolylineShape(points).setAttributes("StrokeWidth" -> width.get / 100))
+            Some(PolylineShape(points).setAttributes("StrokeWidth" -> width.getOrElse(0.5)))
           } else None
         }
         //(Multiline?) text
