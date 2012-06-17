@@ -23,25 +23,38 @@ object SampleProperties extends Module{
   var color : Option[String] = None
   var weight : Option[String] = None
 
+  def templateShape(shape : Shape) = {
+    try {
+      shape match {
+        //export lineShapes
+        case l : LineShape => println("GOT THE LINE")
+      }
+    }
+  }
+
   def stateMap = DirectedGraph(
     'Start    ->   'KeyDown  ->    'End
   )
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println(Model.selection.toList)
       println(Model.selection)
-      if(Model.selection.isDefined && (!color.isDefined && !weight.isDefined) == true) {
-         Siigna display "select an object to sample"
-         println("goint to selection")
-         ForwardTo('Selection, false)
-       } else if(Model.selection.size > 1){
-         Siigna display  "please select just one object"
+      //not possible. BUT WHY NOT!!!??!
+      //println(Selection.shapes)
 
-       } else {
-
-         Goto('End)
-       }
+      /*
+      try {
+        templateShape match {
+          case ArcShape => println("found arc")
+          case LineShape => println("found line")
+          case PolylineShape => println("found polyline")
+          case _ => {
+            Siigna display "Could not sample properties from that object"
+            ForwardTo('Selection)
+          }
+        }
+      }
+      */
     }),
     'End -> ((events : List[Event]) => {
 

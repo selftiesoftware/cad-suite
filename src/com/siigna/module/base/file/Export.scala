@@ -26,7 +26,6 @@ object Export extends Module {
 
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println("export, start")
       //a hack to prevent the dialog from opening twice
       if (frameIsLoaded == false) {
         try {
