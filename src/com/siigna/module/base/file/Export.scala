@@ -36,16 +36,24 @@ object Export extends Module {
 
           val directory = dialog.getDirectory
           val filename  = dialog.getFile
+          //val filetype = "dxf"
           val filetype  = filename.substring(filename.lastIndexOf('.')+1, filename.length());
 
           filetype match {
-            case "dxf" => exportToDXF(filename, directory)
+            case "dxf" => {
+              println("in export case")
+              println("filename: "+filename)
+              println("dir: "+directory)
+              exportToDXF(filename, directory)
+              Siigna display "export complete"
+            }
             case ""    => {
               // TODO: Change default?
+              //TODO: file extension does not show in the dialog???
                 exportToDXF(filename+".dxf", directory)
               Siigna display "No fileextension found. Exporting DXF as default to "+filename+".dxf."
             }
-            case t => Siigna display "Unsupported file extension. Export cancelled."
+            case _ => Siigna display "Please type the filename WITH extension. Eg. Export.dxf"
           }
 
           dialog.dispose
@@ -62,8 +70,17 @@ object Export extends Module {
   )
 
   def exportToDXF(filename : String, directory : String) = {
+
     val dxf = new DXFFile
+
+    println("dir :"+directory)
+    println("name: "+filename)
+
+    //problems here... maybe PrintWriter is better???
     val writer = new FileWriter(directory+filename)
+    //should yield java.io.FileWriter@27bbf6b4. Is not evaluated???
+    println("writer: "+writer)
+
     val file   = new BufferedWriter(writer)
 
     dxf ++ Model.map(t => DXFSection.toDXF(t._2)).toSeq
