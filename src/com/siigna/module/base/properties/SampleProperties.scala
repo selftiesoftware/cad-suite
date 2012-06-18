@@ -19,48 +19,52 @@ import com.siigna._
 
 object SampleProperties extends Module{
 
+  var attributes : Attributes = Attributes()
   val eventHandler = EventHandler(stateMap, stateMachine)
-  var color : Option[String] = None
-  var weight : Option[String] = None
-
-  def templateShape(shape : Shape) = {
-    try {
-      shape match {
-        //export lineShapes
-        case l : LineShape => println("GOT THE LINE")
-      }
-    }
-  }
+  //var color : Option[String] = None
+  var selected : Option[Selection] = None
+  var templateShape : Option[Shape] = None
+  //var weight : Option[String] = None
 
   def stateMap = DirectedGraph(
-    'Start    ->   'KeyDown  ->    'End
+    'Start           ->   'KeyDown  ->    'End,
+    'UpdateShapes    ->   'KeyDown  ->    'End
   )
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println(Model.selection)
-      //not possible. BUT WHY NOT!!!??!
-      //println(Selection.shapes)
+      selected = Model.selection
+      Siigna display ("select an object to sample from")
 
-      /*
-      try {
-        templateShape match {
-          case ArcShape => println("found arc")
-          case LineShape => println("found line")
-          case PolylineShape => println("found polyline")
-          case _ => {
-            Siigna display "Could not sample properties from that object"
-            ForwardTo('Selection)
-          }
-        }
+      if(!Model.selection.get.shapes.isEmpty) templateShape = Some(Model.selection.get.shapes.head._2)
+      println("shape: "+Model.selection.get.shapes.head._2)
+
+      //store the attributes of the selected shape. TODO: not working, .attributes always yields Attributes()
+      attributes = templateShape.get.attributes
+      println(templateShape.get.attributes)
+      Model.deselect()
+      Goto('UpdateShapes)
+    }),
+    'UpdateShapes -> ((events : List[Event]) => {
+      Siigna display ("select objects to update")
+      ForwardTo('Selection, false)
+      if(!Model.selection.get.shapes.isEmpty) {
+        println("got objects to update")
+        Goto('End)
       }
-      */
     }),
     'End -> ((events : List[Event]) => {
-
+      println("in end")
+      if(!Model.selection.get.shapes.isEmpty) {
+        println("model not empty")
+        println("sampled attributes: "+attributes)
+        Model.selection.get.setAttributes(attributes)
+        Model.deselect()
+      }
       //clear vars
-      color = None
-      weight = None
+      attributes = Attributes()
+      selected = None
+      templateShape = None
     })
   )
 }
