@@ -32,7 +32,7 @@ object Lineardim extends Module {
   def diaMark2 = if (hasBothPoints) diaMark(points(1)) else None
 
   def diaRotation(degree : Double) = if (hasBothPoints)
-      Some(transformation.rotate(degree).transform(normalUnitVector2D(points(0),points(1)) * (scale/4)))
+      Some(transformation.rotate(degree).transform(normalUnitVector2D(points(0),points(1)) * (scale)))
     else
       None
 
@@ -42,7 +42,7 @@ object Lineardim extends Module {
   def dimText : Option[Shape] = if (hasBothPoints)
       Some(TextShape((points(1)-(points(0))).length.toInt.toString,
                     ((points(0) + normalUnitVector2D(points(0),points(1))) + (points(1)-points(0))/2),
-                      scale))
+                      scale * dimTextSize))
     else
       None
 
@@ -78,9 +78,9 @@ object Lineardim extends Module {
   }
 
   var offsetSide : Boolean = false
-  var offsetDistance = 2
+  var offsetDistance = 5
   private var points : List[Vector2D] = List()
-  private var scale = com.siigna.app.model.Drawing.boundaryScale * 5
+  private var scale = 1
 
   def simpleA : Option[Shape] = if (currentMouse.isDefined && points.length > 0)
       Some(LineShape(currentMouse.get,(points(0))))
@@ -103,18 +103,21 @@ object Lineardim extends Module {
     else
       None
 
+  var dimTextSize = 3
+
   private var transformation = TransformationMatrix()
 
 
   def stateMap = DirectedGraph(
-
     'Start         -> 'KeyEscape -> 'End,
     'SelectSide    -> 'KeyEscape -> 'End
-
   )
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      //get the current paperScale
+      scale = Siigna.paperScale
+
       events match {
         //set the first point of the dim line
         case MouseUp(p, _, _):: MouseDown(_, _, _) :: tail => {
@@ -187,6 +190,7 @@ object Lineardim extends Module {
     })
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
+    println(scale)
     if (currentMouse.isDefined && simpleA.isDefined && dynamicDimText.isDefined) {
       g draw simpleA.get.transform(t).setAttribute(color)
       g draw dynamicDimText.get.transform(t)

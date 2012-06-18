@@ -17,6 +17,7 @@ import fileformats.dxf.{DXFSection, DXFFile}
 import java.awt.{FileDialog, Frame}
 import java.io.{BufferedWriter, FileWriter}
 import com.siigna._
+import java.security._
 
 object Export extends Module {
 
@@ -26,7 +27,6 @@ object Export extends Module {
 
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println("export, start")
       //a hack to prevent the dialog from opening twice
       if (frameIsLoaded == false) {
         try {
@@ -37,16 +37,24 @@ object Export extends Module {
 
           val directory = dialog.getDirectory
           val filename  = dialog.getFile
+          //val filetype = "dxf"
           val filetype  = filename.substring(filename.lastIndexOf('.')+1, filename.length());
 
           filetype match {
-            case "dxf" => exportToDXF(filename, directory)
+            case "dxf" => {
+              println("in export case")
+              println("filename: "+filename)
+              println("dir: "+directory)
+              exportToDXF(filename, directory)
+              Siigna display "export complete"
+            }
             case ""    => {
               // TODO: Change default?
+              //TODO: file extension does not show in the dialog???
                 exportToDXF(filename+".dxf", directory)
               Siigna display "No fileextension found. Exporting DXF as default to "+filename+".dxf."
             }
-            case t => Siigna display "Unsupported file extension. Export cancelled."
+            case _ => Siigna display "Please type the filename WITH extension. Eg. Export.dxf"
           }
 
           dialog.dispose
@@ -62,16 +70,25 @@ object Export extends Module {
     'End   -> ((events : List[Event]) => {frameIsLoaded = false })
   )
 
-  def exportToDXF(filename : String, directory : String) = {
-    val dxf = new DXFFile
-    val writer = new FileWriter(directory+filename)
-    val file   = new BufferedWriter(writer)
+  //AccessController.doPrivileged(new PrivilegedAction() {
+    def exportToDXF(filename : String, directory : String) = {
+      val dxf = new DXFFile
 
-    dxf ++ Drawing.map(t => DXFSection.toDXF(t._2)).toSeq
+      println("dir :"+directory)
+      println("name: "+filename)
 
-    file.write(dxf.toString)
-    file.flush
-    file.close
-  }
+      //problems here... maybe PrintWriter is better???
+      val writer = new FileWriter(directory+filename)
+      //should yield java.io.FileWriter@27bbf6b4. Is not evaluated???
+      println("writer: "+writer)
 
+      val file   = new BufferedWriter(writer)
+
+      dxf ++ Drawing.map(t => DXFSection.toDXF(t._2)).toSeq
+
+      file.write(dxf.toString)
+      file.flush
+      file.close
+    }
+  //})
 }

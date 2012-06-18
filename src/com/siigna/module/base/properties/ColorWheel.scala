@@ -54,7 +54,7 @@ object ColorWheel extends Module {
   lazy val yellowGreen = new Color(0.65f, 0.95f, 0.15f, transp)
 
   private var activeAngle : Double = 0
-  //TODO: hack to prevent module from forwarding to End immediatly.
+  //TODO: hack to prevent module from forwarding to End immediately.
   //flag to register the first mousedown.
   private var gotMouseDown = false
   private var relativeMousePosition : Option[Vector2D] = None
@@ -135,11 +135,8 @@ object ColorWheel extends Module {
             gotMouseDown = false
             Goto('End)
           }
-
-
         }
         case _ =>
-
       }
       //get the current angle from the mouse to the center of the color wheel
       if (relativeMousePosition.isDefined && startPoint.isDefined) {
@@ -158,7 +155,7 @@ object ColorWheel extends Module {
       }
       //if a selection is defined, change lineweight of the selected shapes.
       else {
-        //Drawing.selection.get.attributes
+        Drawing.selection.foreach(s => s.setAttributes("Color" -> activeColor.get))
       }
       //clear values and reactivate navigation
       gotMouseDown = false
