@@ -43,8 +43,8 @@ object Fillet extends Module{
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      if(!Model.selection.isEmpty) {
-        Model.deselect()
+      if(!Drawing.selection.isEmpty) {
+        Drawing.deselect()
         Siigna display "select first line"
       } else Siigna display "select first line"
       Goto('SelectFirst)
@@ -52,11 +52,11 @@ object Fillet extends Module{
     //select the first line segment for the fillet. Polyline segments should also be allowed.
     'SelectFirst -> ((events : List[Event]) => {
       ForwardTo('Selection)
-      if(Model.selection.isDefined) {
-        val line = Model.selection.get.parts.head._1
+      if(Drawing.selection.isDefined) {
+        val line = Drawing.selection.get.parts.head._1
         println(line)
         //save the shape
-        line1 = Some(Model(line))
+        line1 = Some(Drawing(line))
         println(line1.get)
 
         Goto('SelectSecond)
@@ -65,11 +65,11 @@ object Fillet extends Module{
     //select the second line segment for the fillet. Polyline segments should also be allowed.
     'SelectSecond -> ((events : List[Event]) => {
       ForwardTo('Selection)
-      if(Model.selection.isDefined) {
-        val line = Model.selection.get.parts.head._1
+      if(Drawing.selection.isDefined) {
+        val line = Drawing.selection.get.parts.head._1
         println(line)
         //save the shape
-        line2 = Some(Model(line))
+        line2 = Some(Drawing(line))
         println(line2.get)
 
         Goto('SelectSecond)

@@ -33,7 +33,7 @@ object Move extends Module {
     // If no startPoint has been defined - create an empty matrix
     } else TransformationMatrix()
     // Return the shape, transformed
-    Model.selection.get.apply(t)
+    Drawing.selection.get.apply(t)
   }
 
   var startPoint : Option[Vector2D] = None
@@ -52,7 +52,7 @@ object Move extends Module {
       //TODO: a hack to force startPoint value to None (to draw a correct Guide). Find out why StartPoint is not always reset/ Module does not reach 'End.
       startPoint = None
       //start 'Move only if there is a selection
-      if (!Model.selection.isEmpty) {
+      if (!Drawing.selection.isEmpty) {
         if(moduleCallFromMenu == true) Goto('StartPoint, false)
         else {
           events match {
@@ -63,7 +63,7 @@ object Move extends Module {
             case MouseDrag(p, _, _) :: tail => {
 
               startPoint = Some(p)
-                if (Model.selection.isDefined && startPoint.isDefined) {
+                if (Drawing.selection.isDefined && startPoint.isDefined) {
                   Goto('Move)
                 } else {
                   Goto('End)
@@ -130,10 +130,10 @@ object Move extends Module {
             //TODO: if else hack to bypass unability to add Goto('End) in case MouseUp above (since it needs to return a value). Adding MouseUp -> 'End in the stateMap will cause the module to crach when double clicking.
             if (ending == false) {
               transformation = Some(TransformationMatrix(translation, 1))
-              Model.selection.get.transform(transformation.get)
+              Drawing.selection.get.transform(transformation.get)
             } else {
               transformation = Some(TransformationMatrix(translation, 1))
-              Model.selection.get.transform(transformation.get)
+              Drawing.selection.get.transform(transformation.get)
               Goto('End)
             }
           }
@@ -151,15 +151,15 @@ object Move extends Module {
                 //if an EndPoint is returned from 'Point:
                 case Message (p : Vector2D) :: tail => {
                   //var oldShapes:Map[Int,Shape] = Map()
-                  //Model.selection.get.shapes.foreach(tuple => {
+                  //Drawing.selection.get.shapes.foreach(tuple => {
                   //  oldShapes += tuple
                   //})
                   transformation = Some(TransformationMatrix((p - startPoint.get), 1))
-                  Model.selection.get.transform(transformation.get)
-                  //Model.selection.get.shapes.foreach(tuple => {
+                  Drawing.selection.get.transform(transformation.get)
+                  //Drawing.selection.get.shapes.foreach(tuple => {
                   //  UpdateShape(AppletParameters.getDrawingId.get, tuple._1, oldShapes(tuple._1), tuple._2, AppletParameters.getClient)
                   //})
-                  Model.deselect()
+                  Drawing.deselect()
                   Goto('End)
                 }
                 case _ => None
@@ -171,10 +171,10 @@ object Move extends Module {
     }),
     'End   -> ((events : List[Event]) => {
       //deselect, but only if an objects has been moved.
-      //if (Model.selection.isDefined && startPoint.isDefined && endPoint.isDefined && (startPoint.get - endPoint.get != Vector2D(0, 0))) {
-      if (Model.selection.isDefined && startPoint.isDefined && endPoint.isDefined) {
+      //if (Drawing.selection.isDefined && startPoint.isDefined && endPoint.isDefined && (startPoint.get - endPoint.get != Vector2D(0, 0))) {
+      if (Drawing.selection.isDefined && startPoint.isDefined && endPoint.isDefined) {
 
-        Model.deselect()
+        Drawing.deselect()
       }
       //clear the vars
       ending = false
@@ -187,7 +187,7 @@ object Move extends Module {
   )
   //draw the moving geometry when dragging the mouse
   override def paint(g : Graphics, t : TransformationMatrix) {
-    Model.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))
+    Drawing.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))
   }
 
 }

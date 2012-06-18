@@ -17,7 +17,7 @@ import module.base.Default
 
 object SetTitle extends Module {
 
-  var boundary = Model.boundary
+  var boundary = Drawing.boundary
 
   val eventHandler = EventHandler(stateMap, stateMachine)
 

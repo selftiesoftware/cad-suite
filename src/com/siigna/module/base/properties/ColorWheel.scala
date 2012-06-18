@@ -153,12 +153,12 @@ object ColorWheel extends Module {
     }),
     'End -> ((events : List[Event]) => {
 
-      if(Model.selection.isEmpty) {
+      if(Drawing.selection.isEmpty) {
         if(activeColor.isDefined) Siigna("activeColor") = activeColor.get
       }
       //if a selection is defined, change lineweight of the selected shapes.
       else {
-        //Model.selection.get.attributes
+        //Drawing.selection.get.attributes
       }
       //clear values and reactivate navigation
       gotMouseDown = false

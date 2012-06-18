@@ -68,8 +68,8 @@ object Default extends Module {
       //on startup, for some reason this value defaults to true even though it is set to false in 'Menu. This line forces it to be false.
       com.siigna.module.base.Menu.moduleCallFromMenu = false
       val m = Siigna.mousePosition
-      if (Model(m).size > 0) {
-        val nearest = Model(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+      if (Drawing(m).size > 0) {
+        val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
         nearestShape = if (nearest._2.distanceTo(m) < 5) Some(nearest) else None
       }
       //values to be retrieved only once
@@ -108,7 +108,7 @@ object Default extends Module {
         //if (AppletParameters.drawingIdReceivedAtStartup == false && titleFocus.isDefined) {
         //  ForwardTo('SetTitle)
         //}
-      } else if (Siigna.drawing.id.isDefined && !titleFocus.isDefined) {
+      } else if (Drawing.attributes.int("id").isDefined && !titleFocus.isDefined) {
         Goto('Start)
       }
       events match {
@@ -135,11 +135,11 @@ object Default extends Module {
         */
 
         //special key inputs
-        case KeyDown(('z' | 'Z'), ModifierKeys(_, true, _)) :: tail => Model.undo()
-        case KeyDown(('y' | 'Y'), ModifierKeys(_, true, _)) :: tail => Model.redo
-        case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => Model.selectAll
+        case KeyDown(('z' | 'Z'), ModifierKeys(_, true, _)) :: tail => Drawing.undo()
+        case KeyDown(('y' | 'Y'), ModifierKeys(_, true, _)) :: tail => Drawing.redo
+        case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => Drawing.selectAll
         case KeyDown(('c' | 'C'), ModifierKeys(_, true, _)) :: tail => {
-          if (Model.selection.isDefined) {
+          if (Drawing.selection.isDefined) {
           moduleCallFromMenu = true
           ForwardTo('Copy, false)
           }
@@ -152,13 +152,13 @@ object Default extends Module {
         case KeyDown(key, _) :: tail => {
           key.toChar match {
             case Key.Backspace | Key.Delete => {
-              if (Model.selection.isDefined) {
-                Delete(Model.selection.get)
+              if (Drawing.selection.isDefined) {
+                Delete(Drawing.selection.get)
               }
             }
 
             case Key.Escape => {
-              Model.deselect()
+              Drawing.deselect()
             }
             case Key.Space => {
               if (previousModule.isDefined) ForwardTo(previousModule.get)
@@ -342,8 +342,8 @@ object Default extends Module {
 
     }
     //highlight selected shapes, if any.
-    if (Model.selection.isDefined) {
-      var selection : Option[Selection] = Model.selection
+    if (Drawing.selection.isDefined) {
+      var selection : Option[Selection] = Drawing.selection
       var shapes = selection.get.shapes
       shapes.foreach(p => g draw p._2.transform(t).setAttributes("Color" -> "#22FFFF".color))
     }
@@ -351,8 +351,8 @@ object Default extends Module {
     // Draw boundary
     drawBoundary(g, t)
     // set title focus
-    titleFocus = Some(Model.boundary.bottomRight.transform(t))
-    centerFocus = Model.boundary.center.transform(t)
+    titleFocus = Some(Drawing.boundary.bottomRight.transform(t))
+    centerFocus = Drawing.boundary.center.transform(t)
 
   }
 
@@ -360,7 +360,7 @@ object Default extends Module {
     def unitX(times : Int) = Vector2D(times * Siigna.paperScale, 0)
 
     // Get the boundary
-    val boundary = Model.boundary
+    val boundary = Drawing.boundary
 
     val br = boundary.bottomRight
     val bl = boundary.bottomLeft
@@ -401,13 +401,13 @@ object Default extends Module {
       g draw(title.transform(transformation))
     }
     //draw title
-    if (Siigna.drawing.title.isDefined && (Siigna.drawing.title.get.length() > 0) && SetTitle.text.isEmpty) {
-      val title = TextShape(Siigna.drawing.title.get, unitX(-72), headerHeight * 0.7)
+    if (Drawing.attributes.int("title").isDefined && (Drawing.attributes.string("title").get.length() > 0) && SetTitle.text.isEmpty) {
+      val title = TextShape(Drawing.attributes.string("title").get, unitX(-72), headerHeight * 0.7)
       g draw(title.transform(transformation))
     }
     //draw ID
-    if (Siigna.drawing.id.isDefined) {
-      val id = TextShape("ID: "+Siigna.drawing.id.get, unitX(-28), headerHeight * 0.7, Attributes("Color" -> "#AAAAAA".color))
+    if (Drawing.attributes.int("id").isDefined) {
+      val id = TextShape("ID: "+Drawing.attributes.int("id").get, unitX(-28), headerHeight * 0.7, Attributes("Color" -> "#AAAAAA".color))
       g draw(id.transform(transformation))
     }
     if (Siigna.user.isDefined && Siigna.user.get.name.length() > 0) {

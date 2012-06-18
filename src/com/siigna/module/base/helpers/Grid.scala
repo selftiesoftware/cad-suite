@@ -81,7 +81,7 @@ object Grid extends Module{
   override def paint(g : Graphics, t : TransformationMatrix) {
 
     // Get the boundary
-    val boundary = Model.boundary
+    val boundary = Drawing.boundary
     val topLeft = boundary.topLeft
     val topRight = boundary.topRight
     val bottomLeft = boundary.bottomLeft

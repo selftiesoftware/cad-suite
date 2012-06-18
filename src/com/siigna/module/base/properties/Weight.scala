@@ -130,12 +130,12 @@ object Weight extends Module {
     }),
     'End -> ((events : List[Event]) => {
       //if no objects are selected, make the chosen lineWeight the default lineWeight
-      if(Model.selection.isEmpty) {
+      if(Drawing.selection.isEmpty) {
         Siigna("activeLineWeight") = activeLine
       }
       //if a selection is defined, change lineweight of the selected shapes.
       else {
-        //Model.selection.get.attributes
+        //Drawing.selection.get.attributes
       }
 
       //clear values and reactivate navigation

@@ -47,8 +47,8 @@ object Selection extends Module {
     'Start -> ((events : List[Event]) => {
       //find nearestShape, if any:
       val m = Siigna.mousePosition
-      if (Model(m).size > 0) {
-        val nearest = Model(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+      if (Drawing(m).size > 0) {
+        val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
         nearestShape = if (nearest._2.distanceTo(m) < 5) Some(nearest) else None
       }
 
@@ -71,7 +71,7 @@ object Selection extends Module {
       if (Default.nearestShape.isDefined) {
         val shape = Default.nearestShape.get
         val part = shape._2.getPart(Siigna.mousePosition)
-        Model.select(shape._1, part)
+        Drawing.select(shape._1, part)
         Goto('End)
         ForwardTo('Move)
       }

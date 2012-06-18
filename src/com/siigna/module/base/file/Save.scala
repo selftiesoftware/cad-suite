@@ -51,7 +51,7 @@ object Save extends Module {
     'Start -> ((events : List[Event]) => {
       //display a message instructing to drag a selection around the lines that should e saved to the database
 
-      if(!Model.isEmpty){
+      if(!Drawing.isEmpty){
 
         Siigna.display("saving to database")
 
@@ -66,13 +66,13 @@ object Save extends Module {
     'End   -> ((events : List[Event]) => {
       //proceed to save the data
       Siigna display "saving to Siigna Universe, please wait"
-      //Gemmer her alle shapes i modellen i tegningen med id 5, da mappen, der gemmes er modellen (Model.seq)....
-      //pgsqlSave.mapOfShapesIntoDrawing(Model.seq,com.siigna.app.model.drawing.activeDrawing.drawingId.get)
+      //Gemmer her alle shapes i modellen i tegningen med id 5, da mappen, der gemmes er modellen (Drawing.seq)....
+      //pgsqlSave.mapOfShapesIntoDrawing(Drawing.seq,com.siigna.app.model.drawing.activeDrawing.drawingId.get)
 
       /*
-      if(!Model.isEmpty) {
+      if(!Drawing.isEmpty) {
         //the result is a set that need to be converted:
-        Model foreach (_ match {
+        Drawing foreach (_ match {
           case l : PolylineShape => {
             l.shapes.foreach {
               case l : LineShape => {

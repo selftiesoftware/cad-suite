@@ -53,8 +53,8 @@ object Rotate extends Module {
         // If no start- (or center-) point has been defined - create empty matrix
         } else TransformationMatrix()
         // Return the shape, transformed
-        //Model.selection.get.apply(t)
-        Model.selection.get.apply(t)
+        //Drawing.selection.get.apply(t)
+        Drawing.selection.get.apply(t)
       }
 
       //if the center for the rotation has not been set, then set it:
@@ -140,8 +140,8 @@ object Rotate extends Module {
       //if an angle was typed, perform the rotation directly:
       if(rotationFromPoint.isDefined){
         val t : TransformationMatrix = TransformationMatrix(Vector2D(0,0), 1).rotate(-rotationFromPoint.get, centerPoint.get)
-        Model.selection.get.transform(t)
-        Model.deselect()
+        Drawing.selection.get.transform(t)
+        Drawing.deselect()
       } else {
 
         //if Start and EndVectors were defined in 'Point, rotate on that basis:
@@ -155,8 +155,8 @@ object Rotate extends Module {
               TransformationMatrix(Vector2D(0,0), 1).rotate(a2 - a1, centerPoint.get)
             }
             //val t = transformation.get.rotate(rotation,centerPoint.get)
-            Model.selection.get.transform(t)
-            Model.deselect()
+            Drawing.selection.get.transform(t)
+            Drawing.deselect()
           }
           case _ => {
             Goto('End, false)
@@ -177,7 +177,7 @@ object Rotate extends Module {
 
   override def paint(g : Graphics, t : TransformationMatrix) {
 
-    Model.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))
+    Drawing.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))
 
     if(startVector.isDefined) g draw (CircleShape(startVector.get,(startVector.get + Vector2D(0,9)))).transform(t)
     else if(centerPoint.isDefined && !startVector.isDefined) {

@@ -37,7 +37,7 @@ object Copy extends Module {
     // If no startPoint has been defined - create an empty matrix
     } else TransformationMatrix()
     // Return the shape, transformed
-    Model.selection.get.apply(t)
+    Drawing.selection.get.apply(t)
   }
 
   var startPoint : Option[Vector2D] = None
@@ -54,9 +54,9 @@ object Copy extends Module {
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       //start 'Move only if there is a selection
-      if (!Model.selection.isEmpty) {
+      if (!Drawing.selection.isEmpty) {
         //save the original shapes
-        shapes = Some(Model.selection.get)
+        shapes = Some(Drawing.selection.get)
 
         if(moduleCallFromMenu == true) {
           Goto('StartPoint, false)
@@ -69,7 +69,7 @@ object Copy extends Module {
             case MouseDrag(p, _, _) :: tail => {
 
               startPoint = Some(p)
-                if (Model.selection.isDefined && startPoint.isDefined) {
+                if (Drawing.selection.isDefined && startPoint.isDefined) {
                   Goto('Copy)
                 } else {
                   Goto('End)
@@ -121,7 +121,7 @@ object Copy extends Module {
         //TODO: if else hack to bypass unability to add Goto('End) in case MouseUp above (since it needs to return a value). Adding MouseUp -> 'End in the stateMap will cause the module to crach when double clicking.
         if (ending == false) {
           transformation = Some(TransformationMatrix(translation, 1))
-          //Model.selection.get.transform(transformation.get)
+          //Drawing.selection.get.transform(transformation.get)
           Create(shapes.get.apply(transformation.get))
         } else {
           transformation = Some(TransformationMatrix(translation, 1))
@@ -168,7 +168,7 @@ object Copy extends Module {
             transformation = Some(TransformationMatrix((endPoint.get - startPoint.get) * (i+2), 1))
             Create(shapes.get.apply(transformation.get))
             text = ""
-            Model.deselect()
+            Drawing.deselect()
           }
           Goto('End)
         }
@@ -195,11 +195,11 @@ object Copy extends Module {
     }),
     'End   -> ((events : List[Event]) => {
       //deselect, but only if an objects has been moved.
-      if (Model.selection.isDefined && startPoint.isDefined && endPoint.isDefined && (startPoint.get - endPoint.get != Vector2D(0, 0))) {
-        Model.deselect()
+      if (Drawing.selection.isDefined && startPoint.isDefined && endPoint.isDefined && (startPoint.get - endPoint.get != Vector2D(0, 0))) {
+        Drawing.deselect()
       }
       //clear the vars
-      Model.deselect()
+      Drawing.deselect()
       com.siigna.module.base.Default.previousModule = Some('Copy)
       ending = false
       gotEndPoint = false

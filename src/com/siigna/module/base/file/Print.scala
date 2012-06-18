@@ -40,7 +40,7 @@ object Print extends Module {
           printerJob.setJobName("Siigna Printout");
           printerJob.setCopies(1);
 
-          if (Model.boundary.width >= Model.boundary.height) {
+          if (Drawing.boundary.width >= Drawing.boundary.height) {
             // The origin is at the bottom left of the paper with x running bottom to top and y running left to right.
             pageFormat.setOrientation(PageFormat.LANDSCAPE)
           } else {
@@ -82,7 +82,7 @@ class MyPrintable extends Printable {
       val graphics   = new Graphics(graphics2D)
 
       // Define the boundary for the print
-      val boundary     = if (Model.boundary.width <= Model.boundary.height)
+      val boundary     = if (Drawing.boundary.width <= Drawing.boundary.height)
           Rectangle2D(Vector2D(pageFormat.getImageableX,   pageFormat.getImageableY),
                     Vector2D(pageFormat.getImageableWidth, pageFormat.getImageableHeight))
         else
@@ -111,12 +111,12 @@ class MyPrintable extends Printable {
 
       // Create a new transformation-matrix for the model
       // TODO: Get the correct screenToPaperScale
-      val screenToPaperScale = 2.845 / Model.boundaryScale
-      val t1 = TransformationMatrix(-Model.boundary.topLeft, 1)
+      val screenToPaperScale = 2.845 / Drawing.boundaryScale
+      val t1 = TransformationMatrix(-Drawing.boundary.topLeft, 1)
       val t2 = TransformationMatrix(Vector2D(0, 0), 1).flipY.scale(screenToPaperScale)
 
       // Iterate through the dom and draw the shape on the buffer graphics
-      Model map( _._2.transform(t1).transform(t2) ) foreach( bufferedGraphics draw)
+      Drawing map( _._2.transform(t1).transform(t2) ) foreach( bufferedGraphics draw)
 
       // Paint filters and interfaces accesible by the modules.
       // TODO: Test matrixes

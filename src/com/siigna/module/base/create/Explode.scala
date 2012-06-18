@@ -43,7 +43,7 @@ object Explode extends Module{
         // other events may be registered while the ForwardTo mechanism is running.
         // These events can trigger Goto events in the module unless ruled out by case matches.
         case MouseUp(_, _, _) :: tail => {
-          if(Model.selection.isDefined) {
+          if(Drawing.selection.isDefined) {
             Goto('Explode)
           }
         }
@@ -81,7 +81,7 @@ object Explode extends Module{
       }
       //filter everything from the Seq that is empty.
       //run the explode def on the rest, and save the restults to the explodeableShapes val.
-      val explodeableShapes = Model.selection.get.shapes.map(t => t._1 -> explode(t._2)).filter(t => !t._2.isEmpty)
+      val explodeableShapes = Drawing.selection.get.shapes.map(t => t._1 -> explode(t._2)).filter(t => !t._2.isEmpty)
 
       if(!explodeableShapes.isEmpty) {
         //use the IDs from the Seq to delete the original shapes

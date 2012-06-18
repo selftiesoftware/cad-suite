@@ -80,7 +80,7 @@ object Lineardim extends Module {
   var offsetSide : Boolean = false
   var offsetDistance = 2
   private var points : List[Vector2D] = List()
-  private var scale = com.siigna.app.model.Model.boundaryScale * 5
+  private var scale = com.siigna.app.model.Drawing.boundaryScale * 5
 
   def simpleA : Option[Shape] = if (currentMouse.isDefined && points.length > 0)
       Some(LineShape(currentMouse.get,(points(0))))

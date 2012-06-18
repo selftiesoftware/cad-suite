@@ -34,8 +34,8 @@ object Divide extends Module {
     'Start -> ((events : List[Event]) => {
       //start 'Divide only if there is a selection)
 
-      if (Model.selection.isDefined) {
-        shape = Model(Model.selection.get.parts.head._1)
+      if (Drawing.selection.isDefined) {
+        shape = Drawing(Drawing.selection.get.parts.head._1)
         Siigna display "type number of subdivisions"
         Goto('TextInput)
       } else {
@@ -84,7 +84,7 @@ object Divide extends Module {
           }
           //Create(shapes.get.apply(transformation.get))
           text = ""
-          Model.deselect()
+          Drawing.deselect()
           Goto('End)
         }
         case KeyDown(Key.Esc, _) :: tail => {

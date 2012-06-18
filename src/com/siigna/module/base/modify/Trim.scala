@@ -54,8 +54,8 @@ object Trim extends Module {
   'Start ->  ((events : List[Event]) => {
     events match {
       case MouseMove(point, _, _) :: tail => {
-        if (Model.selected.size == 1) {
-          trimGuide = Some(Model.selected.head.shape)
+        if (Drawing.selected.size == 1) {
+          trimGuide = Some(Drawing.selected.head.shape)
           Goto('StartSelection)
         } else {
           Siigna.display("Select an object to trim objects by")
@@ -70,11 +70,11 @@ object Trim extends Module {
    'SelectLines ->  ((events : List[Event]) => {
      events match {
        case MouseDown (p,_,_) :: tail => {
-         val closestShape = Model(p)
+         val closestShape = Drawing(p)
          if (closestShape.isDefined && closestShape.get.distanceTo(p) < 5 && closestShape.get.isInstanceOf[Shape]) {
-           Model.select(Model.findId(_ == closestShape.get.asInstanceOf[Shape]))
-           if (Model.selected.size == 1) {
-             trimGuide = Some(Model.selected.head.shape)
+           Drawing.select(Drawing.findId(_ == closestShape.get.asInstanceOf[Shape]))
+           if (Drawing.selected.size == 1) {
+             trimGuide = Some(Drawing.selected.head.shape)
              Goto('StartSelection)
            }
          }
@@ -90,7 +90,7 @@ object Trim extends Module {
       events match {
         case MouseUp(p2, _, _) :: _ :: MouseDown(p1, _, _) :: tail => {
           if ((p2 - p1).length <= 2) {
-            val closestShape = Model(p2)
+            val closestShape = Drawing(p2)
             if (closestShape.isDefined && closestShape.get.distanceTo(p2) <= 10 && closestShape.isInstanceOf[Shape]) {
               trimShapes ++:= Iterable(closestShape.get.asInstanceOf[Shape])
             }
@@ -116,7 +116,7 @@ object Trim extends Module {
         case MouseUp(p, _, _) :: tail => {
           selectionBoxEnd = Some(p)
           val box = Rectangle2D(selectionBoxStart.get, selectionBoxEnd.get)
-          trimShapes = Model.queryForShapes(box).filter(s => s.geometry.intersects(box))
+          trimShapes = Drawing.queryForShapes(box).filter(s => s.geometry.intersects(box))
           Goto('End)
         }
         case _ =>

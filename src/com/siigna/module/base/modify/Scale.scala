@@ -34,7 +34,7 @@ object Scale extends Module {
     // If no startPoint has been defined - create an empty matrix
     } else TransformationMatrix()
     // Return the shape, transformed
-    Model.selection.get.apply(t)
+    Drawing.selection.get.apply(t)
   }
 
   var startPoint : Option[Vector2D] = None
@@ -52,7 +52,7 @@ object Scale extends Module {
 
   lazy val stateMachine = Map(
     'Start ->   ((events : List[Event]) => {
-      if (Model.selection.isDefined) {
+      if (Drawing.selection.isDefined) {
         Siigna display "set startpoint"
         ForwardTo('Point, false)
       }
@@ -95,8 +95,8 @@ object Scale extends Module {
           var numbers = text.toDouble
           transformation = Some(TransformationMatrix(Vector2D(0,0),1))
           //perform scaling:
-          //Model.selection.get.transform(transformation.get.scale(numbers))
-          Model.selection.get.transform(transformation.get.scale(numbers,startPoint.get))
+          //Drawing.selection.get.transform(transformation.get.scale(numbers))
+          Drawing.selection.get.transform(transformation.get.scale(numbers,startPoint.get))
 
           text = ""
 
@@ -127,18 +127,18 @@ object Scale extends Module {
           case MouseMove (p, _, _) :: tail =>
           case Message (p : Vector2D) :: tail => {
             //var oldShapes:Map[Int,Shape] = Map()
-            //Model.selection.get.shapes.foreach(tuple => {
+            //Drawing.selection.get.shapes.foreach(tuple => {
             //  oldShapes += tuple
             //})
 
             val refScale : Vector2D = startPoint.get - endPoint.get
             var scaleFactor = ((p - startPoint.get).length/refScale.length).toDouble
             transformation = Some(TransformationMatrix(Vector2D(0,0),1))
-            Model.selection.get.transform(transformation.get.scale(scaleFactor,startPoint.get))
-            //Model.selection.get.shapes.foreach(tuple => {
+            Drawing.selection.get.transform(transformation.get.scale(scaleFactor,startPoint.get))
+            //Drawing.selection.get.shapes.foreach(tuple => {
             //  UpdateShape(AppletParameters.getDrawingId.get, tuple._1, oldShapes(tuple._1), tuple._2, AppletParameters.getClient)
             //})
-            Model.deselect()
+            Drawing.deselect()
             Goto('End)
           }
           case _ => None
@@ -147,8 +147,8 @@ object Scale extends Module {
     }),
     'End   -> ((events : List[Event]) => {
       //deselect, but only if an objects has been moved.
-      if (Model.selection.isDefined && startPoint.isDefined && endPoint.isDefined && (startPoint.get - endPoint.get != Vector2D(0, 0))) {
-        Model.deselect()
+      if (Drawing.selection.isDefined && startPoint.isDefined && endPoint.isDefined && (startPoint.get - endPoint.get != Vector2D(0, 0))) {
+        Drawing.deselect()
       }
       //clear the vars
       com.siigna.module.base.Default.previousModule = Some('Scale)
@@ -160,7 +160,7 @@ object Scale extends Module {
     })
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
-    Model.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))
+    Drawing.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))
   }
 
 }

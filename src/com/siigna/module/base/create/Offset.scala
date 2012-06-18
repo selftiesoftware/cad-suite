@@ -24,7 +24,7 @@ object Offset extends Module {
   val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
     // Create a matrix
     val t : TransformationMatrix = TransformationMatrix(v, 1)
-    Model.selection.get.apply(t)
+    Drawing.selection.get.apply(t)
   }
 
   var text  = ""
@@ -36,7 +36,7 @@ object Offset extends Module {
   //Select shapes
   def stateMachine = Map(
   'Start -> ((events : List[Event]) => {
-    if (!Model.selection.isDefined) {
+    if (!Drawing.selection.isDefined) {
       Siigna display "No objects selected"
       Goto('End)
     }
@@ -46,7 +46,7 @@ object Offset extends Module {
 
         case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
         case _ => {
-          originals = Some(Model.selection.get)
+          originals = Some(Drawing.selection.get)
           Goto('SetDistance)
         }
       }
