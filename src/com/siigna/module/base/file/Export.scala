@@ -17,6 +17,7 @@ import fileformats.dxf.{DXFSection, DXFFile}
 import java.awt.{FileDialog, Frame}
 import java.io.{BufferedWriter, FileWriter}
 import com.siigna._
+import java.security._
 
 object Export extends Module {
 
@@ -69,25 +70,25 @@ object Export extends Module {
     'End   -> ((events : List[Event]) => {frameIsLoaded = false })
   )
 
-  def exportToDXF(filename : String, directory : String) = {
+  //AccessController.doPrivileged(new PrivilegedAction() {
+    def exportToDXF(filename : String, directory : String) = {
+      val dxf = new DXFFile
 
-    val dxf = new DXFFile
+      println("dir :"+directory)
+      println("name: "+filename)
 
-    println("dir :"+directory)
-    println("name: "+filename)
+      //problems here... maybe PrintWriter is better???
+      val writer = new FileWriter(directory+filename)
+      //should yield java.io.FileWriter@27bbf6b4. Is not evaluated???
+      println("writer: "+writer)
 
-    //problems here... maybe PrintWriter is better???
-    val writer = new FileWriter(directory+filename)
-    //should yield java.io.FileWriter@27bbf6b4. Is not evaluated???
-    println("writer: "+writer)
+      val file   = new BufferedWriter(writer)
 
-    val file   = new BufferedWriter(writer)
+      dxf ++ Model.map(t => DXFSection.toDXF(t._2)).toSeq
 
-    dxf ++ Model.map(t => DXFSection.toDXF(t._2)).toSeq
-
-    file.write(dxf.toString)
-    file.flush
-    file.close
-  }
-
+      file.write(dxf.toString)
+      file.flush
+      file.close
+    }
+  //})
 }
