@@ -15,7 +15,6 @@ import com.siigna.module.base.Menu._
 import com.siigna.module.base.radialmenu.category._
 import module.base.file.{SetTitle}
 import com.siigna.module.base.radialmenu.category.{Create => MenuCreate}
-import com.siigna.app.controller.remote._
 import java.awt.Color
 
 /**
@@ -136,8 +135,8 @@ object Default extends Module {
 
         //special key inputs
         case KeyDown(('z' | 'Z'), ModifierKeys(_, true, _)) :: tail => Drawing.undo()
-        case KeyDown(('y' | 'Y'), ModifierKeys(_, true, _)) :: tail => Drawing.redo
-        case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => Drawing.selectAll
+        case KeyDown(('y' | 'Y'), ModifierKeys(_, true, _)) :: tail => Drawing.redo()
+        case KeyDown('a', ModifierKeys(_, true, _)) :: tail         => Drawing.selectAll()
         case KeyDown(('c' | 'C'), ModifierKeys(_, true, _)) :: tail => {
           if (Drawing.selection.isDefined) {
           moduleCallFromMenu = true

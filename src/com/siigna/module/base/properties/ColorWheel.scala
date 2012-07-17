@@ -89,7 +89,7 @@ object ColorWheel extends Module {
     //select a color
   'Start -> ((events : List[Event]) => {
     Siigna.navigation = false // Make sure the rest of the program doesn't move
-      eventParser.disable // Disable tracking and snapping
+      eventParser.disable() // Disable tracking and snapping
       startPoint = if (Menu.center.isDefined) Some(Menu.center.get) else Some(Vector2D(0,0))
 
       events match {
@@ -161,11 +161,12 @@ object ColorWheel extends Module {
       gotMouseDown = false
       startPoint = None
       relativeMousePosition = None
-      eventParser.enable
+      eventParser.enable()
       Siigna.navigation = true
     })
   )
-  override def paint(g : Graphics, transform : TransformationMatrix) = {
+
+  override def paint(g : Graphics, transform : TransformationMatrix) {
     if (startPoint.isDefined && relativeMousePosition.isDefined) {
       //centerPoint for the colorWheel
       val sp = startPoint.get.transform(transform)

@@ -14,7 +14,6 @@ package com.siigna.module.base.modify
 import com.siigna._
 import module.base.create.{PointGuides, PointGuide, AngleSnap}
 import com.siigna.module.base.Menu._
-import com.siigna.app.controller.remote._
 
 object Move extends Module {
 
