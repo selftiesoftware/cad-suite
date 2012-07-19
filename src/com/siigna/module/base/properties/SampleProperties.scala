@@ -33,29 +33,29 @@ object SampleProperties extends Module{
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      selected = Drawing.selection
       Siigna display ("select an object to sample from")
+      println("selection: "+Drawing.selection)
 
-      if(!Drawing.selection.get.shapes.isEmpty) templateShape = Some(Drawing.selection.get.shapes.head._2)
-      println("shape: "+Drawing.selection.get.shapes.head._2)
+      if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
+        templateShape = Some(Drawing.selection.get.shapes.head._2)
+        println("shape: "+templateShape)
+        println("drawing: "+Drawing)
+        attributes = templateShape.get.attributes
+        println("attributes: "+attributes)
+        Drawing.deselect()
+        Goto('UpdateShapes)
+      }
+      else ForwardTo('Selection, false)
 
-      //store the attributes of the selected shape. TODO: not working, .attributes always yields Attributes()
-      attributes = templateShape.get.attributes
-      println(templateShape.get.attributes)
-      Drawing.deselect()
-      Goto('UpdateShapes)
     }),
     'UpdateShapes -> ((events : List[Event]) => {
       Siigna display ("select objects to update")
-      ForwardTo('Selection, false)
-      if(!Drawing.selection.get.shapes.isEmpty) {
-        println("got objects to update")
-        Goto('End)
-      }
+      if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) Goto('End)
+      else ForwardTo('Selection, false)
     }),
     'End -> ((events : List[Event]) => {
       println("in end")
-      if(!Drawing.selection.get.shapes.isEmpty) {
+      if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
         println("model not empty")
         println("sampled attributes: "+attributes)
         Drawing.selection.get.setAttributes(attributes)
