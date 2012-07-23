@@ -13,7 +13,7 @@ package com.siigna.module.base.file
 
 /* 2010 (C) Copyright by Siigna, all rights reserved. */
 
-import fileformats.dxf.{DXFSection, DXFFile}
+import com.siigna.module.IO.dxf._
 import java.awt.{FileDialog, Frame}
 import java.io.{BufferedWriter, FileWriter}
 import com.siigna._

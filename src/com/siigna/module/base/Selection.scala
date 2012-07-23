@@ -35,7 +35,7 @@ object Selection extends Module {
 
   def stateMap     = DirectedGraph(
     'Start -> 'MouseDrag   -> 'Box,
-    'Start -> 'MouseMove   -> 'End,
+    //'Start -> 'MouseMove   -> 'End,
     'Start -> 'MouseUp     -> 'End,
     'Box   -> 'MouseMove   -> 'End,
     'Box   -> 'MouseUp     -> 'End
@@ -45,6 +45,7 @@ object Selection extends Module {
   Preload('Copy, "com.siigna.module.base.create")
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      println("START SEL events: "+events)
       //find nearestShape, if any:
       val m = Siigna.mousePosition
       if (Drawing(m).size > 0) {
@@ -97,6 +98,7 @@ object Selection extends Module {
       }
     }),
     'End -> ((events : List[Event]) => {
+      println("SEL END")
       //if the selection is drawn from left to right, select fully enclosed shapes only.:
       if (box.isDefined && selectFullyEnclosed == true) {
         Select(box.get, true)
