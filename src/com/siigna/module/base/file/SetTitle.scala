@@ -11,7 +11,6 @@
 
 package com.siigna.module.base.file
 
-import com.siigna.app.controller.remote.Set
 import com.siigna._
 import module.base.Default
 
@@ -60,12 +59,10 @@ object SetTitle extends Module {
     }),
     'End -> ((events : List[Event]) => {
       //save a new name in the databasen (automatically corrects the applet's variable)
-      if (Siigna.client.isDefined) {
-        Set("drawingName", text, Siigna.client.get)
+      Set(DrawingName, text)
 
-        //reset the vars
-        text = ""
-      }
+      //reset the vars
+      text = ""
     })
   )
 }
