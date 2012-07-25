@@ -45,7 +45,7 @@ object Selection extends Module {
   Preload('Copy, "com.siigna.module.base.create")
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println("START SEL events: "+events)
+      println(events)
       //find nearestShape, if any:
       val m = Siigna.mousePosition
       if (Drawing(m).size > 0) {
@@ -55,17 +55,29 @@ object Selection extends Module {
 
       events match {
         //select a full shape (if present) when a double click is registered
-        case MouseDown(p1, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: MouseDown(p2, MouseButtonLeft ,_) :: tail => {
+        case MouseDown(p1, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: MouseDown(_, MouseButtonLeft ,_) :: tail => {
+          println("got double click MD MU MD")
+          
           if(nearestShape.isDefined){
             selectedShape = Some(nearestShape.get._2)
             ForwardTo('Move)
           }
         }
+        //double click -> MD, MU, MU en the events list (sometimes?!) when hovering over a shape.
+        case MouseDown(p1, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: MouseUp(_, MouseButtonLeft ,_) :: tail => {
+          println("got double click MD MU MU")
+
+          if(nearestShape.isDefined){
+            selectedShape = Some(nearestShape.get._2)
+            println("selected shape: "+selectedShape)
+            ForwardTo('Move)
+          }
+        }
+
+
         case MouseDown(p, _, _) :: tail => startPoint = Some(p)
         case MouseMove(p, _, _) :: tail => startPoint = Some(p)
         case MouseDrag(p, _, _) :: tail => startPoint = Some(p)
-
-
 
         case _ =>
       }
@@ -98,7 +110,6 @@ object Selection extends Module {
       }
     }),
     'End -> ((events : List[Event]) => {
-      println("SEL END")
       //if the selection is drawn from left to right, select fully enclosed shapes only.:
       if (box.isDefined && selectFullyEnclosed == true) {
         Select(box.get, true)
