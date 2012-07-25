@@ -340,12 +340,6 @@ object Default extends Module {
       //g draw part.setAttributes("Color" -> "#22FFFF".color, "StrokeWidth" -> 1.0).transform(t)
 
     }
-    //highlight selected shapes, if any.
-    if (Drawing.selection.isDefined) {
-      var selection : Option[Selection] = Drawing.selection
-      var shapes = selection.get.shapes
-      shapes.foreach(p => g draw p._2.transform(t).setAttributes("Color" -> "#22FFFF".color))
-    }
 
     // Draw boundary
     drawBoundary(g, t)
