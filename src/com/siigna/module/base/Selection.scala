@@ -45,7 +45,6 @@ object Selection extends Module {
   Preload('Copy, "com.siigna.module.base.create")
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println(events)
       //find nearestShape, if any:
       val m = Siigna.mousePosition
       if (Drawing(m).size > 0) {
@@ -56,21 +55,22 @@ object Selection extends Module {
       events match {
         //select a full shape (if present) when a double click is registered
         case MouseDown(p1, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: MouseDown(_, MouseButtonLeft ,_) :: tail => {
-          println("got double click MD MU MD")
-          
+          println("got double click CASE1 ")
           if(nearestShape.isDefined){
-            selectedShape = Some(nearestShape.get._2)
+            Drawing.select(nearestShape.get._1)
+            println("got shape: "+nearestShape)
             ForwardTo('Move)
           }
         }
         //double click -> MD, MU, MU en the events list (sometimes?!) when hovering over a shape.
         case MouseDown(p1, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: MouseUp(_, MouseButtonLeft ,_) :: tail => {
+          println("nearest shape: "+nearestShape)
           println("got double click MD MU MU")
 
           if(nearestShape.isDefined){
             Drawing.select(Some(nearestShape.get._1))
 
-            println("selected shape: "+selectedShape)
+            println("got shape: "+nearestShape)
             ForwardTo('Move)
           }
         }
