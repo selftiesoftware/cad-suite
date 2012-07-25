@@ -315,6 +315,9 @@ object Default extends Module {
   */
 
   override def paint(g : Graphics, t : TransformationMatrix) {
+    //set the focus of Siigna
+    centerFocus = Drawing.boundary.center.transform(t)
+
     //draw a loading bar when modules are loading.
     if(firstStart == true && startTime.isDefined){
       var loadingProgress = System.currentTimeMillis() - startTime.get
@@ -345,8 +348,6 @@ object Default extends Module {
     drawBoundary(g, t)
     // set title focus
     titleFocus = Some(Drawing.boundary.bottomRight.transform(t))
-    centerFocus = Drawing.boundary.center.transform(t)
-
   }
 
   private def drawBoundary(g : Graphics, t : TransformationMatrix) {
