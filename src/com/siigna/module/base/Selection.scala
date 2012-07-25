@@ -68,12 +68,12 @@ object Selection extends Module {
           println("got double click MD MU MU")
 
           if(nearestShape.isDefined){
-            selectedShape = Some(nearestShape.get._2)
+            Drawing.select(Some(nearestShape.get._1))
+
             println("selected shape: "+selectedShape)
             ForwardTo('Move)
           }
         }
-
 
         case MouseDown(p, _, _) :: tail => startPoint = Some(p)
         case MouseMove(p, _, _) :: tail => startPoint = Some(p)
