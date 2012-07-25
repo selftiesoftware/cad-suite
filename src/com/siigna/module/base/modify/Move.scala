@@ -48,7 +48,6 @@ object Move extends Module {
   
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println("in move, selection: "+Drawing.selection)
       //TODO: a hack to force startPoint value to None (to draw a correct Guide). Find out why StartPoint is not always reset/ Module does not reach 'End.
       startPoint = None
       //start 'Move only if there is a selection
