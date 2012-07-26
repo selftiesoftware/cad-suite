@@ -82,8 +82,8 @@ object TrackTest {
         pointOne = if (nearestPoint.distanceTo(m) < 2) Some(nearestPoint) else None
 
         if (pointOne.isDefined && verticalActive(pointOne.get,m) == true) {
-            horizontalGuide1 = Some(LineShape(Vector2D(pointOne.get.x-10000,pointOne.get.y),Vector2D(pointOne.get.x+10000,pointOne.get.y)))
-            verticalGuide1 = Some(LineShape(Vector2D(pointOne.get.x,pointOne.get.y-10000),Vector2D(pointOne.get.x,pointOne.get.y+10000)))
+          horizontalGuide1 = Some(LineShape(Vector2D(pointOne.get.x-10000,pointOne.get.y),Vector2D(pointOne.get.x+10000,pointOne.get.y)))
+          verticalGuide1 = Some(LineShape(Vector2D(pointOne.get.x,pointOne.get.y-10000),Vector2D(pointOne.get.x,pointOne.get.y+10000)))
         }
       }
     }
