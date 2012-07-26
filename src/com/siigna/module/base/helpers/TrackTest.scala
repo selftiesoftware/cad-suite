@@ -34,8 +34,6 @@ object TrackTest {
 
   def paint(g : Graphics, t : TransformationMatrix) {
 
-    //Todo: draw the tracking lines only if the mouse is moved inside an envelope, called "tracking radians": N,S,E,W (+ NE,SE,SW,NW?) + a margin.
-    //Todo: if the mouse is moving N-S, draw the NS track. If the mouse is moved E-W, draw the EW tracking guide.    
     //functions to determine if a vertical or horizontal guide should be drawn:
     def horizontalActive(p : Vector2D, m : Vector2D) : Boolean = {
       var guide = Line2D(p, Vector2D(p.x-100, p.y))
@@ -52,9 +50,6 @@ object TrackTest {
     val m = Siigna.mousePosition
     val trackGuide = "Color" -> "#00FFFF".color
 
-    //Todo: add a delay, to display the guides only after a given period of time (one second?).
-    //Todo: clear the tracking point if the mouse has been moved away from their tracking radians for a certain period of time
-
     //get the nearest shape if it is defined
     if (Drawing(m).size > 0){
       //println("pt one: "+pointOne)
@@ -65,11 +60,8 @@ object TrackTest {
         val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
         val nearestPoint = nearest._2.geometry.vertices.reduceLeft((a : Vector2D, b : Vector2D) => if (a.distanceTo(m) < b.distanceTo(m)) a else b)
         if (nearestPoint.distanceTo(m) < 2 ){
-          println("reassigning")
           if  (!(pointOne.get.distanceTo(m) < 10)) pointTwo = pointOne
           pointOne = Some(nearestPoint)
-          println("pt one: "+pointOne)
-          println("pt two: "+pointTwo)
         }
         horizontalGuide1 = Some(LineShape(Vector2D(pointOne.get.x-10000,pointOne.get.y),Vector2D(pointOne.get.x+10000,pointOne.get.y)))
         verticalGuide1 = Some(LineShape(Vector2D(pointOne.get.x,pointOne.get.y-10000),Vector2D(pointOne.get.x,pointOne.get.y+10000)))
