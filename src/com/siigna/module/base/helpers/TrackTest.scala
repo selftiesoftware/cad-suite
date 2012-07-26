@@ -57,16 +57,19 @@ object TrackTest {
 
     //get the nearest shape if it is defined
     if (Drawing(m).size > 0){
-      println("pt one: "+pointOne)
-      println("pt two: "+pointTwo)
+      //println("pt one: "+pointOne)
+      //println("pt two: "+pointTwo)
 
       //if a tracking point is defined, and the mouse is placed on top of a second point
       if(pointOne.isDefined){
         val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
         val nearestPoint = nearest._2.geometry.vertices.reduceLeft((a : Vector2D, b : Vector2D) => if (a.distanceTo(m) < b.distanceTo(m)) a else b)
-        if (nearestPoint.distanceTo(m) < 2 && nearestPoint != pointOne && nearestPoint != pointTwo){
-          pointTwo = pointOne
+        if (nearestPoint.distanceTo(m) < 2 ){
+          println("reassigning")
+          if  (!(pointOne.get.distanceTo(m) < 10)) pointTwo = pointOne
           pointOne = Some(nearestPoint)
+          println("pt one: "+pointOne)
+          println("pt two: "+pointTwo)
         }
         horizontalGuide1 = Some(LineShape(Vector2D(pointOne.get.x-10000,pointOne.get.y),Vector2D(pointOne.get.x+10000,pointOne.get.y)))
         verticalGuide1 = Some(LineShape(Vector2D(pointOne.get.x,pointOne.get.y-10000),Vector2D(pointOne.get.x,pointOne.get.y+10000)))
@@ -93,7 +96,7 @@ object TrackTest {
     if(pointOne.isDefined){
       //draw the vertical tracking guide
       if(verticalGuide1.isDefined && verticalActive (pointOne.get, m) == true) {
-        //g draw verticalGuide.get.setAttributes("Infinite" -> true, trackGuide).transform(t)
+        //g draw verticalGuide1.get.setAttributes("Infinite" -> true, trackGuide).transform(t)
         g draw verticalGuide1.get.setAttributes(trackGuide).transform(t)
       }
 
@@ -109,7 +112,7 @@ object TrackTest {
     if (pointTwo.isDefined) {
       //draw the vertical tracking guide
       if(verticalGuide2.isDefined && verticalActive (pointTwo.get, m) == true) {
-        //g draw verticalGuide.get.setAttributes("Infinite" -> true, trackGuide).transform(t)
+        //g draw verticalGuide2.get.setAttributes("Infinite" -> true, trackGuide).transform(t)
         g draw verticalGuide2.get.setAttributes(trackGuide).transform(t)
       }
   
