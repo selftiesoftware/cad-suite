@@ -62,7 +62,6 @@ object Selection extends Module {
   Preload('Copy, "com.siigna.module.base.create")
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-      println(events)
       //find nearestShape, if any:
       val m = Siigna.mousePosition
       if (Drawing(m).size > 0) {

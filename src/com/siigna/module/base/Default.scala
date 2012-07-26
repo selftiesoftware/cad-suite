@@ -408,5 +408,8 @@ object Default extends Module {
       val contributor = TextShape("author: "+Siigna.user.get.name, unitX(-120), headerHeight * 0.7)
       g draw(contributor.transform(transformation))
     }
+    
+    //call tracking mock-up module
+    com.siigna.module.base.helpers.TrackTest.paint(g,t)
   }
 }
