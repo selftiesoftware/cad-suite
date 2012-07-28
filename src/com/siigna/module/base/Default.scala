@@ -63,7 +63,6 @@ object Default extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
-
       //on startup, for some reason this value defaults to true even though it is set to false in 'Menu. This line forces it to be false.
       com.siigna.module.base.Menu.moduleCallFromMenu = false
       val m = Siigna.mousePosition
