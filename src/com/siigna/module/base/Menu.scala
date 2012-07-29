@@ -273,12 +273,12 @@ object Menu extends Module {
           })
         }
 
-        // Draws the current category
+        // Draws the current menu category
         category.stateMap.filter(_._2 != None).foreach( eventAndItem => {
           val item  = eventAndItem._2
           val event = eventAndItem._1._2
-          if (item.isInstanceOf[MenuItem] && scale == 1) drawItem(item.asInstanceOf[MenuItem], event, getT(event))
-          else if (item.isInstanceOf[MenuCategory] ) drawCategoryItem(item.asInstanceOf[MenuCategory], event, getT(event))
+          if (item.isInstanceOf[MenuCategory] ) drawCategoryItem(item.asInstanceOf[MenuCategory], event, getT(event))
+          //if (item.isInstanceOf[MenuItem] && scale == 1) drawItem(item.asInstanceOf[MenuItem], event, getT(event))
 
           // Draws the tooltip
           if (isActive(event)) {
@@ -290,6 +290,25 @@ object Menu extends Module {
             g draw TextShape(tooltip, menuCenter + Vector2D(0, -40), 10).setAttribute("TextAlignment" -> Vector2D(0.5, 0))
           }
         })
+
+        // Draws the current icons
+        category.stateMap.filter(_._2 != None).foreach( eventAndItem => {
+          val item  = eventAndItem._2
+          val event = eventAndItem._1._2
+          //else if (item.isInstanceOf[MenuCategory] ) drawCategoryItem(item.asInstanceOf[MenuCategory], event, getT(event))
+          if (item.isInstanceOf[MenuItem] && scale == 1) drawItem(item.asInstanceOf[MenuItem], event, getT(event))
+
+          // Draws the tooltip
+          if (isActive(event)) {
+            val tooltip = item match {
+              case item : MenuItem => item.module.name
+              case category : MenuCategory => category.name
+              case _ => " "
+            }
+            g draw TextShape(tooltip, menuCenter + Vector2D(0, -40), 10).setAttribute("TextAlignment" -> Vector2D(0.5, 0))
+          }
+        })
+
         // Draws the parent category recursively
         if (category.parent.isDefined) {
           drawCategory(category.parent.get, scale * 0.65)
