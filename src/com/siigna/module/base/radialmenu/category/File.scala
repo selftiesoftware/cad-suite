@@ -33,8 +33,8 @@ case class File(parent : Option[MenuCategory]) extends MenuCategory {
 
   override def SSE = Some(MenuItem('Print, RadialMenuIcon.print, "file"))
   //override def SSW = Some(MenuItem('ClearDatabase, RadialMenuIcon.clearDB, "file"))
-  override def ESE = Some(MenuItem('Export, RadialMenuIcon.exportDXF, "file"))
-  override def ENE = Some(MenuItem('Import, RadialMenuIcon.importDXF, "file"))
+  override def ESE = Some(MenuItem('Export, RadialMenuIcon.exportDXF, "com.siigna.module.io"))
+  override def ENE = Some(MenuItem('Import, RadialMenuIcon.importDXF, "com.siigna.module.io"))
   //override def WSW = Some(MenuItem('Open, RadialMenuIcon.load, "file"))
   //override def WNW = Some(MenuItem('Save, RadialMenuIcon.save, "file"))
 

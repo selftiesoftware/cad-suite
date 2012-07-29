@@ -35,7 +35,14 @@ object MenuItem {
   def apply(module : Symbol, icon : Shape) : MenuItem = MenuItem(module, Traversable[Shape](icon))
   def apply(module : Symbol, icon : Shape, modulePath : String) : MenuItem =new MenuItem(module, Traversable[Shape](icon), "com.siigna.module.base." + modulePath)
   def apply(module : Symbol, icon : Traversable[Shape]) = new MenuItem(module, icon, "com.siigna.module.base." + module.name)
-  def apply(module : Symbol, icon : Traversable[Shape], modulePath : String) = new MenuItem(module, icon, "com.siigna.module.base." + modulePath)
+  def apply(module : Symbol, icon : Traversable[Shape], modulePath : String) = {
+    if (modulePath.startsWith("com.siigna")) { // Don't write the path twice
+      new MenuItem(module, icon, modulePath)
+    } else { // If the "com.siigna" part hasn't been defined, assume it's in com.siigna.module
+      // TODO: Remove ".base" from the path - we need to make this module independent
+      new MenuItem(module, icon, "com.siigna.module.base." + modulePath)
+    }
+  }
 
 }
 
