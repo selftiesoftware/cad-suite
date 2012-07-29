@@ -20,8 +20,8 @@ case class Modify(parent : Option[MenuCategory]) extends MenuCategory {
   def name = "Modify"
 
   override def N = Some(MenuItemEmpty("Object"))
-  override def E = Some(MenuItemEmpty("Corners"))
-  override def S = Some(MenuItemEmpty("Ends"))
+  //override def E = Some(MenuItemEmpty("Corners"))
+  //override def S = Some(MenuItemEmpty("Ends"))
   override def W = Some(MenuItemEmpty("Segments"))
 
   //override def NNE = Some(MenuItem('Polyline, RadialMenuIcon.align))

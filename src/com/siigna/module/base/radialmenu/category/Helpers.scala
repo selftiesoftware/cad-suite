@@ -19,8 +19,8 @@ case class Helpers(parent : Option[MenuCategory]) extends MenuCategory {
 
   def name = "Helpers"
 
-  override def N = Some(MenuItemEmpty("Objects"))
-  override def E = Some(MenuItemEmpty("Snap Settings"))
+  //override def N = Some(MenuItemEmpty("Objects"))
+  //override def E = Some(MenuItemEmpty("Snap Settings"))
   override def S = Some(MenuItemEmpty("Measure"))
   override def W = Some(MenuItemEmpty("Guidelines"))
 

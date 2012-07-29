@@ -19,7 +19,7 @@ case class Create(parent : Option[MenuCategory]) extends MenuCategory {
 
   def name = "Create"
 
-  override def E = Some(MenuItemEmpty("Create from"))
+  //override def E = Some(MenuItemEmpty("Create from"))
   override def N = Some(new Geometry(Some(this)))
   override def W = Some(MenuItemEmpty("Annotation"))
   override def S = Some(MenuItemEmpty("Collection"))

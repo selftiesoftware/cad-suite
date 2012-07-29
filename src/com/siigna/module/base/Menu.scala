@@ -35,7 +35,7 @@ object Menu extends Module {
   var center : Option[Vector2D]         = None
 
   // The current active category
-  private var currentCategory : MenuCategory  = Start
+  var currentCategory : MenuCategory  = Start
 
   // The distance to draw the icons; Used in the initiation of the menu module to animate the icons.
   private var distanceScale : Double = 1
@@ -221,10 +221,27 @@ object Menu extends Module {
           val backfillScreenX = backfillVector2Ds.map(_.x.toInt).toArray
           val backfillScreenY = backfillVector2Ds.map(_.y.toInt).toArray
 
-          // Draw the background for the category.
+          // Draw the inner ring background for the category.
           g setColor item.color
           if (scale == 1) {
             g.g.fillPolygon(backfillScreenX, backfillScreenY, backfillVector2Ds.size)
+            //fill the background in the outer ring
+            //TODO: a hack to fill the background of the outer categories when in level one.
+          } else if (scale == 0.65) {
+
+            val BackFillInput = RadialMenuIcon.BackFill.map(_+Vector2D(0,-44))
+            val outerFills = BackFillInput.map(_.transform(newT.rotate(rotation).scale(1/scale)))
+            val outerFillsX = outerFills.map(_.x.toInt).toArray
+            val outerFillsY = outerFills.map(_.y.toInt).toArray
+
+            if(currentCategory.toString == "Create(Some(Start))") g setColor RadialMenuIcon.createColor
+            else if(currentCategory.toString == "Helpers(Some(Start))") g setColor RadialMenuIcon.helpersColor
+            else if(currentCategory.toString == "Modify(Some(Start))") g setColor RadialMenuIcon.modifyColor
+            else if(currentCategory.toString == "Properties(Some(Start))") g setColor RadialMenuIcon.propertiesColor
+            else if(currentCategory.toString == "File(Some(Start))") g setColor RadialMenuIcon.fileColor
+
+            g.g.fillPolygon(outerFillsX, outerFillsY, outerFills.size)
+
           } else if (item == currentCategory) {
             g.g.fillPolygon(backfillScreenX, backfillScreenY, backfillVector2Ds.size)
           }
@@ -273,6 +290,7 @@ object Menu extends Module {
           })
         }
 
+        //TODO: the following two statements should be merged into one if -else if statement, but that will result in some icon backgrounds being drawn behind the category fill.
         // Draws the current menu category
         category.stateMap.filter(_._2 != None).foreach( eventAndItem => {
           val item  = eventAndItem._2
@@ -290,6 +308,11 @@ object Menu extends Module {
             g draw TextShape(tooltip, menuCenter + Vector2D(0, -40), 10).setAttribute("TextAlignment" -> Vector2D(0.5, 0))
           }
         })
+
+        // Draws the parent category recursively
+        if (category.parent.isDefined) {
+          drawCategory(category.parent.get, scale * 0.65)
+        }
 
         // Draws the current icons
         category.stateMap.filter(_._2 != None).foreach( eventAndItem => {
@@ -309,11 +332,11 @@ object Menu extends Module {
           }
         })
 
-        // Draws the parent category recursively
-        if (category.parent.isDefined) {
-          drawCategory(category.parent.get, scale * 0.65)
-        }
       }
+
+      // Draws the first category
+      drawCategory(currentCategory)
+
 
       // Draw the center element
       if (currentCategory.C.isDefined) {
@@ -338,8 +361,7 @@ object Menu extends Module {
 //        g draw TextShape(tooltip, menuCenter + Vector2D(0, 170), 10).attributes_+=("TextAlignment" -> Vector2D(0.5, 0))
 //      }
 
-      // Draws the first category
-      drawCategory(currentCategory)
+
 
       // Draw the outlines of the categories in the four corners of the world
       RadialMenuIcon.NOutline.foreach(s => g.draw(s.setAttribute("Color" -> "#CCCCCC".color).transform(t)))
