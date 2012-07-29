@@ -229,7 +229,7 @@ object Menu extends Module {
             //TODO: a hack to fill the background of the outer categories when in level one.
           } else if (scale == 0.65) {
 
-            val BackFillInput = RadialMenuIcon.BackFill.map(_+Vector2D(0,-44))
+            val BackFillInput = RadialMenuIcon.BackFill.map(_+Vector2D(0,-45))
             val outerFills = BackFillInput.map(_.transform(newT.rotate(rotation).scale(1/scale)))
             val outerFillsX = outerFills.map(_.x.toInt).toArray
             val outerFillsY = outerFills.map(_.y.toInt).toArray
@@ -319,8 +319,12 @@ object Menu extends Module {
           val item  = eventAndItem._2
           val event = eventAndItem._1._2
           //else if (item.isInstanceOf[MenuCategory] ) drawCategoryItem(item.asInstanceOf[MenuCategory], event, getT(event))
-          if (item.isInstanceOf[MenuItem] && scale == 1) drawItem(item.asInstanceOf[MenuItem], event, getT(event))
+          println(item)
+          //TODO: fix this so taht icon backgrounds are not drawn in category title circles!
+          if (item.isInstanceOf[MenuItem] && scale == 1){
+            if(item != MenuItemEmpty) drawItem(item.asInstanceOf[MenuItem], event, getT(event))
 
+          }  
           // Draws the tooltip
           if (isActive(event)) {
             val tooltip = item match {
