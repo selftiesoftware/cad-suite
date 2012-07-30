@@ -18,7 +18,7 @@ import com.siigna.util.geom.Vector2D
 import com.siigna.app.model.shape.TextShape
 
 /**
- * A MenuItem is an item in the [[RadialMenu]].
+ * A MenuItem is an item in the [[com.siigna.module.base.Menu]].
  * 
  * @param module  The symbolic name of the module.
  * @param icon  The icon to be displayed in the menu, given as any number of shapes.
