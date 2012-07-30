@@ -229,7 +229,7 @@ object Menu extends Module {
             //TODO: a hack to fill the background of the outer categories when in level one.
           } else if (scale == 0.65) {
 
-            val BackFillInput = RadialMenuIcon.BackFill.map(_+Vector2D(0,-44))
+            val BackFillInput = RadialMenuIcon.BackFill.map(_+Vector2D(0,-46))
             val outerFills = BackFillInput.map(_.transform(newT.rotate(rotation).scale(1/scale)))
             val outerFillsX = outerFills.map(_.x.toInt).toArray
             val outerFillsY = outerFills.map(_.y.toInt).toArray
