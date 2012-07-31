@@ -274,7 +274,6 @@ object Menu extends Module {
         // Draws an empty Category title for a given direction.
         //TODO: lot of code sampled from MenuItem here, refactor completely...
         def drawTitle(item : CategoryItemEmpty, event : MenuEvent, newT : TransformationMatrix) : Unit = {
-          println("running")
           // Icon Background
           val rotation = event.vector.angle + 30
           val center = Vector2D(0,0).transform(newT.rotate(rotation))
@@ -346,7 +345,6 @@ object Menu extends Module {
           val item  = eventAndItem._2
           val event = eventAndItem._1._2
           //else if (item.isInstanceOf[MenuCategory] ) drawCategoryItem(item.asInstanceOf[MenuCategory], event, getT(event))
-          println(item.isInstanceOf[MenuItem])
           if (item.isInstanceOf[MenuItem] && scale == 1) drawItem(item.asInstanceOf[MenuItem], event, getT(event))
           else if(item.isInstanceOf[CategoryItem] && scale == 1)drawTitle(item.asInstanceOf[CategoryItemEmpty], event, getT(event))
           //else if(item.toString == "CategoryItemEmpty") println("A")
