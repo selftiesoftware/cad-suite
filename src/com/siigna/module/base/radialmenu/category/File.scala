@@ -23,10 +23,10 @@ case class File(parent : Option[MenuCategory]) extends MenuCategory {
 
   def name = "File"
 
-  override def E = Some(MenuItemEmpty("local"))
-  override def N = Some(MenuItemEmpty("settings"))
-  //override def W = Some(MenuItemEmpty("server"))
-  override def S = Some(MenuItemEmpty("print"))
+  override def E = Some(CategoryItemEmpty("local"))
+  override def N = Some(CategoryItemEmpty("settings"))
+  //override def W = Some(CategoryItemEmpty("server"))
+  override def S = Some(CategoryItemEmpty("print"))
 
   override def NNE = Some(MenuItem('SetTitle, TextShape("title", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "file"))
   override def NNW = Some(MenuItem('SetTitle, TextShape("openness", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "file"))

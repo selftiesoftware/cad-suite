@@ -21,8 +21,8 @@ case class Create(parent : Option[MenuCategory]) extends MenuCategory {
 
   //override def E = Some(MenuItemEmpty("Create from"))
   override def N = Some(new Geometry(Some(this)))
-  override def W = Some(MenuItemEmpty("Annotation"))
-  override def S = Some(MenuItemEmpty("Collection"))
+  override def W = Some(CategoryItemEmpty("Annotation"))
+  override def S = Some(CategoryItemEmpty("Collection"))
   //override def S = Some(new Dimension(Some(this)))
 
   override def NNW = Some(MenuItem('Rectangle, RadialMenuIcon.rectangle))

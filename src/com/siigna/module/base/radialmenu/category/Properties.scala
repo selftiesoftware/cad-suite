@@ -23,7 +23,7 @@ case class Properties(parent : Option[MenuCategory]) extends MenuCategory {
   def name = "Properties"
 
   override def NNE = Some(MenuItem('SampleProperties, RadialMenuIcon.sampleProperties, "properties"))
-  override def N   = Some(MenuItemEmpty("sampling"))
+  override def N   = Some(CategoryItemEmpty("sampling"))
   //override def E   = Some(new MenuPreferences(Some(this)))
   //override def ESE = Some(MenuItem('Performancetest, RadialMenuIcon.test, "properties"))
   //override def ENE = Some(MenuItem('AntiAliasingToggle, TextShape("antiAlias", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "properties"))
