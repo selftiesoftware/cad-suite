@@ -139,17 +139,20 @@ object Point extends Module {
         }
         //goto second coordinate if ENTER, COMMA, or TAB is pressed
         case KeyDown(Key.Enter | Key.Tab | ',', _) :: tail => {
-          //move!
+          //move
           if (angle.isDefined && moving == true && !coordinateValue.isEmpty) {
             distance = Some(coordinateValue.toDouble)
             Goto('End)
           }
+          //track
+          if (eventParser.isTracking == true && !coordinateValue.isEmpty) Goto('End)
+          //if noting is entered
           else if (!currentSnap.isDefined && coordinateX.isEmpty && coordinateValue.length == 0) Goto('End)
           //when ENTER is pressed, and a value is det, this valus is passed as the first coordinate relative to 0,0
           else if (!currentSnap.isDefined && coordinateX.isEmpty && coordinateValue.length > 0) {
             coordinateX = Some(java.lang.Double.parseDouble(coordinateValue))
 
-            //rotate!
+            //rotate
             if (previousModule == Some('Rotate)) {
               if(coordinateX.isDefined) {
                 angle = Some(coordinateX.get)
@@ -194,7 +197,8 @@ object Point extends Module {
       }
       // END CASE MATCHES.
       // Format the x and y coordinate and store the message in a value
-      val message = if (coordinateValue.length > 0  && previousModule != Some('Rotate)) {
+      val message =
+        if (coordinateValue.length > 0  && previousModule != Some('Rotate)) {
 
         val x = if (coordinateX.isDefined) "%.2f" format coordinateX.get
                 else coordinateValue
@@ -203,7 +207,6 @@ object Point extends Module {
                 else ""
 
         "point (X: "+x+", Y: "+y+")."
-
         // Save the message - this version displays the point coords dynamically as the mouse is moved.
 
       //} else if (mouseLocation.isDefined && rotation == false && moving == false) {
@@ -290,12 +293,13 @@ object Point extends Module {
         val t : TransformationMatrix = TransformationMatrix(Vector2D(0,0), 1).rotate(distAngle.get.degree)
         val m = Vector2D(d.get,0).transform(t)
         Message(m)
-
       }
       // Return an angle if it is defined
-      else if (r.isDefined) {
-        Message(r.get)
-      }
+      else if (r.isDefined) Message(r.get)
+
+      // Return a tracked point if it is defined
+      else if (eventParser.isTracking == true) println("send parsed point as message")
+
       // if it is the first point, return it:
       else events match {
         case MouseDown(p, MouseButtonLeft, _) :: tail => {
@@ -333,21 +337,19 @@ object Point extends Module {
         }
       }
 
-      // Draw the point guide depending on which information is available
-      if (x.isDefined && y.isDefined) {
-        guide(Vector2D(x.get + difference.x, y.get)).foreach(s => g draw s.transform(t))
-      } else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && !currentSnap.isDefined) {
-        guide(Vector2D(x.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
-      } else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && currentSnap.isDefined) {
-        guide(lengthVector(x.get - difference.x)).foreach(s => g draw s.transform(t))
-      } else if (x.isDefined && mouseLocation.isDefined && filteredX.isDefined) {
-        guide(Vector2D(filteredX.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
-      } else if (mouseLocation.isDefined) {
-        guide(mouseLocation.get).foreach(s => g draw s.transform(t))
-      } else None
+      // DRAW THE POINT GUIDE BASED ON THE INFORMATION AVAILABLE:
+
+      //If tracking is active
+      if(x.isDefined && mouseLocation.isDefined && eventParser.isTracking == true) guide(Vector2D(x.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
+      //If a set of coordinates have been typed
+      if (x.isDefined && y.isDefined) guide(Vector2D(x.get + difference.x, y.get)).foreach(s => g draw s.transform(t))
+      else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && !currentSnap.isDefined) guide(Vector2D(x.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
+      else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && currentSnap.isDefined) guide(lengthVector(x.get - difference.x)).foreach(s => g draw s.transform(t))
+      else if (x.isDefined && mouseLocation.isDefined && filteredX.isDefined) guide(Vector2D(filteredX.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
+      else if (mouseLocation.isDefined) guide(mouseLocation.get).foreach(s => g draw s.transform(t))
+      else None
     }
   }
-
 }
 
 trait Guide extends (Vector2D => Traversable[Shape])
