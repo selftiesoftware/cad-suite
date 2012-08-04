@@ -144,8 +144,11 @@ object Point extends Module {
             distance = Some(coordinateValue.toDouble)
             Goto('End)
           }
-          //track
-          if (eventParser.isTracking == true && !coordinateValue.isEmpty) Goto('End)
+          //if a distance on a track radial has been entered, return the parsed point:
+          if (eventParser.isTracking == true && !coordinateValue.isEmpty) {
+            point = Track.getPointFromDistance(coordinateValue.toDouble)
+            Goto('End)
+          }
           //if noting is entered
           else if (!currentSnap.isDefined && coordinateX.isEmpty && coordinateValue.length == 0) Goto('End)
           //when ENTER is pressed, and a value is det, this valus is passed as the first coordinate relative to 0,0
