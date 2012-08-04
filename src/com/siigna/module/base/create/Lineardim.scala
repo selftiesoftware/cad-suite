@@ -190,7 +190,6 @@ object Lineardim extends Module {
     })
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
-    println(scale)
     if (currentMouse.isDefined && simpleA.isDefined && dynamicDimText.isDefined) {
       g draw simpleA.get.transform(t).setAttribute(color)
       g draw dynamicDimText.get.transform(t)
