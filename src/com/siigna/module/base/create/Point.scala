@@ -101,6 +101,7 @@ object Point extends Module {
 
         // Check for continued MouseDown
         case Message(g : Guide) :: Message(p : Vector2D) :: MouseDown(_, MouseButtonLeft, _) :: tail => {
+          println("got guide")
           pointGuide = Some(g)
           ForwardTo('AngleGizmo)
         }
