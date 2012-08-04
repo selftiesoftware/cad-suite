@@ -101,7 +101,6 @@ object Point extends Module {
 
         // Check for continued MouseDown
         case Message(g : Guide) :: Message(p : Vector2D) :: MouseDown(_, MouseButtonLeft, _) :: tail => {
-          println("got guide")
           pointGuide = Some(g)
           ForwardTo('AngleGizmo)
         }
@@ -298,9 +297,6 @@ object Point extends Module {
       // Return an angle if it is defined
       else if (r.isDefined) Message(r.get)
 
-      // Return a tracked point if it is defined
-      else if (eventParser.isTracking == true) println("send parsed point as message")
-
       // if it is the first point, return it:
       else events match {
         case MouseDown(p, MouseButtonLeft, _) :: tail => {
@@ -341,13 +337,17 @@ object Point extends Module {
       // DRAW THE POINT GUIDE BASED ON THE INFORMATION AVAILABLE:
 
       //If tracking is active
-      if(x.isDefined && mouseLocation.isDefined && eventParser.isTracking == true) guide(Vector2D(x.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
+      if(!coordinateValue.isEmpty && mouseLocation.isDefined && eventParser.isTracking == true) {
+        var trackPoint = Track.getPointFromDistance(coordinateValue.toDouble)
+        //println("guide with trackPoint added: "+ guide(trackPoint.get))
+        guide(trackPoint.get).foreach(s => g draw s.transform(t))
+      }
       //If a set of coordinates have been typed
       if (x.isDefined && y.isDefined) guide(Vector2D(x.get + difference.x, y.get)).foreach(s => g draw s.transform(t))
-      else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && !currentSnap.isDefined) guide(Vector2D(x.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
-      else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && currentSnap.isDefined) guide(lengthVector(x.get - difference.x)).foreach(s => g draw s.transform(t))
-      else if (x.isDefined && mouseLocation.isDefined && filteredX.isDefined) guide(Vector2D(filteredX.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
-      else if (mouseLocation.isDefined) guide(mouseLocation.get).foreach(s => g draw s.transform(t))
+      else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && !currentSnap.isDefined && eventParser.isTracking == false) guide(Vector2D(x.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
+      else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && currentSnap.isDefined && eventParser.isTracking == false) guide(lengthVector(x.get - difference.x)).foreach(s => g draw s.transform(t))
+      else if (x.isDefined && mouseLocation.isDefined && filteredX.isDefined  && eventParser.isTracking == false) guide(Vector2D(filteredX.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
+      else if (mouseLocation.isDefined  && coordinateValue.isEmpty) guide(mouseLocation.get).foreach(s => g draw s.transform(t))
       else None
     }
   }
