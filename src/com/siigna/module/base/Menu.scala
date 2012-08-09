@@ -341,7 +341,6 @@ object Menu extends Module {
       // Draws the first category
       drawCategory(currentCategory)
 
-
       // Draw the center element
       if (currentCategory.C.isDefined) {
         g draw TextShape(currentCategory.C.get.name, Vector2D(0, 0), 12, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector2D(0.5, 0.5))).transform(t)

@@ -73,6 +73,23 @@ object Point extends Module {
 
   var snapAngle : Option[Double] = None
 
+  def trackGuide(l : Double) : Option[Vector2D] = {
+    val m = eventParser.mousePosition
+    val p1 = eventParser.p
+    //val p2 = eventParser.pointTwo
+    
+    if(isTracking == true && p1.isDefined) {
+      val horizontal = eventParser.horizontalGuide(p1.get)
+      val vertical = eventParser.verticalGuide(p1.get)
+
+      if      (vertical.distanceTo(m) < trackDistance && m.y > p1.get.y) Some(Vector2D(p1.get.x,p1.get.y+l))
+      else if (vertical.distanceTo(m) < trackDistance && m.y <= p1.get.y) Some(Vector2D(p1.get.x,p1.get.y-l))
+      else if (horizontal.distanceTo(m) < trackDistance && m.x > p1.get.x) Some(Vector2D(p1.get.x+1,p1.get.y))
+      else if (horizontal.distanceTo(m) < trackDistance && m.x <= p1.get.x) Some(Vector2D(p1.get.x-1,p1.get.y))
+      else None
+    } else None
+  }
+  
   // Save the X value, if any
   def x : Option[Double] = if (!coordinateX.isEmpty)
       coordinateX
@@ -296,6 +313,9 @@ object Point extends Module {
       else if (r.isDefined) {
         Message(r.get)
       }
+      // Return a point constricted to a track line, if one is defined, and digits are typed
+      if(eventParser.isTracking == true) println(trackGuide(30))
+        
       // if it is the first point, return it:
       else events match {
         case MouseDown(p, MouseButtonLeft, _) :: tail => {
