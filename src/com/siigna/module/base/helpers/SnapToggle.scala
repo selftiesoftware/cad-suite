@@ -11,6 +11,7 @@
 
 package com.siigna.module.base.helpers
 import com.siigna._
+import app.view.event.Snap
 
 /**
  * Toggles snap on-off
@@ -34,13 +35,13 @@ object SnapToggle extends Module {
     }),
 
     'End -> ((events : List[Event]) => {
-      if (isSnapping == true) {
+      if (Snap.snapEnabled == true) {
         Siigna display "snap is off"
-        isSnapping = false
+        Snap.snapEnabled = false
       }
       else {
         Siigna display "snap is on"
-        isSnapping = true
+        Snap.snapEnabled = true
       }
       None
     })

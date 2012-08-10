@@ -30,7 +30,6 @@ object Rotate extends Module {
   private var text = ""
   private var transformation : Option[TransformationMatrix] = None
 
-
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap     = DirectedGraph(
@@ -44,16 +43,14 @@ object Rotate extends Module {
       val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
         // Create a matrix
         val t : TransformationMatrix = if (startVector.isDefined && centerPoint.isDefined) {
-          // To find the angle between two vectors (lines)
-          // First calculate the separate angles
+          // To find the angle between two vectors (lines): First calculate the separate angles
             val a1 : Double = (startVector.get - centerPoint.get).angle
             val a2 : Double = (v - centerPoint.get).angle
-          // ... And then subtract the second from the first
+            // ... And then subtract the second from the first
             TransformationMatrix(Vector2D(0,0), 1).rotate(a2 - a1, centerPoint.get)
         // If no start- (or center-) point has been defined - create empty matrix
         } else TransformationMatrix()
         // Return the shape, transformed
-        //Drawing.selection.get.apply(t)
         Drawing.selection.get.apply(t)
       }
 
