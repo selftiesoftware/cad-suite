@@ -101,7 +101,7 @@ object Divide extends Module {
       }
       None
     }),
-    'End   -> ((events : List[Event]) => {
+    'End  -> ((events : List[Event]) => {
     //make the division here:
     })
   )

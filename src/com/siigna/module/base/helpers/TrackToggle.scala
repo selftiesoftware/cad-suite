@@ -31,11 +31,14 @@ object TrackToggle extends Module{
     }),
 
     'End -> ((events : List[Event]) => {
-      if (isTracking == true) {
+      if (Track.trackEnabled == true) {
+        Track.trackEnabled = false
+        Siigna display ("track is off")
         isTracking = false
       }
       else {
-        isTracking = true
+        Track.trackEnabled = true
+        Siigna display ("track is on")
       }
       None
     })

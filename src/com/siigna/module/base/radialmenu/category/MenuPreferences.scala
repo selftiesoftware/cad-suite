@@ -23,10 +23,10 @@ case class MenuPreferences (parent : Option[MenuCategory]) extends MenuCategory 
 
   def name = "Preferences"
 
-  override def N = Some(MenuItemEmpty("Selection"))
-  override def E = Some(MenuItemEmpty("Paper"))
-  override def S = Some(MenuItemEmpty("Display"))
-  override def W = Some(MenuItemEmpty("Navigation"))
+  override def N = Some(CategoryItemEmpty("Selection"))
+  override def E = Some(CategoryItemEmpty("Paper"))
+  override def S = Some(CategoryItemEmpty("Display"))
+  override def W = Some(CategoryItemEmpty("Navigation"))
 
   //override def NNE = Some(MenuItem('PreferencesSet, TextShape("sel dist", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "properties"))
   //override def NNW = Some(MenuItem('PreferencesSet, TextShape("sel color", Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "properties"))

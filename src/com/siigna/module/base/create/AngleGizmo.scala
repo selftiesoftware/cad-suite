@@ -182,8 +182,6 @@ object AngleGizmo extends Module {
 
       //draw the shape under creation:
       var parsedPoint = Vector2D(startPoint.get.x, startPoint.get.y+guideLength)
-      println("mousePosition: "+mousePosition)
-      println("parsedPoint: "+parsedPoint)
       //using startPoint is a hack to prevent the line from the last point to the mousePosition being drawn on top of the angle guide.
       //TODO: use a guide that allows rectangles to be drawn dynamically ( mousePosition works, but is not snapped to the radians.) parsedPoint does not work??
       if(pointGuide.isDefined) guide(startPoint.get).foreach(s => g draw s.transform(t))

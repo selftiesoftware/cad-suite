@@ -19,10 +19,10 @@ case class Helpers(parent : Option[MenuCategory]) extends MenuCategory {
 
   def name = "Helpers"
 
-  //override def N = Some(MenuItemEmpty("Objects"))
-  //override def E = Some(MenuItemEmpty("Snap Settings"))
-  override def S = Some(MenuItemEmpty("Measure"))
-  override def W = Some(MenuItemEmpty("Guidelines"))
+  //override def N = Some(CategoryItemEmpty("Objects"))
+  //override def E = Some(CategoryItemEmpty("Snap Settings"))
+  override def S = Some(CategoryItemEmpty("Measure"))
+  override def W = Some(CategoryItemEmpty("Guidelines"))
 
   //override def ENE = Some(MenuItem('SnapToggle, RadialMenuIcon.endPointSnap, "helpers"))
   //override def NNE = Some(MenuItem('Hide, RadialMenuIcon.hide))

@@ -229,7 +229,7 @@ object Menu extends Module {
             //TODO: a hack to fill the background of the outer categories when in level one.
           } else if (scale == 0.65) {
 
-            val BackFillInput = RadialMenuIcon.BackFill.map(_+Vector2D(0,-45))
+            val BackFillInput = RadialMenuIcon.BackFill.map(_+Vector2D(0,-46))
             val outerFills = BackFillInput.map(_.transform(newT.rotate(rotation).scale(1/scale)))
             val outerFillsX = outerFills.map(_.x.toInt).toArray
             val outerFillsY = outerFills.map(_.y.toInt).toArray
@@ -271,6 +271,31 @@ object Menu extends Module {
           }
         }
 
+        // Draws an empty Category title for a given direction.
+        //TODO: lot of code sampled from MenuItem here, refactor completely...
+        def drawTitle(item : CategoryItemEmpty, event : MenuEvent, newT : TransformationMatrix) : Unit = {
+          // Icon Background
+          val rotation = event.vector.angle + 30
+          val center = Vector2D(0,0).transform(newT.rotate(rotation))
+          val size = (52 * scale * distanceScale).toInt
+          val half = (size * 0.5).toInt
+
+          // Draw the background for the menu item
+          if(currentCategory.toString == "Create(Some(Start))") g setColor RadialMenuIcon.createColor
+          else if(currentCategory.toString == "Helpers(Some(Start))") g setColor RadialMenuIcon.helpersColor
+          else if(currentCategory.toString == "Modify(Some(Start))") g setColor RadialMenuIcon.modifyColor
+          else if(currentCategory.toString == "Properties(Some(Start))") g setColor RadialMenuIcon.propertiesColor
+          else if(currentCategory.toString == "File(Some(Start))") g setColor RadialMenuIcon.fileColor
+          g.g.fillArc(center.x.toInt -  half, center.y.toInt - half, size, size, 0, 360)
+          //g.g.fillPolygon(fillScreenX, fillScreenY, fillVector2Ds.size)
+
+          // Icons
+          item.icon.foreach(s => g.draw(s.transform(newT)))
+          event.icon.foreach(s => {
+            g.draw(s.setAttribute(getAttr(event)).transform(newT))
+          })
+        }
+
         // Draws a MenuItem and the background-icon for the given direction.
         def drawItem(item : MenuItem, event : MenuEvent, newT : TransformationMatrix) : Unit = {
           // Icon Background
@@ -289,6 +314,7 @@ object Menu extends Module {
             g.draw(s.setAttribute(getAttr(event)).transform(newT))
           })
         }
+
 
         //TODO: the following two statements should be merged into one if -else if statement, but that will result in some icon backgrounds being drawn behind the category fill.
         // Draws the current menu category
@@ -319,12 +345,9 @@ object Menu extends Module {
           val item  = eventAndItem._2
           val event = eventAndItem._1._2
           //else if (item.isInstanceOf[MenuCategory] ) drawCategoryItem(item.asInstanceOf[MenuCategory], event, getT(event))
-          println(item)
-          //TODO: fix this so taht icon backgrounds are not drawn in category title circles!
-          if (item.isInstanceOf[MenuItem] && scale == 1){
-            if(item != MenuItemEmpty) drawItem(item.asInstanceOf[MenuItem], event, getT(event))
-
-          }  
+          if (item.isInstanceOf[MenuItem] && scale == 1) drawItem(item.asInstanceOf[MenuItem], event, getT(event))
+          else if(item.isInstanceOf[CategoryItem] && scale == 1)drawTitle(item.asInstanceOf[CategoryItemEmpty], event, getT(event))
+          //else if(item.toString == "CategoryItemEmpty") println("A")
           // Draws the tooltip
           if (isActive(event)) {
             val tooltip = item match {
@@ -340,6 +363,7 @@ object Menu extends Module {
 
       // Draws the first category
       drawCategory(currentCategory)
+
 
       // Draw the center element
       if (currentCategory.C.isDefined) {
