@@ -77,40 +77,17 @@ object Scale extends Module {
       events match {
         case Message(p : Vector2D) :: tail => {
           endPoint = Some(p)
-          Siigna display "type or click to set scale factor"
           Goto('TextInput)
         }
-        case _ =>
-      }
-    }),
-    //TODO: find a way to allow textInput after Mouse Moves in 'Scale
-    'TextInput -> ((events : List[Event]) => {
-      events match {
-        case MouseMove (p, _, _) :: tail => Goto('Scale)
-        case KeyDown(Key.Backspace, _) :: tail => {
-           if (text.length != 0) text = text.substring(0, text.length - 1)
-           else Goto('End)
-        }
-        case KeyDown(Key.Enter, _) :: tail => {
-          var numbers = text.toDouble
+        case Message(s : Double) :: tail => {
+          var numbers = s
           transformation = Some(TransformationMatrix(Vector2D(0,0),1))
           //perform scaling:
-          //Drawing.selection.get.transform(transformation.get.scale(numbers))
           Drawing.selection.get.transform(transformation.get.scale(numbers,startPoint.get))
-
-          text = ""
-
+          Drawing.deselect()
           Goto('End)
-        }
-        case KeyDown(Key.Esc, _) :: tail => {
-          text = ""
-          Goto('End)
-        }
-        case KeyDown(key, _) :: tail => {
-          text += key.toChar.toString.toLowerCase
-          Siigna display text
-        }
-        case _ => None
+        }  
+        case _ =>
       }
     }),
     'Scale -> ((events : List[Event]) => {
@@ -146,10 +123,10 @@ object Scale extends Module {
       }
     }),
     'End   -> ((events : List[Event]) => {
-      //deselect, but only if an objects has been moved.
+      //deselect, but only if an objects has been scaled.
       if (Drawing.selection.isDefined && startPoint.isDefined && endPoint.isDefined && (startPoint.get - endPoint.get != Vector2D(0, 0))) {
         Drawing.deselect()
-      }
+      } 
       //clear the vars
       com.siigna.module.base.Default.previousModule = Some('Scale)
       ending = false

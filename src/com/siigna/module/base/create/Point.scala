@@ -16,7 +16,7 @@ import com.siigna.module.base.Default._
 
 object Point extends Module {
 
-  private var angle : Option[Double] = None
+  private var angleOrScale : Option[Double] = None
 
   //a placeholder for the active AngleSnap - needed if the user wants to type a length of a line segment
   private var currentSnap : Option[AngleSnap] = None
@@ -31,6 +31,8 @@ object Point extends Module {
   //input string for distances
   private var coordinateValue : String = ""
 
+  private var decimalValue : Boolean = false
+  
   private def difference : Vector2D = if (previousPoint.isDefined) previousPoint.get else Vector2D(0, 0)
 
   private var distance : Option[Double] = None
@@ -97,6 +99,9 @@ object Point extends Module {
   )
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      //display the name of the active module:
+      Siigna display com.siigna.module.base.Default.previousModule.get.toString
+
       events match {
 
         // Check for continued MouseDown
@@ -137,28 +142,36 @@ object Point extends Module {
             coordinateX     = None
           }
         }
+        //use period to define decimal numbers
+        case KeyDown('.', _) :: tail => {
+          if(coordinateValue.isEmpty) decimalValue = true
+          else coordinateValue += '.'
+        }
+
         //goto second coordinate if ENTER, COMMA, or TAB is pressed
-        case KeyDown(Key.Enter | Key.Tab | ',', _) :: tail => {
+        case KeyDown(Key.Enter | Key.Tab | (','), _) :: tail => {
+
           //move
-          if (angle.isDefined && moving == true && !coordinateValue.isEmpty) {
+          if (angleOrScale.isDefined && moving == true && !coordinateValue.isEmpty) {
             distance = Some(coordinateValue.toDouble)
             Goto('End)
           }
           //if a distance on a track radial has been entered, return the parsed point:
-          if (eventParser.isTracking == true && !coordinateValue.isEmpty) {
+          //NOTE: it sis necassary to check if rotate of scale is calling, because in this case keyDown should not set a point, but just a value (by running setting the angle var)
+          if (eventParser.isTracking == true && !coordinateValue.isEmpty && previousModule != Some('Rotate) && previousModule != Some('Scale)) {
             point = Track.getPointFromDistance(coordinateValue.toDouble)
             Goto('End)
           }
           //if noting is entered
           else if (!currentSnap.isDefined && coordinateX.isEmpty && coordinateValue.length == 0) Goto('End)
-          //when ENTER is pressed, and a value is det, this valus is passed as the first coordinate relative to 0,0
+          //when ENTER is pressed, and a value is set, this value is passed as the first coordinate relative to 0,0
           else if (!currentSnap.isDefined && coordinateX.isEmpty && coordinateValue.length > 0) {
             coordinateX = Some(java.lang.Double.parseDouble(coordinateValue))
 
             //rotate
-            if (previousModule == Some('Rotate)) {
+            if (previousModule == Some('Rotate) || previousModule == Some('Scale)) {
               if(coordinateX.isDefined) {
-                angle = Some(coordinateX.get)
+                angleOrScale = Some(coordinateX.get)
                 Goto('End)
               }
             }
@@ -179,6 +192,7 @@ object Point extends Module {
             //Goto('End)
           }
         }
+
         case KeyDown(Key.Shift, _) :: tail => {
           Controller ! Message(previousPoint.get)
           ForwardTo('AngleGizmo)
@@ -199,9 +213,12 @@ object Point extends Module {
         case _ =>
       }
       // END CASE MATCHES.
-      // Format the x and y coordinate and store the message in a value
+      //reformat the coordinate value to a decimal number if the input string started with '.' (decimalValue flag is true)
+      if (decimalValue == true && !coordinateValue.isEmpty && coordinateValue != 0) coordinateValue = (coordinateValue.toDouble/(coordinateValue.length +1)).toString
+
+      // DISPLAY a message: Format the x and y coordinate and store the message in a value, unless Rotate or Scale is calling, since they need just one value.
       val message =
-        if (coordinateValue.length > 0  && previousModule != Some('Rotate)) {
+        if (coordinateValue.length > 0  && previousModule != Some('Rotate) && previousModule != Some('Scale)) {
 
         val x = if (coordinateX.isDefined) "%.2f" format coordinateX.get
                 else coordinateValue
@@ -209,42 +226,41 @@ object Point extends Module {
                 else if (coordinateX.isDefined) coordinateValue
                 else ""
 
-        "point (X: "+x+", Y: "+y+")."
-        // Save the message - this version displays the point coords dynamically as the mouse is moved.
-
-      //} else if (mouseLocation.isDefined && rotation == false && moving == false) {
-        //val x = "%.2f" format (if (coordinateX.isDefined) coordinateX.get) //else mouseLocation.get.x)
-        //val y = "%.2f" format mouseLocation.get.y
-        //"point (X: "+x+")"+", Y: "+y+")."
-        //}
+        Some("point (X: "+x+", Y: "+y+").")
 
         //this version displays the coords only when typed. Makes room for a display of the active module when entering 'Point.
       } else if (mouseLocation.isDefined && previousModule != Some('Rotate) && moving == false && coordinateX.isDefined) {
         var prevModule = com.siigna.module.base.Default.previousModule.get.toString
-        "point (X: "+x+")"
+        Some("point (X: "+x+")")
         }
 
         //typing a move point
-        else if (mouseLocation.isDefined && previousModule != Some('Rotate) && moving == true && !angle.isDefined) {
+        else if (mouseLocation.isDefined && previousModule != Some('Rotate) && moving == true && !angleOrScale.isDefined) {
         val x = "%.2f" format (if (coordinateX.isDefined) coordinateX.get else mouseLocation.get.x)
         val y = "%.2f" format mouseLocation.get.y
-        "point (X: "+x+", Y: "+y+")."
+        Some("point (X: "+x+", Y: "+y+").")
         }
         else if (previousModule == Some('Rotate) && !x.isDefined) {
-          "set origin or type angle: "+ coordinateValue
+          Some("set origin or type angle: "+ coordinateValue)
+        }
+        else if (previousModule == Some('Scale) && !x.isDefined) {
+          Some("type or click to set scale factor: "+ coordinateValue)
         }
         else if (previousModule == Some('Rotate) && coordinateValue.length > 0) {
-          "rotation angle: "+ coordinateValue
+          Some("rotation angle: "+ coordinateValue)
         }
-        else if (moving == true && angle.isDefined) {
-          "distance: "+ coordinateValue
+        else if (previousModule == Some('Scale) && coordinateValue.length > 0) {
+          Some("scale factor: "+ coordinateValue)
+        }
+        else if (moving == true && angleOrScale.isDefined) {
+          Some("distance: "+ coordinateValue)
         }
         else {
-        com.siigna.module.base.Default.previousModule.get.toString
+         None
       }
 
       // Display the message
-      Siigna display message
+      if(message.isDefined) Siigna display(message.get)
 
       //if the next point has been typed, add it to the polyline:
       if (coordinateX.isDefined && coordinateY.isDefined ) {
@@ -271,13 +287,14 @@ object Point extends Module {
       val d = distance
       val distAngle = currentSnap
       val p = point
-      val r = angle
+      val r = angleOrScale
 
       //clear vars.
-      angle = None
+      angleOrScale = None
       coordinateX = None
       coordinateY = None
       coordinateValue = ""
+      decimalValue = false
       currentSnap = None
       distance = None
       eventParser.clearSnap()
@@ -297,9 +314,10 @@ object Point extends Module {
         val m = Vector2D(d.get,0).transform(t)
         Message(m)
       }
-      // Return an angle if it is defined
-      else if (r.isDefined) Message(r.get)
-
+      // Return an angle / scale if it is defined
+      else if (r.isDefined){
+        Message(r.get)
+      }
       // if it is the first point, return it:
       else events match {
         case MouseDown(p, MouseButtonLeft, _) :: tail => {
@@ -342,7 +360,6 @@ object Point extends Module {
       //If tracking is active
       if(!coordinateValue.isEmpty && mouseLocation.isDefined && eventParser.isTracking == true) {
         var trackPoint = Track.getPointFromDistance(coordinateValue.toDouble)
-        //println("guide with trackPoint added: "+ guide(trackPoint.get))
         guide(trackPoint.get).foreach(s => g draw s.transform(t))
       }
       //If a set of coordinates have been typed
@@ -351,6 +368,7 @@ object Point extends Module {
       else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && currentSnap.isDefined && eventParser.isTracking == false) guide(lengthVector(x.get - difference.x)).foreach(s => g draw s.transform(t))
       else if (x.isDefined && mouseLocation.isDefined && filteredX.isDefined  && eventParser.isTracking == false) guide(Vector2D(filteredX.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
       else if (mouseLocation.isDefined  && coordinateValue.isEmpty) guide(mouseLocation.get).foreach(s => g draw s.transform(t))
+
       else None
     }
   }
