@@ -149,10 +149,10 @@ object Script extends Module{
     val textColor = new Color(1.00f, 1.00f, 1.00f, 1.00f)
     val tL = Drawing.boundary.topLeft
     //header
-    g draw TextShape("siigna scripting v0.1", tL + Vector2D(20 * scale,- 10 * scale), 3 * scale).setAttributes("color" -> textColor, "TextAlignment" -> Vector2D(0, 0)).transform(t)
+    g draw TextShape("siigna scripting v0.1", tL + Vector2D(5 * scale, -3 * scale), 4 * scale).setAttributes("color" -> textColor, "TextAlignment" -> Vector2D(0,0 )).transform(t)
 
       //text
-     if(!text.isEmpty) g draw TextShape(text, tL + Vector2D(20 * scale,- 20 * scale), 5 * scale).setAttribute("TextAlignment" -> Vector2D(0.5, 0)).transform(t)
+     if(!text.isEmpty) g draw TextShape(text, tL + Vector2D(20 * scale,- 20 * scale), 5 * scale).setAttribute("TextAlignment" -> Vector2D(0, 0)).transform(t)
 
     //accept button
 

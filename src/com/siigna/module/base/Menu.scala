@@ -12,9 +12,6 @@
 package com.siigna.module.base
 
 import com.siigna.app.view.Graphics
-import java.awt.Color
-
-//import app.view.filter.GaussianBlur
 import com.siigna.module.base.radialmenu._
 
 import com.siigna._
@@ -65,6 +62,7 @@ object Menu extends Module {
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      //println("view screen, top: "+View.screen.borderTop)
       events match {
         //if a Menu Category is received as a message from the Default module, display that category
         case Message(category : MenuCategory) :: tail => {
@@ -72,12 +70,23 @@ object Menu extends Module {
           currentCategory = category
           initializeMenu()
         }
+
         case Message(point : Vector2D) :: tail => {
           //call the menu:
-          val p = point.transform(View.physical.flipY)
-          // Move the menu if the distance from the center to the screen
-          // is less than the radius of the menu
+          //The point is in virtual coordinates.
+          // it can change to negative values when the view is panned, and needs to be physical.
+          //TODO: View.virtual.flipY seems to corrupt the coordinates. Here Y is flipped manually:
+          val pMatchingFrame = point.transform(View.virtual)
+          val pYFlipped = -(pMatchingFrame.y - View.screen.yMax)
+          val p = Vector2D(pMatchingFrame.x,pYFlipped)
+
+          val scale = View.zoom * 5
+
+          // Move the menu if:
+          // the distance from the menu center to the screen is less than the radius of the menu
+          //the value d is in physical coordinates.
           val d : Vector2D = if (View.screen.distanceTo(p) < radius) {
+
             val dBot = View.screen.borderBottom.distanceTo(p)
             val dTop = View.screen.borderTop.distanceTo(p)
             val dLeft = View.screen.borderLeft.distanceTo(p)
@@ -91,7 +100,8 @@ object Menu extends Module {
               else 0)
           } else Vector2D(0, 0)
 
-          center = Some(point + d)
+         //d must be converted to virtual coordinates.
+          center = Some(point + d * 1/View.zoom)
           currentCategory = Start
           initializeMenu()
         }
@@ -263,7 +273,7 @@ object Menu extends Module {
               g draw TextShape(item.name.substring(0, 1), Vector2D(0, 0), newT.scaleFactor * 44, Attributes("TextAlignment" -> Vector2D(0.5, 0.5), "Color" -> "#777777".color)).transform(newT)
             else
               //draws menu titles for menus with a subcategory only
-              g draw TextShape(item.name, Vector2D(0, 0), newT.scaleFactor * 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))).transform(newT)
+              g draw TextShape(item.name, Vector2D(0, 0), newT.scaleFactor * 7, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))).transform(newT)
           }
           else {
               //draws the first letter of the active menu in the inner circle
