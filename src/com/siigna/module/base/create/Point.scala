@@ -14,6 +14,21 @@ package com.siigna.module.base.create
 import com.siigna._
 import com.siigna.module.base.Default._
 
+/**
+ * The point module answers to requests from many other modules who require a number or one or more points to function.
+ *
+ * No messages need to be send in order to call the point module. To get a point from the point module, use ForwardTo('Point).
+ * The point module will run and return a point (if one has been set) as a Message(Vector2D).
+ *
+ * Points are set with the mouse or by typing an x and y value, seperated by a comma.
+ *
+ * Except when the 'Rotate, 'Scale, or 'Move (if track is active) modules call 'Point,
+ * in which cases only one value is entered, and a Message(Double) is returned.
+ *
+ * It is possible to send a Controller ! Message(Guide(ShapeGuide)) to the 'Point module when it is called
+ * if the Point need to draw shapes dynamically while input is entered.
+ */
+
 object Point extends Module {
 
   private var angleOrScale : Option[Double] = None
@@ -59,6 +74,7 @@ object Point extends Module {
    * the point var is returned to the calling module
    * using a Send(Message()) event.
    */
+
   private var point : Option[Vector2D] = None
 
   var pointGuide : Option[Guide] = None

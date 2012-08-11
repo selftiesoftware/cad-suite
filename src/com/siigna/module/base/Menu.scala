@@ -315,7 +315,6 @@ object Menu extends Module {
           })
         }
 
-
         //TODO: the following two statements should be merged into one if -else if statement, but that will result in some icon backgrounds being drawn behind the category fill.
         // Draws the current menu category
         category.stateMap.filter(_._2 != None).foreach( eventAndItem => {
