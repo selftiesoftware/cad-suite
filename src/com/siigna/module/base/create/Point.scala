@@ -244,7 +244,7 @@ object Point extends Module {
 
         Some("point (X: "+x+", Y: "+y+").")
 
-        //this version displays the coords only when typed. Makes room for a display of the active module when entering 'Point.
+        //Display the coords when typed.
       } else if (mouseLocation.isDefined && previousModule != Some('Rotate) && moving == false && coordinateX.isDefined) {
         var prevModule = com.siigna.module.base.Default.previousModule.get.toString
         Some("point (X: "+x+")")

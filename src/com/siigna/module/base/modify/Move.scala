@@ -42,12 +42,13 @@ object Move extends Module {
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap     = DirectedGraph(
-    'Start -> 'KeyEscape -> 'End,
-    'Move  -> 'KeyEscape -> 'End
+    'Start -> 'KeyDown -> 'End,
+    'Move  -> 'KeyDown -> 'End
   )
   
   lazy val stateMachine = Map(
     'Start -> ((events : List[Event]) => {
+      println("move START")
       //TODO: a hack to force startPoint value to None (to draw a correct Guide). Find out why StartPoint is not always reset/ Module does not reach 'End.
       startPoint = None
       //start 'Move only if there is a selection
@@ -92,7 +93,6 @@ object Move extends Module {
     }),
     'StartPoint ->   ((events : List[Event]) => {
       Siigna display "set base point"
-      //println(events)
       events match {
         case Message(p : Vector2D) :: tail => {
           startPoint = Some(p)
@@ -100,7 +100,6 @@ object Move extends Module {
         }
         case _ => {
           com.siigna.module.base.Default.previousModule = Some('Move)
-          println("going to point")
           ForwardTo('Point)
           Controller ! Message(PointGuides(shapeGuide))
         }
@@ -108,7 +107,9 @@ object Move extends Module {
     }),
     'Move -> ((events : List[Event]) => {
       events match{
-        case MouseDown(_, MouseButtonRight, _) :: tail => Goto('End, false)
+        case MouseDown(_, MouseButtonRight, _) :: tail => {
+          Goto('End, false)
+        }
         case _ => {
           def getEndPoint(p : Vector2D) = {
             endPoint = Some(p)
