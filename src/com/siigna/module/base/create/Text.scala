@@ -11,8 +11,6 @@
 
 package com.siigna.module.base.create
 
-/* 2012 (C) Copyright by Siigna, all rights reserved. */
-
 import com.siigna._
 import module.base.Default
 
@@ -38,9 +36,10 @@ object Text extends Module {
   var text     = ""
   var position : Option[Vector2D] = None
   var rect : Option[Rectangle2D] = None
-  var scale : Int  = 4
+  var scale : Int  = 1
   var attributes = Attributes( "TextSize" -> 10)
   var shape : Option[TextShape] = None
+
 
 //  var currentState = 0
 //  var number   = 0

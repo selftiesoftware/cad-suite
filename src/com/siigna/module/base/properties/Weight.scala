@@ -133,9 +133,10 @@ object Weight extends Module {
       if(Drawing.selection.isEmpty) {
         Siigna("activeLineWeight") = activeLine
       }
-      //if a selection is defined, change lineweight of the selected shapes.
+      //if a selection is defined, change lineweight of the selected shapes and deselect them.
       else {
         Drawing.selection.foreach(s => s.setAttributes("StrokeWidth" -> activeLine))
+        Drawing.deselect()
       }
 
       //clear values and reactivate navigation

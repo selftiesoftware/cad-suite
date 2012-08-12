@@ -153,9 +153,10 @@ object ColorWheel extends Module {
       if(Drawing.selection.isEmpty) {
         if(activeColor.isDefined) Siigna("activeColor") = activeColor.get
       }
-      //if a selection is defined, change lineweight of the selected shapes.
+      //if a selection is defined, change lineweight of the selected shapes and deselect them.
       else {
-        Drawing.selection.foreach(s => s.setAttributes("Color" -> activeColor.get))
+        Drawing.selection.foreach(s => s.addAttribute("Color" -> activeColor.get))
+        Drawing.deselect()
       }
       //clear values and reactivate navigation
       gotMouseDown = false

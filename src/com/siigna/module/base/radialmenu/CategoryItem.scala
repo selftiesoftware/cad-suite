@@ -46,4 +46,4 @@ object CategoryItem {
 
 }
 
-case class CategoryItemEmpty(text : String) extends CategoryItem('None, Iterable(TextShape(text, Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))), "")
+case class CategoryItemEmpty(text : String) extends CategoryItem('None, Iterable(TextShape(text, Vector2D(0, 0), 7, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))), "")
