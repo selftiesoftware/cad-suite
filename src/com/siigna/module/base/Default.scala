@@ -315,7 +315,7 @@ object Default extends Module {
 
   override def paint(g : Graphics, t : TransformationMatrix) {
     //set the focus of Siigna
-    centerFocus = Drawing.boundary.center.transform(t)
+    //centerFocus = Drawing.boundary.center.transform(t)
 
     //draw a loading bar when modules are loading.
     if(firstStart == true && startTime.isDefined){
