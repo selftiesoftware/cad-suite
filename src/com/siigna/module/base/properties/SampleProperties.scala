@@ -34,14 +34,10 @@ object SampleProperties extends Module{
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       Siigna display ("select an object to sample from")
-      println("selection: "+Drawing.selection)
 
       if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
         templateShape = Some(Drawing.selection.get.shapes.head._2)
-        println("shape: "+templateShape)
-        println("drawing: "+Drawing)
         attributes = templateShape.get.attributes
-        println("attributes: "+attributes)
         Drawing.deselect()
         Goto('UpdateShapes)
       }
@@ -54,10 +50,7 @@ object SampleProperties extends Module{
       else ForwardTo('Selection, false)
     }),
     'End -> ((events : List[Event]) => {
-      println("in end")
       if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
-        println("model not empty")
-        println("sampled attributes: "+attributes)
         Drawing.selection.get.setAttributes(attributes)
         Drawing.deselect()
       }

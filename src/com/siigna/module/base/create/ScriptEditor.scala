@@ -33,7 +33,7 @@ import java.awt.{Color, Toolkit}
 
 //TODO: create syntatic sugar for scripting, allowing eg. 'Create Line (0,0) (100,0)'
 
-object Script extends Module{
+object ScriptEditor extends Module{
 
   val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
   val clipData = clipboard.getContents(clipboard)
@@ -51,6 +51,8 @@ object Script extends Module{
   var bgColor = 0.80f
   val eventHandler = new EventHandler(stateMap, stateMachine)
 
+  var moduleOpen = false
+  
   def getNewLine (first : Int, last : Int) = {
     if (first <= last) first - 1
     else last
@@ -77,8 +79,7 @@ object Script extends Module{
         }
         case KeyDown(Key.Enter, _) :: tail => println("do return here")
         case KeyDown(Key.Esc, _) :: tail => {
-          Siigna display "ending Siigna base modules scripting"
-          Goto('Execute, false)
+          Goto('End)
         }
         case KeyDown(key, mod) :: tail => {
           //get special keys
@@ -95,49 +96,21 @@ object Script extends Module{
             text += key.toChar.toString.toLowerCase
           }
         }
-        case MouseUp(_, MouseButtonRight, _) :: tail => None
+        //allow menu interaction while module is running
+        case MouseUp(point, MouseButtonRight, _) :: tail => {
+          if(moduleOpen == false){
+            moduleOpen = true
+            ForwardTo('Menu,false)
+            Controller ! Message(point)
+          } else moduleOpen = false
+        }
         //TODO: add standard mouse-text interaction. (Highlight, move, etc.)
         case _ =>
       }
       None
     }),
-  
-    //execute the script, activated if the run button is clicked.
-    'Execute -> ((events : List[Event]) => {
-      //TODO: make an execute function that evaluates loops, lists, functions etc. and parses it into a lis of shapes to be created.
-
-      //EVALUATION (mock up)
-
-      val line = "line(.*)".r
-      val polyline = "polyline(.*)".r
-
-      //TODO: add support for multiple lines of text
-
-      text match {
-        case line(x) => {
-           if(x.contains(",")) { val c = x.split(",").toList
-            var p1x = c(0).substring(1).toDouble
-            var p1y = c(1).reverse.substring(1).reverse.toDouble
-            var p2x = c(2).substring(1).toDouble
-            var p2y = c(3).reverse.substring(1).reverse.toDouble
-
-            Create(LineShape(Vector2D(p1x,p1y),Vector2D(p2x,p2y)))
-          } else {
-             Siigna display "found a line with wrong syntax: "+x
-             Goto('Start)
-           }
-            Goto('End)
-        }
-        //display error message if the script will not compile
-        case _ =>
-         Siigna display ("syntax error in script:" +text)
-         Goto('Start)
-      }
-      None
-    }),
 
   'End -> ((events : List[Event]) => {
-
     //reset the vars
     com.siigna.app.view.View.paperColor = 1.00f
     text = ""

@@ -46,4 +46,4 @@ object MenuItem {
 
 }
 
-case class MenuItemEmpty(text : String) extends MenuItem('None, Iterable(TextShape(text, Vector2D(0, 0), 8, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))), "")
+case class MenuItemEmpty(text : String) extends MenuItem('None, Iterable(TextShape(text, Vector2D(0, 0), 7, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))), "")

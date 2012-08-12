@@ -376,7 +376,7 @@ object Menu extends Module {
 
       // Draw the center element
       if (currentCategory.C.isDefined) {
-        g draw TextShape(currentCategory.C.get.name, Vector2D(0, 0), 12, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector2D(0.5, 0.5))).transform(t)
+        g draw TextShape(currentCategory.C.get.name, Vector2D(0, 0), 8, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector2D(0.5, 0.5))).transform(t)
         g draw CircleShape(Vector2D(0, 0), Vector2D(0, 26)).transform(t)
       }
 

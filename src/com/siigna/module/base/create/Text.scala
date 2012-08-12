@@ -36,7 +36,7 @@ object Text extends Module {
   var text     = ""
   var position : Option[Vector2D] = None
   var rect : Option[Rectangle2D] = None
-  var scale : Int  = 4
+  var scale : Int  = 1
   var attributes = Attributes( "TextSize" -> 10)
   var shape : Option[TextShape] = None
 
