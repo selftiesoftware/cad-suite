@@ -14,7 +14,16 @@ package com.siigna.module.base.create
 import com.siigna._
 
 /**
-A freehand Artline pen
+ * A freehand Artline pen
+ * NOTES: how to optimise and expand this module??
+ *
+ * 1) Ink-pen
+ * 2) this pencil
+ * 3) a new 'digital aesthetics' to freehand drawing? ideas:
+ * pixels, the pointer creates a 'tail of colored pixels'
+ * fixed size line segments
+ * linework made of polylines and arcs
+ *
  */
 
 object Artline extends Module {

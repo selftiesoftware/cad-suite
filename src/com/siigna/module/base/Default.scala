@@ -224,6 +224,7 @@ object Default extends Module {
             //open the MODIFY menu
             case 'm' => {
               if(previousKey == Some('m')) {
+                Siigna.display("move")
                 ForwardTo('Move)
                 previousKey = None
               }
@@ -362,7 +363,7 @@ object Default extends Module {
     val headerHeight = scala.math.min(boundary.height, boundary.width) * 0.025
 
     // Paper scale
-    val scale = TextShape("Scale 1:"+ (Siigna.paperScale), unitX(-10), headerHeight * 0.7)
+    val scale = TextShape("Scale 1:"+ (Siigna.paperScale), unitX(-10), headerHeight * 0.55)
     // Get URL
     val getURL = TextShape(" ", Vector2D(0, 0), headerHeight * 0.7)
 
@@ -383,8 +384,10 @@ object Default extends Module {
     g draw LineShape(Vector2D((br.x/2 + bl.x),br.y), Vector2D((br.x/2 + bl.x),br.y) + Vector2D(0,(6*(Siigna.paperScale)))).setAttribute("StrokeWidth" -> 0.3).transform(t)
 
     //g draw separator
-    g.draw(scale.transform(transformation))
     g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
+
+    //draw paperScale
+    g.draw(scale.transform(transformation))
 
     //TODO: letter width: 50% letter spacing: 200%
 

@@ -116,7 +116,7 @@ object Point extends Module {
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       //display the name of the active module:
-      Siigna display com.siigna.module.base.Default.previousModule.get.toString
+      //Siigna display com.siigna.module.base.Default.previousModule.get.toString
 
       events match {
 
