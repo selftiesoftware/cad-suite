@@ -81,7 +81,7 @@ object Weight extends Module {
 
     'Start -> ((events : List[Event]) => {
       Siigna.navigation = false // Make sure the rest of the program doesn't move
-      eventParser.disable // Disable tracking and snapping
+      eventParser.disable() // Disable tracking and snapping
       startPoint = if (Menu.center.isDefined) Some(Menu.center.get) else Some(Vector2D(0,0))
 
       events match {
@@ -121,7 +121,7 @@ object Weight extends Module {
       //get the current angle from the mouse to the center of the line weight menu
       if (relativeMousePosition.isDefined && startPoint.isDefined) {
         val radian = (relativeMousePosition.get - startPoint.get).angle.toInt
-        var calculatedAngle = radian * -1 + 450
+        val calculatedAngle = radian * -1 + 450
         if (calculatedAngle > 360)
           activeAngle = calculatedAngle - 360
         else activeAngle = calculatedAngle
@@ -135,7 +135,7 @@ object Weight extends Module {
       }
       //if a selection is defined, change lineweight of the selected shapes and deselect them.
       else {
-        Drawing.selection.foreach(s => s.setAttributes("StrokeWidth" -> activeLine))
+        Drawing.selection.foreach(s => s.addAttribute("StrokeWidth" -> activeLine))
         Drawing.deselect()
       }
 
@@ -143,25 +143,23 @@ object Weight extends Module {
       gotMouseDown = false
       startPoint = None
       relativeMousePosition = None
-      eventParser.enable
+      eventParser.enable()
       Siigna.navigation = true
     })
   )
-  override def paint(g : Graphics, transform : TransformationMatrix) = {
+  override def paint(g : Graphics, transform : TransformationMatrix) {
     if (startPoint.isDefined && relativeMousePosition.isDefined) {
 
       //template for lines
-      def line(width : Double) = LineShape(Vector2D(47,100), Vector2D(-15,83)).setAttribute("StrokeWidth" -> width)
+      def line(width : Double) = LineShape(Vector2D(47,100), Vector2D(-15,83)).addAttribute("StrokeWidth" -> width)
 
       val sp = startPoint.get.transform(transform)
       val t  = TransformationMatrix(sp,1.3)
       var i : Int = 0
-      var weights : List[Double] = List(0.60,0.40,0.30,0.25,0.18,0.09,0.00,3.00,2.00,1.50,1.00,0.80,0.00)
+      val weights : List[Double] = List(0.60,0.40,0.30,0.25,0.18,0.09,0.00,3.00,2.00,1.50,1.00,0.80,0.00)
       //function to rotate the graphics
       def drawLine (rotation : Int) {
-          var activeLine = {
-            LineShape(Vector2D(47,100), Vector2D(-15,83)).setAttributes("StrokeWidth" -> 4.0, "Color" -> new Color(0.75f, 0.75f, 0.75f, 0.80f))
-          }
+          val activeLine = LineShape(Vector2D(47,100), Vector2D(-15,83)).addAttributes("StrokeWidth" -> 4.0, "Color" -> new Color(0.75f, 0.75f, 0.75f, 0.80f))
           //draw the active weight
           g draw activeLine.transform(t.rotate(activeAngle-180))
         }
@@ -194,18 +192,18 @@ object Weight extends Module {
       //TODO: this is a hack! refactor.
       //draw a text description
 
-      var text30 : TextShape = TextShape(line240.toString+" ", Vector2D(-89.48,66.83), scale, attributes)
-      var text60 : TextShape = TextShape(line270.toString+" ", Vector2D(-112.2,16.74), scale, attributes)
-      var text90 : TextShape = TextShape(line300.toString+" ", Vector2D(-106.8,-38.01), scale, attributes)
-      var text120 : TextShape = TextShape(line330.toString+" ", Vector2D(-74.83,-82.75), scale, attributes)
-      var text150 : TextShape = TextShape(line0.toString+" ", Vector2D(-24.74,-105.5), scale, attributes)
-      var text180 : TextShape = TextShape(line30.toString+" ", Vector2D(30.01,-100.1), scale, attributes)
-      var text210 : TextShape = TextShape(line60.toString+" ", Vector2D(74.75,-68.1), scale, attributes)
-      var text240 : TextShape = TextShape(line90.toString+" ", Vector2D(97.48,-18.01), scale, attributes)
-      var text270 : TextShape = TextShape(line120.toString+" ", Vector2D(92.12,36.74), scale, attributes)
-      var text300 : TextShape = TextShape(line150.toString+" ", Vector2D(60.1,81.48), scale, attributes)
-      var text330 : TextShape = TextShape(line180.toString+" ", Vector2D(10.01,104.2), scale, attributes)
-      var text0 : TextShape = TextShape(line210.toString+" ", Vector2D(-44.74,98.85), scale, attributes)
+      val text30 : TextShape = TextShape(line240.toString+" ", Vector2D(-89.48,66.83), scale, attributes)
+      val text60 : TextShape = TextShape(line270.toString+" ", Vector2D(-112.2,16.74), scale, attributes)
+      val text90 : TextShape = TextShape(line300.toString+" ", Vector2D(-106.8,-38.01), scale, attributes)
+      val text120 : TextShape = TextShape(line330.toString+" ", Vector2D(-74.83,-82.75), scale, attributes)
+      val text150 : TextShape = TextShape(line0.toString+" ", Vector2D(-24.74,-105.5), scale, attributes)
+      val text180 : TextShape = TextShape(line30.toString+" ", Vector2D(30.01,-100.1), scale, attributes)
+      val text210 : TextShape = TextShape(line60.toString+" ", Vector2D(74.75,-68.1), scale, attributes)
+      val text240 : TextShape = TextShape(line90.toString+" ", Vector2D(97.48,-18.01), scale, attributes)
+      val text270 : TextShape = TextShape(line120.toString+" ", Vector2D(92.12,36.74), scale, attributes)
+      val text300 : TextShape = TextShape(line150.toString+" ", Vector2D(60.1,81.48), scale, attributes)
+      val text330 : TextShape = TextShape(line180.toString+" ", Vector2D(10.01,104.2), scale, attributes)
+      val text0 : TextShape = TextShape(line210.toString+" ", Vector2D(-44.74,98.85), scale, attributes)
 
       g draw text0.transform(t)
       g draw text30.transform(t)
