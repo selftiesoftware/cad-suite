@@ -39,10 +39,13 @@ object Lineardim extends Module {
   def diaRotation1 = diaRotation(45)
   def diaRotation2 = diaRotation(225)
 
-  def dimText : Option[Shape] = if (hasBothPoints)
-      Some(TextShape((points(1)-(points(0))).length.toInt.toString,
-                    ((points(0) + normalUnitVector2D(points(0),points(1))) + (points(1)-points(0))/2),
-                      scale * dimTextSize))
+  def dimText : Option[Shape] =
+    if (hasBothPoints) {
+      val offset = normalUnitVector2D(points(1),points(0)) * 2
+      val tX = points(0).x + (points(1).x - points(0).x)/2 - (offset.x * 3 * scale) - 1.8 * scale
+      val tY = points(0).y + (points(1).y - points(0).y)/2 - (offset.y * 2.5 * scale) + 1.6 * scale
+      Some(TextShape((points(1)-(points(0))).length.toInt.toString,Vector2D(tX,tY),scale * dimTextSize))
+    }
     else
       None
 
