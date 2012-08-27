@@ -137,6 +137,7 @@ object Rotate extends Module {
       //if an angle was typed, perform the rotation directly:
       if(rotationFromPoint.isDefined){
         val t : TransformationMatrix = TransformationMatrix(Vector2D(0,0), 1).rotate(-rotationFromPoint.get, centerPoint.get)
+
         Drawing.selection.get.transform(t)
         Drawing.deselect()
       } else {
@@ -146,7 +147,7 @@ object Rotate extends Module {
           case Message(p : Vector2D) :: tail => {
 
             //do the rotation:
-              val t : TransformationMatrix = {
+            val t : TransformationMatrix = {
               val a1 : Double = (startVector.get - centerPoint.get).angle
               val a2 : Double = (endVector.get - centerPoint.get).angle
               TransformationMatrix(Vector2D(0,0), 1).rotate(a2 - a1, centerPoint.get)
@@ -172,14 +173,4 @@ object Rotate extends Module {
     })
   )
 
-  override def paint(g : Graphics, t : TransformationMatrix) {
-
-    Drawing.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))
-
-    if(startVector.isDefined) g draw (CircleShape(startVector.get,(startVector.get + Vector2D(0,9)))).transform(t)
-    else if(centerPoint.isDefined && !startVector.isDefined) {
-      //g draw (CircleShape(startVector.get,(startVector.get + Vector2D(10,0)))).transform(t)
-      //g draw (CircleShape(centerPoint.get,(centerPoint.get + Vector2D(10,0)))).transform(t)
-    }
-  }
 }
