@@ -12,7 +12,7 @@
 package com.siigna.module.base.modify
 
 import com.siigna._
-import module.base.create.{PointGuides, PointGuide, AngleSnap}
+import module.base.create.PointGuides
 
 // TODO: add object selection logic.
 /**
@@ -27,8 +27,6 @@ object Rotate extends Module {
   private var rotation : Double = 0
   private var startVector : Option[Vector2D] = None
   private var startVectorSet = false
-  private var text = ""
-  private var transformation : Option[TransformationMatrix] = None
 
   def eventHandler = EventHandler(stateMap, stateMachine)
 
@@ -105,26 +103,10 @@ object Rotate extends Module {
       }
       //if both a center and a startAngle is set, set the final point of the rotation.
       else if(centerPoint.isDefined && startVector.isDefined){
-        def getEndVector(p : Vector2D) = {
-          endVector = Some(p)
-         (p - startVector.get)
-        }
-         val translation = events match {
-          case MouseDown(p, _, _) :: tail => getEndVector(p)
-          case MouseDrag(p, _, _) :: tail => getEndVector(p)
-          case MouseMove(p, _, _) :: tail => getEndVector(p)
-          case MouseUp(p, _, _) :: tail => {
-            getEndVector(p)
-          }
-          case _ => Vector2D(0, 0)
-        }
-
-        events match{
-
+        events match {
           case Message(p : Vector2D) :: MouseDown(_ ,_ ,_) :: tail => {
             endVector = Some(p)
             rotation = ((startVector.get - centerPoint.get) - (endVector.get - centerPoint.get)).angle
-            transformation = Some(TransformationMatrix(translation, 1))
             Goto('End)
           }
           case _ => {
