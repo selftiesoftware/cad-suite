@@ -28,7 +28,7 @@ case class Create(parent : Option[MenuCategory]) extends MenuCategory {
   override def W = Some(CategoryItemEmpty("Annotation"))
   override def S = Some(CategoryItemEmpty("Collection"))
   //override def S = Some(new Dimension(Some(this)))
-  override def E = Some(CategoryItemEmpty("Script"))
+  //override def E = Some(CategoryItemEmpty("Script"))
 
   override def NNW = Some(MenuItem('Rectangle, RadialMenuIcon.rectangle))
   override def NNE = Some(MenuItem('Line, RadialMenuIcon.line , "create"))
@@ -40,7 +40,7 @@ case class Create(parent : Option[MenuCategory]) extends MenuCategory {
   override def WSW = Some(MenuItem('Lineardim, RadialMenuIcon.linearDimension))
   //override def ESE = Some(MenuItem('Offset, RadialMenuIcon.offset, "create"))
 
-  override def ESE = Some(MenuItem('ScriptEditor, TextShape("editor", Vector2D(0, 0), 7, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "create"))
-  override def ENE = Some(MenuItem('ScriptExecution, TextShape("run", Vector2D(0, 0), 7, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "create"))
+  //override def ESE = Some(MenuItem('ScriptEditor, TextShape("editor", Vector2D(0, 0), 7, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "create"))
+  //override def ENE = Some(MenuItem('ScriptExecution, TextShape("run", Vector2D(0, 0), 7, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))), "create"))
 
 }
