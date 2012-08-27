@@ -66,6 +66,7 @@ object Default extends Module {
       //on startup, for some reason this value defaults to true even though it is set to false in 'Menu. This line forces it to be false.
       com.siigna.module.base.Menu.moduleCallFromMenu = false
       val m = Siigna.mousePosition
+
       if (Drawing(m).size > 0) {
         val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
         nearestShape = if (nearest._2.distanceTo(m) < 5) Some(nearest) else None
@@ -109,6 +110,10 @@ object Default extends Module {
       } else if (Drawing.attributes.int("id").isDefined && !titleFocus.isDefined) {
         Goto('Start)
       }
+      
+      // Reset the nearest shape if it has been deleted
+      if (nearestShape.isDefined && !Drawing.contains(nearestShape.get._1)) nearestShape = None
+
       events match {
         case MouseDown(point, MouseButtonLeft, _) :: tail           => ForwardTo('Selection)
         case MouseDown(point, MouseButtonRight, _) :: tail          => {
