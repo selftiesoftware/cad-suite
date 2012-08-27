@@ -88,7 +88,7 @@ object Text extends Module {
         case _ =>
           if (text.length > 0) {
             //move the text so that the lower left corner is located at the starting position
-            var textPosition = Vector2D((position.get.x),(position.get.y+(Siigna.paperScale + 1)*4))
+            var textPosition = Vector2D((position.get.x),(position.get.y+(Siigna.paperScale)))
             shape = Some(TextShape(text+" ", textPosition, scale * (Siigna.paperScale + 1), attributes))
             Create(shape)
 
@@ -104,14 +104,17 @@ object Text extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
     //move the text so that the lower left corner is located at the starting position
     if (position.isDefined){
-      var textPosition = Vector2D((position.get.x),(position.get.y+(Siigna.paperScale + 1)*4))
+      var textPosition = Vector2D((position.get.x),(position.get.y+(Siigna.paperScale )))
       shape = Some(TextShape(text+" ", textPosition, (scale * (Siigna.paperScale + 1)), attributes))
       g draw shape.get.transform(t)
       length = text.length
+
+      val y2Offset = 1*scale
+      val posOffset = Vector2D(0,-1.2*scale)
       //draw a bounding rectangle guide for the text
-      var x2 = Some(position.get.x+(4+length*2 * (Siigna.paperScale + 1)))
-      var y2 = Some(position.get.y+((Siigna.paperScale + 1)*4))
-      boundingRectangle = Some(Rectangle2D(position.get,Vector2D(x2.get,y2.get)))
+      var x2 = Some(position.get.x+(length * 1.42 *scale))
+      var y2 = Some(position.get.y+y2Offset+ scale)
+      boundingRectangle = Some(Rectangle2D(position.get + posOffset,Vector2D(x2.get,y2.get)))
       g draw PolylineShape(boundingRectangle.get).setAttribute("Color" -> "#66CC66".color).transform(t)
     }
   }
