@@ -21,7 +21,7 @@ import java.awt.Color
  *
  */
 
-object Weight extends Module {
+object Stroke extends Module {
 
   var activeAngle : Double = 0
 
@@ -98,7 +98,7 @@ object Weight extends Module {
           else {
             relativeMousePosition = Some(point)
 
-            //set the Weight
+            //set the Stroke
             if (activeAngle == 0) {activeLine = line0}
             else if (activeAngle == 30) {activeLine = line30}
             else if (activeAngle == 60) {activeLine = line60}

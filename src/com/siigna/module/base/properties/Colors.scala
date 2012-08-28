@@ -23,7 +23,7 @@ import com.siigna.module.base.Menu
    //TODO: the color wheel only shows after mouse move???
  */
 
-object ColorWheel extends Module {
+object Colors extends Module {
 
   private val transp = 1.00f
 
