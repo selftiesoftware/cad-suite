@@ -407,7 +407,7 @@ object Default extends Module {
       g draw(title.transform(transformation))
     }
     //draw ID
-    if (Drawing.attributes.int("id").isDefined) {
+    if (Drawing.attributes.long("id").isDefined) {
       val id = TextShape("ID: "+Drawing.attributes.int("id").get, unitX(-28), headerHeight * 0.7, Attributes("Color" -> "#AAAAAA".color))
       g draw(id.transform(transformation))
     }
