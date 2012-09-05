@@ -408,7 +408,7 @@ object Default extends Module {
     }
     //draw ID
     if (Drawing.attributes.long("id").isDefined) {
-      val id = TextShape("ID: "+Drawing.attributes.int("id").get, unitX(-28), headerHeight * 0.7, Attributes("Color" -> "#AAAAAA".color))
+      val id = TextShape("ID: "+Drawing.attributes.long("id").get, unitX(-28), headerHeight * 0.7, Attributes("Color" -> "#AAAAAA".color))
       g draw(id.transform(transformation))
     }
     if (Siigna.user.isDefined && Siigna.user.get.name.length() > 0) {
