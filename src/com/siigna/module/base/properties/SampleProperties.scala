@@ -20,7 +20,7 @@ import com.siigna._
 object SampleProperties extends Module{
 
   var attributes : Attributes = Attributes()
-  val eventHandler = EventHandler(stateMap, stateMachine)
+
   //var color : Option[String] = None
   var selected : Option[Selection] = None
   var templateShape : Option[Shape] = None
