@@ -411,8 +411,8 @@ object Default extends Module {
       val id = TextShape("ID: "+Drawing.attributes.long("id").get, unitX(-28), headerHeight * 0.7, Attributes("Color" -> "#AAAAAA".color))
       g draw(id.transform(transformation))
     }
-    if (Siigna.user.isDefined && Siigna.user.get.name.length() > 0) {
-      val contributor = TextShape("author: "+Siigna.user.get.name, unitX(-120), headerHeight * 0.7)
+    if (Siigna.user.name.length() > 0) {
+      val contributor = TextShape("author: "+Siigna.user.name, unitX(-120), headerHeight * 0.7)
       g draw(contributor.transform(transformation))
     }
   }
