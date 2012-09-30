@@ -19,22 +19,16 @@ import com.siigna._
 
 object Group extends Module {
 
-  lazy val eventHandler = new EventHandler(stateMap, stateMachine)
-
-  lazy val stateMap = DirectedGraph(
-    'Start     -> 'KeyEscape  -> 'End
-  )
-
-  lazy val stateMachine = Map(
+  lazy val stateMap = Map(
     'Start -> ((events : List[Event]) => {
       events match {
         case MouseDown(point, MouseButtonLeft, _) :: tail => ForwardTo('Select)
         case MouseDrag(point, MouseButtonRight, _) :: tail => ForwardTo('Select)
         case _ =>
       }
+      'End
     }),
 
-    'End -> ((events : List[Event]) => {
-   })
+    'End -> ()
   )
 }

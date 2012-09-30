@@ -20,36 +20,38 @@ import com.siigna._
 object SampleProperties extends Module{
 
   var attributes : Attributes = Attributes()
-  val eventHandler = EventHandler(stateMap, stateMachine)
   //var color : Option[String] = None
   var selected : Option[Selection] = None
   var templateShape : Option[Shape] = None
   //var weight : Option[String] = None
 
-  def stateMap = DirectedGraph(
-    'Start           ->   'KeyDown  ->    'End,
-    'UpdateShapes    ->   'KeyDown  ->    'End
-  )
 
-  def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+  final class StateAssoc(val x: Symbol) {
+    type F = PartialFunction[List[Event], Any]
+    @inline def -> (y: F): Tuple2[Symbol, F] = Tuple2(x, y)
+    def →[B](y: B): Tuple2[Symbol, F] = ->(y)
+  }
+  implicit def symbol2StateAssoc(x: Symbol): StateAssoc = new StateAssoc(x)
+
+
+  def stateMap : StateMap = Map(
+    'Start -> {
       Siigna display ("select an object to sample from")
 
-      if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
+      if (Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
         templateShape = Some(Drawing.selection.get.shapes.head._2)
         attributes = templateShape.get.attributes
         Drawing.deselect()
-        Goto('UpdateShapes)
-      }
-      else ForwardTo('Selection, false)
+        'UpdateShapes
+      } else ForwardTo('Selection, false)
 
-    }),
-    'UpdateShapes -> ((events : List[Event]) => {
+    },
+    'UpdateShapes -> {
       Siigna display ("select objects to update")
-      if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) Goto('End)
+      if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) 'End
       else ForwardTo('Selection, false)
-    }),
-    'End -> ((events : List[Event]) => {
+    },
+    'End -> {
       if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
         Drawing.selection.get.setAttributes(attributes)
         Drawing.deselect()
@@ -58,6 +60,6 @@ object SampleProperties extends Module{
       attributes = Attributes()
       selected = None
       templateShape = None
-    })
+    }
   )
 }

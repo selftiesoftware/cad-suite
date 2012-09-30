@@ -21,15 +21,12 @@ import com.siigna._
 object Performancetest extends Module {
 
   var shapes = scala.collection.immutable.Vector[Shape]()
-  val eventHandler = EventHandler(stateMap, stateMachine)
 
   val limit = 1000
 
-  lazy val stateMap = DirectedGraph('Intermezzo -> 'KeyDown -> 'End)
+  lazy val stateMap = Map(
 
-  lazy val stateMachine = Map(
-
-    'Start -> ((events : List[Event]) => {
+    'Start -> {
       var i = 0
       val startSeconds = System.currentTimeMillis()
 
@@ -52,12 +49,14 @@ object Performancetest extends Module {
 
       val endSeconds = System.currentTimeMillis()
       Log("Time to draw "+ limit * limit +" lines:" + (endSeconds - startSeconds))
-      Goto('Intermezzo)
-    }),
-    'Intermezzo -> ((events : List[Event]) => None),
+      'Intermezzo
+    },
+    'Intermezzo -> {
+      case KeyDown(_, _, _) :: tail => 'End
+      case _ =>
+    },
 
-    'End -> ((events : List[Event]) => {
-    })
+    'End -> ()
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {

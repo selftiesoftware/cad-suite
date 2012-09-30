@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.create
+/*package com.siigna.module.base.create
 
 import com.siigna._
 import app.controller.Controller
@@ -24,13 +24,9 @@ object Line extends Module{
   var attributes : Attributes = Attributes()
   def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
 
-  val eventHandler = EventHandler(stateMap, stateMachine)
-
   private var points = List[Vector2D]()
 
   private var shape  : Option[LineShape] = None
-
-
 
   def stateMap = DirectedGraph(
     'Start    ->   'Message  ->    'SetPoint
@@ -95,4 +91,4 @@ object Line extends Module{
 
     })
   )
-}
+}*/

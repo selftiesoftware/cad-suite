@@ -49,7 +49,6 @@ object ScriptEditor extends Module{
   }
 
   var bgColor = 0.80f
-  val eventHandler = new EventHandler(stateMap, stateMachine)
 
   var moduleOpen = false
   
@@ -58,64 +57,63 @@ object ScriptEditor extends Module{
     else last
   }
 
-  def stateMap = DirectedGraph(
-    'Start    ->   'Message  ->    'End
-  )
-
   var text : String = ""
 
-  def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
-      //open/browse script library
+  def stateMap = Map(
+    'Start -> {
+      case events => {
+        //open/browse script library
 
-      //save script text
+        //save script text
 
-      //change the background color of the paper to communicate that Siigna is in Scripting mode
-      com.siigna.app.view.View.paperColor = bgColor
+        //change the background color of the paper to communicate that Siigna is in Scripting mode
+        com.siigna.app.view.View.paperColor = bgColor
 
-      events match {
-        case KeyDown(Key.Backspace, _) :: tail => {
-          if (text.length != 0) text = text.substring(0, text.length - 1)
-        }
-        case KeyDown(Key.Enter, _) :: tail => println("do return here")
-        case KeyDown(Key.Esc, _) :: tail => {
-          Goto('End)
-        }
-        case KeyDown(key, mod) :: tail => {
-          //get special keys
-          if (key == '8' && mod == ModifierKeys(true, false, false)) text += '('
-          else if (key == '9' && mod == ModifierKeys(true, false, false)) text += ')'
-          //prevent a space from being added when SHIFT or CTRL is pressed
-          else if (key == 16 || key == 17) None
-          //paste text
-          else if (key == 'v' && mod == ModifierKeys(false, true, false)) text += getClipboardData
-
-          //get regular keys
-          else {
-            //println(key)
-            text += key.toChar.toString.toLowerCase
+        events match {
+          case KeyDown(Key.Backspace, _) :: tail => {
+            if (text.length != 0) text = text.substring(0, text.length - 1)
           }
-        }
-        //allow menu interaction while module is running
-        case MouseUp(point, MouseButtonRight, _) :: tail => {
-          if(moduleOpen == false){
-            moduleOpen = true
-            ForwardTo('Menu,false)
-            Controller ! Message(point)
-          } else moduleOpen = false
-        }
-        //TODO: add standard mouse-text interaction. (Highlight, move, etc.)
-        case _ =>
-      }
-      None
-    }),
+          case KeyDown(Key.Enter, _) :: tail => println("do return here")
+          case KeyDown(Key.Esc, _) :: tail => {
+            'End
+          }
+          case KeyDown(key, mod) :: tail => {
+            //get special keys
+            if (key == '8' && mod == ModifierKeys(true, false, false)) text += '('
+            else if (key == '9' && mod == ModifierKeys(true, false, false)) text += ')'
+            //prevent a space from being added when SHIFT or CTRL is pressed
+            else if (key == 16 || key == 17) None
+            //paste text
+            else if (key == 'v' && mod == ModifierKeys(false, true, false)) text += getClipboardData
 
-  'End -> ((events : List[Event]) => {
-    //reset the vars
-    com.siigna.app.view.View.paperColor = 1.00f
-    text = ""
-    })
+            //get regular keys
+            else {
+              //println(key)
+              text += key.toChar.toString.toLowerCase
+            }
+          }
+          //allow menu interaction while module is running
+          case MouseUp(point, MouseButtonRight, _) :: tail => {
+            if(moduleOpen == false){
+              moduleOpen = true
+              ForwardTo('Menu,false)
+              Controller ! Message(point)
+            } else moduleOpen = false
+          }
+          //TODO: add standard mouse-text interaction. (Highlight, move, etc.)
+          case _ =>
+        }
+        None
+      }
+    },
+
+    'End -> {
+      //reset the vars
+      com.siigna.app.view.View.paperColor = 1.00f
+      text = ""
+    }
   )
+
   override def paint(g : Graphics, t : TransformationMatrix) {
 
     val scale = Siigna.paperScale

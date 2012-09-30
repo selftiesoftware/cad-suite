@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.properties
+/*package com.siigna.module.base.properties
 
 import com.siigna.app.view.Graphics
 import com.siigna._
@@ -219,4 +219,4 @@ object Stroke extends Module {
       g draw text330.transform(t)
     }
   }
-}
+}*/

@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.create
+/*package com.siigna.module.base.create
 
 import com.siigna._
 import com.siigna.module.base.Default._
@@ -404,4 +404,4 @@ case class PointGuides(guide : Vector2D => Traversable[Shape]) extends Guide{
 
 object PointGuide {
   def apply(part : PartialShape) = new PointGuide(p => part(TransformationMatrix(p, 1)))
-}
+}*/

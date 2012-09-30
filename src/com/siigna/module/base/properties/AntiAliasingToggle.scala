@@ -17,22 +17,13 @@ import com.siigna._
  */
 object AntiAliasingToggle extends Module {
 
-  val eventHandler = EventHandler(stateMap, stateMachine)
+  lazy val stateMap = Map(
 
-  lazy val stateMap = DirectedGraph (
-    'Start    -> 'Event     -> 'End
-  )
+    'Start -> 'End,
 
-  lazy val stateMachine = Map(
-
-    'Start -> ((events : List[Event]) => {
-      Goto('End)
-      None
-    }),
-
-    'End -> ((events : List[Event]) => {
+    'End -> {
       Siigna.toggle("anti-aliasing")
-      None
-    })
+      'End
+    }
   )
 }

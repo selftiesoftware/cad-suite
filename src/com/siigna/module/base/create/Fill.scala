@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.create
+/*package com.siigna.module.base.create
 
 import com.siigna._
 import app.Siigna
@@ -19,8 +19,6 @@ import app.controller.Controller
 import java.awt.Color
 
 object Fill extends Module {
-
-  lazy val eventHandler = new EventHandler(stateMap, stateMachine)
 
   var points = List[Vector2D]()
 
@@ -36,7 +34,7 @@ object Fill extends Module {
     'Start -> ((events : List[Event]) => {
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => {
-          Goto('End)
+          'End
         }
         case _ => ForwardTo('Point, false)
       }
@@ -49,7 +47,7 @@ object Fill extends Module {
       if(!points.isEmpty) {
         val closedPolyline = points.reverse :+ p
         val areaGuide = closedPolyline.reverse :+ p
-          if(Siigna.get("activeColor")isDefined) PolylineShape((areaGuide)).setAttributes("raster" -> Siigna("activeColor"), "StrokeWidth" -> 0.0)
+          if(Siigna.get("activeColor").isDefined)) PolylineShape((areaGuide)).setAttributes("raster" -> Siigna("activeColor"), "StrokeWidth" -> 0.0)
           else PolylineShape((areaGuide)).setAttributes("raster" -> anthracite, "StrokeWidth" -> 0.0)
     }
       else PolylineShape(Vector2D(0,0),Vector2D(0,0))
@@ -85,4 +83,4 @@ object Fill extends Module {
 
     })
   )
-}
+}*/
