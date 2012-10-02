@@ -2,19 +2,13 @@ package com.siigna.module.base.create
 
 import com.siigna._
 
-object ScriptExecution extends Module {
-
-  lazy val eventHandler = EventHandler(stateMap, stateMachine)
+/*object ScriptExecution extends Module {
 
   //get text from the editor
   val text = com.siigna.module.base.create.ScriptEditor.text
   
   //a hack to prevent the script from being executed twice.
   var executionComplete = false
-  
-  def stateMap = DirectedGraph(
-    'Execute      -> 'KeyDown   -> 'End
-  )
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
@@ -65,3 +59,4 @@ object ScriptExecution extends Module {
     })
   )
 }
+*/

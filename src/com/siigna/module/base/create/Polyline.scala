@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.create
+/*package com.siigna.module.base.create
 
 import com.siigna._
 
@@ -83,4 +83,4 @@ object Polyline extends Module {
     shape = None
     points = List()
   }))
-}
+}*/

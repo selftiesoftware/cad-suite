@@ -11,7 +11,6 @@
 
 package com.siigna.module.base.properties
 
-
 import com.siigna._
 
 object PreferencesSet extends Module {

@@ -20,36 +20,29 @@ import com.siigna._
 object SampleProperties extends Module{
 
   var attributes : Attributes = Attributes()
-
   //var color : Option[String] = None
   var selected : Option[Selection] = None
   var templateShape : Option[Shape] = None
   //var weight : Option[String] = None
 
-  def stateMap = DirectedGraph(
-    'Start           ->   'KeyDown  ->    'End,
-    'UpdateShapes    ->   'KeyDown  ->    'End
-  )
-
-  def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+  def stateMap : StateMap = Map(
+    State('Start, () => {
       Siigna display ("select an object to sample from")
 
-      if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
+      if (Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
         templateShape = Some(Drawing.selection.get.shapes.head._2)
         attributes = templateShape.get.attributes
         Drawing.deselect()
-        Goto('UpdateShapes)
-      }
-      else ForwardTo('Selection, false)
+        'UpdateShapes
+      } else ForwardTo('Selection, false)
 
     }),
-    'UpdateShapes -> ((events : List[Event]) => {
+    State('UpdateShapes, () => {
       Siigna display ("select objects to update")
-      if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) Goto('End)
+      if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) 'End
       else ForwardTo('Selection, false)
     }),
-    'End -> ((events : List[Event]) => {
+    'End -> (() => {
       if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
         Drawing.selection.get.setAttributes(attributes)
         Drawing.deselect()

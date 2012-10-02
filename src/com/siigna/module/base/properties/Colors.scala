@@ -62,8 +62,6 @@ object Colors extends Module {
 
   var activeColor: Option[Color] = None
 
-  def eventHandler = EventHandler(stateMap, stateMachine)
-
   def radians(rotation : Int) : List[Int] = {
 
     var i = 0
@@ -79,22 +77,20 @@ object Colors extends Module {
     activeRadians
   }
 
-  def stateMap = DirectedGraph(
-
-    'Start  ->   'KeyDown  ->  'End
-
-  )
-
-  def stateMachine = Map(
+  def stateMap = Map(
     //select a color
-  'Start -> ((events : List[Event]) => {
-    Siigna.navigation = false // Make sure the rest of the program doesn't move
+  'Start -> {
+    case events => {
+      Siigna.navigation = false // Make sure the rest of the program doesn't move
       eventParser.disable() // Disable tracking and snapping
       startPoint = if (Menu.center.isDefined) Some(Menu.center.get) else Some(Vector2D(0,0))
 
-      events match {
-        case MouseMove(point, _, _) :: tail => relativeMousePosition = Some(point)
-        case MouseDown(point, MouseButtonRight, _) :: tail => Goto('End)
+      val state : Symbol = events match {
+        case MouseMove(point, _, _) :: tail => {
+          relativeMousePosition = Some(point)
+          'Start
+        }
+        case MouseDown(point, MouseButtonRight, _) :: tail => 'End
 
         //selects the color to use
         case MouseDown(point, MouseButtonLeft, _) :: tail => {
@@ -103,6 +99,7 @@ object Colors extends Module {
           if (gotMouseDown == false) {
             relativeMousePosition = Some(point)
             gotMouseDown = true
+            'Start
           }
           //if the mouse has been pressed once, set the color and go to 'End.
           else {
@@ -133,11 +130,12 @@ object Colors extends Module {
             else if (activeAngle == 330) activeColor = Some(dimgrey)
             else if (activeAngle == 345) activeColor = Some(anthracite)
             gotMouseDown = false
-            Goto('End)
+            'End
           }
         }
-        case _ =>
+        case _ => 'Start
       }
+
       //get the current angle from the mouse to the center of the color wheel
       if (relativeMousePosition.isDefined && startPoint.isDefined) {
         val radian = (relativeMousePosition.get - startPoint.get).angle.toInt
@@ -145,26 +143,32 @@ object Colors extends Module {
         if (calculatedAngle > 360)
           activeAngle = calculatedAngle - 360
         else activeAngle = calculatedAngle
-          activeAngle = ((activeAngle +7.5)/15).toInt * 15
+        activeAngle = ((activeAngle +7.5)/15).toInt * 15
       }
-    }),
-    'End -> ((events : List[Event]) => {
 
-      if(Drawing.selection.isEmpty) {
-        if(activeColor.isDefined) Siigna("activeColor") = activeColor.get
+      // Return the new state
+      state
+    }
+  },
+    'End -> {
+      case _ => {
+        if(Drawing.selection.isEmpty) {
+          if(activeColor.isDefined) Siigna("activeColor") = activeColor.get
+        }
+        //if a selection is defined, change lineweight of the selected shapes and deselect them.
+        else {
+          Drawing.selection.foreach(s => s.addAttribute("Color" -> activeColor.get))
+          Drawing.deselect()
+        }
+        //clear values and reactivate navigation
+        gotMouseDown = false
+        startPoint = None
+        relativeMousePosition = None
+        eventParser.enable()
+        Siigna.navigation = true
+        'End
       }
-      //if a selection is defined, change lineweight of the selected shapes and deselect them.
-      else {
-        Drawing.selection.foreach(s => s.addAttribute("Color" -> activeColor.get))
-        Drawing.deselect()
-      }
-      //clear values and reactivate navigation
-      gotMouseDown = false
-      startPoint = None
-      relativeMousePosition = None
-      eventParser.enable()
-      Siigna.navigation = true
-    })
+    }
   )
 
   override def paint(g : Graphics, transform : TransformationMatrix) {

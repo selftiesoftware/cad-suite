@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.helpers
+/*package com.siigna.module.base.helpers
 
 import com.siigna._
 import com.siigna.module.Module
@@ -22,20 +22,13 @@ import com.siigna.module.base.create._
 
 object Distance extends Module {
 
-  lazy val eventHandler = new EventHandler(stateMap, stateMachine)
-
   var points = List[Vector2D]()
-
-
-  def stateMap = DirectedGraph(
-    'Start    ->   'Message  ->    'SetPoint
-  )
 
   def stateMachine = Map(
     'Start -> ((events : List[Event]) => {
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => {
-          Goto('End)
+          'End
         }
         case _ => ForwardTo('Point, false)
       }
@@ -60,14 +53,14 @@ object Distance extends Module {
           // Define shape if there is enough points
           if (points.size == 1) {
             ForwardTo('Point, false)
-            Controller ! Message(PointGuide(getPointGuide))
-          } else Goto('End)
+            //Controller ! Message(PointGuide(getPointGuide))
+          } else 'End
         }
 
         // match on everything else
         case _ => {
           ForwardTo('Point)
-          Controller ! Message(PointGuide(getPointGuide))
+          //Controller ! Message(PointGuide(getPointGuide))
         }
       }
     }),
@@ -84,3 +77,4 @@ object Distance extends Module {
     })
   )
 }
+*/

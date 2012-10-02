@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.create
+/*package com.siigna.module.base.create
 
 /* 2012 (C) Copyright by Siigna, all rights reserved. */
 
@@ -118,4 +118,4 @@ object Arc extends Module {
     if(inSetArc == false && points.length == 2)
       g draw CircleShape(points(1), points(0)).transform(t)
   }
-}
+}*/

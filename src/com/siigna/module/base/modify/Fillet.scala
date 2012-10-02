@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.modify
+/*package com.siigna.module.base.modify
 
 import com.siigna.module.Module
 import com.siigna._
@@ -29,28 +29,19 @@ import com.siigna._
 
 object Fillet extends Module{
 
-  val eventHandler = EventHandler(stateMap, stateMachine)
-
   var line1 : Option[Shape] = None
   var line2 : Option[Shape] = None
 
-  def stateMap = DirectedGraph(
-    'Start        -> 'KeyEscape  -> 'End,
-    'SelectFirst  -> 'KeyEscape  -> 'End,
-    'SelectSecond -> 'KeyEscape  -> 'End,
-    'Radius       -> 'KeyEscape  -> 'End
-  )
-
-  def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+  def stateMap = Map(
+    'Start -> {
       if(!Drawing.selection.isEmpty) {
         Drawing.deselect()
         Siigna display "select first line"
       } else Siigna display "select first line"
-      Goto('SelectFirst)
-    }),
+      'SelectFirst
+    },
     //select the first line segment for the fillet. Polyline segments should also be allowed.
-    'SelectFirst -> ((events : List[Event]) => {
+    'SelectFirst -> {
       ForwardTo('Selection)
       if(Drawing.selection.isDefined) {
         val line = Drawing.selection.get.parts.head._1
@@ -59,11 +50,11 @@ object Fillet extends Module{
         line1 = Some(Drawing(line))
         println(line1.get)
 
-        Goto('SelectSecond)
+        'SelectSecond
       }
-    }),
+    },
     //select the second line segment for the fillet. Polyline segments should also be allowed.
-    'SelectSecond -> ((events : List[Event]) => {
+    'SelectSecond -> {
       ForwardTo('Selection)
       if(Drawing.selection.isDefined) {
         val line = Drawing.selection.get.parts.head._1
@@ -72,9 +63,9 @@ object Fillet extends Module{
         line2 = Some(Drawing(line))
         println(line2.get)
 
-        Goto('SelectSecond)
+        'SelectSecond
       }
-    }),
+    },
     //prompt for a radius
     'Radius -> ((events : List[Event]) => {
        println("in radius")
@@ -82,7 +73,6 @@ object Fillet extends Module{
     //join the lines with an arc of the given radius. This requires the endpoints to be moved to where the lines and arc tangent meet.
     'End -> ((events : List[Event]) => {
       println("ending fillet")
-      None
     })
   )
-}
+}*/

@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.file
+/*package com.siigna.module.base.file
 
 /* 2010 (C) Copyright by Siigna, all rights reserved. */
 
@@ -22,13 +22,9 @@ import com.siigna._
 
 object Print extends Module {
 
-  lazy val eventHandler = EventHandler(stateMap, stateMachine)
-
   var firstOpen : Boolean = true
 
-  lazy val stateMap     = DirectedGraph('Start     -> 'KeyDown -> 'End)
-
-  lazy val stateMachine = Map(
+  lazy val stateMap = Map(
     'Start -> ((events : List[Event]) => {
       //a hack to prevent the print dialog from opening over and over again. Caused by an error in the Message system.
       if (firstOpen == true) {
@@ -62,11 +58,12 @@ object Print extends Module {
         } catch {
           case e => println(e)
         }
+      } else {
+        firstOpen = false
       }
-    else firstOpen = false
-      Goto('End)
+      'End
     }),
-    'End   -> ((events : List[Event]) => {
+    'End -> ((events : List[Event]) => {
       None
     })
   )
@@ -128,4 +125,4 @@ class MyPrintable extends Printable {
       Printable.PAGE_EXISTS
     }
   }
-}
+}*/

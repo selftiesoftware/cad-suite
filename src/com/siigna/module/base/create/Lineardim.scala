@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.create
+/*package com.siigna.module.base.create
 
 /* 2011 (C) Copyright by Siigna, all rights reserved. */
 
@@ -207,4 +207,4 @@ object Lineardim extends Module {
       g draw dimText.get.transform(t)
     }
   }
-}
+}*/

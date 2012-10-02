@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.file
+/*package com.siigna.module.base.file
 
 import com.siigna._
 import module.base.Default
@@ -18,51 +18,47 @@ object SetTitle extends Module {
 
   var boundary = Drawing.boundary
 
-  val eventHandler = EventHandler(stateMap, stateMachine)
-
   var text         = ""
 
-  def stateMap = DirectedGraph (
-    'Start    -> 'Event     -> 'End
-  )
+  def stateMap = Map(
 
-  def stateMachine = Map(
-
-    'Start -> ((events : List[Event]) => {
+    'Start -> {
       //TODO: A CLICK IS NEEDED BEFORE SIIGNA REGISTERES KEY INPUT. TO BE FIXED.
       View.zoom(Default.titleFocus.get, -2)
       Siigna display "type a drawing title"
-      Goto('TextInput)
-    }),
-    'TextInput -> ((events : List[Event]) => {
-      events match {
-        case KeyDown(Key.Backspace, _) :: tail => {
+      'TextInput
+    },
+    'TextInput -> {
+      case events => {
+        events match {
+          case KeyDown(Key.Backspace, _) :: tail => {
             if (text.length != 0) {
               text = text.substring(0, text.length - 1)
               Siigna display text
             }
-            else Goto('End)
-        }
-        case KeyDown(Key.Enter, _) :: tail => Goto('End)
-        case KeyDown(Key.Esc, _) :: tail => {
-          text = ""
-          Goto('End)
-        }
-        case KeyDown(key, _) :: tail => {
-          text += key.toChar.toString.toLowerCase        }
+            else 'End
+          }
+          case KeyDown(Key.Enter, _) :: tail => 'End
+          case KeyDown(Key.Esc, _) :: tail => {
+            text = ""
+            'End
+          }
+          case KeyDown(key, _) :: tail => {
+            text += key.toChar.toString.toLowerCase        }
           Siigna display text
 
-        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-        case _ =>
+          case MouseUp(_, MouseButtonRight, _) :: tail => 'End
+          case _ =>
+        }
+        None
       }
-      None
-    }),
-    'End -> ((events : List[Event]) => {
+    },
+    'End -> {
       //save a new name in the databasen (automatically corrects the applet's variable)
       Set(DrawingName, text)
 
       //reset the vars
       text = ""
-    })
+    }
   )
-}
+}*/

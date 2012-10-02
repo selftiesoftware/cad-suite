@@ -9,9 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.create
-
-/* 2010 (C) Copyright by Siigna, all rights reserved. */
+/*package com.siigna.module.base.create
 
 import com.siigna.module.Module
 
@@ -19,22 +17,17 @@ import com.siigna._
 
 object Group extends Module {
 
-  lazy val eventHandler = new EventHandler(stateMap, stateMachine)
-
-  lazy val stateMap = DirectedGraph(
-    'Start     -> 'KeyEscape  -> 'End
-  )
-
-  lazy val stateMachine = Map(
+  lazy val stateMap = Map(
     'Start -> ((events : List[Event]) => {
       events match {
         case MouseDown(point, MouseButtonLeft, _) :: tail => ForwardTo('Select)
         case MouseDrag(point, MouseButtonRight, _) :: tail => ForwardTo('Select)
         case _ =>
       }
+      'End
     }),
 
-    'End -> ((events : List[Event]) => {
-   })
+    'End -> ()
   )
 }
+*/
