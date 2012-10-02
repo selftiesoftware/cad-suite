@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.helpers
+/*package com.siigna.module.base.helpers
 
 import com.siigna._
 import com.siigna.module.Module
@@ -58,28 +58,17 @@ object Area extends Module {
     else "%.2f".format(a/1000000.toDouble) +" m2"
   }
 
-  lazy val eventHandler = new EventHandler(stateMap, stateMachine)
-
   var points = List[Vector2D]()
 
   var savedArea : Double = 0
 
   //TODO: Add a function to display cm2 or m2 instead of mm2 for large areas.
 
-  def stateMap = DirectedGraph(
-
-    'Start    ->   'Message  ->    'SetPoint,
-    'Start    ->   'KeyDown  ->    'End
-  )
-
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
-      events match {
-        case MouseDown(_, MouseButtonRight, _) :: tail => {
-          Goto('End)
-        }
-        case _ => ForwardTo('Point, false)
-      }
+    State('Start, {
+      case m : Message => 'SetPoint
+      case MouseDown(_, MouseButtonRight, _) :: tail => 'End
+      case _ => ForwardTo('Point, false)
     }),
   'SetPoint -> ((events : List[Event]) => {
 
@@ -132,4 +121,4 @@ object Area extends Module {
 
     })
   )
-}
+}*/

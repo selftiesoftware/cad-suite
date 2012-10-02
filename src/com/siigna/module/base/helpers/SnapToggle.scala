@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.helpers
+/*package com.siigna.module.base.helpers
 import com.siigna._
 import app.view.event.Snap
 
@@ -46,4 +46,4 @@ object SnapToggle extends Module {
       None
     })
   )
-}
+}*/

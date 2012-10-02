@@ -108,9 +108,11 @@ object ScriptEditor extends Module{
     },
 
     'End -> {
-      //reset the vars
-      com.siigna.app.view.View.paperColor = 1.00f
-      text = ""
+      () => {
+        //reset the vars
+        com.siigna.app.view.View.paperColor = 1.00f
+        text = ""
+      }
     }
   )
 

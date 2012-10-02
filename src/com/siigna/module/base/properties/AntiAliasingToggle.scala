@@ -17,13 +17,16 @@ import com.siigna._
  */
 object AntiAliasingToggle extends Module {
 
-  lazy val stateMap = Map(
+  lazy val stateMap : StateMap = Map(
 
-    'Start -> 'End,
+    'Start -> {
+      () => 'End
+    },
 
-    'End -> {
-      Siigna.toggle("anti-aliasing")
-      'End
+    'End -> { () => {
+        Siigna.toggle("anti-aliasing")
+        'End
+      }
     }
   )
 }

@@ -22,9 +22,9 @@ object Rectangle extends Module {
 
   def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
 
-  def stateMape = Map(
+  def stateMap = Map(
     //TODO: draw a dummy rectangle of eg. 1/15 * 1/15 of the paper height/width dynamically before first point is set
-    'Start -> {
+    State('Start, (events : List[Event]) => {
       set("activeLineWeight", "StrokeWidth")
       set("activeColor", "Color")
 
@@ -34,7 +34,7 @@ object Rectangle extends Module {
         case _ => ForwardTo('Point, false)
 
       }
-    },
+    }),
     'SetPoint -> {
       case events => {
         //A function that passes a rectangleShape to the point module to be drawn dynamically
@@ -62,13 +62,13 @@ object Rectangle extends Module {
         }
       }
     },
-    'End -> {
+    State('End, () => {
       if(!points.isEmpty) Create(PolylineShape(Rectangle2D(points(0), points(1))).setAttributes(attributes))
 
       // Clear variables
       points = List[Vector2D]()
       com.siigna.module.base.Default.previousModule = Some('Rectangle)
-    }
+    })
   )
 
 }

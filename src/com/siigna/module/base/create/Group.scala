@@ -9,9 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.create
-
-/* 2010 (C) Copyright by Siigna, all rights reserved. */
+/*package com.siigna.module.base.create
 
 import com.siigna.module.Module
 
@@ -32,3 +30,4 @@ object Group extends Module {
     'End -> ()
   )
 }
+*/

@@ -24,9 +24,9 @@ object Performancetest extends Module {
 
   val limit = 1000
 
-  lazy val stateMap = Map(
+  val stateMap : StateMap = Map(
 
-    'Start -> {
+    State('Start, () => {
       var i = 0
       val startSeconds = System.currentTimeMillis()
 
@@ -50,13 +50,12 @@ object Performancetest extends Module {
       val endSeconds = System.currentTimeMillis()
       Log("Time to draw "+ limit * limit +" lines:" + (endSeconds - startSeconds))
       'Intermezzo
-    },
-    'Intermezzo -> {
-      case KeyDown(_, _, _) :: tail => 'End
+    }),
+    State('Intermezzo, {
+      case KeyDown(_, _) :: tail => 'End
       case _ =>
-    },
-
-    'End -> ()
+    }),
+    State('End, () => ())
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {

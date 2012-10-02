@@ -9,13 +9,11 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base
+/*package com.siigna.module.base
 
 import com.siigna._
 
 object Selection extends Module {
-
-  val eventHandler = EventHandler(stateMap, stateMachine)
 
   private var box : Option[Rectangle2D] = None
 
@@ -40,8 +38,8 @@ object Selection extends Module {
       val shape = Default.nearestShape.get
       val part = shape._2.getPart(Siigna.mousePosition)
       Drawing.select(shape._1, part)
-      Goto('End)
       ForwardTo('Move)
+      'End
     }
   }
 
@@ -135,4 +133,4 @@ object Selection extends Module {
     }
 
   }
-}
+}*/

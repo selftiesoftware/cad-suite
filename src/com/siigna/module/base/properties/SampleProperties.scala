@@ -26,16 +26,8 @@ object SampleProperties extends Module{
   //var weight : Option[String] = None
 
 
-  final class StateAssoc(val x: Symbol) {
-    type F = PartialFunction[List[Event], Any]
-    @inline def -> (y: F): Tuple2[Symbol, F] = Tuple2(x, y)
-    def →[B](y: B): Tuple2[Symbol, F] = ->(y)
-  }
-  implicit def symbol2StateAssoc(x: Symbol): StateAssoc = new StateAssoc(x)
-
-
   def stateMap : StateMap = Map(
-    'Start -> {
+    State('Start, () => {
       Siigna display ("select an object to sample from")
 
       if (Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
@@ -45,13 +37,13 @@ object SampleProperties extends Module{
         'UpdateShapes
       } else ForwardTo('Selection, false)
 
-    },
-    'UpdateShapes -> {
+    }),
+    State('UpdateShapes, () => {
       Siigna display ("select objects to update")
       if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) 'End
       else ForwardTo('Selection, false)
-    },
-    'End -> {
+    }),
+    'End -> (() => {
       if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
         Drawing.selection.get.setAttributes(attributes)
         Drawing.deselect()
@@ -60,6 +52,6 @@ object SampleProperties extends Module{
       attributes = Attributes()
       selected = None
       templateShape = None
-    }
+    })
   )
 }

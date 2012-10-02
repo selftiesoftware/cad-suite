@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.modify
+/*package com.siigna.module.base.modify
 
 import com.siigna.module.Module
 import com.siigna._
@@ -32,7 +32,7 @@ object Fillet extends Module{
   var line1 : Option[Shape] = None
   var line2 : Option[Shape] = None
 
-  def stateMachine = Map(
+  def stateMap = Map(
     'Start -> {
       if(!Drawing.selection.isEmpty) {
         Drawing.deselect()
@@ -75,4 +75,4 @@ object Fillet extends Module{
       println("ending fillet")
     })
   )
-}
+}*/

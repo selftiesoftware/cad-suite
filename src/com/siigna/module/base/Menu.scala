@@ -25,9 +25,6 @@ import com.siigna.module.base.radialmenu.category.{Create => MenuCreate}
  */
 object Menu extends Module {
 
-  // The event handler
-  def eventHandler = new EventHandler(RadialMenuStateMap, stateMachine)
-
   // The center of the radial menu
   var center : Option[Vector2D]         = None
 
@@ -60,7 +57,7 @@ object Menu extends Module {
   // The transformation to use throughout the paint
   private var transformation = TransformationMatrix(Vector2D(0, 0), 1)
 
-  def stateMachine = Map(
+  def stateMap = Map(
     'Start -> ((events : List[Event]) => {
       //println("view screen, top: "+View.screen.borderTop)
       events match {
@@ -105,7 +102,7 @@ object Menu extends Module {
           currentCategory = Start
           initializeMenu()
         }
-        case _ => Goto('InteractionTest, false)
+        case _ => 'InteractionTest//, false)
       }
     }),
     'InteractionTest -> ((events : List[Event]) => {
@@ -113,11 +110,11 @@ object Menu extends Module {
         //forward to the 'End and then Default menu if a key is pressed
         case KeyUp(key, _) :: (e : KeyDown) :: tail => {
           lastKey = Some(e)
-          Goto('End)
+          'End
         }
 
         case MouseDown(_, MouseButtonRight, _) :: tail => {
-          Goto('End, false)
+          'End//, false
         }
         case MouseUp(point, _, _) :: tail => {
           val direction = this.direction(point)
@@ -132,7 +129,7 @@ object Menu extends Module {
                  moduleCallFromMenu = true
                   //TODO fix this-- a hack to reactivate navigation when Menu Forwards to a new module but fails to Goto End.
                   Siigna.navigation = true
-                  Goto('End)
+                  'End
                   Preload(item.module, item.modulePath)
                   ForwardTo(item.module)
                   // Save the previous module
@@ -156,7 +153,7 @@ object Menu extends Module {
             }
             case Some(item : MenuItem)         => {
                 if (item.module != 'None) {
-                  Goto('End)
+                  'End
                   //TODO fix this-- a hack to reactivate navigation when Menu Forwards to a new module but fails to Goto End.
                   Siigna.navigation = true
 
@@ -171,7 +168,7 @@ object Menu extends Module {
     }),
     'InteractionTestDrag -> ((events : List[Event]) => {
       events match {
-        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
+        case MouseUp(_, MouseButtonRight, _) :: tail => 'End
         case _ => {}
       }
     }),
