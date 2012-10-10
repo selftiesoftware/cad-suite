@@ -130,8 +130,7 @@ object Menu extends Module {
                   //TODO fix this-- a hack to reactivate navigation when Menu Forwards to a new module but fails to Goto End.
                   Siigna.navigation = true
                   'End
-                  Preload(item.module, item.modulePath)
-                  ForwardTo(item.module)
+                  Module(item.module)
                   // Save the previous module
                   Default.previousModule = Some(item.module)
                 }
@@ -157,7 +156,7 @@ object Menu extends Module {
                   //TODO fix this-- a hack to reactivate navigation when Menu Forwards to a new module but fails to Goto End.
                   Siigna.navigation = true
 
-                  ForwardTo(item.module)
+                  Module(item.module)
                 }
             }
             case None => if (level == 3) currentCategory = Start

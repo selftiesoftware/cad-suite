@@ -23,8 +23,6 @@ import java.awt.Color
 
 object Default extends Module {
 
-  Preload('Selection)
-
   var activeUser : Option[String] = None
   var activeDrawing : Option[Int] = None
 
@@ -82,20 +80,6 @@ object Default extends Module {
           startTime =  Some(System.currentTimeMillis().toLong)
 
           Siigna.display("loaded base modules ver. 1.0 alpha. right-click the mouse to interact ")
-          //preload commonly used modules
-          Preload('AngleGizmo, "com.siigna.module.base.create")
-          Preload('Area, "com.siigna.module.base.helpers")
-          //Preload('Artline, "com.siigna.module.base.create")
-          //Preload('Fill, "com.siigna.module.base.create")
-          Preload('Circle, "com.siigna.module.base.create")
-          Preload('Distance, "com.siigna.module.base.helpers")
-          Preload('Line, "com.siigna.module.base.create")
-          Preload('Lineardim, "com.siigna.module.base.create")
-          Preload('Point, "com.siigna.module.base.create")
-          Preload('Polyline, "com.siigna.module.base.create")
-          Preload('Rectangle, "com.siigna.module.base.create")
-          Preload('Scale, "com.siigna.module.base.modify")
-          Preload('Text, "com.siigna.module.base.create")
 
           firstStart = false
 
@@ -117,7 +101,7 @@ object Default extends Module {
             if (firstMenuLoad == true) {
               firstMenuLoad = false
             }
-            Module('Menu,false)
+            Module('Menu)
             Controller ! Message(point)
           }
           /*
@@ -141,7 +125,7 @@ object Default extends Module {
           case KeyDown(('c' | 'C'), ModifierKeys(_, true, _)) :: tail => {
             if (Drawing.selection.isDefined) {
               moduleCallFromMenu = true
-              Module('Copy, false)
+              Module('Copy)
             }
           }
 
@@ -161,7 +145,7 @@ object Default extends Module {
                 Drawing.deselect()
               }
               case Key.Space => {
-                if (previousModule.isDefined) ForwardTo(previousModule.get)
+                if (previousModule.isDefined) Module(previousModule.get)
               }
               case 'a' => {
                 if (previousKey == Some('c')) {

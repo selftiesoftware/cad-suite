@@ -32,7 +32,7 @@ object Circle extends Module {
           case MouseDown(_, MouseButtonRight, _) :: tail => 'End
           case Message(p : Vector2D) :: tail => 'SetRadius
           case _ => {
-            Module('Point, false)
+            Module('Point)
           }
         }
         None
