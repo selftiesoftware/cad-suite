@@ -44,7 +44,7 @@ object Arc extends Module {
       case MouseDown(_, MouseButtonRight, _) :: tail => {
         Goto('End)
       }
-      case _ => ForwardTo('Point, false)
+      case _ => Module('Point, false)
     }
   }),
   'SetRadius -> ((events : List[Event]) => {
@@ -64,7 +64,7 @@ object Arc extends Module {
           //proceed to set the Arc segment
           points = points :+ p
           Controller ! Message(PointGuide(getCircleGuide))
-          ForwardTo('Point)
+          Module('Point)
         }
         else if (points.length == 1) {
           //proceed to set the Arc segment
@@ -98,7 +98,7 @@ object Arc extends Module {
 
       case _ => {
         Controller ! Message(PointGuide(arcGuide))
-        ForwardTo('Point)
+        Module('Point)
       }
 
 

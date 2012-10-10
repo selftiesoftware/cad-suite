@@ -33,7 +33,7 @@ object Divide extends Module {
         'TextInput
       } else {
         Siigna display "Select line to divide"
-        ForwardTo('Selection)
+        Module('Selection)
       }
     }),
     State('TextInput, {

@@ -31,7 +31,7 @@ object Rectangle extends Module {
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => 'End
         case Message(p : Vector2D) :: tail => 'SetPoint
-        case _ => ForwardTo('Point, false)
+        case _ => Module('Point)
 
       }
     }),
@@ -55,7 +55,7 @@ object Rectangle extends Module {
             } else if (points.length == 0) {
               points = points :+ point
               //Controller ! Message(PointGuide(getRectGuide))
-              ForwardTo('Point)
+              Module('Point)
             }
           }
           case _ =>

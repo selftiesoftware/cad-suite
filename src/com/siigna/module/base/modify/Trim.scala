@@ -59,7 +59,7 @@ object Trim extends Module {
           Goto('StartSelection)
         } else {
           Siigna.display("Select an object to trim objects by")
-          ForwardTo('Select)
+          Module('Select)
         }
       }
       case _ =>

@@ -69,7 +69,7 @@ object Rotate extends Module {
               firstMouseDown = true
             else {
               centerPoint = Some(p)
-              ForwardTo('Point, false)
+              Module('Point, false)
             }
           }
           //if the module is called with space (hack, could probably be nicer..)
@@ -87,7 +87,7 @@ object Rotate extends Module {
             //send the selected shapes as a guide to 'Point to draw them dynamically while waiting for the end Vector.
             Controller ! Message(PointGuides(shapeGuide))
             startVector = Some(p)
-            ForwardTo('Point)
+            Module('Point)
           }
           //match rotation angles sent from 'Point
           case Message(r : Double) :: KeyDown(_ ,_) :: tail => {
@@ -97,7 +97,7 @@ object Rotate extends Module {
           }
           case _ => {
             Siigna.display("Select a starting point, or type an angle")
-            ForwardTo('Point, false)
+            Module('Point, false)
           }
         }
       }
@@ -110,7 +110,7 @@ object Rotate extends Module {
             Goto('End)
           }
           case _ => {
-            ForwardTo('Point, false)
+            Module('Point, false)
           }
         }
       }

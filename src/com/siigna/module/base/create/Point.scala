@@ -17,7 +17,7 @@ import com.siigna.module.base.Default._
 /**
  * The point module answers to requests from many other modules who require a number or one or more points to function.
  *
- * No messages need to be send in order to call the point module. To get a point from the point module, use ForwardTo('Point).
+ * No messages need to be send in order to call the point module. To get a point from the point module, use Module('Point).
  * The point module will run and return a point (if one has been set) as a Message(Vector2D).
  *
  * Points are set with the mouse or by typing an x and y value, seperated by a comma.
@@ -123,7 +123,7 @@ object Point extends Module {
         // Check for continued MouseDown
         case Message(g : Guide) :: Message(p : Vector2D) :: MouseDown(_, MouseButtonLeft, _) :: tail => {
           pointGuide = Some(g)
-          ForwardTo('AngleGizmo)
+          Module('AngleGizmo)
         }
 
         // Check for PointGuide
@@ -211,7 +211,7 @@ object Point extends Module {
 
         case KeyDown(Key.Shift, _) :: tail => {
           Controller ! Message(previousPoint.get)
-          ForwardTo('AngleGizmo)
+          Module('AngleGizmo)
         }
         case KeyDown(Key.Space, _) :: tail => Goto('End)
 

@@ -29,7 +29,7 @@ object Selection extends Module {
   def hasFullShape = {
     if(nearestShape.isDefined){
       Drawing.select(nearestShape.get._1)
-      ForwardTo('Move)
+      Module('Move)
     }
   }
 
@@ -38,7 +38,7 @@ object Selection extends Module {
       val shape = Default.nearestShape.get
       val part = shape._2.getPart(Siigna.mousePosition)
       Drawing.select(shape._1, part)
-      ForwardTo('Move)
+      Module('Move)
       'End
     }
   }

@@ -34,13 +34,13 @@ object SampleProperties extends Module{
         attributes = templateShape.get.attributes
         Drawing.deselect()
         'UpdateShapes
-      } else ForwardTo('Selection, false)
+      } else Module('Selection, false)
 
     }),
     State('UpdateShapes, () => {
       Siigna display ("select objects to update")
       if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) 'End
-      else ForwardTo('Selection, false)
+      else Module('Selection, false)
     }),
     'End -> (() => {
       if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {

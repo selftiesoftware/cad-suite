@@ -101,7 +101,7 @@ object Default extends Module {
 
           //be sure to zoom to the title only after the boundary has been set, so that the correct zoom center can be retrieved.
           //if (AppletParameeters.drawingIdReceivedAtStartup == false && titleFocus.isDefined) {
-          //  ForwardTo('SetTitle)
+          //  Module('SetTitle)
           //}
           // TODO: Should this be used?
         }// else if (Drawing.attributes.int("id").isDefined && !titleFocus.isDefined) {
@@ -112,24 +112,24 @@ object Default extends Module {
         if (nearestShape.isDefined && !Drawing.contains(nearestShape.get._1)) nearestShape = None
 
         events match {
-          case MouseDown(point, MouseButtonLeft, _) :: tail           => ForwardTo('Selection)
+          case MouseDown(point, MouseButtonLeft, _) :: tail           => Module('Selection)
           case MouseDown(point, MouseButtonRight, _) :: tail          => {
             if (firstMenuLoad == true) {
               firstMenuLoad = false
             }
-            ForwardTo('Menu,false)
+            Module('Menu,false)
             Controller ! Message(point)
           }
           /*
           case MouseUp(point, MouseButtonRight, _) :: tail          => {
             println("MU")
             if (firstMenuLoad == true) {
-              ForwardTo('Menu)
+              Module('Menu)
               firstMenuLoad = false
             }
             else {
               println("OPENING MENU")
-              ForwardTo('Menu)
+              Module('Menu)
             }
           }
           */
@@ -141,7 +141,7 @@ object Default extends Module {
           case KeyDown(('c' | 'C'), ModifierKeys(_, true, _)) :: tail => {
             if (Drawing.selection.isDefined) {
               moduleCallFromMenu = true
-              ForwardTo('Copy, false)
+              Module('Copy, false)
             }
           }
 
@@ -166,41 +166,41 @@ object Default extends Module {
               case 'a' => {
                 if (previousKey == Some('c')) {
                   Siigna.display("artline")
-                  ForwardTo('Artline)
+                  Module('Artline)
                   previousKey = Some('a')
                 }
                 else if(previousKey == Some('h')) {
                   Siigna.display("click to measure area")
-                  ForwardTo('Area)
+                  Module('Area)
                   previousKey = Some('a')
                 }
                 else previousKey = Some('a')
               }
               case 'c' => {
                 if(previousKey == Some('p')) {
-                  ForwardTo('ColorWheel)
+                  Module('ColorWheel)
                 }
                 else if(previousKey == Some('c')) {
                   Siigna.display("circle")
-                  ForwardTo('Circle)
+                  Module('Circle)
                   previousKey = None
                 }
                 //open the CREATE menu
                 else {
                   Controller ! Message(MenuCreate(Some(Start)))
-                  ForwardTo('Menu)
+                  Module('Menu)
                   previousKey = Some('c')
                 }
               }
               case 'd' => {
                 if(previousKey == Some('c')) {
                   Siigna.display("dimension")
-                  ForwardTo('Lineardim)
+                  Module('Lineardim)
                   previousKey = Some('d')
                 }
                 else if(previousKey == Some('h')) {
                   Siigna.display("distance?")
-                  ForwardTo('Distance)
+                  Module('Distance)
                   previousKey = Some('d')
                 }
                 else previousKey = Some('d')
@@ -209,38 +209,38 @@ object Default extends Module {
               case 'f' => {
                 if (previousKey == Some('c')) {
                   Siigna.display("fill is not available yet")
-                  //ForwardTo('Fill)
+                  //Module('Fill)
                   previousKey = Some('f')
                 } else {
                   Controller ! Message(File(Some(Start)))
-                  ForwardTo('Menu)
+                  Module('Menu)
                   previousKey = Some('f')
                 }
               }
               //open the HELPERS menu
               case 'h' => {
                 Controller ! Message(Helpers(Some(Start)))
-                ForwardTo('Menu)
+                Module('Menu)
                 previousKey = Some('h')
               }
               //open the MODIFY menu
               case 'm' => {
                 if(previousKey == Some('m')) {
                   Siigna.display("move")
-                  ForwardTo('Move)
+                  Module('Move)
                   previousKey = None
                 }
                 else
                 {
                   Controller ! Message(Modify(Some(Start)))
-                  ForwardTo('Menu)
+                  Module('Menu)
                   previousKey = Some('m')
                 }
               }
               case 'l' => {
                 if (previousKey == Some('c')) {
                   Siigna.display("line")
-                  ForwardTo('Line)
+                  Module('Line)
                   previousKey = Some('l')
                 }
                 else previousKey = Some('l')
@@ -250,17 +250,17 @@ object Default extends Module {
               //  interface.display("opening print dialog")
               //  Thread.sleep(500)
               //  interface.clearDisplay()
-              //  ForwardTo('Print)
+              //  Module('Print)
               //}
               case 'r' => {
                 if (previousKey == Some('c')) {
                   Siigna.display("rectangle")
-                  ForwardTo('Rectangle)
+                  Module('Rectangle)
                   previousKey = Some('r')
                 }
                 else if (previousKey == Some('m')) {
                   Siigna.display("rotate")
-                  ForwardTo('Rotate)
+                  Module('Rotate)
                   previousKey = Some('r')
                 }
                 else previousKey = Some('r')
@@ -268,7 +268,7 @@ object Default extends Module {
               case 's' => {
                 if (previousKey == Some('m')) {
                   Siigna.display("scale")
-                  ForwardTo('Scale)
+                  Module('Scale)
                   previousKey = Some('s')
                 }
                 else previousKey = Some('s')
@@ -279,24 +279,24 @@ object Default extends Module {
                 if(previousKey == Some('f')) {
                   Siigna.display("print")
                   previousKey = Some('p')
-                  ForwardTo('Print)
+                  Module('Print)
                 }
                 else if(previousKey == Some('c')) {
                   Siigna.display("polyline")
                   previousKey = Some('p')
-                  ForwardTo('Polyline)
+                  Module('Polyline)
                 }
                 //open the PROPERTIES menu
                 else {
                   Controller ! Message(Properties(Some(Start)))
-                  ForwardTo('Menu)
+                  Module('Menu)
                   previousKey = Some('p')
                 }
               }
               case 't' => {
                 if (previousKey == Some('c')) {
                   Siigna.display("text")
-                  ForwardTo('Text)
+                  Module('Text)
                   previousKey = Some('t')
                 }
                 else previousKey = Some('t')
