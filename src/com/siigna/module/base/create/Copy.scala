@@ -96,7 +96,7 @@ object Copy extends Module {
           Goto('Copy)
         }
         case _ => {
-          ForwardTo('Point)
+          Module('Point)
           Controller ! Message(PointGuides(shapeGuide))
         }
       }
@@ -136,7 +136,7 @@ object Copy extends Module {
         //check if the endPoint is set. If not, goto 'Point.
         if (gotEndPoint == false) {
           gotEndPoint = true
-          ForwardTo('Point)
+          Module('Point)
         }
         //if the message arrives after the gotEndPoint flag is set, use it to define the endpoint:
         //TODO: this is a hack, could probably be made alot nicer...

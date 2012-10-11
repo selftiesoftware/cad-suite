@@ -54,7 +54,7 @@ object Scale extends Module {
     'Start ->   ((events : List[Event]) => {
       if (Drawing.selection.isDefined) {
         Siigna display "set startpoint"
-        ForwardTo('Point, false)
+        Module('Point)
       }
       else {
         Siigna display "Select objects first"
@@ -66,7 +66,7 @@ object Scale extends Module {
         case Message(p : Vector2D) :: tail => {
           startPoint = Some(p)
           Siigna display "set endpoint"
-          ForwardTo('Point, false)
+          Module('Point)
         }
         case _ =>
       }

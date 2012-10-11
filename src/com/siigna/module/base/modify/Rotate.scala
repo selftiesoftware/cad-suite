@@ -69,7 +69,7 @@ object Rotate extends Module {
               firstMouseDown = true
             else {
               centerPoint = Some(p)
-              ForwardTo('Point, false)
+              Module('Point)
             }
           }
           //if the module is called with space (hack, could probably be nicer..)
@@ -97,7 +97,7 @@ object Rotate extends Module {
           }
           case _ => {
             Siigna.display("Select a starting point, or type an angle")
-            ForwardTo('Point, false)
+            Module('Point)
           }
         }
       }
@@ -110,7 +110,7 @@ object Rotate extends Module {
             Goto('End)
           }
           case _ => {
-            ForwardTo('Point, false)
+            Module('Point)
           }
         }
       }

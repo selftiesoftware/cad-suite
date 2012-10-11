@@ -32,7 +32,7 @@ object Circle extends Module {
           case MouseDown(_, MouseButtonRight, _) :: tail => 'End
           case Message(p : Vector2D) :: tail => 'SetRadius
           case _ => {
-            ForwardTo('Point, false)
+            Module('Point)
           }
         }
         None
@@ -59,7 +59,7 @@ object Circle extends Module {
             } else if (!center.isDefined) {
               center = Some(p)
               //Controller ! Message(PointGuide(getCircleGuide))
-              ForwardTo('Point)
+              Module('Point)
             }
           }
           case _ =>

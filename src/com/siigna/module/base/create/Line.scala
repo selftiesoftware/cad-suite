@@ -44,7 +44,7 @@ object Line extends Module{
         case MouseDown(_, MouseButtonRight, _) :: tail => {
           Goto('End)
         }
-        case _ => ForwardTo('Point, false)
+        case _ => Module('Point)
       }
     }),
     'SetPoint -> ((events : List[Event]) => {
@@ -67,7 +67,7 @@ object Line extends Module{
           points = points :+ p
           // Define shape if there is enough points
           if (points.size == 1) {
-            ForwardTo('Point, false)
+            Module('Point)
             Controller ! Message(PointGuide(getPointGuide))
           } else if (points.size == 2) {
             shape = Some(LineShape(points(0),points(1)))
@@ -77,7 +77,7 @@ object Line extends Module{
 
         // match on everything else
         case _ => {
-          ForwardTo('Point)
+          Module('Point)
           Controller ! Message(PointGuide(getPointGuide))
         }
       }

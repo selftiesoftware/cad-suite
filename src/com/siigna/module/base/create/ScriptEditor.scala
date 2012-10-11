@@ -96,7 +96,7 @@ object ScriptEditor extends Module{
           case MouseUp(point, MouseButtonRight, _) :: tail => {
             if(moduleOpen == false){
               moduleOpen = true
-              ForwardTo('Menu,false)
+              Module('Menu)
               Controller ! Message(point)
             } else moduleOpen = false
           }
