@@ -102,7 +102,6 @@ object Default extends Module {
               firstMenuLoad = false
             }
             Module('Menu)
-            Controller ! Message(point)
           }
           /*
           case MouseUp(point, MouseButtonRight, _) :: tail          => {

@@ -37,7 +37,7 @@ object Polyline extends Module {
       case MouseDown(_, MouseButtonRight, _) :: tail => {
         Goto('End)
       }
-      case _ => Module('Point, false)
+      case _ => Module('Point)
     }
   }),
   'SetPoint -> ((events : List[Event]) => {
@@ -64,7 +64,7 @@ object Polyline extends Module {
         if (points.size > 1) {
           shape = Some(PolylineShape(points))
         }
-        Module('Point, false)
+        Module('Point)
         Controller ! Message(PointGuide(getPointGuide))
       }
 

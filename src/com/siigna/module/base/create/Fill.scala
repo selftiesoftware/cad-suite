@@ -36,7 +36,7 @@ object Fill extends Module {
         case MouseDown(_, MouseButtonRight, _) :: tail => {
           'End
         }
-        case _ => Module('Point, false)
+        case _ => Module('Point)
       }
     }),
   'SetPoint -> ((events : List[Event]) => {
@@ -60,7 +60,7 @@ object Fill extends Module {
         // Save the point
         points = points :+ p
         // Define shape if there is enough points
-        Module('Point, false)
+        Module('Point)
         Controller ! Message(PointGuide(getPointGuide))
       }
 

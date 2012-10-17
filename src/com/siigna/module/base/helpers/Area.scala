@@ -68,7 +68,7 @@ object Area extends Module {
     State('Start, {
       case m : Message => 'SetPoint
       case MouseDown(_, MouseButtonRight, _) :: tail => 'End
-      case _ => Module('Point, false)
+      case _ => Module('Point)
     }),
   'SetPoint -> ((events : List[Event]) => {
 
@@ -91,7 +91,7 @@ object Area extends Module {
         // Save the point
         points = points :+ p
         // Define shape if there is enough points
-        Module('Point, false)
+        Module('Point)
         Controller ! Message(PointGuide(getPointGuide))
       }
       //TODO: add ability to start new measurement, adding to the existing, by pressing CTRL.
@@ -103,7 +103,7 @@ object Area extends Module {
 
       // Match on everything else
       case _ => {
-        Module('Point)
+        ForwardTo('Point)
         Controller ! Message(PointGuide(getPointGuide))
       }
     }

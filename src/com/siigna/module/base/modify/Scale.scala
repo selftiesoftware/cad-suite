@@ -54,7 +54,7 @@ object Scale extends Module {
     'Start ->   ((events : List[Event]) => {
       if (Drawing.selection.isDefined) {
         Siigna display "set startpoint"
-        Module('Point, false)
+        Module('Point)
       }
       else {
         Siigna display "Select objects first"
@@ -66,7 +66,7 @@ object Scale extends Module {
         case Message(p : Vector2D) :: tail => {
           startPoint = Some(p)
           Siigna display "set endpoint"
-          Module('Point, false)
+          Module('Point)
         }
         case _ =>
       }
@@ -95,7 +95,7 @@ object Scale extends Module {
       if (gotEndPoint == false) {
         gotEndPoint = true
         Controller ! Message(PointGuides(shapeGuide))
-        Module('Point)
+        ForwardTo('Point)
       }
       //if the message arrives after the gotEndPoint flag is set, use it to define the endpoint:
       //TODO: this is a hack, could probably be made alot nicer...

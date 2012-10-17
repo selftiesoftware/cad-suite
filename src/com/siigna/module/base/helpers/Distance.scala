@@ -30,7 +30,7 @@ object Distance extends Module {
         case MouseDown(_, MouseButtonRight, _) :: tail => {
           'End
         }
-        case _ => Module('Point, false)
+        case _ => Module('Point)
       }
     }),
     'SetPoint -> ((events : List[Event]) => {
@@ -52,14 +52,14 @@ object Distance extends Module {
           points = points :+ p
           // Define shape if there is enough points
           if (points.size == 1) {
-            Module('Point, false)
+            Module('Point)
             //Controller ! Message(PointGuide(getPointGuide))
           } else 'End
         }
 
         // match on everything else
         case _ => {
-          Module('Point)
+          ForwardTo('Point)
           //Controller ! Message(PointGuide(getPointGuide))
         }
       }

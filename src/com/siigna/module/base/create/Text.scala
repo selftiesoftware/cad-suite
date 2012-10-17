@@ -60,7 +60,7 @@ object Text extends Module {
           position = Some(p)
           Goto('TextInput)
         }
-        case _ => Module('Point, false)
+        case _ => Module('Point)
       }
       None
     }),

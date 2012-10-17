@@ -64,7 +64,7 @@ object Offset extends Module {
       case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
       case MouseUp(p, _, _) :: tail => {
         //goto 'Point to get the offset distance
-        Module('Point, false)
+        Module('Point)
         Controller ! Message(PointGuides(shapeGuide))
       }
       case _ =>

@@ -44,7 +44,7 @@ object Arc extends Module {
       case MouseDown(_, MouseButtonRight, _) :: tail => {
         Goto('End)
       }
-      case _ => Module('Point, false)
+      case _ => Module('Point)
     }
   }),
   'SetRadius -> ((events : List[Event]) => {

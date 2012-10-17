@@ -16,8 +16,7 @@ import com.siigna.module.base.radialmenu._
 
 import com.siigna._
 
-import category._
-import com.siigna.module.base.radialmenu.category.{Create => MenuCreate}
+import category.{Create => MenuCreate, Start, MenuCategory}
 
 /**
  * The menu module. This module shows the menu as radial items and categories in 13 places (directions):
@@ -59,6 +58,8 @@ object Menu extends Module {
 
   def stateMap = Map(
     'Start -> ((events : List[Event]) => {
+      Create(LineShape(Vector2D(100, 100), Vector2D(0, 0)))
+
       //println("view screen, top: "+View.screen.borderTop)
       events match {
         //if a Menu Category is received as a message from the Default module, display that category
