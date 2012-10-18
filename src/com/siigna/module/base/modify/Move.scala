@@ -57,7 +57,7 @@ object Move extends Module {
           events match {
             case Message(p : Option[Vector2D]) :: tail => startPoint = p
             case MouseDown(p, MouseButtonLeft, _) :: tail => startPoint = Some(p)
-            case MouseDown(p, MouseButtonRight, _) :: tail => ForwardTo('Menu)
+            case MouseDown(p, MouseButtonRight, _) :: tail => Module('Menu)
             case MouseMove(p, _, _) :: tail => startPoint = Some(p)
             case MouseDrag(p, _, _) :: tail => {
 
@@ -99,7 +99,7 @@ object Move extends Module {
         }
         case _ => {
           com.siigna.module.base.Default.previousModule = Some('Move)
-          ForwardTo('Point)
+          Module('Point)
           Controller ! Message(PointGuides(shapeGuide))
         }
       }
@@ -141,7 +141,7 @@ object Move extends Module {
             //check if the endPoint is set. If not, goto 'Point.
             if (gotEndPoint == false) {
               gotEndPoint = true
-              ForwardTo('Point)
+              Module('Point)
             }
             //if the message arrives after the gotEndPoint flag is set, use it to define the endpoint:
             //TODO: this is a hack, could probably be made alot nicer...

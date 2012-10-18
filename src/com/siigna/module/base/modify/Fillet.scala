@@ -42,7 +42,7 @@ object Fillet extends Module{
     },
     //select the first line segment for the fillet. Polyline segments should also be allowed.
     'SelectFirst -> {
-      ForwardTo('Selection)
+      Module('Selection)
       if(Drawing.selection.isDefined) {
         val line = Drawing.selection.get.parts.head._1
         println(line)
@@ -55,7 +55,7 @@ object Fillet extends Module{
     },
     //select the second line segment for the fillet. Polyline segments should also be allowed.
     'SelectSecond -> {
-      ForwardTo('Selection)
+      Module('Selection)
       if(Drawing.selection.isDefined) {
         val line = Drawing.selection.get.parts.head._1
         println(line)
