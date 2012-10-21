@@ -27,7 +27,6 @@ object Circle extends Module {
     //Start: Defines a centerpoint for the circle and forwards to 'SetRadius
     'Start -> {
       case events => {
-        com.siigna.module.base.Default.previousModule = Some('Circle)
         events match {
           case MouseDown(_, MouseButtonRight, _) :: tail => 'End
           case Message(p : Vector2D) :: tail => 'SetRadius

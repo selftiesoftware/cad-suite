@@ -67,7 +67,6 @@ object Rectangle extends Module {
 
       // Clear variables
       points = List[Vector2D]()
-      com.siigna.module.base.Default.previousModule = Some('Rectangle)
     })
   )
 

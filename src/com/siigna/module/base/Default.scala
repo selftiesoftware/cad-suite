@@ -17,13 +17,18 @@ import java.awt.Color
 * The default module for the base module pack. Works as access point to
 * the rest of the modules.
  */
-
 object Default extends Module {
 
   def stateMap = Map(
     'Start -> {
       case MouseDown(_, MouseButtonRight, _) :: tail => {
         Module('Menu)
+      }
+      case KeyDown('l', _) :: tail => {
+        Create(LineShape(Vector2D(0, 0), Vector2D(100, 100)))
+      }
+      case KeyDown('c', _) :: tail => {
+        Create(CircleShape(Vector2D(100, 100), 12))
       }
       case KeyDown('z', Control) :: tail => {
         Drawing.undo()
@@ -35,6 +40,6 @@ object Default extends Module {
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    println("Start")
+
   }
 }

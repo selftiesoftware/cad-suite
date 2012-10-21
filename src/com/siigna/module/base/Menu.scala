@@ -76,7 +76,7 @@ object Menu extends Module {
    * of the icons, origining from the center.
    */
   override def paint(g : Graphics, transformation : TransformationMatrix) {
-    println("Menu")
+    g.draw(CircleShape(View.center, 130))
   }
 
 }
