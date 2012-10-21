@@ -74,7 +74,7 @@ object Menu extends Module {
           //The point is in virtual coordinates.
           // it can change to negative values when the view is panned, and needs to be physical.
           //TODO: View.virtual.flipY seems to corrupt the coordinates. Here Y is flipped manually:
-          val pMatchingFrame = point.transform(View.virtual)
+          val pMatchingFrame = point.transform(View.drawingTransformation)
           val pYFlipped = -(pMatchingFrame.y - View.screen.yMax)
           val p = Vector2D(pMatchingFrame.x,pYFlipped)
 

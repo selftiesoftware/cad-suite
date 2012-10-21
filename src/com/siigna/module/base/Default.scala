@@ -59,7 +59,7 @@ object Default extends Module {
       case events => {
         //on startup, for some reason this value defaults to true even though it is set to false in 'Menu. This line forces it to be false.
         com.siigna.module.base.Menu.moduleCallFromMenu = false
-        val m = Siigna.mousePosition
+        val m = View.mousePosition
 
         if (Drawing(m).size > 0) {
           val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
@@ -321,7 +321,7 @@ object Default extends Module {
     //draw highlighted vertices and segments that are selectable (close to the mouse)
     if (nearestShape.isDefined) {
       val shape  = nearestShape.get._2
-      val part = shape.getPart(Siigna.mousePosition)
+      val part = shape.getPart(View.mousePosition)
       val points = shape.getVertices(part)
       points.foreach(p => g.draw(t.transform(p)))
 
