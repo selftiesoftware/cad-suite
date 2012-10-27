@@ -29,11 +29,11 @@ object Line extends Module{
   private var shape  : Option[LineShape] = None
 
   def stateMap = DirectedGraph(
-    'Start    ->   'Message  ->    'SetPoint
+    'StartCategory    ->   'Message  ->    'SetPoint
   )
 
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
 
       set("activeLineWeight", "StrokeWidth")
       set("activeColor", "Color")
@@ -83,7 +83,7 @@ object Line extends Module{
       }
     }),
     'End -> ((events : List[Event]) => {
-      if(shape.isDefined) Create(shape.get.setAttributes(attributes))
+      if(shape.isDefined) CreateCategory(shape.get.setAttributes(attributes))
 
       //reset the module vars
       points = List[Vector2D]()

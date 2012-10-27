@@ -11,4 +11,34 @@
 
 package com.siigna.module.base.radialmenu
 
-trait MenuElement
+import com.siigna.app.model.shape.Shape
+import com.siigna.module.ModuleInstance
+
+trait MenuElement {
+  def icon : Iterable[Shape]
+}
+
+/**
+ * A MenuItem is an item in the [[com.siigna.module.base.Menu]].
+ *
+ */
+trait MenuCategory extends MenuElement {
+  /**
+   * The color used for background-filling.
+   */
+  def color : java.awt.Color
+
+  val icon = RadialMenuIcon.C
+
+  def graph: Map[MenuEvent, MenuElement]
+
+  /**
+   * The parent of the category if any.
+   */
+  def parent : Option[MenuCategory]
+}
+
+/**
+ * A MenuItem is an item in the [[com.siigna.module.base.Menu]].
+ */
+case class MenuModule(instance: ModuleInstance, icon: Iterable[Shape]) extends MenuElement

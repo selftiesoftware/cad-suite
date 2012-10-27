@@ -26,12 +26,12 @@ object Fill extends Module {
 
   def stateMap = DirectedGraph(
 
-    'Start    ->   'Message  ->    'SetPoint,
-    'Start    ->   'KeyDown  ->    'End
+    'StartCategory    ->   'Message  ->    'SetPoint,
+    'StartCategory    ->   'KeyDown  ->    'End
   )
 
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => {
           'End
@@ -74,8 +74,8 @@ object Fill extends Module {
     'End -> ((events : List[Event]) => {
       //add a line segment from the last to the first point in the list to close the fill area
       if (points.size > 2 && Siigna.get("activeColor").isDefined)
-        Create(PolylineShape(points :+ points(0)).setAttributes("raster" -> Siigna("activeColor"), "StrokeWidth" -> 0.0))
-      else Create(PolylineShape(points :+ points(0)).setAttributes("raster" -> anthracite, "StrokeWidth" -> 0.0))
+        CreateCategory(PolylineShape(points :+ points(0)).setAttributes("raster" -> Siigna("activeColor"), "StrokeWidth" -> 0.0))
+      else CreateCategory(PolylineShape(points :+ points(0)).setAttributes("raster" -> anthracite, "StrokeWidth" -> 0.0))
 
       //Clear the variables
       points = List[Vector2D]()

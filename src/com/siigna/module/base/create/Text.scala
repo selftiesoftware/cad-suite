@@ -46,14 +46,14 @@ object Text extends Module {
 
   def stateMap = DirectedGraph(
 
-    //'Start      -> 'KeyDown     -> 'TextInput,
-    'Start      -> 'KeyEscape   -> 'End,
+    //'StartCategory      -> 'KeyDown     -> 'TextInput,
+    'StartCategory      -> 'KeyEscape   -> 'End,
     'TextInput  -> 'KeyEscape   -> 'End,
-    'Start      -> 'KeyEscape   -> 'End
+    'StartCategory      -> 'KeyEscape   -> 'End
   )
 
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       Siigna.display("click to set text")
       events match {
         case Message(p : Vector2D) :: tail => {
@@ -90,7 +90,7 @@ object Text extends Module {
             //move the text so that the lower left corner is located at the starting position
             var textPosition = Vector2D((position.get.x),(position.get.y+(Siigna.paperScale)))
             shape = Some(TextShape(text+" ", textPosition, scale * (Siigna.paperScale + 1), attributes))
-            Create(shape)
+            CreateCategory(shape)
 
             //clear the vars
             position = None

@@ -74,12 +74,12 @@ object Stroke extends Module {
 
   def stateMap = DirectedGraph(
 
-    'Start  ->   'KeyDown   ->  'End
+    'StartCategory  ->   'KeyDown   ->  'End
 
   )
   def stateMachine = Map(
 
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       Siigna.navigation = false // Make sure the rest of the program doesn't move
       eventParser.disable() // Disable tracking and snapping
       startPoint = if (Menu.center.isDefined) Some(Menu.center.get) else Some(Vector2D(0,0))

@@ -22,7 +22,7 @@ object Offset extends Module {
   var originals : Option[Selection] = None
 
   val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
-    // Create a matrix
+    // CreateCategory a matrix
     val t : TransformationMatrix = TransformationMatrix(v, 1)
     Drawing.selection.get.apply(t)
   }
@@ -30,12 +30,12 @@ object Offset extends Module {
   var text  = ""
 
   def stateMap = DirectedGraph(
-    'Start         -> 'KeyEscape ->         'End
+    'StartCategory         -> 'KeyEscape ->         'End
   )
 
   //Select shapes
   def stateMachine = Map(
-  'Start -> ((events : List[Event]) => {
+  'StartCategory -> ((events : List[Event]) => {
     if (!Drawing.selection.isDefined) {
       Siigna display "No objects selected"
       Goto('End)

@@ -1,0 +1,17 @@
+compile
+exit
++publish
+exit
+clean
++publish
+exit
+clean
+exit
+clean
+updatew
+update
++publish
+exit
+clean
+update
+exit

@@ -42,16 +42,16 @@ object Trim extends Module {
                     Esc or right click.
       */
 
-  lazy val stateMap  = DirectedGraph  ('Start            -> 'MouseMove -> 'Start,
-                                       'Start            -> 'MouseDown -> 'SelectLines,
-                                       'Start            -> 'KeyEscape -> 'End,
+  lazy val stateMap  = DirectedGraph  ('StartCategory            -> 'MouseMove -> 'StartCategory,
+                                       'StartCategory            -> 'MouseDown -> 'SelectLines,
+                                       'StartCategory            -> 'KeyEscape -> 'End,
                                        'SelectLines      -> 'KeyEscape -> 'End,
                                        'SelectionBox     -> 'KeyEscape -> 'End,
                                        'StartSelection   -> 'KeyEscape -> 'End)
 
  lazy val stateMachine = Map(
   //check if a selection of objects has already been made:
-  'Start ->  ((events : List[Event]) => {
+  'StartCategory ->  ((events : List[Event]) => {
     events match {
       case MouseMove(point, _, _) :: tail => {
         if (Drawing.selected.size == 1) {
@@ -84,7 +84,7 @@ object Trim extends Module {
      None
    }),
 
-  //StartSelection: Start selecting line(s).
+  //StartSelection: StartCategory selecting line(s).
   'StartSelection -> ((events : List[Event]) => {
     Siigna.display("click or drag mouse to trim lines")
       events match {

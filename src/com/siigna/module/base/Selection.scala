@@ -49,9 +49,9 @@ object Selection extends Module {
   def isEnclosed : Boolean = startPoint.isDefined && startPoint.get.x <= Siigna.mousePosition.x
 
   def stateMap     = DirectedGraph(
-    'Start -> 'MouseDrag   -> 'Box,
-    //'Start -> 'MouseMove   -> 'End,
-    'Start -> 'MouseUp     -> 'End,
+    'StartCategory -> 'MouseDrag   -> 'Box,
+    //'StartCategory -> 'MouseMove   -> 'End,
+    'StartCategory -> 'MouseUp     -> 'End,
     'Box   -> 'MouseMove   -> 'End,
     'Box   -> 'MouseUp     -> 'End
   )
@@ -59,7 +59,7 @@ object Selection extends Module {
   Preload('Move, "com.siigna.module.base.modify")
   Preload('Copy, "com.siigna.module.base.create")
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       //find nearestShape, if any:
       val m = Siigna.mousePosition
       if (Drawing(m).size > 0) {

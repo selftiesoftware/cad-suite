@@ -26,7 +26,7 @@ object Move extends Module {
   //a guide to get Point to draw the shape(s) dynamically
 
   val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
-    // Create a matrix
+    // CreateCategory a matrix
     val t : TransformationMatrix = if (startPoint.isDefined) {
       TransformationMatrix(v - startPoint.get, 1)
     // If no startPoint has been defined - create an empty matrix
@@ -42,12 +42,12 @@ object Move extends Module {
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap     = DirectedGraph(
-    'Start -> 'KeyDown -> 'End,
+    'StartCategory -> 'KeyDown -> 'End,
     'Move  -> 'KeyDown -> 'End
   )
   
   lazy val stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       //TODO: a hack to force startPoint value to None (to draw a correct Guide). Find out why StartPoint is not always reset/ Module does not reach 'End.
       startPoint = None
       //start 'Move only if there is a selection

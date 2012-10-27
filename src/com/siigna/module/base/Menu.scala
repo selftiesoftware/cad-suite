@@ -12,11 +12,10 @@
 package com.siigna.module.base
 
 import com.siigna.app.view.Graphics
+import com.siigna._
 import com.siigna.module.base.radialmenu._
 
-import com.siigna._
-
-import category.{Create => MenuCreate, Start, MenuCategory}
+import category.{CreateCategory => MenuCreate, StartCategory}
 
 /**
  * The menu module. This module shows the menu as radial items and categories in 13 places (directions):
@@ -24,51 +23,44 @@ import category.{Create => MenuCreate, Start, MenuCategory}
  */
 object Menu extends Module {
 
-  // The center of the radial menu
-  var center : Option[Vector2D]         = None
+  var center: Option[Vector2D] = None
 
   // The current active category
-  var currentCategory : MenuCategory  = Start
-
-  // The distance to draw the icons; Used in the initiation of the menu module to animate the icons.
-  private var distanceScale : Double = 1
-
-  //defining the parameters needed to start the menu
-  def initializeMenu() {
-
-    // Make sure the rest of the program doesn't move
-    Siigna.navigation = false
-
-    // Disable tracking and snapping
-    eventParser.disable
-  }
-
-  //a var to pass on the last key down back to Default, to check if it is needed to activate a shortcut
-  var lastKey : Option[KeyDown] = None
-
-  var moduleCallFromMenu : Boolean = false
-
-  /**
-   * The radius of the wheel. Can be adjusted to adjust the size of the wheel.
-   */
-  var radius = 180
-
-  // The transformation to use throughout the paint
-  private var transformation = TransformationMatrix(Vector2D(0, 0), 1)
+  var currentCategory : MenuCategory = StartCategory
 
   def stateMap = Map(
     'Start -> {
-      case _ => 'Interaction
+      case e => {
+        'Interaction
+      }
     },
     'Interaction -> {
       case MouseDown(_, MouseButtonRight, _) :: tail => {
-        println("Right")
-        'End
+
+        'Kill
+      }
+      case MouseDown(p,_,_) :: tail => {
+        println(p, " ", View.center.distanceTo(p))
+
+        val transformedP = p.transform(View.deviceTransformation)
+
+        println(transformedP)
+
+        if(View.center.distanceTo(transformedP) > 100 && View.center.distanceTo(transformedP) < 150){
+          println("here")
+
+          currentCategory.graph.get(direction(transformedP)) foreach(_ match {
+            case mc: MenuCategory => currentCategory = mc
+
+            case MenuModule(instance, icon) => instance
+          })
+        }
       }
     },
-    State('End, () => (
-      println("Ending")
-    ))
+
+    'Kill -> {
+      case _ =>
+    }
   )
 
   /**
@@ -76,7 +68,55 @@ object Menu extends Module {
    * of the icons, origining from the center.
    */
   override def paint(g : Graphics, transformation : TransformationMatrix) {
+
+    val location = TransformationMatrix(View.center,1)
+
+    def drawElement(event: MenuEvent, element: MenuElement) {
+
+      val t = TransformationMatrix(event.vector*130,1)
+
+     /* event.icon.foreach(s => {
+
+        g.draw(s)
+
+      })   */
+
+      element.icon.foreach(s => {
+
+        g.draw(s.transform(location.concatenate(t)))
+
+      })
+    }
+
+    currentCategory.graph.foreach(t => {
+      drawElement(t._1,t._2)
+    })
+
+    //g.draw(TextShape("3efscdsfdsfdsfds",View.center))
+   // g.draw(currentCategory.icon)
     g.draw(CircleShape(View.center, 130))
+
+
   }
 
+  /**
+   * Returns the direction in terms of MenuEvents, calculated from the angle
+   * of a given point to the current center of the radial menu.
+   */
+  def direction(point : Vector2D) = {
+    val angle  = (point - View.center).angle
+    if      (angle > 345 || angle < 15)   EventE
+    else if (angle > 15  && angle < 45)   EventENE
+    else if (angle > 45  && angle < 75)   EventNNE
+    else if (angle > 75  && angle < 105)  EventN
+    else if (angle > 105 && angle < 135)  EventNNW
+    else if (angle > 135 && angle < 165)  EventWNW
+    else if (angle > 165 && angle < 195)  EventW
+    else if (angle > 195 && angle < 225)  EventWSW
+    else if (angle > 225 && angle < 255)  EventSSW
+    else if (angle > 255 && angle < 285)  EventS
+    else if (angle > 285 && angle < 315)  EventSSE
+    else if (angle > 315 && angle < 345)  EventESE
+    else                                  MenuEventNone
+  }
 }

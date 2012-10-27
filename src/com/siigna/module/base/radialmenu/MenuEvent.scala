@@ -30,7 +30,7 @@ trait MenuEvent extends Event
 case object EventC extends MenuEvent {
   lazy val icon   = RadialMenuIcon.C
   lazy val symbol = 'C
-  lazy val vector = Vector2D( 0, 0).unit
+  lazy val vector = Vector2D(0, 0).unit
 }
 case object EventE extends MenuEvent {
   lazy val icon   = RadialMenuIcon.E

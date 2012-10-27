@@ -28,11 +28,11 @@ object Grid extends Module{
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap = DirectedGraph (
-    'Start -> 'KeyEscape -> 'End
+    'StartCategory -> 'KeyEscape -> 'End
   )
 
   lazy val stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       if(gridIsOn == false) {
         Siigna display "Type grid scale: "+ text +" Current: "+ scale +" millimeters"
         events match {

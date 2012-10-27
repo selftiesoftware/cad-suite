@@ -31,7 +31,7 @@ import java.awt.{Color, Toolkit}
  */
 
 
-//TODO: create syntatic sugar for scripting, allowing eg. 'Create Line (0,0) (100,0)'
+//TODO: create syntatic sugar for scripting, allowing eg. 'CreateCategory Line (0,0) (100,0)'
 
 object ScriptEditor extends Module{
 

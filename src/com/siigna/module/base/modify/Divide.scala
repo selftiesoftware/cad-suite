@@ -74,7 +74,7 @@ object Divide extends Module {
 
           case _=> 'End
         }
-        //Create(shapes.get.apply(transformation.get))
+        //CreateCategory(shapes.get.apply(transformation.get))
         text = ""
         Drawing.deselect()
         'End

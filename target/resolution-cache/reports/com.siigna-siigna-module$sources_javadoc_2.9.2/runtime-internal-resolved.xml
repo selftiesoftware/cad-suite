@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="ivy-report.xsl"?>
+<ivy-report version="1.0">
+	<info
+		organisation="com.siigna"
+		module="siigna-module$sources_javadoc_2.9.2"
+		revision="preAlpha"
+		conf="runtime-internal"
+		confs="compile, runtime, test, provided, optional, compile-internal, runtime-internal, test-internal, plugin, sources, docs, pom"
+		date="20121027124015"/>
+	<dependencies>
+		<module organisation="org.scala-lang" name="scala-compiler">
+			<revision name="2.9.2" status="release" pubdate="20120413143159" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://www.scala-lang.org/" downloaded="false" searched="false" default="false" conf="default(compile), default, compile, runtime, master" position="9">
+				<license name="BSD-like" url="http://www.scala-lang.org/downloads/license.html    "/>
+				<metadata-artifact status="no" details="" size="2665" time="0" location="/home/csp/.ivy2/cache/org.scala-lang/scala-compiler/ivy-2.9.2.xml" searched="false" origin-is-local="false" origin-location="http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.9.2/scala-compiler-2.9.2.pom"/>
+				<caller organisation="com.siigna" name="siigna-module$sources_javadoc_2.9.2" conf="optional, compile, runtime, runtime-internal" rev="2.9.2" rev-constraint-default="2.9.2" rev-constraint-dynamic="2.9.2" callerrev="preAlpha"/>
+				<artifacts>
+					<artifact name="scala-compiler" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="1712493" time="0" location="/home/csp/.ivy2/cache/org.scala-lang/scala-compiler/srcs/scala-compiler-2.9.2-sources.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/org/scala-lang/scala-compiler/2.9.2/scala-compiler-2.9.2-sources.jar"/>
+					</artifact>
+					<artifact name="scala-compiler" type="doc" ext="jar" extra-classifier="javadoc" status="no" details="" size="7097414" time="0" location="/home/csp/.ivy2/cache/org.scala-lang/scala-compiler/docs/scala-compiler-2.9.2-javadoc.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/org/scala-lang/scala-compiler/2.9.2/scala-compiler-2.9.2-javadoc.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.siigna" name="siigna-main_2.9.2">
+			<revision name="preAlpha" status="integration" pubdate="20121027124015" resolver="inter-project" artresolver="inter-project" downloaded="false" searched="false" default="false" conf="default(compile), compile" position="0">
+				<metadata-artifact status="failed" details="" size="0" time="0" searched="false"/>
+				<caller organisation="com.siigna" name="siigna-module$sources_javadoc_2.9.2" conf="optional, compile, runtime, runtime-internal" rev="preAlpha" rev-constraint-default="preAlpha" rev-constraint-dynamic="preAlpha" callerrev="preAlpha"/>
+				<artifacts>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.typesafe" name="slick_2.10.0-M7">
+			<revision name="0.11.1" status="release" pubdate="20121011101431" resolver="Typesafe Repository" artresolver="Typesafe Repository" homepage="http://slick.typesafe.com" downloaded="false" searched="false" default="false" conf="default(compile), default, compile, runtime, master" position="8">
+				<license name="Two-clause BSD-style license" url="http://github.com/slick/slick/blob/master/LICENSE.txt"/>
+				<metadata-artifact status="no" details="" size="2844" time="0" location="/home/csp/.ivy2/cache/com.typesafe/slick_2.10.0-M7/ivy-0.11.1.xml" searched="false" origin-is-local="false" origin-location="http://repo.typesafe.com/typesafe/releases/com/typesafe/slick_2.10.0-M7/0.11.1/slick_2.10.0-M7-0.11.1.pom"/>
+				<caller organisation="com.siigna" name="siigna-module$sources_javadoc_2.9.2" conf="optional, compile, runtime, runtime-internal" rev="0.11.1" rev-constraint-default="0.11.1" rev-constraint-dynamic="0.11.1" callerrev="preAlpha"/>
+				<artifacts>
+					<artifact name="slick_2.10.0-M7" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="143559" time="0" location="/home/csp/.ivy2/cache/com.typesafe/slick_2.10.0-M7/srcs/slick_2.10.0-M7-0.11.1-sources.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/com/typesafe/slick_2.10.0-M7/0.11.1/slick_2.10.0-M7-0.11.1-sources.jar"/>
+					</artifact>
+					<artifact name="slick_2.10.0-M7" type="jar" ext="jar" status="no" details="" size="2669888" time="0" location="/home/csp/.ivy2/cache/com.typesafe/slick_2.10.0-M7/jars/slick_2.10.0-M7-0.11.1.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/com/typesafe/slick_2.10.0-M7/0.11.1/slick_2.10.0-M7-0.11.1.jar"/>
+					</artifact>
+					<artifact name="slick_2.10.0-M7" type="doc" ext="jar" extra-classifier="javadoc" status="no" details="" size="2549324" time="0" location="/home/csp/.ivy2/cache/com.typesafe/slick_2.10.0-M7/docs/slick_2.10.0-M7-0.11.1-javadoc.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/com/typesafe/slick_2.10.0-M7/0.11.1/slick_2.10.0-M7-0.11.1-javadoc.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="ch.qos.logback" name="logback-classic">
+			<revision name="1.0.1" status="release" pubdate="20121011181800" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://logback.qos.ch" downloaded="false" searched="false" default="false" conf="default(compile), default, compile, runtime, master" position="6">
+				<license name="Eclipse Public License - v 1.0" url="http://www.eclipse.org/legal/epl-v10.html"/>
+				<license name="GNU Lesser General Public License" url="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html"/>
+				<metadata-artifact status="no" details="" size="11388" time="0" location="/home/csp/.ivy2/cache/ch.qos.logback/logback-classic/ivy-1.0.1.xml" searched="false" origin-is-local="false" origin-location="http://repo.typesafe.com/typesafe/releases/ch/qos/logback/logback-classic/1.0.1/logback-classic-1.0.1.pom"/>
+				<caller organisation="com.siigna" name="siigna-module$sources_javadoc_2.9.2" conf="optional, compile, runtime, runtime-internal" rev="1.0.1" rev-constraint-default="1.0.1" rev-constraint-dynamic="1.0.1" callerrev="preAlpha"/>
+				<artifacts>
+					<artifact name="logback-classic" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="199033" time="0" location="/home/csp/.ivy2/cache/ch.qos.logback/logback-classic/srcs/logback-classic-1.0.1-sources.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/ch/qos/logback/logback-classic/1.0.1/logback-classic-1.0.1-sources.jar"/>
+					</artifact>
+					<artifact name="logback-classic" type="jar" ext="jar" status="no" details="" size="248207" time="0" location="/home/csp/.ivy2/cache/ch.qos.logback/logback-classic/jars/logback-classic-1.0.1.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/ch/qos/logback/logback-classic/1.0.1/logback-classic-1.0.1.jar"/>
+					</artifact>
+					<artifact name="logback-classic" type="doc" ext="jar" extra-classifier="javadoc" status="no" details="" size="940121" time="0" location="/home/csp/.ivy2/cache/ch.qos.logback/logback-classic/docs/logback-classic-1.0.1-javadoc.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/ch/qos/logback/logback-classic/1.0.1/logback-classic-1.0.1-javadoc.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="ch.qos.logback" name="logback-core">
+			<revision name="1.0.1" status="release" pubdate="20121011181805" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://logback.qos.ch" downloaded="false" searched="false" default="false" conf="default(compile), default, compile, runtime, master" position="7">
+				<license name="Eclipse Public License - v 1.0" url="http://www.eclipse.org/legal/epl-v10.html"/>
+				<license name="GNU Lesser General Public License" url="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html"/>
+				<metadata-artifact status="no" details="" size="9365" time="0" location="/home/csp/.ivy2/cache/ch.qos.logback/logback-core/ivy-1.0.1.xml" searched="false" origin-is-local="false" origin-location="http://repo.typesafe.com/typesafe/releases/ch/qos/logback/logback-core/1.0.1/logback-core-1.0.1.pom"/>
+				<caller organisation="com.siigna" name="siigna-module$sources_javadoc_2.9.2" conf="optional, compile, runtime, runtime-internal" rev="1.0.1" rev-constraint-default="1.0.1" rev-constraint-dynamic="1.0.1" callerrev="preAlpha"/>
+				<artifacts>
+					<artifact name="logback-core" type="jar" ext="jar" status="no" details="" size="329892" time="0" location="/home/csp/.ivy2/cache/ch.qos.logback/logback-core/jars/logback-core-1.0.1.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/ch/qos/logback/logback-core/1.0.1/logback-core-1.0.1.jar"/>
+					</artifact>
+					<artifact name="logback-core" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="279757" time="0" location="/home/csp/.ivy2/cache/ch.qos.logback/logback-core/srcs/logback-core-1.0.1-sources.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/ch/qos/logback/logback-core/1.0.1/logback-core-1.0.1-sources.jar"/>
+					</artifact>
+					<artifact name="logback-core" type="doc" ext="jar" extra-classifier="javadoc" status="no" details="" size="1447961" time="0" location="/home/csp/.ivy2/cache/ch.qos.logback/logback-core/docs/logback-core-1.0.1-javadoc.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/ch/qos/logback/logback-core/1.0.1/logback-core-1.0.1-javadoc.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.typesafe.akka" name="akka-actor">
+			<revision name="2.0.3" status="release" pubdate="20121011093706" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://akka.io" downloaded="false" searched="false" default="false" conf="default(compile), default, compile, runtime, master" position="4">
+				<license name="Apache 2" url="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+				<metadata-artifact status="no" details="" size="2627" time="0" location="/home/csp/.ivy2/cache/com.typesafe.akka/akka-actor/ivy-2.0.3.xml" searched="false" origin-is-local="false" origin-location="http://repo.typesafe.com/typesafe/releases/com/typesafe/akka/akka-actor/2.0.3/akka-actor-2.0.3.pom"/>
+				<caller organisation="com.siigna" name="siigna-module$sources_javadoc_2.9.2" conf="optional, compile, runtime, runtime-internal" rev="2.0.3" rev-constraint-default="2.0.3" rev-constraint-dynamic="2.0.3" callerrev="preAlpha"/>
+				<artifacts>
+					<artifact name="akka-actor" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="271145" time="0" location="/home/csp/.ivy2/cache/com.typesafe.akka/akka-actor/srcs/akka-actor-2.0.3-sources.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/com/typesafe/akka/akka-actor/2.0.3/akka-actor-2.0.3-sources.jar"/>
+					</artifact>
+					<artifact name="akka-actor" type="doc" ext="jar" extra-classifier="javadoc" status="no" details="" size="1727861" time="0" location="/home/csp/.ivy2/cache/com.typesafe.akka/akka-actor/docs/akka-actor-2.0.3-javadoc.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/com/typesafe/akka/akka-actor/2.0.3/akka-actor-2.0.3-javadoc.jar"/>
+					</artifact>
+					<artifact name="akka-actor" type="jar" ext="jar" status="no" details="" size="1712868" time="0" location="/home/csp/.ivy2/cache/com.typesafe.akka/akka-actor/jars/akka-actor-2.0.3.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/com/typesafe/akka/akka-actor/2.0.3/akka-actor-2.0.3.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.typesafe" name="config">
+			<revision name="0.3.1" status="release" pubdate="20121011093708" resolver="sbt-chain" artresolver="sbt-chain" homepage="https://github.com/typesafehub/config" downloaded="false" searched="false" default="false" conf="default(compile), default, compile, runtime, master" position="5">
+				<license name="Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
+				<metadata-artifact status="no" details="" size="2839" time="0" location="/home/csp/.ivy2/cache/com.typesafe/config/ivy-0.3.1.xml" searched="false" origin-is-local="false" origin-location="http://repo.typesafe.com/typesafe/releases/com/typesafe/config/0.3.1/config-0.3.1.pom"/>
+				<caller organisation="com.siigna" name="siigna-module$sources_javadoc_2.9.2" conf="optional, compile, runtime, runtime-internal" rev="0.3.1" rev-constraint-default="0.3.1" rev-constraint-dynamic="0.3.1" callerrev="preAlpha"/>
+				<artifacts>
+					<artifact name="config" type="doc" ext="jar" extra-classifier="javadoc" status="no" details="" size="134661" time="0" location="/home/csp/.ivy2/cache/com.typesafe/config/docs/config-0.3.1-javadoc.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/com/typesafe/config/0.3.1/config-0.3.1-javadoc.jar"/>
+					</artifact>
+					<artifact name="config" type="jar" ext="jar" status="no" details="" size="155044" time="0" location="/home/csp/.ivy2/cache/com.typesafe/config/jars/config-0.3.1.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/com/typesafe/config/0.3.1/config-0.3.1.jar"/>
+					</artifact>
+					<artifact name="config" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="102275" time="0" location="/home/csp/.ivy2/cache/com.typesafe/config/srcs/config-0.3.1-sources.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/com/typesafe/config/0.3.1/config-0.3.1-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.clapper" name="grizzled-slf4j_2.9.2">
+			<revision name="0.6.9" status="release" pubdate="20121011165210" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://software.clapper.org/grizzled-slf4j/" downloaded="false" searched="false" default="false" conf="default(compile), default, compile, runtime, master" position="2">
+				<license name="BSD" url="http://software.clapper.org/grizzled-slf4j/license.html"/>
+				<metadata-artifact status="no" details="" size="2838" time="0" location="/home/csp/.ivy2/cache/org.clapper/grizzled-slf4j_2.9.2/ivy-0.6.9.xml" searched="false" origin-is-local="false" origin-location="http://repo.typesafe.com/typesafe/releases/org/clapper/grizzled-slf4j_2.9.2/0.6.9/grizzled-slf4j_2.9.2-0.6.9.pom"/>
+				<caller organisation="com.siigna" name="siigna-module$sources_javadoc_2.9.2" conf="optional, compile, runtime, runtime-internal" rev="0.6.9" rev-constraint-default="0.6.9" rev-constraint-dynamic="0.6.9" callerrev="preAlpha"/>
+				<artifacts>
+					<artifact name="grizzled-slf4j_2.9.2" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="2841" time="0" location="/home/csp/.ivy2/cache/org.clapper/grizzled-slf4j_2.9.2/srcs/grizzled-slf4j_2.9.2-0.6.9-sources.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/org/clapper/grizzled-slf4j_2.9.2/0.6.9/grizzled-slf4j_2.9.2-0.6.9-sources.jar"/>
+					</artifact>
+					<artifact name="grizzled-slf4j_2.9.2" type="jar" ext="jar" status="no" details="" size="6333" time="0" location="/home/csp/.ivy2/cache/org.clapper/grizzled-slf4j_2.9.2/jars/grizzled-slf4j_2.9.2-0.6.9.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/org/clapper/grizzled-slf4j_2.9.2/0.6.9/grizzled-slf4j_2.9.2-0.6.9.jar"/>
+					</artifact>
+					<artifact name="grizzled-slf4j_2.9.2" type="doc" ext="jar" extra-classifier="javadoc" status="no" details="" size="255293" time="0" location="/home/csp/.ivy2/cache/org.clapper/grizzled-slf4j_2.9.2/docs/grizzled-slf4j_2.9.2-0.6.9-javadoc.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/org/clapper/grizzled-slf4j_2.9.2/0.6.9/grizzled-slf4j_2.9.2-0.6.9-javadoc.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.slf4j" name="slf4j-api">
+			<revision name="1.6.4" status="release" pubdate="20121011093657" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://www.slf4j.org" downloaded="false" searched="false" default="false" conf="default(compile), default, compile, runtime, master" position="3">
+				<metadata-artifact status="no" details="" size="4338" time="0" location="/home/csp/.ivy2/cache/org.slf4j/slf4j-api/ivy-1.6.4.xml" searched="false" origin-is-local="false" origin-location="http://repo.typesafe.com/typesafe/releases/org/slf4j/slf4j-api/1.6.4/slf4j-api-1.6.4.pom"/>
+				<caller organisation="com.siigna" name="siigna-module$sources_javadoc_2.9.2" conf="optional, compile, runtime, runtime-internal" rev="1.6.4" rev-constraint-default="1.6.4" rev-constraint-dynamic="1.6.4" callerrev="preAlpha"/>
+				<artifacts>
+					<artifact name="slf4j-api" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="46413" time="0" location="/home/csp/.ivy2/cache/org.slf4j/slf4j-api/srcs/slf4j-api-1.6.4-sources.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/org/slf4j/slf4j-api/1.6.4/slf4j-api-1.6.4-sources.jar"/>
+					</artifact>
+					<artifact name="slf4j-api" type="doc" ext="jar" extra-classifier="javadoc" status="no" details="" size="182332" time="0" location="/home/csp/.ivy2/cache/org.slf4j/slf4j-api/docs/slf4j-api-1.6.4-javadoc.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/org/slf4j/slf4j-api/1.6.4/slf4j-api-1.6.4-javadoc.jar"/>
+					</artifact>
+					<artifact name="slf4j-api" type="jar" ext="jar" status="no" details="" size="25962" time="0" location="/home/csp/.ivy2/cache/org.slf4j/slf4j-api/jars/slf4j-api-1.6.4.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/org/slf4j/slf4j-api/1.6.4/slf4j-api-1.6.4.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.scala-lang" name="scala-library">
+			<revision name="2.9.2" status="release" pubdate="20120413142921" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://www.scala-lang.org/" downloaded="false" searched="false" default="false" conf="default(compile), default, compile, runtime, master" position="1">
+				<license name="BSD-like" url="http://www.scala-lang.org/downloads/license.html          "/>
+				<metadata-artifact status="no" details="" size="2391" time="0" location="/home/csp/.ivy2/cache/org.scala-lang/scala-library/ivy-2.9.2.xml" searched="false" origin-is-local="false" origin-location="http://repo1.maven.org/maven2/org/scala-lang/scala-library/2.9.2/scala-library-2.9.2.pom"/>
+				<caller organisation="com.siigna" name="siigna-module$sources_javadoc_2.9.2" conf="optional, compile, runtime, runtime-internal" rev="2.9.2" rev-constraint-default="2.9.2" rev-constraint-dynamic="2.9.2" callerrev="preAlpha"/>
+				<artifacts>
+					<artifact name="scala-library" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="1159759" time="0" location="/home/csp/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.9.2-sources.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/org/scala-lang/scala-library/2.9.2/scala-library-2.9.2-sources.jar"/>
+					</artifact>
+					<artifact name="scala-library" type="doc" ext="jar" extra-classifier="javadoc" status="no" details="" size="21701023" time="0" location="/home/csp/.ivy2/cache/org.scala-lang/scala-library/docs/scala-library-2.9.2-javadoc.jar">
+						<origin-location is-local="false" location="http://repo.typesafe.com/typesafe/releases/org/scala-lang/scala-library/2.9.2/scala-library-2.9.2-javadoc.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+	</dependencies>
+</ivy-report>

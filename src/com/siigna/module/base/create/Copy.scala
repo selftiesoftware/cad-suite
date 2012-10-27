@@ -31,7 +31,7 @@ object Copy extends Module {
 
   //a guide to get Point to draw the shape(s) dynamically
   val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
-    // Create a matrix
+    // CreateCategory a matrix
     val t : TransformationMatrix = if (startPoint.isDefined) {
       TransformationMatrix(v - startPoint.get, 1)
     // If no startPoint has been defined - create an empty matrix
@@ -47,12 +47,12 @@ object Copy extends Module {
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap     = DirectedGraph(
-    'Start -> 'KeyDown -> 'End,
+    'StartCategory -> 'KeyDown -> 'End,
     'Copy  -> 'KeyDown -> 'End
   )
 
   lazy val stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       //start 'Move only if there is a selection
       if (!Drawing.selection.isEmpty) {
         //save the original shapes
@@ -122,11 +122,11 @@ object Copy extends Module {
         if (ending == false) {
           transformation = Some(TransformationMatrix(translation, 1))
           //Drawing.selection.get.transform(transformation.get)
-          Create(shapes.get.apply(transformation.get))
+          CreateCategory(shapes.get.apply(transformation.get))
         } else {
           transformation = Some(TransformationMatrix(translation, 1))
 
-          Create(shapes.get.apply(transformation.get))
+          CreateCategory(shapes.get.apply(transformation.get))
           Siigna display "type number of copies"
           Goto('MultiCopy)
         }
@@ -146,7 +146,7 @@ object Copy extends Module {
               //copy the object(s):
               endPoint = Some(p)
               transformation = Some(TransformationMatrix((p - startPoint.get), 1))
-              Create(shapes.get.apply(transformation.get))
+              CreateCategory(shapes.get.apply(transformation.get))
               Siigna display "type number of copies"
               Goto('MultiCopy)
             }
@@ -166,7 +166,7 @@ object Copy extends Module {
           //create the shapes
           for(i <- 0 to numbers -2) {
             transformation = Some(TransformationMatrix((endPoint.get - startPoint.get) * (i+2), 1))
-            Create(shapes.get.apply(transformation.get))
+            CreateCategory(shapes.get.apply(transformation.get))
             text = ""
             Drawing.deselect()
           }

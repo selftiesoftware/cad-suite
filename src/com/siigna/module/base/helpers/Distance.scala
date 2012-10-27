@@ -25,7 +25,7 @@ object Distance extends Module {
   var points = List[Vector2D]()
 
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => {
           'End

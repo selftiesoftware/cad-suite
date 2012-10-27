@@ -30,14 +30,14 @@ object Arc extends Module {
   private var secondPointSet = false
 
   def stateMap = DirectedGraph(
-    'Start        ->   'Message   ->    'SetRadius,
+    'StartCategory        ->   'Message   ->    'SetRadius,
     'SetRadius    ->   'KeyEscape ->    'End,
     'SetArc       ->   'KeyEscape ->    'End
   )
 
 
   def stateMachine = Map(
-  'Start -> ((events : List[Event]) => {
+  'StartCategory -> ((events : List[Event]) => {
     Siigna.display("Set the startpoint, then radius, and endpoint")
     //Log.level += Log.DEBUG + Log.SUCCESS
     events match {
@@ -106,7 +106,7 @@ object Arc extends Module {
   }),
   'End -> ((events : List[Event]) => {
 
-    Create(ArcShape(points(1),(points(0)-points(1)).length,(points(0)-points(1)).angle,(points(0)-secondArcPoint.get).angle-360))
+    CreateCategory(ArcShape(points(1),(points(0)-points(1)).length,(points(0)-points(1)).angle,(points(0)-secondArcPoint.get).angle-360))
 
     //clear the vars
     inSetArc = false

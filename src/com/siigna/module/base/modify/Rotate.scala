@@ -31,15 +31,15 @@ object Rotate extends Module {
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap     = DirectedGraph(
-    'Start       -> 'KeyEscape -> 'End
+    'StartCategory       -> 'KeyEscape -> 'End
   )
 
   lazy val stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
 
       //a guide to get Point to dynamically draw the shape(s) and their rotation
       val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
-        // Create a matrix
+        // CreateCategory a matrix
         val t : TransformationMatrix = if (startVector.isDefined && centerPoint.isDefined) {
           // To find the angle between two vectors (lines): First calculate the separate angles
             val a1 : Double = (startVector.get - centerPoint.get).angle
@@ -124,7 +124,7 @@ object Rotate extends Module {
         Drawing.deselect()
       } else {
 
-        //if Start and EndVectors were defined in 'Point, rotate on that basis:
+        //if StartCategory and EndVectors were defined in 'Point, rotate on that basis:
         events match {
           case Message(p : Vector2D) :: tail => {
 

@@ -24,7 +24,7 @@ object Circle extends Module {
   var radius : Option[Vector2D] = None
 
   def stateMap = Map(
-    //Start: Defines a centerpoint for the circle and forwards to 'SetRadius
+    //StartCategory: Defines a centerpoint for the circle and forwards to 'SetRadius
     'Start -> {
       case events => {
         events match {
@@ -69,9 +69,9 @@ object Circle extends Module {
     'End -> {
       case _ =>
         //if(Siigna.double("activeLineWeight").isDefined && center.isDefined && radius.isDefined) {
-        //  Create(CircleShape(center.get,radius.get).setAttribute("StrokeWidth" -> Siigna.double("activeLineWeight").get))
+        //  CreateCategory(CircleShape(center.get,radius.get).setAttribute("StrokeWidth" -> Siigna.double("activeLineWeight").get))
         //}
-        //else Create(CircleShape(center.get,radius.get))
+        //else CreateCategory(CircleShape(center.get,radius.get))
 
         //create the circle
         set("activeLineWeight", "StrokeWidth")

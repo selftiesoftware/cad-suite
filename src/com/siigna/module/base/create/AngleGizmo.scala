@@ -57,13 +57,13 @@ object AngleGizmo extends Module {
   def roundSnap(angle : Double) = ((angle/gizmoMode).round * gizmoMode).round.toInt
 
   def stateMap = DirectedGraph(
-    'Start         -> 'KeyEscape -> 'End,
+    'StartCategory         -> 'KeyEscape -> 'End,
     'Mousecheck    -> 'KeyEscape -> 'End,
     'AngleGizmo    -> 'KeyEscape -> 'End
   )
 
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       startTime = Some(System.currentTimeMillis())
 
       events match {

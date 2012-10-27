@@ -25,7 +25,7 @@ object Print extends Module {
   var firstOpen : Boolean = true
 
   lazy val stateMap = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       //a hack to prevent the print dialog from opening over and over again. Caused by an error in the Message system.
       if (firstOpen == true) {
         firstOpen = false
@@ -106,7 +106,7 @@ class MyPrintable extends Printable {
       // Enable anti-aliasing.
       bufferedGraphics2D setRenderingHint(RenderingHints KEY_ANTIALIASING, RenderingHints VALUE_ANTIALIAS_ON)
 
-      // Create a new transformation-matrix for the model
+      // CreateCategory a new transformation-matrix for the model
       // TODO: Get the correct screenToPaperScale
       val screenToPaperScale = 2.845 / Drawing.boundaryScale
       val t1 = TransformationMatrix(-Drawing.boundary.topLeft, 1)

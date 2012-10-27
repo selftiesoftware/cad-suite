@@ -112,12 +112,12 @@ object Lineardim extends Module {
 
 
   def stateMap = DirectedGraph(
-    'Start         -> 'KeyEscape -> 'End,
+    'StartCategory         -> 'KeyEscape -> 'End,
     'SelectSide    -> 'KeyEscape -> 'End
   )
 
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       //get the current paperScale
       scale = Siigna.paperScale
 
@@ -178,7 +178,7 @@ object Lineardim extends Module {
             offsetSide = false
           else
             offsetSide = true
-          Create(
+          CreateCategory(
             shapeA.get.setAttributes(color, "StrokeWidth" -> 0.25),
             shapeB.get.setAttributes(color, "StrokeWidth" -> 0.25),
             normalShape1.get.setAttributes(color, "StrokeWidth" -> 0.25),

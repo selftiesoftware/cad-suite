@@ -18,7 +18,7 @@ import com.siigna._
 object Group extends Module {
 
   lazy val stateMap = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       events match {
         case MouseDown(point, MouseButtonLeft, _) :: tail => Module('Select)
         case MouseDrag(point, MouseButtonRight, _) :: tail => Module('Select)

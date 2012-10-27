@@ -65,7 +65,7 @@ object Area extends Module {
   //TODO: Add a function to display cm2 or m2 instead of mm2 for large areas.
 
   def stateMachine = Map(
-    State('Start, {
+    State('StartCategory, {
       case m : Message => 'SetPoint
       case MouseDown(_, MouseButtonRight, _) :: tail => 'End
       case _ => Module('Point)
@@ -98,7 +98,7 @@ object Area extends Module {
       //case KeyDown(Key.Control, _) :: tail => {
       //  savedArea = area(points :+ points(0))
       //  println(savedArea)
-      //  Goto('Start)
+      //  Goto('StartCategory)
       //}
 
       // Match on everything else

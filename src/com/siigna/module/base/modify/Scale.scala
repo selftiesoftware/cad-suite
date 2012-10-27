@@ -28,7 +28,7 @@ object Scale extends Module {
 
     val refScale : Vector2D = startPoint.get - endPoint.get
     var scaleFactor = ((v - startPoint.get).length/refScale.length).toDouble
-    // Create a matrix
+    // CreateCategory a matrix
     val t : TransformationMatrix = if (startPoint.isDefined) {
       TransformationMatrix(Vector2D(0,0), 1).scale(scaleFactor,startPoint.get)
     // If no startPoint has been defined - create an empty matrix
@@ -43,15 +43,15 @@ object Scale extends Module {
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap     = DirectedGraph(
-    'Start -> 'KeyDown -> 'End,
-    'Start -> 'Message -> 'StartPoint,
+    'StartCategory -> 'KeyDown -> 'End,
+    'StartCategory -> 'Message -> 'StartPoint,
     'StartPoint -> 'Message -> 'EndPoint,
     'EndPoint  -> 'KeyDown -> 'End,
     'Scale  -> 'KeyDown -> 'End
   )
 
   lazy val stateMachine = Map(
-    'Start ->   ((events : List[Event]) => {
+    'StartCategory ->   ((events : List[Event]) => {
       if (Drawing.selection.isDefined) {
         Siigna display "set startpoint"
         Module('Point)

@@ -13,10 +13,10 @@
 //
 //val eventHandler = EventHandler(stateMap, stateMachine)
 //
-//  lazy val stateMap     = DirectedGraph('Start     -> 'KeyEscape -> 'End)
+//  lazy val stateMap     = DirectedGraph('StartCategory     -> 'KeyEscape -> 'End)
 //
 //  def stateMachine = Map(
-//    'Start -> ((events : List[Event]) => {
+//    'StartCategory -> ((events : List[Event]) => {
 //      goto('End)
 //      Some(UpdateShapes(DOM.shapes, DOM.shapes.map(_.setAttribute("Visible" -> true))))
 //    }),

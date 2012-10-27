@@ -12,8 +12,8 @@ scalaSource in Compile <<= (baseDirectory in Compile)(_ / "src")
 
 publishTo := Some(Resolver.file("file",  new File( "../rls/base" )) )
 
-resolvers += "Siigna" at "http://siigna.com/rls/base"
+resolvers += "Siigna" at "http://rls.siigna.com/base"
 
 libraryDependencies ++= Seq(
-  "com.siigna" %% "siigna-main" % "0.1"
+  "com.siigna" %% "siigna-main" % "preAlpha"
 )

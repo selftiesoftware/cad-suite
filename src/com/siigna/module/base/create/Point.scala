@@ -114,7 +114,7 @@ object Point extends Module {
   def stateMap = DirectedGraph[Symbol, Symbol](
   )
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       //display the name of the active module:
       //Siigna display com.siigna.module.base.Default.previousModule.get.toString
 

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0" xmlns:e="http://ant.apache.org/ivy/extra">
+	<info organisation="com.siigna"
+		module="siigna-module$sources_javadoc_2.9.2"
+		revision="preAlpha"
+		status="integration"
+		publication="20121027124015"
+	/>
+	<configurations>
+		<conf name="compile" visibility="public" description=""/>
+		<conf name="runtime" visibility="public" description="" extends="compile"/>
+		<conf name="test" visibility="public" description="" extends="runtime"/>
+		<conf name="provided" visibility="public" description=""/>
+		<conf name="optional" visibility="public" description=""/>
+		<conf name="compile-internal" visibility="private" description="" extends="compile,optional,provided"/>
+		<conf name="runtime-internal" visibility="private" description="" extends="runtime,optional"/>
+		<conf name="test-internal" visibility="private" description="" extends="test,optional,provided"/>
+		<conf name="plugin" visibility="private" description=""/>
+		<conf name="sources" visibility="public" description=""/>
+		<conf name="docs" visibility="public" description=""/>
+		<conf name="pom" visibility="public" description=""/>
+	</configurations>
+	<publications>
+	</publications>
+	<dependencies>
+		<dependency org="com.siigna" name="siigna-main_2.9.2" rev="preAlpha" transitive="false" conf="compile->default(compile);runtime->default(compile);test->default(compile);compile-internal->default(compile);runtime-internal->default(compile);test-internal->default(compile)">
+			<artifact name="siigna-main_2.9.2" type="src" ext="jar" conf="compile" e:classifier="sources"/>
+			<artifact name="siigna-main_2.9.2" type="doc" ext="jar" conf="compile" e:classifier="javadoc"/>
+		</dependency>
+		<dependency org="org.scala-lang" name="scala-library" rev="2.9.2" transitive="false" conf="compile->default(compile);runtime->default(compile);test->default(compile);compile-internal->default(compile);runtime-internal->default(compile);test-internal->default(compile)">
+			<artifact name="scala-library" type="src" ext="jar" conf="compile" e:classifier="sources"/>
+			<artifact name="scala-library" type="doc" ext="jar" conf="compile" e:classifier="javadoc"/>
+		</dependency>
+		<dependency org="org.clapper" name="grizzled-slf4j_2.9.2" rev="0.6.9" transitive="false" conf="compile->default(compile);runtime->default(compile);test->default(compile);compile-internal->default(compile);runtime-internal->default(compile);test-internal->default(compile)">
+			<artifact name="grizzled-slf4j_2.9.2" type="src" ext="jar" conf="compile" e:classifier="sources"/>
+			<artifact name="grizzled-slf4j_2.9.2" type="doc" ext="jar" conf="compile" e:classifier="javadoc"/>
+		</dependency>
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.4" transitive="false" conf="compile->default(compile);runtime->default(compile);test->default(compile);compile-internal->default(compile);runtime-internal->default(compile);test-internal->default(compile)">
+			<artifact name="slf4j-api" type="src" ext="jar" conf="compile" e:classifier="sources"/>
+			<artifact name="slf4j-api" type="doc" ext="jar" conf="compile" e:classifier="javadoc"/>
+		</dependency>
+		<dependency org="com.typesafe.akka" name="akka-actor" rev="2.0.3" transitive="false" conf="compile->default(compile);runtime->default(compile);test->default(compile);compile-internal->default(compile);runtime-internal->default(compile);test-internal->default(compile)">
+			<artifact name="akka-actor" type="src" ext="jar" conf="compile" e:classifier="sources"/>
+			<artifact name="akka-actor" type="doc" ext="jar" conf="compile" e:classifier="javadoc"/>
+		</dependency>
+		<dependency org="com.typesafe" name="config" rev="0.3.1" transitive="false" conf="compile->default(compile);runtime->default(compile);test->default(compile);compile-internal->default(compile);runtime-internal->default(compile);test-internal->default(compile)">
+			<artifact name="config" type="src" ext="jar" conf="compile" e:classifier="sources"/>
+			<artifact name="config" type="doc" ext="jar" conf="compile" e:classifier="javadoc"/>
+		</dependency>
+		<dependency org="ch.qos.logback" name="logback-classic" rev="1.0.1" transitive="false" conf="compile->default(compile);runtime->default(compile);test->default(compile);compile-internal->default(compile);runtime-internal->default(compile);test-internal->default(compile)">
+			<artifact name="logback-classic" type="src" ext="jar" conf="compile" e:classifier="sources"/>
+			<artifact name="logback-classic" type="doc" ext="jar" conf="compile" e:classifier="javadoc"/>
+		</dependency>
+		<dependency org="ch.qos.logback" name="logback-core" rev="1.0.1" transitive="false" conf="compile->default(compile);runtime->default(compile);test->default(compile);compile-internal->default(compile);runtime-internal->default(compile);test-internal->default(compile)">
+			<artifact name="logback-core" type="src" ext="jar" conf="compile" e:classifier="sources"/>
+			<artifact name="logback-core" type="doc" ext="jar" conf="compile" e:classifier="javadoc"/>
+		</dependency>
+		<dependency org="com.typesafe" name="slick_2.10.0-M7" rev="0.11.1" transitive="false" conf="compile->default(compile);runtime->default(compile);test->default(compile);compile-internal->default(compile);runtime-internal->default(compile);test-internal->default(compile)">
+			<artifact name="slick_2.10.0-M7" type="src" ext="jar" conf="compile" e:classifier="sources"/>
+			<artifact name="slick_2.10.0-M7" type="doc" ext="jar" conf="compile" e:classifier="javadoc"/>
+		</dependency>
+		<dependency org="org.scala-lang" name="scala-compiler" rev="2.9.2" transitive="false" conf="compile->default(compile);runtime->default(compile);test->default(compile);compile-internal->default(compile);runtime-internal->default(compile);test-internal->default(compile)">
+			<artifact name="scala-compiler" type="src" ext="jar" conf="compile" e:classifier="sources"/>
+			<artifact name="scala-compiler" type="doc" ext="jar" conf="compile" e:classifier="javadoc"/>
+		</dependency>
+		<dependency org="org.scalatest" name="scalatest_2.9.2" rev="1.8" transitive="false" conf="test->default(compile);test-internal->default(compile)">
+			<artifact name="scalatest_2.9.2" type="src" ext="jar" conf="test" e:classifier="sources"/>
+			<artifact name="scalatest_2.9.2" type="doc" ext="jar" conf="test" e:classifier="javadoc"/>
+		</dependency>
+		<exclude org="org.scala-lang" module="scala-library" artifact="*" type="jar" ext="*" matcher="exact"/>
+		<exclude org="org.scala-lang" module="scala-compiler" artifact="*" type="jar" ext="*" matcher="exact"/>
+		<override org="org.scala-lang" module="scala-library" matcher="exact" rev="2.9.2"/>
+		<override org="org.scala-lang" module="scala-compiler" matcher="exact" rev="2.9.2"/>
+	</dependencies>
+</ivy-module>

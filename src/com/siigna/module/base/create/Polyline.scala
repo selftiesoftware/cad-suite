@@ -27,11 +27,11 @@ object Polyline extends Module {
   val eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap = DirectedGraph(
-    'Start    ->   'Message  ->    'SetPoint
+    'StartCategory    ->   'Message  ->    'SetPoint
   )
 
   def stateMachine = Map(
-  'Start -> ((events : List[Event]) => {
+  'StartCategory -> ((events : List[Event]) => {
     //Log.level += Log.DEBUG + Log.SUCCESS
     events match {
       case MouseDown(_, MouseButtonRight, _) :: tail => {
@@ -76,7 +76,7 @@ object Polyline extends Module {
     }
   }),
   'End -> ((events : List[Event]) => {
-    if(shape.isDefined) Create(shape.get.setAttributes(attributes))
+    if(shape.isDefined) CreateCategory(shape.get.setAttributes(attributes))
 
     //clear the vars
     com.siigna.module.base.Default.previousModule = Some('Polyline)

@@ -20,11 +20,11 @@ import com.siigna._
  *  1) Select two line segments A
  *  2) Check that they are not parallel, if so allow only 0 for radius (join lines)
  *  3) Prompt for radius (defaults to 0)
- *  4) Create guidelines B: offset lines r to the side where lines.angle < 180
+ *  4) CreateCategory guidelines B: offset lines r to the side where lines.angle < 180
  *  5) Get the guidelines B intersection (I), save as arc centerpoint
- *  6) Create guidelines C from I perpendicular to each line segment A
+ *  6) CreateCategory guidelines C from I perpendicular to each line segment A
  *  7) Get intersection points between A and C (II), save as arc startPoint and endPoint.
- *  8) Create new line segments A using II as endpoints, and create arc.
+ *  8) CreateCategory new line segments A using II as endpoints, and create arc.
  */
 
 object Fillet extends Module{
@@ -33,7 +33,7 @@ object Fillet extends Module{
   var line2 : Option[Shape] = None
 
   def stateMap = Map(
-    'Start -> {
+    'StartCategory -> {
       if(!Drawing.selection.isEmpty) {
         Drawing.deselect()
         Siigna display "select first line"

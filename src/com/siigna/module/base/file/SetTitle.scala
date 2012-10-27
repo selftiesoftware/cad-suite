@@ -22,7 +22,7 @@ object SetTitle extends Module {
 
   def stateMap = Map(
 
-    'Start -> {
+    'StartCategory -> {
       //TODO: A CLICK IS NEEDED BEFORE SIIGNA REGISTERES KEY INPUT. TO BE FIXED.
       View.zoom(Default.titleFocus.get, -2)
       Siigna display "type a drawing title"

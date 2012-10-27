@@ -24,12 +24,12 @@ object SnapToggle extends Module {
   var isSnapping : Boolean = true
 
   lazy val stateMap = DirectedGraph (
-    'Start    -> 'Event     -> 'End
+    'StartCategory    -> 'Event     -> 'End
   )
 
   lazy val stateMachine = Map(
 
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       Goto('End)
       None
     }),
