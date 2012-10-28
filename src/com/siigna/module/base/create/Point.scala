@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-/*package com.siigna.module.base.create
+package com.siigna.module.base.create
 
 import com.siigna._
 import com.siigna.module.base.Default._
@@ -31,6 +31,25 @@ import com.siigna.module.base.Default._
 
 object Point extends Module {
 
+  val stateMap: StateMap = Map(
+    'Start -> {
+      case MouseDown(p,_,_)::tail => {
+        'End
+      }
+    },
+    'End -> {
+      case _ =>
+    }
+  )
+
+  override def paint(g: Graphics, t: TransformationMatrix) {
+    val mouse = View.mousePosition
+
+    g.draw(LineShape(Vector2D(0,mouse.y),Vector2D(View.width,mouse.y)))
+    g.draw(LineShape(Vector2D(mouse.x,0),Vector2D(mouse.x,View.height)))
+  }
+}
+  /*
   private var angleOrScale : Option[Double] = None
 
   //a placeholder for the active AngleSnap - needed if the user wants to type a length of a line segment

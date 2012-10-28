@@ -9,11 +9,12 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-/*package com.siigna.module.base.create
+package com.siigna.module.base.create
 
 import com.siigna._
 import app.controller.Controller
 import app.Siigna
+import java.awt.Color
 
 /**
  * A line module (draws one line-segment)
@@ -21,74 +22,40 @@ import app.Siigna
 
 object Line extends Module{
 
-  var attributes : Attributes = Attributes()
-  def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
+  var startPoint: Option[Vector2D] = None
 
-  private var points = List[Vector2D]()
+  val stateMap: StateMap = Map(
 
-  private var shape  : Option[LineShape] = None
+    'Start -> {
+      case Message(v: Vector2D)::tail => {
+        if (startPoint.isEmpty){
+          startPoint = Some(v)
+          Module('Point,"com.siigna.module.base.create")
+        } else {
 
-  def stateMap = DirectedGraph(
-    'StartCategory    ->   'Message  ->    'SetPoint
-  )
+          val lShape = LineShape(startPoint.get,v)
 
-  def stateMachine = Map(
-    'StartCategory -> ((events : List[Event]) => {
-
-      set("activeLineWeight", "StrokeWidth")
-      set("activeColor", "Color")
-
-      com.siigna.module.base.Default.previousModule = Some('Line)
-      //Log.level += Log.DEBUG + Log.SUCCESS
-      events match {
-        case MouseDown(_, MouseButtonRight, _) :: tail => {
-          Goto('End)
-        }
-        case _ => Module('Point)
-      }
-    }),
-    'SetPoint -> ((events : List[Event]) => {
-
-      def getPointGuide = (p : Vector2D) =>
-        //TODO: find a better way to avoid empty list error when no point is set.
-        if(points.size == 0) LineShape((p),(p))
-        else {
-          set("activeLineWeight", "StrokeWidth")
-          set("activeColor", "Color")
-          LineShape(points(0),p).setAttributes(attributes)
-        }
-
-      events match {
-        // exit strategy
-        case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
-
-        case Message(p : Vector2D) :: tail => {
-          // save the point
-          points = points :+ p
-          // Define shape if there is enough points
-          if (points.size == 1) {
-            Module('Point)
-            Controller ! Message(PointGuide(getPointGuide))
-          } else if (points.size == 2) {
-            shape = Some(LineShape(points(0),points(1)))
-            Goto('End)
+          def setAttribute[T](name:String, shape:Shape) = {
+            Siigna.get(name) match {
+              case Some(t: T) => shape.addAttribute(name, t)
+              case None => shape// Option isn't set. Do nothing
+            }
           }
-        }
 
-        // match on everything else
-        case _ => {
-          Module('Point)
-          Controller ! Message(PointGuide(getPointGuide))
+
+          val line = setAttribute[Color]("Color",
+            setAttribute[Double]("LineWeight", lShape)
+          )
+
+          Create(line)
+          'End
         }
       }
-    }),
-    'End -> ((events : List[Event]) => {
-      if(shape.isDefined) CreateCategory(shape.get.setAttributes(attributes))
+      case _ => Module('Point,"com.siigna.module.base.create")
+    },
 
-      //reset the module vars
-      points = List[Vector2D]()
-      shape = None
-
-    })
+    'End -> {
+      case _ => startPoint = None
+    }
   )
-}*/
+}
