@@ -33,7 +33,7 @@ class Default extends Module {
         Module('Menu)
       }
       case KeyDown('d', _) :: tail => {
-        Module('Colorwheel)
+        Module('Colors)
       }
       case KeyDown('l', _) :: tail => {
         Create(LineShape(Vector2D(0, 0), Vector2D(100, 100)))
