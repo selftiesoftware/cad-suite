@@ -15,6 +15,7 @@ import com.siigna.app.view.Graphics
 import com.siigna._
 import java.awt.Color
 import com.siigna.module.base.Menu
+import javax.management.remote.rmi._RMIConnection_Stub
 
 /**
  * a wheel to select colors for lines, surfaces and text
@@ -81,25 +82,20 @@ class Colors extends Module {
     //select a color
   'Start -> {
     case events => {
-      Siigna.navigation = false // Make sure the rest of the program doesn't move
-      eventParser.disable() // Disable tracking and snapping
-      //startPoint = if (Menu.center.isDefined) Some(Menu.center.get) else Some(Vector2D(0,0))
+      events match {
+        case MouseMove(point, _, _) :: tail => relativeMousePosition = Some(point)
 
-      val state : Symbol = events match {
-        case MouseMove(point, _, _) :: tail => {
-          relativeMousePosition = Some(point)
-          'Start
-        }
-        case MouseDown(point, MouseButtonRight, _) :: tail => 'End
+        Siigna.navigation = false // Make sure the rest of the program doesn't move
+        eventParser.disable() // Disable tracking and snapping
+        startPoint = /*if (Menu.center.isDefined) Some(Menu.center.get) else*/ Some(Vector2D(0,0))
 
         //selects the color to use
-        case MouseDown(point, MouseButtonLeft, _) :: tail => {
-
+        case MouseUp(_,MouseButtonNone,_)::MouseDown(point, MouseButtonLeft, _) :: tail => {
+          println(point)
           //catch first Mouse Down
           if (gotMouseDown == false) {
             relativeMousePosition = Some(point)
             gotMouseDown = true
-            'Start
           }
           //if the mouse has been pressed once, set the color and go to 'End.
           else {
@@ -130,9 +126,12 @@ class Colors extends Module {
             else if (activeAngle == 330) activeColor = Some(dimgrey)
             else if (activeAngle == 345) activeColor = Some(anthracite)
             gotMouseDown = false
-            'End
+            'Start
           }
         }
+
+        case MouseDown(point, MouseButtonRight, _) :: tail => 'CleanUp
+
         case _ => 'Start
       }
 
@@ -145,30 +144,31 @@ class Colors extends Module {
         else activeAngle = calculatedAngle
         activeAngle = ((activeAngle +7.5)/15).toInt * 15
       }
-
-      // Return the new state
-      state
+      'CleanUp
     }
   },
-    'End -> {
-      case _ => {
-        if(Drawing.selection.isEmpty) {
+  'CleanUp -> {
+    case _ => {
+      println("Cleanup")
+      if(Drawing.selection.isEmpty) {
           if(activeColor.isDefined) Siigna("activeColor") = activeColor.get
         }
         //if a selection is defined, change lineweight of the selected shapes and deselect them.
         else {
           Drawing.selection.foreach(s => s.addAttribute("Color" -> activeColor.get))
-          Drawing.deselect()
+          //Drawing.deselect()
         }
-        //clear values and reactivate navigation
-        gotMouseDown = false
-        startPoint = None
-        relativeMousePosition = None
-        eventParser.enable()
-        Siigna.navigation = true
-        'End
-      }
+
+      //clear values and reactivate navigation
+      gotMouseDown = false
+      startPoint = None
+      relativeMousePosition = None
+      eventParser.enable()
+      Siigna.navigation = true
+
+      ModuleEnd
     }
+  }
   )
 
   override def paint(g : Graphics, transform : TransformationMatrix) {
