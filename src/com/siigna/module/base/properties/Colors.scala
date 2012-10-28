@@ -18,15 +18,16 @@ import com.siigna.module.base.Menu
 
 /**
  * a wheel to select colors for lines, surfaces and text
- * //TODO: draw the color wheel where the radial menu center is instead centered around the last mouse click.
- * //TODO add color selection functionality
-   //TODO: the color wheel only shows after mouse move???
  */
 
 class Colors extends Module {
 
   var activeColor: Option[Color] = None
+
+  var angle : Int = 0
   
+  var centerPoint : Option[Vector2D] = None
+
   //colors, inspired by crayola crayons: http://en.wikipedia.org/wiki/List_of_Crayola_crayon_colors
   lazy val black       = new Color(0.00f, 0.00f, 0.00f, transp)
   lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, transp)
@@ -57,40 +58,34 @@ class Colors extends Module {
   def getActiveAngle(startPoint : Vector2D, mousePosition : Vector2D) : Int = {
     var activeAngle = 0
     val radian = (mousePosition - startPoint).angle.toInt
-    var calculatedAngle = radian * -1 + 450
+    var calculatedAngle = radian + 450
     if (calculatedAngle > 360)
       activeAngle = calculatedAngle - 360
     else activeAngle = calculatedAngle
       activeAngle = ((activeAngle + 7.5)/15).toInt * 15
     //return the angle
-    activeAngle
+    activeAngle-180
   }
     
-  //make a list of radians- used to populate color slots in the color wheel.
+  //make a list of radians - used in paint to draw outlines around primary colors.
   def radians(rotation : Int) : List[Int] = {
-
     var i = 0
     var activeRadians = List[Int]()
 
     //add all radians to a list
     do {
-
       activeRadians = i :: activeRadians
       i += rotation
-
     } while (i <= 360)
     activeRadians
   }
 
-  var relativeMousePosition : Option[Vector2D] = None 
-  var startPoint : Option[Vector2D] = None
   private val transp = 1.00f
 
   def stateMap: StateMap = Map(
     //select a color
   'Start -> {
     case e => { 
-      println("in colors")
       Siigna.navigation = false // Make sure the rest of the program doesn't move
       eventParser.disable() // Disable tracking and snapping
       'Interaction
@@ -98,12 +93,37 @@ class Colors extends Module {
   },
     'Interaction -> {
       case MouseMove(p, _, _) :: tail => {
-        relativeMousePosition = Some(p)
-        println(relativeMousePosition)
-        startPoint = Some(Vector2D(0,0))
+        //TODO: get radial menu center position as startPoint.
+        centerPoint = Some(Vector2D(0,0))
       }
       
       case MouseDown(p, MouseButtonLeft, _) :: tail => {
+        
+        if (angle == 0) {activeColor = Some(black)}
+        else if (angle == 15) activeColor = Some(yellowGreen)
+        else if (angle == 30) activeColor = Some(lime)
+        else if (angle == 45) activeColor = Some(green)
+        else if (angle == 60) activeColor = Some(caribbean)
+        else if (angle == 75) activeColor = Some(turquise)
+        else if (angle == 90) activeColor = Some(cyan)
+        else if (angle == 105) activeColor = Some(pasificBlue)
+        else if (angle == 120) activeColor = Some(navyBlue)
+        else if (angle == 135) activeColor = Some(blue)
+        else if (angle == 150) activeColor = Some(purple)
+        else if (angle == 165) activeColor = Some(plum)
+        else if (angle == 180) activeColor = Some(magenta)
+        else if (angle == 195) activeColor = Some(violetRed)
+        else if (angle == 210) activeColor = Some(radicalRed)
+        else if (angle == 225) activeColor = Some(red)
+        else if (angle == 240) activeColor = Some(orangeRed)
+        else if (angle == 255) activeColor = Some(orange)
+        else if (angle == 270) activeColor = Some(yellow)
+        else if (angle == 285) activeColor = Some(lightGrey)
+        else if (angle == 300) activeColor = Some(darkGrey)
+        else if (angle == 315) activeColor = Some(grey)
+        else if (angle == 330) activeColor = Some(dimgrey)
+        else if (angle == 345) activeColor = Some(anthracite)
+        
         if(Drawing.selection.isEmpty) {
           if(activeColor.isDefined) Siigna("activeColor") = activeColor.get
         }
@@ -113,7 +133,7 @@ class Colors extends Module {
           Drawing.deselect()
         }
         //clear values and reactivate navigation
-        println("INTERACT!")
+        println("ACTIVE COLOR: "+activeColor)
         eventParser.enable()
         Siigna.navigation = true
         ModuleEnd
@@ -122,9 +142,10 @@ class Colors extends Module {
   )
 
   override def paint(g : Graphics, transform : TransformationMatrix) {
-    if (startPoint.isDefined && relativeMousePosition.isDefined) {
+    if (centerPoint.isDefined) {
+
       //centerPoint for the colorWheel
-      val sp = startPoint.get.transform(transform)
+      val sp = centerPoint.get.transform(transform)
       val t  = TransformationMatrix(sp,1.3)
 
       lazy val colorFill = Array(Vector2D(-8.93,75.5),Vector2D(-5.96,75.8),Vector2D(-2.55,76),Vector2D(0,76),Vector2D(2.47,76),Vector2D(6.52,75.7),Vector2D(8.93,75.5),Vector2D(11.9,98.3),Vector2D(9.06,98.6),Vector2D(4.35,98.9),Vector2D(0,99),Vector2D(-4.35,98.9),Vector2D(-9.04,98.6),Vector2D(-11.9,98.3),Vector2D(-8.93,75.5))
@@ -169,12 +190,16 @@ class Colors extends Module {
       drawFill(plum,345)
 
       //draw a border around the active color
-      val distanceToCentre = startPoint.get - relativeMousePosition.get
+      val distanceToCentre = sp - mousePosition
+      
+      //call the angle function to get the active angle, and store it in a var.
+      angle = getActiveAngle(sp, mousePosition)
 
-      if (distanceToCentre.length > 80 && distanceToCentre.length < 130 )  {
+      if (distanceToCentre.length > 80 && distanceToCentre.length < 130 && centerPoint.isDefined)  {
 
-      //g draw colorIcon.transform(t.rotate(activeAngle-180))
-      //g draw colorActive.transform(t.rotate(activeAngle-180))
+        //calculate where to draw a box highlighting the currently active color
+        g draw colorIcon.transform(t.rotate(angle))
+        g draw colorActive.transform(t.rotate(angle))
 
       }
       //draw the color wheel icon outlines
