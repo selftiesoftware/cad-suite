@@ -22,7 +22,6 @@ object Default extends Module {
   def stateMap = Map(
     'Start -> {
       case e => {
-        println(e)
         e match {
           case MouseDown(_, MouseButtonRight, _) :: tail => {
             println(e.head)

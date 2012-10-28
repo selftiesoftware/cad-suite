@@ -16,6 +16,7 @@ import com.siigna._
 import com.siigna.module.base.radialmenu._
 
 import category.{CreateCategory => MenuCreate, StartCategory}
+import module.ModuleInstance
 
 /**
  * The menu module. This module shows the menu as radial items and categories in 13 places (directions):
@@ -36,30 +37,35 @@ object Menu extends Module {
     },
     'Interaction -> {
       case MouseDown(_, MouseButtonRight, _) :: tail => {
-
         'Kill
       }
       case MouseDown(p,_,_) :: tail => {
-        println(p, " ", View.center.distanceTo(p))
+        //println(p, " ", View.center.distanceTo(p))
 
-        val transformedP = p.transform(View.deviceTransformation)
 
-        println(transformedP)
+        //println(transformedP)
+        var theinstance: Option[ModuleInstance] = None
 
-        if(View.center.distanceTo(transformedP) > 100 && View.center.distanceTo(transformedP) < 150){
-          println("here")
+        if(View.center.distanceTo(p) > 100 && View.center.distanceTo(p) < 150){
 
-          currentCategory.graph.get(direction(transformedP)) foreach(_ match {
+          currentCategory.graph.get(direction(p)) foreach(_ match {
             case mc: MenuCategory => currentCategory = mc
 
-            case MenuModule(instance, icon) => instance
+            case MenuModule(instance, icon) =>  {
+              //println(instance)
+              theinstance = Some(instance)
+            }
           })
         }
+        if(theinstance.isDefined) theinstance.get
       }
     },
 
     'Kill -> {
-      case _ =>
+      case _ => {
+        println("kill")
+        currentCategory = StartCategory
+      }
     }
   )
 
