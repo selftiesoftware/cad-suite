@@ -40,13 +40,10 @@ object Menu extends Module {
         'Kill
       }
       case MouseDown(p,_,_) :: tail => {
-        //println(p, " ", View.center.distanceTo(p))
-
-
-        //println(transformedP)
         var theinstance: Option[ModuleInstance] = None
 
         if(View.center.distanceTo(p) > 100 && View.center.distanceTo(p) < 150){
+
 
           currentCategory.graph.get(direction(p)) foreach(_ match {
             case mc: MenuCategory => currentCategory = mc
@@ -79,7 +76,7 @@ object Menu extends Module {
 
     def drawElement(event: MenuEvent, element: MenuElement) {
 
-      val t = TransformationMatrix(event.vector*130,1)
+      val t = TransformationMatrix(event.vector*130,1).concatenate(location)
 
      /* event.icon.foreach(s => {
 
@@ -87,11 +84,11 @@ object Menu extends Module {
 
       })   */
 
-      element.icon.foreach(s => {
-
-        g.draw(s.transform(location.concatenate(t)))
-
-      })
+      // Draw the icons - if the event is the Center we should only transform to the location
+      event match {
+        case EventC => element.icon.foreach(s => g.draw(s.transform(location)))
+        case _ => element.icon.foreach(s => g.draw(s.transform(t)))
+      }
     }
 
     currentCategory.graph.foreach(t => {
