@@ -15,7 +15,7 @@ import com.siigna.module.base.radialmenu._
 import com.siigna._
 
 
-case object HelpersCategory extends MenuCategory{
+case object HelpersCategory extends MenuCategory {
   val graph = Map[MenuEvent,MenuElement](
     EventWNW -> MenuModule(Module('Grid,"com.siigna.module.base.helpers"), RadialMenuIcon.grid),
     EventSSW -> MenuModule(Module('Area,"com.siigna.module.base.helpers"), RadialMenuIcon.area),
