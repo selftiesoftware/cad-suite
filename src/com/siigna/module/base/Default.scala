@@ -32,6 +32,9 @@ class Default extends Module {
       case MouseDown(_, MouseButtonRight, _) :: tail => {
         Module('Menu)
       }
+      case KeyDown('d', _) :: tail => {
+        Module('Colors)
+      }
       case KeyDown('l', _) :: tail => {
         Create(LineShape(Vector2D(0, 0), Vector2D(100, 100)))
       }

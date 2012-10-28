@@ -26,8 +26,8 @@ import javax.management.remote.rmi._RMIConnection_Stub
 
 class Colors extends Module {
 
-  private val transp = 1.00f
-
+  var activeColor: Option[Color] = None
+  
   //colors, inspired by crayola crayons: http://en.wikipedia.org/wiki/List_of_Crayola_crayon_colors
   lazy val black       = new Color(0.00f, 0.00f, 0.00f, transp)
   lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, transp)
@@ -54,15 +54,20 @@ class Colors extends Module {
   lazy val lime        = new Color(0.50f, 0.95f, 0.15f, transp)
   lazy val yellowGreen = new Color(0.65f, 0.95f, 0.15f, transp)
 
-  private var activeAngle : Double = 0
-  //TODO: hack to prevent module from forwarding to End immediately.
-  //flag to register the first mousedown.
-  private var gotMouseDown = false
-  private var relativeMousePosition : Option[Vector2D] = None
-  private var startPoint : Option[Vector2D] = None
-
-  var activeColor: Option[Color] = None
-
+  //get the current angle from the mouse to the center of the color wheel
+  def getActiveAngle(startPoint : Vector2D, mousePosition : Vector2D) : Int = {
+    var activeAngle = 0
+    val radian = (mousePosition - startPoint).angle.toInt
+    var calculatedAngle = radian * -1 + 450
+    if (calculatedAngle > 360)
+      activeAngle = calculatedAngle - 360
+    else activeAngle = calculatedAngle
+      activeAngle = ((activeAngle + 7.5)/15).toInt * 15
+    //return the angle
+    activeAngle
+  }
+    
+  //make a list of radians- used to populate color slots in the color wheel.
   def radians(rotation : Int) : List[Int] = {
 
     var i = 0
@@ -78,9 +83,14 @@ class Colors extends Module {
     activeRadians
   }
 
-  def stateMap = Map(
+  var relativeMousePosition : Option[Vector2D] = None 
+  var startPoint : Option[Vector2D] = None
+  private val transp = 1.00f
+
+  def stateMap: StateMap = Map(
     //select a color
   'Start -> {
+<<<<<<< HEAD
     case events => {
       events match {
         case MouseMove(point, _, _) :: tail => relativeMousePosition = Some(point)
@@ -151,6 +161,24 @@ class Colors extends Module {
     case _ => {
       println("Cleanup")
       if(Drawing.selection.isEmpty) {
+=======
+    case e => { 
+      println("in colors")
+      Siigna.navigation = false // Make sure the rest of the program doesn't move
+      eventParser.disable() // Disable tracking and snapping
+      'Interaction
+    }  
+  },
+    'Interaction -> {
+      case MouseMove(p, _, _) :: tail => {
+        relativeMousePosition = Some(p)
+        println(relativeMousePosition)
+        startPoint = Some(Vector2D(0,0))
+      }
+      
+      case MouseDown(p, MouseButtonLeft, _) :: tail => {
+        if(Drawing.selection.isEmpty) {
+>>>>>>> 95f2aded1254d314e954f855cde79792a4ef32cb
           if(activeColor.isDefined) Siigna("activeColor") = activeColor.get
         }
         //if a selection is defined, change lineweight of the selected shapes and deselect them.
@@ -158,6 +186,7 @@ class Colors extends Module {
           Drawing.selection.foreach(s => s.addAttribute("Color" -> activeColor.get))
           //Drawing.deselect()
         }
+<<<<<<< HEAD
 
       //clear values and reactivate navigation
       gotMouseDown = false
@@ -167,6 +196,14 @@ class Colors extends Module {
       Siigna.navigation = true
 
       ModuleEnd
+=======
+        //clear values and reactivate navigation
+        println("INTERACT!")
+        eventParser.enable()
+        Siigna.navigation = true
+        ModuleEnd
+      }
+>>>>>>> 95f2aded1254d314e954f855cde79792a4ef32cb
     }
   }
   )
@@ -223,8 +260,8 @@ class Colors extends Module {
 
       if (distanceToCentre.length > 80 && distanceToCentre.length < 130 )  {
 
-      g draw colorIcon.transform(t.rotate(activeAngle-180))
-      g draw colorActive.transform(t.rotate(activeAngle-180))
+      //g draw colorIcon.transform(t.rotate(activeAngle-180))
+      //g draw colorActive.transform(t.rotate(activeAngle-180))
 
       }
       //draw the color wheel icon outlines
