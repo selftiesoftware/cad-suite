@@ -28,6 +28,9 @@ object Default extends Module {
             println(e.head)
             Module('Menu)
           }
+          case KeyDown('c', _) :: KeyUp('m', _) :: tail => {
+            println("open colorwheel")
+          }
           case KeyDown('l', _) :: tail => {
             Create(LineShape(Vector2D(0, 0), Vector2D(100, 100)))
           }
@@ -40,6 +43,7 @@ object Default extends Module {
           case KeyDown('y', Control) :: tail => {
             Drawing.redo()
           }
+            
           case _ =>
         }
       }

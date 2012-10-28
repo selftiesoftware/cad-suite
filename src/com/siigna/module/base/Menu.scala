@@ -102,17 +102,17 @@ object Menu extends Module {
   def direction(point : Vector2D) = {
     val angle  = (point - View.center).angle
     if      (angle > 345 || angle < 15)   EventE
-    else if (angle > 15  && angle < 45)   EventENE
-    else if (angle > 45  && angle < 75)   EventNNE
-    else if (angle > 75  && angle < 105)  EventN
-    else if (angle > 105 && angle < 135)  EventNNW
-    else if (angle > 135 && angle < 165)  EventWNW
+    else if (angle > 15  && angle < 45)   EventESE
+    else if (angle > 45  && angle < 75)   EventSSE
+    else if (angle > 75  && angle < 105)  EventS
+    else if (angle > 105 && angle < 135)  EventSSW
+    else if (angle > 135 && angle < 165)  EventWSW
     else if (angle > 165 && angle < 195)  EventW
-    else if (angle > 195 && angle < 225)  EventWSW
-    else if (angle > 225 && angle < 255)  EventSSW
-    else if (angle > 255 && angle < 285)  EventS
-    else if (angle > 285 && angle < 315)  EventSSE
-    else if (angle > 315 && angle < 345)  EventESE
+    else if (angle > 195 && angle < 225)  EventWNW
+    else if (angle > 225 && angle < 255)  EventNNW
+    else if (angle > 255 && angle < 285)  EventN
+    else if (angle > 285 && angle < 315)  EventNNE
+    else if (angle > 315 && angle < 345)  EventENE
     else                                  MenuEventNone
   }
 }

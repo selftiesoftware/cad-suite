@@ -23,6 +23,5 @@ case object HelpersCategory extends MenuCategory {
   )
 
   val color = RadialMenuIcon.helpersColor
-
   val parent = Some(StartCategory)
 }
