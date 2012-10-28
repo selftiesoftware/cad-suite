@@ -21,7 +21,7 @@ import java.awt.Color
  *
  */
 
-object Stroke extends Module {
+class Stroke extends Module {
 
   var activeAngle : Double = 0
 

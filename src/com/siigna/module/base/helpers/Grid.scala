@@ -18,7 +18,7 @@ import com.siigna.module.base.Default._
  * A module to draw a grid - with a gridsize set by the user - on the paper.
  */
 
-object Grid extends Module{
+class Grid extends Module{
 
   //default grid scale
   var scale : Double = 10

@@ -1,9 +1,0 @@
-[0m[[0mdebug[0m] [0mOther repositories:[0m
-[0m[[0mdebug[0m] [0m	FileRepository(file,FileConfiguration(true,None),sbt.Patterns@2d1c3d6b)[0m
-[0m[[0mdebug[0m] [0mDefault repositories:[0m
-[0m[[0mdebug[0m] [0m	Raw(ProjectResolver(inter-project, mapped: com.siigna#siigna-main_2.9.2;preAlpha))[0m
-[0m[[0mdebug[0m] [0m	FileRepository(local,FileConfiguration(true,None),sbt.Patterns@2bf9e95)[0m
-[0m[[0mdebug[0m] [0m	Typesafe Repository: http://repo.typesafe.com/typesafe/releases/[0m
-[0m[[0mdebug[0m] [0m	Siigna: http://rls.siigna.com/base[0m
-[0m[[0mdebug[0m] [0m	public: http://repo1.maven.org/maven2/[0m
-[0m[[0mdebug[0m] [0mUsing inline dependencies specified in Scala.[0m

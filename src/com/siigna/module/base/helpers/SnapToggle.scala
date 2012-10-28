@@ -17,7 +17,7 @@ import app.view.event.Snap
  * Toggles snap on-off
  */
 
-object SnapToggle extends Module {
+class SnapToggle extends Module {
 
   val eventHandler = EventHandler(stateMap, stateMachine)
 

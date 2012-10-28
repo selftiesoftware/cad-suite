@@ -14,7 +14,7 @@ package com.siigna.module.base.create
 import com.siigna._
 import app.controller.Controller
 
-object Rectangle extends Module {
+class Rectangle extends Module {
 
   var attributes : Attributes = Attributes()
 

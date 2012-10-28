@@ -12,40 +12,43 @@
 package com.siigna.module.base
 import com.siigna._
 import java.awt.Color
+import module.ModuleInstance
 
 /**
 * The default module for the base module pack. Works as access point to
 * the rest of the modules.
  */
-object Default extends Module {
+class Default extends Module {
+
+  protected var lastModule : Option[ModuleInstance] = None
 
   def stateMap = Map(
     'Start -> {
-      case e => {
-        e match {
-          case MouseDown(_, MouseButtonRight, _) :: tail => {
-            println(e.head)
-            Module('Menu)
-          }
-          case KeyDown('c', _) :: KeyUp('m', _) :: tail => {
-            println("open colorwheel")
-          }
-          case KeyDown('l', _) :: tail => {
-            Create(LineShape(Vector2D(0, 0), Vector2D(100, 100)))
-          }
-          case KeyDown('c', _) :: tail => {
-            Create(CircleShape(Vector2D(100, 100), 12))
-          }
-          case KeyDown('z', Control) :: tail => {
-            Drawing.undo()
-          }
-          case KeyDown('y', Control) :: tail => {
-            Drawing.redo()
-          }
-            
-          case _ =>
-        }
+      // Match for modules to forward to
+      case ModuleEnd(module : ModuleInstance) :: tail => {
+        lastModule = Some(module) // Store it as a last module
+        module // Forward
       }
+      case MouseDown(_, MouseButtonRight, _) :: tail => {
+        Module('Menu)
+      }
+      case KeyDown('d', _) :: tail => {
+        Module('Colorwheel)
+      }
+      case KeyDown('l', _) :: tail => {
+        Create(LineShape(Vector2D(0, 0), Vector2D(100, 100)))
+      }
+      case KeyDown('c', _) :: tail => {
+        Create(CircleShape(Vector2D(100, 100), 12))
+      }
+      case KeyDown('z', Control) :: tail => {
+        Drawing.undo()
+      }
+      case KeyDown('y', Control) :: tail => {
+        Drawing.redo()
+      }
+      // Forward to the last initiated module
+      case KeyDown(Key.Space, _) :: tail => if (lastModule.isDefined) lastModule.get
     }
   )
 

@@ -2,7 +2,7 @@ package com.siigna.module.base.create
 
 import com.siigna._
 
-/*object ScriptExecution extends Module {
+/*class ScriptExecution extends Module {
 
   //get text from the editor
   val text = com.siigna.module.base.create.ScriptEditor.text

@@ -20,7 +20,7 @@ import java.awt.print.{PageFormat, Paper, Printable, PrinterJob}
 
 import com.siigna._
 
-object Print extends Module {
+class Print extends Module {
 
   var firstOpen : Boolean = true
 

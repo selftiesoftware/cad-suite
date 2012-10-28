@@ -22,14 +22,14 @@ import module.ModuleInstance
  * The menu module. This module shows the menu as radial items and categories in 13 places (directions):
  * N, NNE, ENE, E, ESE, SSE, S, SSW, WSW, W, WNW and NNW. There is also a center (C) place.
  */
-object Menu extends Module {
+class Menu extends Module {
 
   var center: Option[Vector2D] = None
 
   // The current active category
   var currentCategory : MenuCategory = StartCategory
 
-  def stateMap = Map(
+  def stateMap: StateMap = Map(
     'Start -> {
       case e => {
         'Interaction
@@ -37,31 +37,24 @@ object Menu extends Module {
     },
     'Interaction -> {
       case MouseDown(_, MouseButtonRight, _) :: tail => {
-        'Kill
+        ModuleEnd
       }
       case MouseDown(p,_,_) :: tail => {
-        var theinstance: Option[ModuleInstance] = None
 
-        if(View.center.distanceTo(p) > 100 && View.center.distanceTo(p) < 150){
+        // Examine if we have a hit!
+        if ((View.center.distanceTo(p) > 100 && View.center.distanceTo(p) < 150) || // The icons on the radius
+            (View.center.distanceTo(p) < 30)) { // Center-category
 
-
+          var module: Option[ModuleInstance] = None
           currentCategory.graph.get(direction(p)) foreach(_ match {
             case mc: MenuCategory => currentCategory = mc
 
             case MenuModule(instance, icon) =>  {
-              //println(instance)
-              theinstance = Some(instance)
+              module = Some(instance)
             }
           })
+          if (module.isDefined) ModuleEnd(module.get)
         }
-        if(theinstance.isDefined) theinstance.get
-      }
-    },
-
-    'Kill -> {
-      case _ => {
-        println("kill")
-        currentCategory = StartCategory
       }
     }
   )
@@ -72,11 +65,11 @@ object Menu extends Module {
    */
   override def paint(g : Graphics, transformation : TransformationMatrix) {
 
-    val location = TransformationMatrix(View.center,1)
+    val location = TransformationMatrix(View.center, 1).flipY
 
     def drawElement(event: MenuEvent, element: MenuElement) {
 
-      val t = TransformationMatrix(event.vector*130,1).concatenate(location)
+      val t = location concatenate TransformationMatrix(event.vector * 130, 1)
 
      /* event.icon.foreach(s => {
 
@@ -97,9 +90,6 @@ object Menu extends Module {
 
     //g.draw(TextShape("3efscdsfdsfdsfds",View.center))
    // g.draw(currentCategory.icon)
-    g.draw(CircleShape(View.center, 130))
-
-
   }
 
   /**
@@ -107,7 +97,9 @@ object Menu extends Module {
    * of a given point to the current center of the radial menu.
    */
   def direction(point : Vector2D) = {
-    val angle  = (point - View.center).angle
+    // First re-fit the angle to a positive y-axis (as opposed to the device coordinate system
+    // that has a negative y-axis)
+    val angle  = Vector2D(point.x - View.center.x, View.center.y - point.y).angle
     if      (angle > 345 || angle < 15)   EventE
     else if (angle > 15  && angle < 45)   EventESE
     else if (angle > 45  && angle < 75)   EventSSE

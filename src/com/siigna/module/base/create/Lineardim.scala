@@ -16,7 +16,7 @@
 import com.siigna._
 import com.siigna.module.base.Default
 
-object Lineardim extends Module {
+class Lineardim extends Module {
 
   var currentMouse : Option[Vector2D] = None
 

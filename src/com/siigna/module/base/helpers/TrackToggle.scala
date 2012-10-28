@@ -13,7 +13,7 @@ package com.siigna.module.base.helpers
 
 import com.siigna._
 
-object TrackToggle extends Module{
+class TrackToggle extends Module{
 
   var isTracking : Boolean = true
 

@@ -26,7 +26,7 @@ import com.siigna._
  *
  */
 
-object Artline extends Module {
+class Artline extends Module {
 
     var currentMouse = Vector2D(0,0)
 

@@ -18,7 +18,7 @@ import app.controller.Controller
 
 import java.awt.Color
 
-object Fill extends Module {
+class Fill extends Module {
 
   var points = List[Vector2D]()
 

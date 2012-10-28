@@ -13,7 +13,7 @@
 
 import com.siigna._
 
-object Offset extends Module {
+class Offset extends Module {
 
   var distance : Option[Vector2D] = None
 

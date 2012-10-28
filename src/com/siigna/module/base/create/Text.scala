@@ -27,7 +27,7 @@ import module.base.Default
 //import com.siigna.util.event._
 //import com.siigna.util.geom._
 //
-object Text extends Module {
+class Text extends Module {
 
   val eventHandler = new EventHandler(stateMap, stateMachine)
 

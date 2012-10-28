@@ -15,7 +15,7 @@ import com.siigna.module.Module
 
 import com.siigna._
 
-object Group extends Module {
+class Group extends Module {
 
   lazy val stateMap = Map(
     'StartCategory -> ((events : List[Event]) => {

@@ -27,7 +27,7 @@ import com.siigna._
  *  8) CreateCategory new line segments A using II as endpoints, and create arc.
  */
 
-object Fillet extends Module{
+class Fillet extends Module{
 
   var line1 : Option[Shape] = None
   var line2 : Option[Shape] = None

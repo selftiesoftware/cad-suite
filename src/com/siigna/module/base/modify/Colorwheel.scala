@@ -9,27 +9,27 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.properties
+package com.siigna.module.base.modify
 
 import com.siigna._
 
-class PreferencesSet extends Module {
+class Colorwheel extends Module{
 
-  lazy val stateMap : StateMap = Map(
+  def stateMap: StateMap = Map(
     'Start -> {
-      case _ => 'SelectionDistance
-    },
-    'SelectionDistance -> {
-      case _ => {
-        println("set selection distance here")
-        'End
+      case MouseDown(_, MouseButtonRight, _) :: tail => {
+        ModuleEnd
       }
-    },
-    'End -> {
-      case _ => {
-        println("ending prefs module")
-        'End
+      case e => {
+        'Interaction
+      }
+    }  ,
+    'Interaction -> {
+      case MouseDown(p, _, _) :: tail => {
+        println("open colorwheel now!")
+        ModuleEnd
       }
     }
-  )
-}
+)}
+
+

@@ -23,7 +23,7 @@ import com.siigna.module.base.Menu
    //TODO: the color wheel only shows after mouse move???
  */
 
-object Colors extends Module {
+class Colors extends Module {
 
   private val transp = 1.00f
 
@@ -83,7 +83,7 @@ object Colors extends Module {
     case events => {
       Siigna.navigation = false // Make sure the rest of the program doesn't move
       eventParser.disable() // Disable tracking and snapping
-      startPoint = if (Menu.center.isDefined) Some(Menu.center.get) else Some(Vector2D(0,0))
+      //startPoint = if (Menu.center.isDefined) Some(Menu.center.get) else Some(Vector2D(0,0))
 
       val state : Symbol = events match {
         case MouseMove(point, _, _) :: tail => {

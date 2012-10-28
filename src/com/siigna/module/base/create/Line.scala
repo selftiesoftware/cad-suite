@@ -20,16 +20,18 @@ import java.awt.Color
  * A line module (draws one line-segment)
  */
 
-object Line extends Module{
+class Line extends Module{
 
   var startPoint: Option[Vector2D] = None
 
   val stateMap: StateMap = Map(
 
     'Start -> {
-      case Message(v: Vector2D)::tail => {
+      case ModuleEnd(v: Vector2D)::tail => {
+        println(startPoint)
         if (startPoint.isEmpty){
           startPoint = Some(v)
+          println(startPoint)
           Module('Point,"com.siigna.module.base.create")
         } else {
 
@@ -48,14 +50,10 @@ object Line extends Module{
           )
 
           Create(line)
-          'End
+          ModuleEnd
         }
       }
       case _ => Module('Point,"com.siigna.module.base.create")
-    },
-
-    'End -> {
-      case _ => startPoint = None
     }
   )
 }

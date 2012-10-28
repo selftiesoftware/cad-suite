@@ -23,7 +23,7 @@ import java.awt.Color
  */
 
 //TODO: add ability to measure the area of one or more selected, closed polylines.
-object Area extends Module {
+class Area extends Module {
 
   //color for the dynamically drawn area
   lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, 0.30f)

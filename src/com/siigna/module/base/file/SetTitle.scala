@@ -14,7 +14,7 @@
 import com.siigna._
 import module.base.Default
 
-object SetTitle extends Module {
+class SetTitle extends Module {
 
   var boundary = Drawing.boundary
 

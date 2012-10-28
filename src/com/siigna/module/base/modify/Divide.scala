@@ -12,12 +12,11 @@
 package com.siigna.module.base.modify
 
 import com.siigna._
-import com.siigna.module.base.Menu._
 
 /**
  * A module to split a line into a number (specified by the user) of segments. Each segment has the length lineLength/segments.
  */
-object Divide extends Module {
+class Divide extends Module {
 
   val transformation = TransformationMatrix()
   var text         = ""

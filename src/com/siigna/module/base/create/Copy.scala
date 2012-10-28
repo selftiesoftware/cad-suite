@@ -17,7 +17,7 @@ import com.siigna.module.base.Menu._
 
 import com.siigna._
 
-object Copy extends Module {
+class Copy extends Module {
 
   var endPoint : Option[Vector2D] = None
 

@@ -13,7 +13,7 @@
 
 import com.siigna._
 
-object Selection extends Module {
+class Selection extends Module {
 
   private var box : Option[Rectangle2D] = None
 
