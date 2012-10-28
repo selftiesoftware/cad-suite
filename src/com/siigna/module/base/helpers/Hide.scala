@@ -9,7 +9,7 @@
 //import com.siigna.util.action._
 //import com.siigna.util.collection._
 //
-//object Hide extends Module {
+//class Hide extends Module {
 //
 //val eventHandler = EventHandler(stateMap, stateMachine)
 //

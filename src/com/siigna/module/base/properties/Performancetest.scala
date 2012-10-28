@@ -18,7 +18,7 @@ import com.siigna._
 /**
  * A performance test module which creates 1000*1000 lines.
  */
-object Performancetest extends Module {
+class Performancetest extends Module {
 
   var shapes = scala.collection.immutable.Vector[Shape]()
 

@@ -25,7 +25,7 @@ import com.siigna._
  * To change this template use FileCategory | Settings | FileCategory Templates.
  */
 
-object Explode extends Module{
+class Explode extends Module{
 
   var explodedPolylines : Int = 0
 

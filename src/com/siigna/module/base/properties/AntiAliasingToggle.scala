@@ -15,7 +15,7 @@ import com.siigna._
 /**
  * Toggles Anti-aliasing on/off.
  */
-object AntiAliasingToggle extends Module {
+class AntiAliasingToggle extends Module {
 
   lazy val stateMap : StateMap = Map(
 

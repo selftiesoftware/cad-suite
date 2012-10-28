@@ -20,7 +20,7 @@ import com.siigna.module.base.create._
  * A module that measures and displays a distance between two points
  */
 
-object Distance extends Module {
+class Distance extends Module {
 
   var points = List[Vector2D]()
 

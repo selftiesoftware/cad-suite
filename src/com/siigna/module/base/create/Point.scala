@@ -12,7 +12,7 @@
 package com.siigna.module.base.create
 
 import com.siigna._
-import com.siigna.module.base.Default._
+import app.view.event.ModuleEnd
 
 /**
  * The point module answers to requests from many other modules who require a number or one or more points to function.
@@ -29,16 +29,13 @@ import com.siigna.module.base.Default._
  * if the Point need to draw shapes dynamically while input is entered.
  */
 
-object Point extends Module {
+class Point extends Module {
 
   val stateMap: StateMap = Map(
     'Start -> {
       case MouseDown(p,_,_)::tail => {
-        'End
+        ModuleEnd(p.transform(View.drawingTransformation))
       }
-    },
-    'End -> {
-      case _ =>
     }
   )
 

@@ -15,7 +15,7 @@
 
 import com.siigna._
 
-object Arc extends Module {
+class Arc extends Module {
 
   //a flag used to determinie when to stop drawing a circle as a dynamic shape
   private var inSetArc = false

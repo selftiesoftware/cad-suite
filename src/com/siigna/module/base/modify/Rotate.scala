@@ -18,7 +18,7 @@ import module.base.create.PointGuides
 /**
  * A module that rotates one or more objects.
  */
-object Rotate extends Module {
+class Rotate extends Module {
 
   private var rotationFromPoint : Option[Double] = None
   private var firstMouseDown = false

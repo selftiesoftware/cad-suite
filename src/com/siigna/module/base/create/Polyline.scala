@@ -13,7 +13,7 @@
 
 import com.siigna._
 
-object Polyline extends Module {
+class Polyline extends Module {
 
   var attributes : Attributes = Attributes()
   def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))

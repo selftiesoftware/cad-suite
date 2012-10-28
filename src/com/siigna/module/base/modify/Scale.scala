@@ -15,7 +15,7 @@ import com.siigna._
 import module.base.create.{PointGuides, PointGuide, AngleSnap}
 
 
-object Scale extends Module {
+class Scale extends Module {
 
   //TODO: scale the object FROM around the StartPoint not CENTERED around the StartPoint
   //VARIABLES:

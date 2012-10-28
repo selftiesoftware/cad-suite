@@ -19,7 +19,7 @@ import com.siigna.module.base.create.Point._
  * An object that handles the angle-gizmo.
  */
 
-object AngleGizmo extends Module {
+class AngleGizmo extends Module {
 
   // a flag telling if the desired angle is set
   var anglePointIsSet = false

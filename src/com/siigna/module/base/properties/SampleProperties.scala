@@ -17,7 +17,7 @@ import com.siigna._
  * A module to transfer properties from one shape to a selection of shapes.
  */
 
-object SampleProperties extends Module{
+class SampleProperties extends Module{
 
   var attributes : Attributes = Attributes()
   //var color : Option[String] = None

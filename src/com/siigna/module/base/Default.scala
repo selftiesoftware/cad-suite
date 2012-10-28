@@ -18,14 +18,14 @@ import module.ModuleInstance
 * The default module for the base module pack. Works as access point to
 * the rest of the modules.
  */
-object Default extends Module {
+class Default extends Module {
 
   protected var lastModule : Option[ModuleInstance] = None
 
   def stateMap = Map(
     'Start -> {
       // Match for modules to forward to
-      case Message(module : ModuleInstance) :: tail => {
+      case ModuleEnd(module : ModuleInstance) :: tail => {
         lastModule = Some(module) // Store it as a last module
         module // Forward
       }

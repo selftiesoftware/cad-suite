@@ -17,7 +17,7 @@ package com.siigna.module.base.modify
 
 import com.siigna._
 
-object Trim extends Module {
+class Trim extends Module {
 
   lazy val eventHandler = EventHandler(stateMap, stateMachine)
 

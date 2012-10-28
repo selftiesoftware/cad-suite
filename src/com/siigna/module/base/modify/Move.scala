@@ -15,7 +15,7 @@ import com.siigna._
 import module.base.create.{PointGuides, PointGuide, AngleSnap}
 import com.siigna.module.base.Menu._
 
-object Move extends Module {
+class Move extends Module {
 
   var endPoint : Option[Vector2D] = None
 

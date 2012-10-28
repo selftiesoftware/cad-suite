@@ -22,17 +22,14 @@ import module.ModuleInstance
  * The menu module. This module shows the menu as radial items and categories in 13 places (directions):
  * N, NNE, ENE, E, ESE, SSE, S, SSW, WSW, W, WNW and NNW. There is also a center (C) place.
  */
-object Menu extends Module {
+class Menu extends Module {
 
   var center: Option[Vector2D] = None
 
   // The current active category
   var currentCategory : MenuCategory = StartCategory
 
-  // The module instance we would like to forward to, if any
-  protected var module : Option[ModuleInstance] = None
-
-  def stateMap = Map(
+  def stateMap: StateMap = Map(
     'Start -> {
       case e => {
         'Interaction
@@ -40,7 +37,7 @@ object Menu extends Module {
     },
     'Interaction -> {
       case MouseDown(_, MouseButtonRight, _) :: tail => {
-        'Kill
+        ModuleEnd
       }
       case MouseDown(p,_,_) :: tail => {
 
@@ -48,6 +45,7 @@ object Menu extends Module {
         if ((View.center.distanceTo(p) > 100 && View.center.distanceTo(p) < 150) || // The icons on the radius
             (View.center.distanceTo(p) < 30)) { // Center-category
 
+          var module: Option[ModuleInstance] = None
           currentCategory.graph.get(direction(p)) foreach(_ match {
             case mc: MenuCategory => currentCategory = mc
 
@@ -55,22 +53,10 @@ object Menu extends Module {
               module = Some(instance)
             }
           })
+          if (module.isDefined) ModuleEnd(module.get)
         }
-        if (module.isDefined) 'End
       }
-    },
-
-    'End  -> { case _ => {
-      // Reset the start category
-      currentCategory = StartCategory
-
-      // Send a message to Default if we would like to forward to a new module
-      if (module.isDefined) {
-        val message = Message(module.get)
-        module = None
-        message
-      }
-    } }
+    }
   )
 
   /**

@@ -13,7 +13,7 @@ package com.siigna.module.base.properties
 
 import com.siigna._
 
-object PreferencesSet extends Module {
+class PreferencesSet extends Module {
 
   lazy val stateMap : StateMap = Map(
     'Start -> {

@@ -15,7 +15,7 @@ package com.siigna.module.base.create
 
 import com.siigna._
 
-object Circle extends Module {
+class Circle extends Module {
 
   var attributes : Attributes = Attributes()
   def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
