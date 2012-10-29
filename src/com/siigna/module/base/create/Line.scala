@@ -28,11 +28,9 @@ class Line extends Module{
 
     'Start -> {
       case End(v: Vector2D) :: tail => {
-        println(startPoint)
         if (startPoint.isEmpty){
           startPoint = Some(v)
-          println(startPoint)
-          Module('Point,"com.siigna.module.base.create")
+          Start('Point,"com.siigna.module.base.create")
         } else {
 
           val lShape = LineShape(startPoint.get,v)
@@ -53,7 +51,7 @@ class Line extends Module{
           End
         }
       }
-      case _ => Module('Point,"com.siigna.module.base.create")
+      case _ => Start('Point,"com.siigna.module.base.create")
     }
   )
 }
