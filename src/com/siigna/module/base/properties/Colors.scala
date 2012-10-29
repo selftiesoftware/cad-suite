@@ -26,7 +26,7 @@ class Colors extends Module {
 
   var angle : Int = 0
   
-  var centerPoint : Option[Vector2D] = None
+  var centerPoint : Vector2D = View.center
 
   //colors, inspired by crayola crayons: http://en.wikipedia.org/wiki/List_of_Crayola_crayon_colors
   lazy val black       = new Color(0.00f, 0.00f, 0.00f, transp)
@@ -84,21 +84,16 @@ class Colors extends Module {
 
   def stateMap: StateMap = Map(
     //select a color
-  'Start -> {
-    case e => { 
-      Siigna.navigation = false // Make sure the rest of the program doesn't move
-      eventParser.disable() // Disable tracking and snapping
-      'Interaction
-    }  
-  },
-    'Interaction -> {
-      case MouseMove(p, _, _) :: tail => {
-        //TODO: get radial menu center position as startPoint.
-        centerPoint = Some(Vector2D(0,0))
+    'Start -> {
+      case e => {
+
+        'Interaction
       }
-      
+    },
+    'Interaction -> {
+
       case MouseDown(p, MouseButtonLeft, _) :: tail => {
-        
+
         if (angle == 0) {activeColor = Some(black)}
         else if (angle == 15) activeColor = Some(yellowGreen)
         else if (angle == 30) activeColor = Some(lime)
@@ -123,7 +118,7 @@ class Colors extends Module {
         else if (angle == 315) activeColor = Some(grey)
         else if (angle == 330) activeColor = Some(dimgrey)
         else if (angle == 345) activeColor = Some(anthracite)
-        
+
         if(Drawing.selection.isEmpty) {
           if(activeColor.isDefined) Siigna("activeColor") = activeColor.get
         }
@@ -142,68 +137,65 @@ class Colors extends Module {
   )
 
   override def paint(g : Graphics, transform : TransformationMatrix) {
-    if (centerPoint.isDefined) {
+    //centerPoint for the colorWheel
 
-      //centerPoint for the colorWheel
-      val sp = centerPoint.get.transform(transform)
-      val t  = TransformationMatrix(sp,1.3)
+    val t  = TransformationMatrix(centerPoint,1.3)
 
-      lazy val colorFill = Array(Vector2D(-8.93,75.5),Vector2D(-5.96,75.8),Vector2D(-2.55,76),Vector2D(0,76),Vector2D(2.47,76),Vector2D(6.52,75.7),Vector2D(8.93,75.5),Vector2D(11.9,98.3),Vector2D(9.06,98.6),Vector2D(4.35,98.9),Vector2D(0,99),Vector2D(-4.35,98.9),Vector2D(-9.04,98.6),Vector2D(-11.9,98.3),Vector2D(-8.93,75.5))
-      lazy val colorIcon = PolylineShape(Vector2D(-8.93,75.5),Vector2D(-5.96,75.8),Vector2D(-2.55,76.2),Vector2D(0,76.4),Vector2D(2.47,76.2),Vector2D(6.52,75.8),Vector2D(8.93,75.5),Vector2D(11.9,98.3),Vector2D(9.06,98.6),Vector2D(4.35,99.01),Vector2D(0,99.2),Vector2D(-4.35,99.1),Vector2D(-9.04,98.6),Vector2D(-11.9,98.3),Vector2D(-8.93,75.5))
-      lazy val colorActive = PolylineShape(Vector2D(-10.93,73.5),Vector2D(-7.96,73.8),Vector2D(-4.55,74),Vector2D(-2,74),Vector2D(4.47,74),Vector2D(8.52,73.7),Vector2D(10.93,73.5),Vector2D(13.9,100.3),Vector2D(11.06,100.6),Vector2D(6.35,100.9),Vector2D(-2,101),Vector2D(-6.35,100.9),Vector2D(-11.04,100.6),Vector2D(-13.9,100.3),Vector2D(-10.93,73.5))
+    lazy val colorFill = Array(Vector2D(-8.93,75.5),Vector2D(-5.96,75.8),Vector2D(-2.55,76),Vector2D(0,76),Vector2D(2.47,76),Vector2D(6.52,75.7),Vector2D(8.93,75.5),Vector2D(11.9,98.3),Vector2D(9.06,98.6),Vector2D(4.35,98.9),Vector2D(0,99),Vector2D(-4.35,98.9),Vector2D(-9.04,98.6),Vector2D(-11.9,98.3),Vector2D(-8.93,75.5))
+    lazy val colorIcon = PolylineShape(Vector2D(-8.93,75.5),Vector2D(-5.96,75.8),Vector2D(-2.55,76.2),Vector2D(0,76.4),Vector2D(2.47,76.2),Vector2D(6.52,75.8),Vector2D(8.93,75.5),Vector2D(11.9,98.3),Vector2D(9.06,98.6),Vector2D(4.35,99.01),Vector2D(0,99.2),Vector2D(-4.35,99.1),Vector2D(-9.04,98.6),Vector2D(-11.9,98.3),Vector2D(-8.93,75.5))
+    lazy val colorActive = PolylineShape(Vector2D(-10.93,73.5),Vector2D(-7.96,73.8),Vector2D(-4.55,74),Vector2D(-2,74),Vector2D(4.47,74),Vector2D(8.52,73.7),Vector2D(10.93,73.5),Vector2D(13.9,100.3),Vector2D(11.06,100.6),Vector2D(6.35,100.9),Vector2D(-2,101),Vector2D(-6.35,100.9),Vector2D(-11.04,100.6),Vector2D(-13.9,100.3),Vector2D(-10.93,73.5))
 
-      def drawFill (color : Color, rotation : Int) {
+    def drawFill (color : Color, rotation : Int) {
 
-        val fillVector2Ds = colorFill.map(_.transform(t.rotate(rotation)))
-        val fillScreenX = fillVector2Ds.map(_.x.toInt).toArray
-        val fillScreenY = fillVector2Ds.map(_.y.toInt).toArray
+      val fillVector2Ds = colorFill.map(_.transform(t.rotate(rotation)))
+      val fillScreenX = fillVector2Ds.map(_.x.toInt).toArray
+      val fillScreenY = fillVector2Ds.map(_.y.toInt).toArray
 
-        g setColor color
+      g setColor color
 
-        g.g.fillPolygon(fillScreenX, fillScreenY, fillVector2Ds.size)
-      }
-
-      // Draw the color icons
-      drawFill(magenta,0)
-      drawFill(violetRed,15)
-      drawFill(radicalRed,30)
-      drawFill(red,45)
-      drawFill(orangeRed,60)
-      drawFill(orange,75)
-      drawFill(yellow,90)
-      drawFill(lightGrey,105)
-      drawFill(darkGrey,120)
-      drawFill(grey,135)
-      drawFill(dimgrey,150)
-      drawFill(anthracite,165)
-      drawFill(black,180)
-      drawFill(yellowGreen,195)
-      drawFill(lime,210)
-      drawFill(green,225)
-      drawFill(caribbean,240)
-      drawFill(turquise,255)
-      drawFill(cyan,270)
-      drawFill(pasificBlue,285)
-      drawFill(navyBlue,300)
-      drawFill(blue,315)
-      drawFill(purple,330)
-      drawFill(plum,345)
-
-      //draw a border around the active color
-      val distanceToCentre = sp - mousePosition
-      
-      //call the angle function to get the active angle, and store it in a var.
-      angle = getActiveAngle(sp, mousePosition)
-
-      if (distanceToCentre.length > 80 && distanceToCentre.length < 130 && centerPoint.isDefined)  {
-
-        //calculate where to draw a box highlighting the currently active color
-        g draw colorIcon.transform(t.rotate(angle))
-        g draw colorActive.transform(t.rotate(angle))
-
-      }
-      //draw the color wheel icon outlines
-      radians(45).foreach(radian => { g draw colorIcon.transform(t.rotate(radian))})
+      g.g.fillPolygon(fillScreenX, fillScreenY, fillVector2Ds.size)
     }
+
+    // Draw the color icons
+    drawFill(magenta,0)
+    drawFill(violetRed,15)
+    drawFill(radicalRed,30)
+    drawFill(red,45)
+    drawFill(orangeRed,60)
+    drawFill(orange,75)
+    drawFill(yellow,90)
+    drawFill(lightGrey,105)
+    drawFill(darkGrey,120)
+    drawFill(grey,135)
+    drawFill(dimgrey,150)
+    drawFill(anthracite,165)
+    drawFill(black,180)
+    drawFill(yellowGreen,195)
+    drawFill(lime,210)
+    drawFill(green,225)
+    drawFill(caribbean,240)
+    drawFill(turquise,255)
+    drawFill(cyan,270)
+    drawFill(pasificBlue,285)
+    drawFill(navyBlue,300)
+    drawFill(blue,315)
+    drawFill(purple,330)
+    drawFill(plum,345)
+
+    //draw a border around the active color
+    val distanceToCentre = centerPoint - mousePosition
+
+    //call the angle function to get the active angle, and store it in a var.
+    angle = getActiveAngle(centerPoint, mousePosition)
+
+    if (distanceToCentre.length > 80 && distanceToCentre.length < 130 )  {
+
+      //calculate where to draw a box highlighting the currently active color
+      g draw colorIcon.transform(t.rotate(angle))
+      g draw colorActive.transform(t.rotate(angle))
+
+    }
+    //draw the color wheel icon outlines
+    radians(45).foreach(radian => { g draw colorIcon.transform(t.rotate(radian))})
   }
 }

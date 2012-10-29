@@ -32,7 +32,7 @@ class Default extends Module {
       case MouseDown(_, MouseButtonRight, _) :: tail => {
         Start('Menu)
       }
-      case KeyDown('d', _) :: tail => {
+      case KeyDown('c', _) :: KeyUp('p', _) :: tail => {
         Start('Colors)
       }
       case KeyDown('l', _) :: tail => {
