@@ -49,7 +49,7 @@ class Performancetest extends Module {
         } while (i <= limit)
 
         val endSeconds = System.currentTimeMillis()
-        Log("Time to draw "+ limit * limit +" lines:" + (endSeconds - startSeconds))
+        //Log("Time to draw "+ limit * limit +" lines:" + (endSeconds - startSeconds))
         'Intermezzo
       }
     },
