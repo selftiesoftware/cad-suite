@@ -23,19 +23,21 @@ class Divide extends Module {
   var shape : Shape = LineShape(Vector2D(0,0),Vector2D(0,100))
 
   lazy val stateMap : StateMap = Map(
-    State('Start, () => {
-      //start 'Divide only if there is a selection)
+    'Start -> {
+      case _ => {
+        //start 'Divide only if there is a selection)
 
-      if (Drawing.selection.isDefined) {
-        shape = Drawing(Drawing.selection.get.parts.head._1)
-        Siigna display "type number of subdivisions"
-        'TextInput
-      } else {
-        Siigna display "Select line to divide"
-        Module('Selection)
+        if (Drawing.selection.isDefined) {
+          shape = Drawing(Drawing.selection.get.parts.head._1)
+          Siigna display "type number of subdivisions"
+          'TextInput
+        } else {
+          Siigna display "Select line to divide"
+          Module('Selection)
+        }
       }
-    }),
-    State('TextInput, {
+    },
+    'TextInput -> {
       case KeyDown(Key.Backspace, _) :: tail => {
         if (text.length != 0) text = text.substring(0, text.length - 1)
         else 'End
@@ -89,8 +91,8 @@ class Divide extends Module {
       case MouseMove(_, _, _) :: tail =>
       case MouseUp(_, MouseButtonRight, _) :: tail => 'End
       case _ =>
-    }),
-    State('End, () => ()) //make the division here:
+    },
+    'End -> { case _ => } //make the division here:
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
 

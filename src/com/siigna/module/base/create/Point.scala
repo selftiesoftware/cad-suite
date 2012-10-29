@@ -12,7 +12,6 @@
 package com.siigna.module.base.create
 
 import com.siigna._
-import app.view.event.ModuleEnd
 
 /**
  * The point module answers to requests from many other modules who require a number or one or more points to function.
@@ -34,7 +33,7 @@ class Point extends Module {
   val stateMap: StateMap = Map(
     'Start -> {
       case MouseDown(p,_,_)::tail => {
-        ModuleEnd(p.transform(View.drawingTransformation))
+        End(p.transform(View.drawingTransformation))
       }
     }
   )

@@ -25,15 +25,15 @@ class Default extends Module {
   def stateMap = Map(
     'Start -> {
       // Match for modules to forward to
-      case ModuleEnd(module : ModuleInstance) :: tail => {
+      case End(module : ModuleInstance) :: tail => {
         lastModule = Some(module) // Store it as a last module
         module // Forward
       }
       case MouseDown(_, MouseButtonRight, _) :: tail => {
-        Module('Menu)
+        Start('Menu)
       }
       case KeyDown('d', _) :: tail => {
-        Module('Colors)
+        Start('Colors)
       }
       case KeyDown('l', _) :: tail => {
         Create(LineShape(Vector2D(0, 0), Vector2D(100, 100)))

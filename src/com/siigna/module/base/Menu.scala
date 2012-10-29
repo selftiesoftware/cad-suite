@@ -37,7 +37,7 @@ class Menu extends Module {
     },
     'Interaction -> {
       case MouseDown(_, MouseButtonRight, _) :: tail => {
-        ModuleEnd
+        End
       }
       case MouseDown(p,_,_) :: tail => {
 
@@ -53,7 +53,7 @@ class Menu extends Module {
               module = Some(instance)
             }
           })
-          if (module.isDefined) ModuleEnd(module.get)
+          if (module.isDefined) End(module.get)
         }
       }
     }

@@ -24,17 +24,19 @@ class Rectangle extends Module {
 
   def stateMap = Map(
     //TODO: draw a dummy rectangle of eg. 1/15 * 1/15 of the paper height/width dynamically before first point is set
-    State('Start, (events : List[Event]) => {
-      set("activeLineWeight", "StrokeWidth")
-      set("activeColor", "Color")
+    'Start -> {
+      case events => {
+        set("activeLineWeight", "StrokeWidth")
+        set("activeColor", "Color")
 
-      events match {
-        case MouseDown(_, MouseButtonRight, _) :: tail => 'End
-        case Message(p : Vector2D) :: tail => 'SetPoint
-        case _ => Module('Point)
+        events match {
+          case MouseDown(_, MouseButtonRight, _) :: tail => 'End
+          case Message(p : Vector2D) :: tail => 'SetPoint
+          case _ => Module('Point)
 
+        }
       }
-    }),
+    },
     'SetPoint -> {
       case events => {
         //A function that passes a rectangleShape to the point module to be drawn dynamically
@@ -62,12 +64,14 @@ class Rectangle extends Module {
         }
       }
     },
-    State('End, () => {
-      if(!points.isEmpty) Create(PolylineShape(Rectangle2D(points(0), points(1))).setAttributes(attributes))
+    'End -> {
+      case _ => {
+        if(!points.isEmpty) Create(PolylineShape(Rectangle2D(points(0), points(1))).setAttributes(attributes))
 
-      // Clear variables
-      points = List[Vector2D]()
-    })
+        // Clear variables
+        points = List[Vector2D]()
+      }
+    }
   )
 
 }

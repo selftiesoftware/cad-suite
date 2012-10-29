@@ -19,20 +19,19 @@ class TrackToggle extends Module{
 
   val stateMap : StateMap = Map(
 
-    State('Start, () => {
-      'End
-    }),
-
-    State('End, () => {
-      if (Track.trackEnabled == true) {
-        Track.trackEnabled = false
-        Siigna display ("track is off")
-        isTracking = false
+    'Start-> {
+      case _ => {
+        if (Track.trackEnabled == true) {
+          Track.trackEnabled = false
+          Siigna display ("track is off")
+          isTracking = false
+        }
+        else {
+          Track.trackEnabled = true
+          Siigna display ("track is on")
+        }
+        End
       }
-      else {
-        Track.trackEnabled = true
-        Siigna display ("track is on")
-      }
-    })
+    }
   )
 }

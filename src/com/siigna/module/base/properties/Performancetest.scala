@@ -26,36 +26,37 @@ class Performancetest extends Module {
 
   val stateMap : StateMap = Map(
 
-    State('Start, () => {
-      var i = 0
-      val startSeconds = System.currentTimeMillis()
+    'Start -> {
+      case _ => {
+        var i = 0
+        val startSeconds = System.currentTimeMillis()
 
-      do  {
-          val pointA = Vector2D(i, 0)
-          val pointB = Vector2D(i + 10, limit >> 1)
+        do  {
+            val pointA = Vector2D(i, 0)
+            val pointB = Vector2D(i + 10, limit >> 1)
 
-          val pointC = Vector2D(0, i)
-          val pointD = Vector2D(limit >> 1, i + 10)
+            val pointC = Vector2D(0, i)
+            val pointD = Vector2D(limit >> 1, i + 10)
 
-          //val vertShape = LineShape(pointA, pointB)
-          val vertShape = LineShape(pointA, pointB)
-          //val horizShape = LineShape(pointC, pointD)
-          val horizShape = LineShape(pointC, pointD)
+            //val vertShape = LineShape(pointA, pointB)
+            val vertShape = LineShape(pointA, pointB)
+            //val horizShape = LineShape(pointC, pointD)
+            val horizShape = LineShape(pointC, pointD)
 
-          i += 1
+            i += 1
 
-          shapes = shapes :+ vertShape :+ horizShape
-      } while (i <= limit)
+            shapes = shapes :+ vertShape :+ horizShape
+        } while (i <= limit)
 
-      val endSeconds = System.currentTimeMillis()
-      Log("Time to draw "+ limit * limit +" lines:" + (endSeconds - startSeconds))
-      'Intermezzo
-    }),
-    State('Intermezzo, {
-      case KeyDown(_, _) :: tail => 'End
+        val endSeconds = System.currentTimeMillis()
+        Log("Time to draw "+ limit * limit +" lines:" + (endSeconds - startSeconds))
+        'Intermezzo
+      }
+    },
+    'Intermezzo -> {
+      case KeyDown(_, _) :: tail => End
       case _ =>
-    }),
-    State('End, () => ())
+    }
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {

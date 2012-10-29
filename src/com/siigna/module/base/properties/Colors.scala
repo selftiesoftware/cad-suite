@@ -136,7 +136,7 @@ class Colors extends Module {
         println("ACTIVE COLOR: "+activeColor)
         eventParser.enable()
         Siigna.navigation = true
-        ModuleEnd
+        End
       }
     }
   )

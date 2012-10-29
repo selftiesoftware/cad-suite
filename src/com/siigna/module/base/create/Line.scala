@@ -27,7 +27,7 @@ class Line extends Module{
   val stateMap: StateMap = Map(
 
     'Start -> {
-      case ModuleEnd(v: Vector2D)::tail => {
+      case End(v: Vector2D) :: tail => {
         println(startPoint)
         if (startPoint.isEmpty){
           startPoint = Some(v)
@@ -37,9 +37,9 @@ class Line extends Module{
 
           val lShape = LineShape(startPoint.get,v)
 
-          def setAttribute[T](name:String, shape:Shape) = {
+          def setAttribute[T : Manifest](name:String, shape:Shape) = {
             Siigna.get(name) match {
-              case Some(t: T) => shape.addAttribute(name, t)
+              case s : Some[T] => shape.addAttribute(name, s.get)
               case None => shape// Option isn't set. Do nothing
             }
           }
@@ -50,7 +50,7 @@ class Line extends Module{
           )
 
           Create(line)
-          ModuleEnd
+          End
         }
       }
       case _ => Module('Point,"com.siigna.module.base.create")

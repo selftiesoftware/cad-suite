@@ -20,12 +20,9 @@ class AntiAliasingToggle extends Module {
   lazy val stateMap : StateMap = Map(
 
     'Start -> {
-      () => 'End
-    },
-
-    'End -> { () => {
+      case _ => {
         Siigna.toggle("anti-aliasing")
-        'End
+        End
       }
     }
   )

@@ -26,31 +26,37 @@ class SampleProperties extends Module{
   //var weight : Option[String] = None
 
   def stateMap : StateMap = Map(
-    State('Start, () => {
-      Siigna display ("select an object to sample from")
+    'Start -> {
+      case _ => {
+        Siigna display ("select an object to sample from")
 
-      if (Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
-        templateShape = Some(Drawing.selection.get.shapes.head._2)
-        attributes = templateShape.get.attributes
-        Drawing.deselect()
-        'UpdateShapes
-      } else Module('Selection)
+        if (Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
+          templateShape = Some(Drawing.selection.get.shapes.head._2)
+          attributes = templateShape.get.attributes
+          Drawing.deselect()
+          'UpdateShapes
+        } else Module('Selection)
 
-    }),
-    State('UpdateShapes, () => {
-      Siigna display ("select objects to update")
-      if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) 'End
-      else Module('Selection)
-    }),
-    'End -> (() => {
-      if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
-        Drawing.selection.get.setAttributes(attributes)
-        Drawing.deselect()
       }
-      //clear vars
-      attributes = Attributes()
-      selected = None
-      templateShape = None
-    })
+    },
+    'UpdateShapes -> {
+      case _ => {
+        Siigna display ("select objects to update")
+        if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) 'End
+        else Module('Selection)
+      }
+    },
+    'End -> {
+      case _ => {
+        if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
+          Drawing.selection.get.setAttributes(attributes)
+          Drawing.deselect()
+        }
+        //clear vars
+        attributes = Attributes()
+        selected = None
+        templateShape = None
+      }
+    }
   )
 }
