@@ -27,7 +27,7 @@ class Default extends Module {
       // Match for modules to forward to
       case End(module : ModuleInstance) :: tail => {
         lastModule = Some(module) // Store it as a last module
-        module // Forward
+        Start(module) // Forward
       }
       case MouseDown(_, MouseButtonRight, _) :: tail => {
         Start('Menu)

@@ -33,7 +33,7 @@ class Point extends Module {
   val stateMap: StateMap = Map(
     'Start -> {
       case MouseDown(p,_,_)::tail => {
-        End(p.transform(View.drawingTransformation))
+        End(p.transform(View.deviceTransformation))
       }
     }
   )
