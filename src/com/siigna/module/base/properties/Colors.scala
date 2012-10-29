@@ -86,7 +86,8 @@ class Colors extends Module {
     //select a color
     'Start -> {
       case e => {
-
+        Siigna.navigation = false // Make sure the rest of the program doesn't move
+        eventParser.disable() // Disable tracking and snapping
         'Interaction
       }
     },
