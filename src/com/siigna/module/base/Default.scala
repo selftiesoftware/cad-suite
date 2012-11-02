@@ -30,10 +30,10 @@ class Default extends Module {
         Start(module) // Forward
       }
       case MouseDown(_, MouseButtonRight, _) :: tail => {
-        Start('Menu)
+        Start('Menu, "com.siigna.module.base")
       }
       case KeyDown('c', _) :: KeyUp('p', _) :: tail => {
-        Start('Colors)
+        Start('Colors, "com.siigna.module.base.properties")
       }
       case KeyDown('l', _) :: tail => {
         Create(LineShape(Vector2D(0, 0), Vector2D(100, 100)))

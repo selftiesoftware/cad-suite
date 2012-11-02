@@ -33,7 +33,7 @@ class Divide extends Module {
           'TextInput
         } else {
           Siigna display "Select line to divide"
-          Module('Selection)
+          Module('Selection, "com.siigna.module.base")
         }
       }
     },

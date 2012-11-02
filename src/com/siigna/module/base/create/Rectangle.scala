@@ -32,7 +32,7 @@ class Rectangle extends Module {
         events match {
           case MouseDown(_, MouseButtonRight, _) :: tail => 'End
           case Message(p : Vector2D) :: tail => 'SetPoint
-          case _ => Module('Point)
+          case _ => Module('Point, "com.siigna.module.base.create")
 
         }
       }
@@ -57,7 +57,7 @@ class Rectangle extends Module {
             } else if (points.length == 0) {
               points = points :+ point
               //Controller ! Message(PointGuide(getRectGuide))
-              Module('Point)
+              Module('Point, "com.siigna.module.base.create")
             }
           }
           case _ =>
