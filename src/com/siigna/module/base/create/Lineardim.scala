@@ -9,14 +9,14 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.create
+/*package com.siigna.module.base.create
 
 /* 2011 (C) Copyright by Siigna, all rights reserved. */
 
 import com.siigna._
 import com.siigna.module.base.Default
 
-object Lineardim extends Module {
+class Lineardim extends Module {
 
   var currentMouse : Option[Vector2D] = None
 
@@ -39,10 +39,13 @@ object Lineardim extends Module {
   def diaRotation1 = diaRotation(45)
   def diaRotation2 = diaRotation(225)
 
-  def dimText : Option[Shape] = if (hasBothPoints)
-      Some(TextShape((points(1)-(points(0))).length.toInt.toString,
-                    ((points(0) + normalUnitVector2D(points(0),points(1))) + (points(1)-points(0))/2),
-                      scale * dimTextSize))
+  def dimText : Option[Shape] =
+    if (hasBothPoints) {
+      val offset = normalUnitVector2D(points(1),points(0)) * 2
+      val tX = points(0).x + (points(1).x - points(0).x)/2 - (offset.x * 3 * scale) - 1.8 * scale
+      val tY = points(0).y + (points(1).y - points(0).y)/2 - (offset.y * 2.5 * scale) + 1.6 * scale
+      Some(TextShape((points(1)-(points(0))).length.toInt.toString,Vector2D(tX,tY),scale * dimTextSize))
+    }
     else
       None
 
@@ -109,12 +112,12 @@ object Lineardim extends Module {
 
 
   def stateMap = DirectedGraph(
-    'Start         -> 'KeyEscape -> 'End,
+    'StartCategory         -> 'KeyEscape -> 'End,
     'SelectSide    -> 'KeyEscape -> 'End
   )
 
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       //get the current paperScale
       scale = Siigna.paperScale
 
@@ -175,7 +178,7 @@ object Lineardim extends Module {
             offsetSide = false
           else
             offsetSide = true
-          Create(
+          CreateCategory(
             shapeA.get.setAttributes(color, "StrokeWidth" -> 0.25),
             shapeB.get.setAttributes(color, "StrokeWidth" -> 0.25),
             normalShape1.get.setAttributes(color, "StrokeWidth" -> 0.25),
@@ -204,4 +207,4 @@ object Lineardim extends Module {
       g draw dimText.get.transform(t)
     }
   }
-}
+}*/

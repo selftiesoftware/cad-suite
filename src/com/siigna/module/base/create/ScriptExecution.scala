@@ -2,22 +2,16 @@ package com.siigna.module.base.create
 
 import com.siigna._
 
-object ScriptExecution extends Module {
-
-  lazy val eventHandler = EventHandler(stateMap, stateMachine)
+/*class ScriptExecution extends Module {
 
   //get text from the editor
   val text = com.siigna.module.base.create.ScriptEditor.text
   
   //a hack to prevent the script from being executed twice.
   var executionComplete = false
-  
-  def stateMap = DirectedGraph(
-    'Execute      -> 'KeyDown   -> 'End
-  )
 
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       if(!executionComplete) {
         executionComplete = true
         Siigna display "running script"
@@ -44,17 +38,17 @@ object ScriptExecution extends Module {
             var p2x = c(2).substring(1).toDouble
             var p2y = c(3).reverse.substring(1).reverse.toDouble
 
-            Create(LineShape(Vector2D(p1x,p1y),Vector2D(p2x,p2y)))
+            CreateCategory(LineShape(Vector2D(p1x,p1y),Vector2D(p2x,p2y)))
           } else {
             Siigna display "found a line with wrong syntax: "+x
-            Goto('Start)
+            Goto('StartCategory)
           }
           Goto('End)
         }
         //display error message if the script will not compile
         case _ =>
           Siigna display ("syntax error in script:" +text)
-          Goto('Start)
+          Goto('StartCategory)
       }
       None
     }),
@@ -65,3 +59,4 @@ object ScriptExecution extends Module {
     })
   )
 }
+*/

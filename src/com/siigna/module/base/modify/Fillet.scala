@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.modify
+/*package com.siigna.module.base.modify
 
 import com.siigna.module.Module
 import com.siigna._
@@ -20,38 +20,29 @@ import com.siigna._
  *  1) Select two line segments A
  *  2) Check that they are not parallel, if so allow only 0 for radius (join lines)
  *  3) Prompt for radius (defaults to 0)
- *  4) Create guidelines B: offset lines r to the side where lines.angle < 180
+ *  4) CreateCategory guidelines B: offset lines r to the side where lines.angle < 180
  *  5) Get the guidelines B intersection (I), save as arc centerpoint
- *  6) Create guidelines C from I perpendicular to each line segment A
+ *  6) CreateCategory guidelines C from I perpendicular to each line segment A
  *  7) Get intersection points between A and C (II), save as arc startPoint and endPoint.
- *  8) Create new line segments A using II as endpoints, and create arc.
+ *  8) CreateCategory new line segments A using II as endpoints, and create arc.
  */
 
-object Fillet extends Module{
-
-  val eventHandler = EventHandler(stateMap, stateMachine)
+class Fillet extends Module{
 
   var line1 : Option[Shape] = None
   var line2 : Option[Shape] = None
 
-  def stateMap = DirectedGraph(
-    'Start        -> 'KeyEscape  -> 'End,
-    'SelectFirst  -> 'KeyEscape  -> 'End,
-    'SelectSecond -> 'KeyEscape  -> 'End,
-    'Radius       -> 'KeyEscape  -> 'End
-  )
-
-  def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+  def stateMap = Map(
+    'StartCategory -> {
       if(!Drawing.selection.isEmpty) {
         Drawing.deselect()
         Siigna display "select first line"
       } else Siigna display "select first line"
-      Goto('SelectFirst)
-    }),
+      'SelectFirst
+    },
     //select the first line segment for the fillet. Polyline segments should also be allowed.
-    'SelectFirst -> ((events : List[Event]) => {
-      ForwardTo('Selection)
+    'SelectFirst -> {
+      Module('Selection)
       if(Drawing.selection.isDefined) {
         val line = Drawing.selection.get.parts.head._1
         println(line)
@@ -59,12 +50,12 @@ object Fillet extends Module{
         line1 = Some(Drawing(line))
         println(line1.get)
 
-        Goto('SelectSecond)
+        'SelectSecond
       }
-    }),
+    },
     //select the second line segment for the fillet. Polyline segments should also be allowed.
-    'SelectSecond -> ((events : List[Event]) => {
-      ForwardTo('Selection)
+    'SelectSecond -> {
+      Module('Selection)
       if(Drawing.selection.isDefined) {
         val line = Drawing.selection.get.parts.head._1
         println(line)
@@ -72,9 +63,9 @@ object Fillet extends Module{
         line2 = Some(Drawing(line))
         println(line2.get)
 
-        Goto('SelectSecond)
+        'SelectSecond
       }
-    }),
+    },
     //prompt for a radius
     'Radius -> ((events : List[Event]) => {
        println("in radius")
@@ -82,7 +73,6 @@ object Fillet extends Module{
     //join the lines with an arc of the given radius. This requires the endpoints to be moved to where the lines and arc tangent meet.
     'End -> ((events : List[Event]) => {
       println("ending fillet")
-      None
     })
   )
-}
+}*/

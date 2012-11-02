@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.create
+/*package com.siigna.module.base.create
 
 /* 2010 (C) Copyright by Siigna, all rights reserved. */
 
@@ -22,36 +22,28 @@ import com.siigna._
  * User: oep
  * Date: 09-06-12
  * Time: 11:48
- * To change this template use File | Settings | File Templates.
+ * To change this template use FileCategory | Settings | FileCategory Templates.
  */
 
-object Explode extends Module{
-
-  lazy val eventHandler = new EventHandler(stateMap, stateMachine)
-
-  lazy val stateMap = DirectedGraph(
-    'Start     -> 'KeyDown  -> 'End
-  )
+class Explode extends Module{
 
   var explodedPolylines : Int = 0
 
-  lazy val stateMachine = Map(
+  lazy val stateMap = Map(
 
-    'Start -> ((events : List[Event]) => {
-      events match {
-        // GENERAL NOTE: after the Menu forwards to a module with the (presumably) last events,
-        // other events may be registered while the ForwardTo mechanism is running.
-        // These events can trigger Goto events in the module unless ruled out by case matches.
-        case MouseUp(_, _, _) :: tail => {
-          if(Drawing.selection.isDefined) {
-            Goto('Explode)
-          }
+    State('StartCategory, {
+      // GENERAL NOTE: after the Menu forwards to a module with the (presumably) last events,
+      // other events may be registered while the ForwardTo mechanism is running.
+      // These events can trigger Goto events in the module unless ruled out by case matches.
+      case MouseUp(_, _, _) :: tail => {
+        if(Drawing.selection.isDefined) {
+          'Explode
         }
-        case _ =>
       }
+      case _ =>
     }),
 
-    'Explode -> ((events : List[Event]) => {
+    'Explode -> {
       def explode (shape : Shape) : Seq[Shape] = {
         try {
           shape match {
@@ -87,13 +79,12 @@ object Explode extends Module{
         //use the IDs from the Seq to delete the original shapes
         Delete(explodeableShapes.keys)
         //use the shapeParts to create the exploded shapes
-        Create(explodeableShapes.values.flatten)
+        CreateCategory(explodeableShapes.values.flatten)
       }
 
       Siigna display "Exploded "+explodedPolylines+" polylines to lines"
-      Goto('End)
-    }),
-    'End -> ((events : List[Event]) => {
-   })
+      'End
+    },
+    'End -> ()
   )
-}
+}*/

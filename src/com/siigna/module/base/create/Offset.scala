@@ -9,12 +9,12 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.create
+/*package com.siigna.module.base.create
 
 import com.siigna._
 import module.base.create.PointGuide._
 
-object Offset extends Module {
+class Offset extends Module {
 
   var distancePoint : Option[Vector2D] = None
 
@@ -24,12 +24,14 @@ object Offset extends Module {
 
   //a guide to get Point to draw the shape(s) dynamically
   val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
+
     val s = Drawing.selection.get
     //get a point on the shape perpendicular to the mouse position
     val p = s.shapes.get(1)
 
     println(p)
     // Create a matrix
+
     val t : TransformationMatrix = TransformationMatrix(v, 1)
     // Return the shape, transformed
     s.apply(t)
@@ -38,13 +40,17 @@ object Offset extends Module {
   var text  = ""
 
   def stateMap = DirectedGraph(
+
     'Start         -> 'Message ->         'SetDistance
+
   )
 
   //Select shapes
   def stateMachine = Map(
+
   'Start -> ((events : List[Event]) => {
     //println(events)
+
     if (!Drawing.selection.isDefined) {
       println("C")
       Siigna display "select an object to offset"
@@ -68,7 +74,14 @@ object Offset extends Module {
         distancePoint = Some(p)
         Goto('End)
       }
-      case _ => Goto('End)
+
+      case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
+      case MouseUp(p, _, _) :: tail => {
+        //goto 'Point to get the offset distance
+        Module('Point)
+        Controller ! Message(PointGuides(shapeGuide))
+      }
+      case _ =>
     }
   }),
 
@@ -84,4 +97,7 @@ object Offset extends Module {
       println("offset here with distance: "+distancePoint)
       Drawing.deselect()
   }))
-}
+
+
+}*/
+

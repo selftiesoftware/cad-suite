@@ -9,11 +9,11 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.create
+/*package com.siigna.module.base.create
 
 import com.siigna._
 
-object Polyline extends Module {
+class Polyline extends Module {
 
   var attributes : Attributes = Attributes()
   def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
@@ -27,17 +27,17 @@ object Polyline extends Module {
   val eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap = DirectedGraph(
-    'Start    ->   'Message  ->    'SetPoint
+    'StartCategory    ->   'Message  ->    'SetPoint
   )
 
   def stateMachine = Map(
-  'Start -> ((events : List[Event]) => {
+  'StartCategory -> ((events : List[Event]) => {
     //Log.level += Log.DEBUG + Log.SUCCESS
     events match {
       case MouseDown(_, MouseButtonRight, _) :: tail => {
         Goto('End)
       }
-      case _ => ForwardTo('Point, false)
+      case _ => Module('Point)
     }
   }),
   'SetPoint -> ((events : List[Event]) => {
@@ -64,23 +64,23 @@ object Polyline extends Module {
         if (points.size > 1) {
           shape = Some(PolylineShape(points))
         }
-        ForwardTo('Point, false)
+        Module('Point)
         Controller ! Message(PointGuide(getPointGuide))
       }
 
       // Match on everything else
       case _ => {
-        ForwardTo('Point)
+        Module('Point)
         Controller ! Message(PointGuide(getPointGuide))
       }
     }
   }),
   'End -> ((events : List[Event]) => {
-    if(shape.isDefined) Create(shape.get.setAttributes(attributes))
+    if(shape.isDefined) CreateCategory(shape.get.setAttributes(attributes))
 
     //clear the vars
     com.siigna.module.base.Default.previousModule = Some('Polyline)
     shape = None
     points = List()
   }))
-}
+}*/

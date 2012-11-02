@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.modify
+/*package com.siigna.module.base.modify
 
 import com.siigna._
 import module.base.create.PointGuides
@@ -18,7 +18,7 @@ import module.base.create.PointGuides
 /**
  * A module that rotates one or more objects.
  */
-object Rotate extends Module {
+class Rotate extends Module {
 
   private var rotationFromPoint : Option[Double] = None
   private var firstMouseDown = false
@@ -31,15 +31,15 @@ object Rotate extends Module {
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap     = DirectedGraph(
-    'Start       -> 'KeyEscape -> 'End
+    'StartCategory       -> 'KeyEscape -> 'End
   )
 
   lazy val stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
 
       //a guide to get Point to dynamically draw the shape(s) and their rotation
       val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
-        // Create a matrix
+        // CreateCategory a matrix
         val t : TransformationMatrix = if (startVector.isDefined && centerPoint.isDefined) {
           // To find the angle between two vectors (lines): First calculate the separate angles
             val a1 : Double = (startVector.get - centerPoint.get).angle
@@ -69,7 +69,7 @@ object Rotate extends Module {
               firstMouseDown = true
             else {
               centerPoint = Some(p)
-              ForwardTo('Point, false)
+              Module('Point)
             }
           }
           //if the module is called with space (hack, could probably be nicer..)
@@ -97,7 +97,7 @@ object Rotate extends Module {
           }
           case _ => {
             Siigna.display("Select a starting point, or type an angle")
-            ForwardTo('Point, false)
+            Module('Point)
           }
         }
       }
@@ -110,7 +110,7 @@ object Rotate extends Module {
             Goto('End)
           }
           case _ => {
-            ForwardTo('Point, false)
+            Module('Point)
           }
         }
       }
@@ -124,7 +124,7 @@ object Rotate extends Module {
         Drawing.deselect()
       } else {
 
-        //if Start and EndVectors were defined in 'Point, rotate on that basis:
+        //if StartCategory and EndVectors were defined in 'Point, rotate on that basis:
         events match {
           case Message(p : Vector2D) :: tail => {
 
@@ -155,4 +155,4 @@ object Rotate extends Module {
     })
   )
 
-}
+}*/

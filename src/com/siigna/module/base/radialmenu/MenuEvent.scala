@@ -13,7 +13,7 @@ package com.siigna.module.base.radialmenu
 
 import com.siigna.app.model.shape.Shape
 import com.siigna.app.model.shape.LineShape
-import com.siigna.app.view.event.Event
+import com.siigna.util.event.Event
 import com.siigna.util.geom.Vector2D
 
 /**
@@ -30,7 +30,7 @@ trait MenuEvent extends Event
 case object EventC extends MenuEvent {
   lazy val icon   = RadialMenuIcon.C
   lazy val symbol = 'C
-  lazy val vector = Vector2D( 0, 0).unit
+  lazy val vector = Vector2D(0, 0).unit
 }
 case object EventE extends MenuEvent {
   lazy val icon   = RadialMenuIcon.E

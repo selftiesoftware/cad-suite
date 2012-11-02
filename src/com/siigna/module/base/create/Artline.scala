@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.create
+/*package com.siigna.module.base.create
 
 import com.siigna._
 
@@ -26,7 +26,7 @@ import com.siigna._
  *
  */
 
-object Artline extends Module {
+class Artline extends Module {
 
     var currentMouse = Vector2D(0,0)
 
@@ -41,12 +41,12 @@ object Artline extends Module {
     def hasPoint = (points.size >= 1)
 
     def stateMap = DirectedGraph(
-      'Start         -> 'KeyEscape ->         'End,
-      'Start         -> 'MouseMove   ->       'Points
+      'StartCategory         -> 'KeyEscape ->         'End,
+      'StartCategory         -> 'MouseMove   ->       'Points
     )
 
     def stateMachine = Map(
-      'Start -> ((events : List[Event]) => {
+      'StartCategory -> ((events : List[Event]) => {
         events match {
           case MouseUp(_, _, _) :: tail => {
           }
@@ -75,11 +75,11 @@ object Artline extends Module {
             case MouseUp(p, _, _) :: tail => {
               points = points :+p
               shape = PolylineShape(points)
-              Create(shape.asInstanceOf[Shape])
+              CreateCategory(shape.asInstanceOf[Shape])
               //clear the list
               shape = PolylineShape.empty
               points = List[Vector2D]()
-              Goto('Start)
+              Goto('StartCategory)
             }
             case _ => None
          }
@@ -93,7 +93,7 @@ object Artline extends Module {
             if (points.size > 0){
             //draw a polyline from the points saved in the path
             //shape = PolylineShape.fromPoints(points)
-            //Create(shape)
+            //CreateCategory(shape)
             }
           }
         com.siigna.module.base.Default.previousModule = Some('Artline)
@@ -108,4 +108,4 @@ object Artline extends Module {
       }
 
     }
-}
+}*/

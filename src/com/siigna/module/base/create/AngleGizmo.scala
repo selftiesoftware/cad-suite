@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.create
+/*package com.siigna.module.base.create
 
 import com.siigna._
 import scala.Predef._
@@ -19,7 +19,7 @@ import com.siigna.module.base.create.Point._
  * An object that handles the angle-gizmo.
  */
 
-object AngleGizmo extends Module {
+class AngleGizmo extends Module {
 
   // a flag telling if the desired angle is set
   var anglePointIsSet = false
@@ -57,13 +57,13 @@ object AngleGizmo extends Module {
   def roundSnap(angle : Double) = ((angle/gizmoMode).round * gizmoMode).round.toInt
 
   def stateMap = DirectedGraph(
-    'Start         -> 'KeyEscape -> 'End,
+    'StartCategory         -> 'KeyEscape -> 'End,
     'Mousecheck    -> 'KeyEscape -> 'End,
     'AngleGizmo    -> 'KeyEscape -> 'End
   )
 
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       startTime = Some(System.currentTimeMillis())
 
       events match {
@@ -221,3 +221,4 @@ object AngleGizmo extends Module {
     }
   }
 }
+*/

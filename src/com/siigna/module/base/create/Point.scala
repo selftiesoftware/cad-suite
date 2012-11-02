@@ -12,12 +12,11 @@
 package com.siigna.module.base.create
 
 import com.siigna._
-import com.siigna.module.base.Default._
 
 /**
  * The point module answers to requests from many other modules who require a number or one or more points to function.
  *
- * No messages need to be send in order to call the point module. To get a point from the point module, use ForwardTo('Point).
+ * No messages need to be send in order to call the point module. To get a point from the point module, use Module('Point).
  * The point module will run and return a point (if one has been set) as a Message(Vector2D).
  *
  * Points are set with the mouse or by typing an x and y value, seperated by a comma.
@@ -29,8 +28,24 @@ import com.siigna.module.base.Default._
  * if the Point need to draw shapes dynamically while input is entered.
  */
 
-object Point extends Module {
+class Point extends Module {
 
+  val stateMap: StateMap = Map(
+    'Start -> {
+      case MouseDown(p,_,_)::tail => {
+        End(p.transform(View.deviceTransformation))
+      }
+    }
+  )
+
+  override def paint(g: Graphics, t: TransformationMatrix) {
+    val mouse = View.mousePosition
+
+    g.draw(LineShape(Vector2D(0,mouse.y),Vector2D(View.width,mouse.y)))
+    g.draw(LineShape(Vector2D(mouse.x,0),Vector2D(mouse.x,View.height)))
+  }
+}
+  /*
   private var angleOrScale : Option[Double] = None
 
   //a placeholder for the active AngleSnap - needed if the user wants to type a length of a line segment
@@ -114,7 +129,7 @@ object Point extends Module {
   def stateMap = DirectedGraph[Symbol, Symbol](
   )
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       //display the name of the active module:
       //Siigna display com.siigna.module.base.Default.previousModule.get.toString
 
@@ -123,7 +138,7 @@ object Point extends Module {
         // Check for continued MouseDown
         case Message(g : Guide) :: Message(p : Vector2D) :: MouseDown(_, MouseButtonLeft, _) :: tail => {
           pointGuide = Some(g)
-          ForwardTo('AngleGizmo)
+          Module('AngleGizmo)
         }
 
         // Check for PointGuide
@@ -211,7 +226,7 @@ object Point extends Module {
 
         case KeyDown(Key.Shift, _) :: tail => {
           Controller ! Message(previousPoint.get)
-          ForwardTo('AngleGizmo)
+          Module('AngleGizmo)
         }
         case KeyDown(Key.Space, _) :: tail => Goto('End)
 
@@ -404,4 +419,4 @@ case class PointGuides(guide : Vector2D => Traversable[Shape]) extends Guide{
 
 object PointGuide {
   def apply(part : PartialShape) = new PointGuide(p => part(TransformationMatrix(p, 1)))
-}
+}*/

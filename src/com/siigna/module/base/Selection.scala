@@ -9,13 +9,11 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base
+/*package com.siigna.module.base
 
 import com.siigna._
 
-object Selection extends Module {
-
-  val eventHandler = EventHandler(stateMap, stateMachine)
+class Selection extends Module {
 
   private var box : Option[Rectangle2D] = None
 
@@ -31,7 +29,7 @@ object Selection extends Module {
   def hasFullShape = {
     if(nearestShape.isDefined){
       Drawing.select(nearestShape.get._1)
-      ForwardTo('Move)
+      Module('Move)
     }
   }
 
@@ -40,8 +38,8 @@ object Selection extends Module {
       val shape = Default.nearestShape.get
       val part = shape._2.getPart(Siigna.mousePosition)
       Drawing.select(shape._1, part)
-      Goto('End)
-      ForwardTo('Move)
+      Module('Move)
+      'End
     }
   }
 
@@ -51,9 +49,9 @@ object Selection extends Module {
   def isEnclosed : Boolean = startPoint.isDefined && startPoint.get.x <= Siigna.mousePosition.x
 
   def stateMap     = DirectedGraph(
-    'Start -> 'MouseDrag   -> 'Box,
-    //'Start -> 'MouseMove   -> 'End,
-    'Start -> 'MouseUp     -> 'End,
+    'StartCategory -> 'MouseDrag   -> 'Box,
+    //'StartCategory -> 'MouseMove   -> 'End,
+    'StartCategory -> 'MouseUp     -> 'End,
     'Box   -> 'MouseMove   -> 'End,
     'Box   -> 'MouseUp     -> 'End
   )
@@ -61,7 +59,7 @@ object Selection extends Module {
   Preload('Move, "com.siigna.module.base.modify")
   Preload('Copy, "com.siigna.module.base.create")
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       //find nearestShape, if any:
       val m = Siigna.mousePosition
       if (Drawing(m).size > 0) {
@@ -135,4 +133,4 @@ object Selection extends Module {
     }
 
   }
-}
+}*/

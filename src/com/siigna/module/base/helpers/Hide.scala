@@ -9,14 +9,14 @@
 //import com.siigna.util.action._
 //import com.siigna.util.collection._
 //
-//object Hide extends Module {
+//class Hide extends Module {
 //
 //val eventHandler = EventHandler(stateMap, stateMachine)
 //
-//  lazy val stateMap     = DirectedGraph('Start     -> 'KeyEscape -> 'End)
+//  lazy val stateMap     = DirectedGraph('StartCategory     -> 'KeyEscape -> 'End)
 //
 //  def stateMachine = Map(
-//    'Start -> ((events : List[Event]) => {
+//    'StartCategory -> ((events : List[Event]) => {
 //      val selection = DOM.getSelectedShapes
 //
 //      val hiddenSelection = selection.map(_.setAttribute("Visible" -> false))

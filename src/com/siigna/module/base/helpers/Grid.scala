@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.helpers
+/*package com.siigna.module.base.helpers
 
 import com.siigna._
 import com.siigna.module.Module
@@ -18,7 +18,7 @@ import com.siigna.module.base.Default._
  * A module to draw a grid - with a gridsize set by the user - on the paper.
  */
 
-object Grid extends Module{
+class Grid extends Module{
 
   //default grid scale
   var scale : Double = 10
@@ -28,11 +28,11 @@ object Grid extends Module{
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap = DirectedGraph (
-    'Start -> 'KeyEscape -> 'End
+    'StartCategory -> 'KeyEscape -> 'End
   )
 
   lazy val stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       if(gridIsOn == false) {
         Siigna display "Type grid scale: "+ text +" Current: "+ scale +" millimeters"
         events match {
@@ -98,3 +98,4 @@ object Grid extends Module{
     }
   }
 }
+*/

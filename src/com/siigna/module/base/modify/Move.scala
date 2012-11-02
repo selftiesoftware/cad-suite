@@ -9,13 +9,13 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.modify
+/*package com.siigna.module.base.modify
 
 import com.siigna._
 import module.base.create.{PointGuides, PointGuide, AngleSnap}
 import com.siigna.module.base.Menu._
 
-object Move extends Module {
+class Move extends Module {
 
   var endPoint : Option[Vector2D] = None
 
@@ -26,7 +26,7 @@ object Move extends Module {
   //a guide to get Point to draw the shape(s) dynamically
 
   val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
-    // Create a matrix
+    // CreateCategory a matrix
     val t : TransformationMatrix = if (startPoint.isDefined) {
       TransformationMatrix(v - startPoint.get, 1)
     // If no startPoint has been defined - create an empty matrix
@@ -42,12 +42,12 @@ object Move extends Module {
   def eventHandler = EventHandler(stateMap, stateMachine)
 
   def stateMap     = DirectedGraph(
-    'Start -> 'KeyDown -> 'End,
+    'StartCategory -> 'KeyDown -> 'End,
     'Move  -> 'KeyDown -> 'End
   )
   
   lazy val stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       //TODO: a hack to force startPoint value to None (to draw a correct Guide). Find out why StartPoint is not always reset/ Module does not reach 'End.
       startPoint = None
       //start 'Move only if there is a selection
@@ -57,7 +57,7 @@ object Move extends Module {
           events match {
             case Message(p : Option[Vector2D]) :: tail => startPoint = p
             case MouseDown(p, MouseButtonLeft, _) :: tail => startPoint = Some(p)
-            case MouseDown(p, MouseButtonRight, _) :: tail => ForwardTo('Menu)
+            case MouseDown(p, MouseButtonRight, _) :: tail => Module('Menu)
             case MouseMove(p, _, _) :: tail => startPoint = Some(p)
             case MouseDrag(p, _, _) :: tail => {
 
@@ -99,7 +99,7 @@ object Move extends Module {
         }
         case _ => {
           com.siigna.module.base.Default.previousModule = Some('Move)
-          ForwardTo('Point)
+          Module('Point)
           Controller ! Message(PointGuides(shapeGuide))
         }
       }
@@ -141,7 +141,7 @@ object Move extends Module {
             //check if the endPoint is set. If not, goto 'Point.
             if (gotEndPoint == false) {
               gotEndPoint = true
-              ForwardTo('Point)
+              Module('Point)
             }
             //if the message arrives after the gotEndPoint flag is set, use it to define the endpoint:
             //TODO: this is a hack, could probably be made alot nicer...
@@ -189,4 +189,4 @@ object Move extends Module {
     Drawing.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))
   }
 
-}
+}*/

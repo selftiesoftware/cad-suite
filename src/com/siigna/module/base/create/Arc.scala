@@ -9,13 +9,13 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.create
+/*package com.siigna.module.base.create
 
 /* 2012 (C) Copyright by Siigna, all rights reserved. */
 
 import com.siigna._
 
-object Arc extends Module {
+class Arc extends Module {
 
   //a flag used to determinie when to stop drawing a circle as a dynamic shape
   private var inSetArc = false
@@ -30,21 +30,21 @@ object Arc extends Module {
   private var secondPointSet = false
 
   def stateMap = DirectedGraph(
-    'Start        ->   'Message   ->    'SetRadius,
+    'StartCategory        ->   'Message   ->    'SetRadius,
     'SetRadius    ->   'KeyEscape ->    'End,
     'SetArc       ->   'KeyEscape ->    'End
   )
 
 
   def stateMachine = Map(
-  'Start -> ((events : List[Event]) => {
+  'StartCategory -> ((events : List[Event]) => {
     Siigna.display("Set the startpoint, then radius, and endpoint")
     //Log.level += Log.DEBUG + Log.SUCCESS
     events match {
       case MouseDown(_, MouseButtonRight, _) :: tail => {
         Goto('End)
       }
-      case _ => ForwardTo('Point, false)
+      case _ => Module('Point)
     }
   }),
   'SetRadius -> ((events : List[Event]) => {
@@ -64,7 +64,7 @@ object Arc extends Module {
           //proceed to set the Arc segment
           points = points :+ p
           Controller ! Message(PointGuide(getCircleGuide))
-          ForwardTo('Point)
+          Module('Point)
         }
         else if (points.length == 1) {
           //proceed to set the Arc segment
@@ -98,7 +98,7 @@ object Arc extends Module {
 
       case _ => {
         Controller ! Message(PointGuide(arcGuide))
-        ForwardTo('Point)
+        Module('Point)
       }
 
 
@@ -106,7 +106,7 @@ object Arc extends Module {
   }),
   'End -> ((events : List[Event]) => {
 
-    Create(ArcShape(points(1),(points(0)-points(1)).length,(points(0)-points(1)).angle,(points(0)-secondArcPoint.get).angle-360))
+    CreateCategory(ArcShape(points(1),(points(0)-points(1)).length,(points(0)-points(1)).angle,(points(0)-secondArcPoint.get).angle-360))
 
     //clear the vars
     inSetArc = false
@@ -118,4 +118,4 @@ object Arc extends Module {
     if(inSetArc == false && points.length == 2)
       g draw CircleShape(points(1), points(0)).transform(t)
   }
-}
+}*/

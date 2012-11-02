@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.file
+/*package com.siigna.module.base.file
 
 /* 2010 (C) Copyright by Siigna, all rights reserved. */
 
@@ -20,16 +20,12 @@ import java.awt.print.{PageFormat, Paper, Printable, PrinterJob}
 
 import com.siigna._
 
-object Print extends Module {
-
-  lazy val eventHandler = EventHandler(stateMap, stateMachine)
+class Print extends Module {
 
   var firstOpen : Boolean = true
 
-  lazy val stateMap     = DirectedGraph('Start     -> 'KeyDown -> 'End)
-
-  lazy val stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+  lazy val stateMap = Map(
+    'StartCategory -> ((events : List[Event]) => {
       //a hack to prevent the print dialog from opening over and over again. Caused by an error in the Message system.
       if (firstOpen == true) {
         firstOpen = false
@@ -62,11 +58,12 @@ object Print extends Module {
         } catch {
           case e => println(e)
         }
+      } else {
+        firstOpen = false
       }
-    else firstOpen = false
-      Goto('End)
+      'End
     }),
-    'End   -> ((events : List[Event]) => {
+    'End -> ((events : List[Event]) => {
       None
     })
   )
@@ -109,7 +106,7 @@ class MyPrintable extends Printable {
       // Enable anti-aliasing.
       bufferedGraphics2D setRenderingHint(RenderingHints KEY_ANTIALIASING, RenderingHints VALUE_ANTIALIAS_ON)
 
-      // Create a new transformation-matrix for the model
+      // CreateCategory a new transformation-matrix for the model
       // TODO: Get the correct screenToPaperScale
       val screenToPaperScale = 2.845 / Drawing.boundaryScale
       val t1 = TransformationMatrix(-Drawing.boundary.topLeft, 1)
@@ -128,4 +125,4 @@ class MyPrintable extends Printable {
       Printable.PAGE_EXISTS
     }
   }
-}
+}*/

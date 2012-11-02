@@ -18,46 +18,45 @@ import com.siigna._
 /**
  * A performance test module which creates 1000*1000 lines.
  */
-object Performancetest extends Module {
+class Performancetest extends Module {
 
   var shapes = scala.collection.immutable.Vector[Shape]()
-  val eventHandler = EventHandler(stateMap, stateMachine)
 
   val limit = 1000
 
-  lazy val stateMap = DirectedGraph('Intermezzo -> 'KeyDown -> 'End)
+  val stateMap : StateMap = Map(
 
-  lazy val stateMachine = Map(
+    'Start -> {
+      case _ => {
+        var i = 0
+        val startSeconds = System.currentTimeMillis()
 
-    'Start -> ((events : List[Event]) => {
-      var i = 0
-      val startSeconds = System.currentTimeMillis()
+        do  {
+            val pointA = Vector2D(i, 0)
+            val pointB = Vector2D(i + 10, limit >> 1)
 
-      do  {
-          val pointA = Vector2D(i, 0)
-          val pointB = Vector2D(i + 10, limit >> 1)
+            val pointC = Vector2D(0, i)
+            val pointD = Vector2D(limit >> 1, i + 10)
 
-          val pointC = Vector2D(0, i)
-          val pointD = Vector2D(limit >> 1, i + 10)
+            //val vertShape = LineShape(pointA, pointB)
+            val vertShape = LineShape(pointA, pointB)
+            //val horizShape = LineShape(pointC, pointD)
+            val horizShape = LineShape(pointC, pointD)
 
-          //val vertShape = LineShape(pointA, pointB)
-          val vertShape = LineShape(pointA, pointB)
-          //val horizShape = LineShape(pointC, pointD)
-          val horizShape = LineShape(pointC, pointD)
+            i += 1
 
-          i += 1
+            shapes = shapes :+ vertShape :+ horizShape
+        } while (i <= limit)
 
-          shapes = shapes :+ vertShape :+ horizShape
-      } while (i <= limit)
-
-      val endSeconds = System.currentTimeMillis()
-      Log("Time to draw "+ limit * limit +" lines:" + (endSeconds - startSeconds))
-      Goto('Intermezzo)
-    }),
-    'Intermezzo -> ((events : List[Event]) => None),
-
-    'End -> ((events : List[Event]) => {
-    })
+        val endSeconds = System.currentTimeMillis()
+        //Log("Time to draw "+ limit * limit +" lines:" + (endSeconds - startSeconds))
+        'Intermezzo
+      }
+    },
+    'Intermezzo -> {
+      case KeyDown(_, _) :: tail => End
+      case _ =>
+    }
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {

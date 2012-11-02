@@ -12,7 +12,7 @@
 package com.siigna.module.base.create
 
 import com.siigna._
-import com.siigna.app.view.event.EventSnap
+import com.siigna.util.event.EventSnap
 import collection.parallel.immutable.ParIterable
 
 /**

@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.helpers
+/*package com.siigna.module.base.helpers
 
 import com.siigna._
 import com.siigna.module.Module
@@ -20,24 +20,17 @@ import com.siigna.module.base.create._
  * A module that measures and displays a distance between two points
  */
 
-object Distance extends Module {
-
-  lazy val eventHandler = new EventHandler(stateMap, stateMachine)
+class Distance extends Module {
 
   var points = List[Vector2D]()
 
-
-  def stateMap = DirectedGraph(
-    'Start    ->   'Message  ->    'SetPoint
-  )
-
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => {
-          Goto('End)
+          'End
         }
-        case _ => ForwardTo('Point, false)
+        case _ => Module('Point)
       }
     }),
     'SetPoint -> ((events : List[Event]) => {
@@ -59,15 +52,15 @@ object Distance extends Module {
           points = points :+ p
           // Define shape if there is enough points
           if (points.size == 1) {
-            ForwardTo('Point, false)
-            Controller ! Message(PointGuide(getPointGuide))
-          } else Goto('End)
+            Module('Point)
+            //Controller ! Message(PointGuide(getPointGuide))
+          } else 'End
         }
 
         // match on everything else
         case _ => {
           ForwardTo('Point)
-          Controller ! Message(PointGuide(getPointGuide))
+          //Controller ! Message(PointGuide(getPointGuide))
         }
       }
     }),
@@ -84,3 +77,4 @@ object Distance extends Module {
     })
   )
 }
+*/

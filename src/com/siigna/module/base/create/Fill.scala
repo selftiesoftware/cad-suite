@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.create
+/*package com.siigna.module.base.create
 
 import com.siigna._
 import app.Siigna
@@ -18,9 +18,7 @@ import app.controller.Controller
 
 import java.awt.Color
 
-object Fill extends Module {
-
-  lazy val eventHandler = new EventHandler(stateMap, stateMachine)
+class Fill extends Module {
 
   var points = List[Vector2D]()
 
@@ -28,17 +26,17 @@ object Fill extends Module {
 
   def stateMap = DirectedGraph(
 
-    'Start    ->   'Message  ->    'SetPoint,
-    'Start    ->   'KeyDown  ->    'End
+    'StartCategory    ->   'Message  ->    'SetPoint,
+    'StartCategory    ->   'KeyDown  ->    'End
   )
 
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
+    'StartCategory -> ((events : List[Event]) => {
       events match {
         case MouseDown(_, MouseButtonRight, _) :: tail => {
-          Goto('End)
+          'End
         }
-        case _ => ForwardTo('Point, false)
+        case _ => Module('Point)
       }
     }),
   'SetPoint -> ((events : List[Event]) => {
@@ -49,7 +47,7 @@ object Fill extends Module {
       if(!points.isEmpty) {
         val closedPolyline = points.reverse :+ p
         val areaGuide = closedPolyline.reverse :+ p
-          if(Siigna.get("activeColor")isDefined) PolylineShape((areaGuide)).setAttributes("raster" -> Siigna("activeColor"), "StrokeWidth" -> 0.0)
+          if(Siigna.get("activeColor").isDefined)) PolylineShape((areaGuide)).setAttributes("raster" -> Siigna("activeColor"), "StrokeWidth" -> 0.0)
           else PolylineShape((areaGuide)).setAttributes("raster" -> anthracite, "StrokeWidth" -> 0.0)
     }
       else PolylineShape(Vector2D(0,0),Vector2D(0,0))
@@ -62,13 +60,13 @@ object Fill extends Module {
         // Save the point
         points = points :+ p
         // Define shape if there is enough points
-        ForwardTo('Point, false)
+        Module('Point)
         Controller ! Message(PointGuide(getPointGuide))
       }
 
       // Match on everything else
       case _ => {
-        ForwardTo('Point)
+        Module('Point)
         Controller ! Message(PointGuide(getPointGuide))
       }
     }
@@ -76,8 +74,8 @@ object Fill extends Module {
     'End -> ((events : List[Event]) => {
       //add a line segment from the last to the first point in the list to close the fill area
       if (points.size > 2 && Siigna.get("activeColor").isDefined)
-        Create(PolylineShape(points :+ points(0)).setAttributes("raster" -> Siigna("activeColor"), "StrokeWidth" -> 0.0))
-      else Create(PolylineShape(points :+ points(0)).setAttributes("raster" -> anthracite, "StrokeWidth" -> 0.0))
+        CreateCategory(PolylineShape(points :+ points(0)).setAttributes("raster" -> Siigna("activeColor"), "StrokeWidth" -> 0.0))
+      else CreateCategory(PolylineShape(points :+ points(0)).setAttributes("raster" -> anthracite, "StrokeWidth" -> 0.0))
 
       //Clear the variables
       points = List[Vector2D]()
@@ -85,4 +83,4 @@ object Fill extends Module {
 
     })
   )
-}
+}*/

@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.base.helpers
+/*package com.siigna.module.base.helpers
 
 import com.siigna._
 import com.siigna.module.Module
@@ -23,7 +23,7 @@ import java.awt.Color
  */
 
 //TODO: add ability to measure the area of one or more selected, closed polylines.
-object Area extends Module {
+class Area extends Module {
 
   //color for the dynamically drawn area
   lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, 0.30f)
@@ -58,28 +58,17 @@ object Area extends Module {
     else "%.2f".format(a/1000000.toDouble) +" m2"
   }
 
-  lazy val eventHandler = new EventHandler(stateMap, stateMachine)
-
   var points = List[Vector2D]()
 
   var savedArea : Double = 0
 
   //TODO: Add a function to display cm2 or m2 instead of mm2 for large areas.
 
-  def stateMap = DirectedGraph(
-
-    'Start    ->   'Message  ->    'SetPoint,
-    'Start    ->   'KeyDown  ->    'End
-  )
-
   def stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
-      events match {
-        case MouseDown(_, MouseButtonRight, _) :: tail => {
-          Goto('End)
-        }
-        case _ => ForwardTo('Point, false)
-      }
+    State('StartCategory, {
+      case m : Message => 'SetPoint
+      case MouseDown(_, MouseButtonRight, _) :: tail => 'End
+      case _ => Module('Point)
     }),
   'SetPoint -> ((events : List[Event]) => {
 
@@ -102,14 +91,14 @@ object Area extends Module {
         // Save the point
         points = points :+ p
         // Define shape if there is enough points
-        ForwardTo('Point, false)
+        Module('Point)
         Controller ! Message(PointGuide(getPointGuide))
       }
       //TODO: add ability to start new measurement, adding to the existing, by pressing CTRL.
       //case KeyDown(Key.Control, _) :: tail => {
       //  savedArea = area(points :+ points(0))
       //  println(savedArea)
-      //  Goto('Start)
+      //  Goto('StartCategory)
       //}
 
       // Match on everything else
@@ -132,4 +121,4 @@ object Area extends Module {
 
     })
   )
-}
+}*/

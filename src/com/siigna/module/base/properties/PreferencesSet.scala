@@ -11,32 +11,25 @@
 
 package com.siigna.module.base.properties
 
-
 import com.siigna._
 
-object PreferencesSet extends Module {
+class PreferencesSet extends Module {
 
-  def eventHandler = EventHandler(stateMap, stateMachine)
-
-  def stateMap     = DirectedGraph(
-    'Start -> 'MouseDown -> 'End
-  )
-
-  lazy val stateMachine = Map(
-    'Start -> ((events : List[Event]) => {
-      events match {
-        case _ =>
+  lazy val stateMap : StateMap = Map(
+    'Start -> {
+      case _ => 'SelectionDistance
+    },
+    'SelectionDistance -> {
+      case _ => {
+        println("set selection distance here")
+        'End
       }
-    }),
-    'SelectionDistance -> ((events : List[Event]) => {
-      events match {
-        case _ => println("set selection distance here")
+    },
+    'End -> {
+      case _ => {
+        println("ending prefs module")
+        'End
       }
-    }),
-    'End -> ((events : List[Event]) => {
-      events match {
-        case _ => println("ending prefs module")
-      }
-    })
+    }
   )
 }

@@ -13,34 +13,25 @@ package com.siigna.module.base.helpers
 
 import com.siigna._
 
-object TrackToggle extends Module{
-
-  val eventHandler = EventHandler(stateMap, stateMachine)
+class TrackToggle extends Module{
 
   var isTracking : Boolean = true
 
-  lazy val stateMap = DirectedGraph (
-    'Start    -> 'Event     -> 'End
-  )
+  val stateMap : StateMap = Map(
 
-  lazy val stateMachine = Map(
-
-    'Start -> ((events : List[Event]) => {
-      Goto('End)
-      None
-    }),
-
-    'End -> ((events : List[Event]) => {
-      if (Track.trackEnabled == true) {
-        Track.trackEnabled = false
-        Siigna display ("track is off")
-        isTracking = false
+    'Start-> {
+      case _ => {
+        if (Track.trackEnabled == true) {
+          Track.trackEnabled = false
+          Siigna display ("track is off")
+          isTracking = false
+        }
+        else {
+          Track.trackEnabled = true
+          Siigna display ("track is on")
+        }
+        End
       }
-      else {
-        Track.trackEnabled = true
-        Siigna display ("track is on")
-      }
-      None
-    })
+    }
   )
 }
