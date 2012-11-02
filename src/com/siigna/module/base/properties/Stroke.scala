@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-/*package com.siigna.module.base.properties
+package com.siigna.module.base.properties
 
 import com.siigna.app.view.Graphics
 import com.siigna._
@@ -23,10 +23,7 @@ import java.awt.Color
 
 class Stroke extends Module {
 
-  var activeAngle : Double = 0
-
   var activeLine : Double = 0
-
 
   //TODO: make this dynamic so that each line is drawn by the same function, only changing the .
   //a list of the possible lines
@@ -43,8 +40,7 @@ class Stroke extends Module {
   lazy val line300 = 2.00
   lazy val line330 = 3.00
 
-  var relativeMousePosition : Option[Vector2D] = None
-  var startPoint : Option[Vector2D] = None
+  var startPoint : Vector2D = View.center
 
   //PROPERTIES OF TEXT DESCRIPTIONS
   var boundingRectangle : Option[Rectangle2D] = None
@@ -52,10 +48,18 @@ class Stroke extends Module {
   var scale    = 8
   var attributes = Attributes( "TextSize" -> 10)
 
-
-  def eventHandler = EventHandler(stateMap, stateMachine)
-
-  private var gotMouseDown = false
+  //get the current angle from the mouse to the center of the line weight menu
+  def getActiveAngle(startPoint : Vector2D, mousePosition : Vector2D) : Int = {
+    var activeAngle = 0
+    val radian = (mousePosition - startPoint).angle.toInt
+    var calculatedAngle = radian + 450
+    if (calculatedAngle > 360)
+      activeAngle = calculatedAngle - 360
+    else activeAngle = calculatedAngle
+    activeAngle = ((activeAngle+24) /30).toInt * 30
+    //return the angle
+    activeAngle-180
+  }
 
   def radians(rotation : Int) : List[Int] = {
 
@@ -72,63 +76,39 @@ class Stroke extends Module {
     activeRadians
   }
 
-  def stateMap = DirectedGraph(
+  def stateMap: StateMap = Map(
+    //select a color
+    'Start -> {
+      case e => {
+        Siigna.navigation = false // Make sure the rest of the program doesn't move
+        eventParser.disable() // Disable tracking and snapping
+        'Interaction
+      }
+    },
+    'Interaction -> {
 
-    'StartCategory  ->   'KeyDown   ->  'End
+        case MouseDown(point, MouseButtonRight, _) :: tail => End
 
-  )
-  def stateMachine = Map(
-
-    'StartCategory -> ((events : List[Event]) => {
-      Siigna.navigation = false // Make sure the rest of the program doesn't move
-      eventParser.disable() // Disable tracking and snapping
-      startPoint = if (Menu.center.isDefined) Some(Menu.center.get) else Some(Vector2D(0,0))
-
-      events match {
-        case MouseMove(point, _, _) :: tail => relativeMousePosition = Some(point)
-        case MouseDown(point, MouseButtonRight, _) :: tail => Goto('End)
         //selects the color to use
         case MouseDown(point, MouseButtonLeft, _) :: tail => {
-          //catch first Mouse Down
-          if (gotMouseDown == false) {
-            relativeMousePosition = Some(point)
-            gotMouseDown = true
-          }
-          //if the mouse has been pressed once, set the color and go to 'End.
-          else {
-            relativeMousePosition = Some(point)
 
-            //set the Stroke
-            if (activeAngle == 0) {activeLine = line0}
-            else if (activeAngle == 30) {activeLine = line30}
-            else if (activeAngle == 60) {activeLine = line60}
-            else if (activeAngle == 90) {activeLine = line90}
-            else if (activeAngle == 120) {activeLine = line120}
-            else if (activeAngle == 150) {activeLine = line150}
-            else if (activeAngle == 180) {activeLine = line180}
-            else if (activeAngle == 210) {activeLine = line210}
-            else if (activeAngle == 240) {activeLine = line240}
-            else if (activeAngle == 270) {activeLine = line270}
-            else if (activeAngle == 300) {activeLine = line300}
-            else if (activeAngle == 330) {activeLine = line330}
+          var activeAngle = getActiveAngle(View.center,mousePosition)
 
-            gotMouseDown = false
-            Goto('End)
-          }
+          if (activeAngle == 0) {activeLine = line0}
+          else if (activeAngle == 30) {activeLine = line30}
+          else if (activeAngle == 60) {activeLine = line60}
+          else if (activeAngle == 90) {activeLine = line90}
+          else if (activeAngle == 120) {activeLine = line120}
+          else if (activeAngle == 150) {activeLine = line150}
+          else if (activeAngle == 180) {activeLine = line180}
+          else if (activeAngle == 210) {activeLine = line210}
+          else if (activeAngle == 240) {activeLine = line240}
+          else if (activeAngle == 270) {activeLine = line270}
+          else if (activeAngle == 300) {activeLine = line300}
+          else if (activeAngle == 330) {activeLine = line330}
+
         }
-        case _ =>
-      }
-      //get the current angle from the mouse to the center of the line weight menu
-      if (relativeMousePosition.isDefined && startPoint.isDefined) {
-        val radian = (relativeMousePosition.get - startPoint.get).angle.toInt
-        val calculatedAngle = radian * -1 + 450
-        if (calculatedAngle > 360)
-          activeAngle = calculatedAngle - 360
-        else activeAngle = calculatedAngle
-          activeAngle = ((activeAngle + 15)/30).toInt * 30
-      }
-    }),
-    'End -> ((events : List[Event]) => {
+        println("LineWeight: "+activeLine)
       //if no objects are selected, make the chosen lineWeight the default lineWeight
       if(Drawing.selection.isEmpty) {
         Siigna("activeLineWeight") = activeLine
@@ -140,83 +120,76 @@ class Stroke extends Module {
       }
 
       //clear values and reactivate navigation
-      gotMouseDown = false
-      startPoint = None
-      relativeMousePosition = None
       eventParser.enable()
       Siigna.navigation = true
-    })
+      End
+
+    }
   )
   override def paint(g : Graphics, transform : TransformationMatrix) {
-    if (startPoint.isDefined && relativeMousePosition.isDefined) {
 
-      //template for lines
-      def line(width : Double) = LineShape(Vector2D(47,100), Vector2D(-15,83)).addAttribute("StrokeWidth" -> width)
+    //template for lines
+    def line(width : Double) = LineShape(Vector2D(47,100), Vector2D(-15,83)).addAttribute("StrokeWidth" -> width)
 
-      val sp = startPoint.get.transform(transform)
-      val t  = TransformationMatrix(sp,1.3)
-      var i : Int = 0
-      val weights : List[Double] = List(0.60,0.40,0.30,0.25,0.18,0.09,0.00,3.00,2.00,1.50,1.00,0.80,0.00)
-      //function to rotate the graphics
-      def drawLine (rotation : Int) {
-          val activeLine = LineShape(Vector2D(47,100), Vector2D(-15,83)).addAttributes("StrokeWidth" -> 4.0, "Color" -> new Color(0.75f, 0.75f, 0.75f, 0.80f))
-          //draw the active weight
-          g draw activeLine.transform(t.rotate(activeAngle-180))
-        }
+    val t  = TransformationMatrix(startPoint,1.3)
+    var i : Int = 0
+    val weights : List[Double] = List(0.60,0.40,0.30,0.25,0.18,0.09,0.00,3.00,2.00,1.50,1.00,0.80,0.00)
+    //function to rotate the graphics
+    def drawLine (rotation : Int) {
+        val activeLine = LineShape(Vector2D(47,100), Vector2D(-15,83)).addAttributes("StrokeWidth" -> 4.0, "Color" -> new Color(0.75f, 0.75f, 0.75f, 0.80f))
+        //draw the active weight
+        g draw activeLine.transform(t.rotate(getActiveAngle(View.center,mousePosition)))
+      }
 
-      //TODO: add differentiated lineweight
-      //draw the lines
-      drawLine(0)
-      drawLine(3)
-      drawLine(60)
-      drawLine(90)
-      drawLine(120)
-      drawLine(150)
-      drawLine(180)
-      drawLine(210)
-      drawLine(240)
-      drawLine(270)
-      drawLine(300)
-      drawLine(330)
+    //draw the lines
+    drawLine(0)
+    drawLine(3)
+    drawLine(60)
+    drawLine(90)
+    drawLine(120)
+    drawLine(150)
+    drawLine(180)
+    drawLine(210)
+    drawLine(240)
+    drawLine(270)
+    drawLine(300)
+    drawLine(330)
 
-      //draw an outline of the menu
-      //g draw CircleShape(Vector2D(0,0), Vector2D(0,80)).transform(t)
-      //g draw CircleShape(Vector2D(0,0), Vector2D(0,118)).transform(t)
+    //draw an outline of the menu
+    //g draw CircleShape(View.center, Vector2D(View.center.x,80)).transform(t)
+    //g draw CircleShape(View.center, Vector2D(View.center.x,118)).transform(t)
 
-      //draw the lines
-      radians(30).foreach(radian => {
-        i+=1
-        g draw line(weights(i-1)).transform(t.rotate(radian))
-      })
+    //draw the lines
+    radians(30).foreach(radian => {
+      i+=1
+      g draw line(weights(i-1)).transform(t.rotate(radian))
+    })
 
-      //TODO: this is a hack! refactor.
-      //draw a text description
+    //draw a text description
+    val text30 : TextShape = TextShape(line240.toString+" ", Vector2D(-89.48,66.83), scale, attributes)
+    val text60 : TextShape = TextShape(line270.toString+" ", Vector2D(-112.2,16.74), scale, attributes)
+    val text90 : TextShape = TextShape(line300.toString+" ", Vector2D(-106.8,-38.01), scale, attributes)
+    val text120 : TextShape = TextShape(line330.toString+" ", Vector2D(-74.83,-82.75), scale, attributes)
+    val text150 : TextShape = TextShape(line0.toString+" ", Vector2D(-24.74,-105.5), scale, attributes)
+    val text180 : TextShape = TextShape(line30.toString+" ", Vector2D(30.01,-100.1), scale, attributes)
+    val text210 : TextShape = TextShape(line60.toString+" ", Vector2D(74.75,-68.1), scale, attributes)
+    val text240 : TextShape = TextShape(line90.toString+" ", Vector2D(97.48,-18.01), scale, attributes)
+    val text270 : TextShape = TextShape(line120.toString+" ", Vector2D(92.12,36.74), scale, attributes)
+    val text300 : TextShape = TextShape(line150.toString+" ", Vector2D(60.1,81.48), scale, attributes)
+    val text330 : TextShape = TextShape(line180.toString+" ", Vector2D(10.01,104.2), scale, attributes)
+    val text0 : TextShape = TextShape(line210.toString+" ", Vector2D(-44.74,98.85), scale, attributes)
 
-      val text30 : TextShape = TextShape(line240.toString+" ", Vector2D(-89.48,66.83), scale, attributes)
-      val text60 : TextShape = TextShape(line270.toString+" ", Vector2D(-112.2,16.74), scale, attributes)
-      val text90 : TextShape = TextShape(line300.toString+" ", Vector2D(-106.8,-38.01), scale, attributes)
-      val text120 : TextShape = TextShape(line330.toString+" ", Vector2D(-74.83,-82.75), scale, attributes)
-      val text150 : TextShape = TextShape(line0.toString+" ", Vector2D(-24.74,-105.5), scale, attributes)
-      val text180 : TextShape = TextShape(line30.toString+" ", Vector2D(30.01,-100.1), scale, attributes)
-      val text210 : TextShape = TextShape(line60.toString+" ", Vector2D(74.75,-68.1), scale, attributes)
-      val text240 : TextShape = TextShape(line90.toString+" ", Vector2D(97.48,-18.01), scale, attributes)
-      val text270 : TextShape = TextShape(line120.toString+" ", Vector2D(92.12,36.74), scale, attributes)
-      val text300 : TextShape = TextShape(line150.toString+" ", Vector2D(60.1,81.48), scale, attributes)
-      val text330 : TextShape = TextShape(line180.toString+" ", Vector2D(10.01,104.2), scale, attributes)
-      val text0 : TextShape = TextShape(line210.toString+" ", Vector2D(-44.74,98.85), scale, attributes)
-
-      g draw text0.transform(t)
-      g draw text30.transform(t)
-      g draw text60.transform(t)
-      g draw text90.transform(t)
-      g draw text120.transform(t)
-      g draw text150.transform(t)
-      g draw text180.transform(t)
-      g draw text210.transform(t)
-      g draw text240.transform(t)
-      g draw text270.transform(t)
-      g draw text300.transform(t)
-      g draw text330.transform(t)
-    }
+    g draw text0.transform(t)
+    g draw text30.transform(t)
+    g draw text60.transform(t)
+    g draw text90.transform(t)
+    g draw text120.transform(t)
+    g draw text150.transform(t)
+    g draw text180.transform(t)
+    g draw text210.transform(t)
+    g draw text240.transform(t)
+    g draw text270.transform(t)
+    g draw text300.transform(t)
+    g draw text330.transform(t)
   }
-}*/
+}
