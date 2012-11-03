@@ -20,7 +20,7 @@ import module.ModuleInstance
  */
 class Default extends Module {
 
-  protected var lastModule : Option[ModuleInstance] = None
+  var lastModule : Option[ModuleInstance] = None
 
   def stateMap = Map(
     'Start -> {
