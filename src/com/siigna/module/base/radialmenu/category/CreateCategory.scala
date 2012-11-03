@@ -19,15 +19,15 @@ case object CreateCategory extends MenuCategory{
   val graph = Map[MenuEvent,MenuElement](
     EventN -> GeometryCategory,
 
-    EventNNW -> MenuModule(Module('Rectangle,"com.siigna.module.base.create"), RadialMenuIcon.rectangle),
-    EventNNE -> MenuModule(Module('Line,"com.siigna.module.base.create"), RadialMenuIcon.line),
+    EventNNW -> MenuModule(Module('Rectangle,"com.siigna.module.base.create"), MenuIcons.rectangle),
+    EventNNE -> MenuModule(Module('Line,"com.siigna.module.base.create"), MenuIcons.line),
 
-    EventWNW -> MenuModule(Module('Text,"com.siigna.module.base.create"), RadialMenuIcon.text),
-    EventSSE -> MenuModule(Module('Explode,"com.siigna.module.base.create"), RadialMenuIcon.explode),
-    EventWSW -> MenuModule(Module('Lineardim,"com.siigna.module.base.create"), RadialMenuIcon.linearDimension)
+    EventWNW -> MenuModule(Module('Text,"com.siigna.module.base.create"), MenuIcons.text),
+    EventSSE -> MenuModule(Module('Explode,"com.siigna.module.base.create"), MenuIcons.explode),
+    EventWSW -> MenuModule(Module('Lineardim,"com.siigna.module.base.create"), MenuIcons.linearDimension)
   )
 
-  val color = RadialMenuIcon.createColor
+  val color = MenuIcons.createColor
 
   val parent = Some(StartCategory)
 }

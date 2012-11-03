@@ -17,11 +17,11 @@ import com.siigna._
 case object GeometryCategory extends MenuCategory {
 
   val graph = Map[MenuEvent,MenuElement](
-    EventNNE -> MenuModule(Module('Circle,"com.siigna.module.base.create"), RadialMenuIcon.circle),
-    EventNNW -> MenuModule(Module('Arc,"com.siigna.module.base.create"), RadialMenuIcon.arc)
+    EventNNE -> MenuModule(Module('Circle,"com.siigna.module.base.create"), MenuIcons.circle),
+    EventNNW -> MenuModule(Module('Arc,"com.siigna.module.base.create"), MenuIcons.arc)
   )
 
-  val color = RadialMenuIcon.createColor
+  val color = MenuIcons.createColor
 
   val parent = Some(CreateCategory)
 

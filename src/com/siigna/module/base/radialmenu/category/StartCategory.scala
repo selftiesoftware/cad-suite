@@ -15,7 +15,7 @@ import com.siigna._
 import module.base.radialmenu._
 import module.base.radialmenu.MenuCategory
 import module.base.radialmenu.MenuModule
-import module.base.radialmenu.RadialMenuIcon
+import module.base.radialmenu.MenuIcons
 
 
 case object StartCategory extends MenuCategory{
@@ -27,16 +27,16 @@ case object StartCategory extends MenuCategory{
     EventW -> PropertiesCategory,
     EventS -> ModifyCategory,
     //drawing tools in the default menu:
-    EventENE -> MenuModule(Module('SnapToggle,"com.siigna.module.base.helpers"), RadialMenuIcon.snap),
-    EventNNE -> MenuModule(Module('Polyline,"com.siigna.module.base.create"), RadialMenuIcon.polyline),
-    EventNNW -> MenuModule(Module('Copy,"com.siigna.module.base.create"), RadialMenuIcon.copy),
-    EventWNW -> MenuModule(Module('Stroke,"com.siigna.module.base.properties"), RadialMenuIcon.weight),
-    EventWSW -> MenuModule(Module('Colors,"com.siigna.module.base.properties"), RadialMenuIcon.colorWheel),
-    EventSSW -> MenuModule(Module('Rotate,"com.siigna.module.base.modify"), RadialMenuIcon.rotate),
-    EventSSE -> MenuModule(Module('Move,"com.siigna.module.base.modify"), RadialMenuIcon.move),
-    EventESE -> MenuModule(Module('TrackToggle,"com.siigna.module.base.helpers"), RadialMenuIcon.guides)
+    EventENE -> MenuModule(Module('SnapToggle,"com.siigna.module.base.helpers"), MenuIcons.snap),
+    EventNNE -> MenuModule(Module('Polyline,"com.siigna.module.base.create"), MenuIcons.polyline),
+    EventNNW -> MenuModule(Module('Copy,"com.siigna.module.base.create"), MenuIcons.copy),
+    EventWNW -> MenuModule(Module('Stroke,"com.siigna.module.base.properties"), MenuIcons.weight),
+    EventWSW -> MenuModule(Module('Colors,"com.siigna.module.base.properties"), MenuIcons.colorWheel),
+    EventSSW -> MenuModule(Module('Rotate,"com.siigna.module.base.modify"), MenuIcons.rotate),
+    EventSSE -> MenuModule(Module('Move,"com.siigna.module.base.modify"), MenuIcons.move),
+    EventESE -> MenuModule(Module('TrackToggle,"com.siigna.module.base.helpers"), MenuIcons.guides)
   )
 
-  val color = RadialMenuIcon.fileColor
+  val color = MenuIcons.fileColor
   val parent = None
 }

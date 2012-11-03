@@ -11,19 +11,16 @@
 
 package com.siigna.module.base.radialmenu.category
 
-import com.siigna.app.model.shape.TextShape
 import com.siigna.module.base.radialmenu._
-import com.siigna.util.collection.Attributes
-import com.siigna.util.geom.Vector2D
 import com.siigna._
 
 
 case object PropertiesCategory extends MenuCategory{
   val graph = Map[MenuEvent,MenuElement](
-    EventNNE -> MenuModule(Module('SampleProperties,"com.siigna.module.base.properties"), RadialMenuIcon.sampleProperties)
+    EventNNE -> MenuModule(Module('SampleProperties,"com.siigna.module.base.properties"), MenuIcons.sampleProperties)
   )
 
-  val color = RadialMenuIcon.propertiesColor
+  val color = MenuIcons.propertiesColor
 
   val parent = Some(StartCategory)
 }

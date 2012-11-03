@@ -20,14 +20,14 @@ import java.awt.Color
  * A line module (draws one line-segment)
  */
 
-class Line extends Module{
+class Line extends Module {
 
   var startPoint: Option[Vector2D] = None
 
   val stateMap: StateMap = Map(
 
     'Start -> {
-      case End(v: Vector2D) :: tail => {
+      case End(v : Vector2D) :: tail => {
         if (startPoint.isEmpty){
           startPoint = Some(v)
           val guide : Guide = Guide((v : Vector2D) => {
