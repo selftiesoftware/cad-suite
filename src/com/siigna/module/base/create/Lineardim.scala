@@ -14,7 +14,7 @@
 /* 2011 (C) Copyright by Siigna, all rights reserved. */
 
 import com.siigna._
-import com.siigna.module.base.Default
+import com.siigna.module.base.ModuleInit
 
 class Lineardim extends Module {
 
@@ -189,7 +189,7 @@ class Lineardim extends Module {
           )
           //clear the list of points
           points = List[Vector2D]()
-      Default.previousModule = Some('Lineardim)
+      ModuleInit.previousModule = Some('Lineardim)
     })
   )
   override def paint(g : Graphics, t : TransformationMatrix) {

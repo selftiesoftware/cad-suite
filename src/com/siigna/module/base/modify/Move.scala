@@ -98,7 +98,7 @@ class Move extends Module {
           Goto('Move)
         }
         case _ => {
-          com.siigna.module.base.Default.previousModule = Some('Move)
+          com.siigna.module.base.ModuleInit.previousModule = Some('Move)
           Module('Point)
           Controller ! Message(PointGuides(shapeGuide))
         }

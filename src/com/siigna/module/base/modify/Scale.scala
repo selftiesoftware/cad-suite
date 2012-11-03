@@ -128,7 +128,7 @@ class Scale extends Module {
         Drawing.deselect()
       } 
       //clear the vars
-      com.siigna.module.base.Default.previousModule = Some('Scale)
+      com.siigna.module.base.ModuleInit.previousModule = Some('Scale)
       ending = false
       gotEndPoint = false
       startPoint = None

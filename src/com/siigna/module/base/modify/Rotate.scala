@@ -56,7 +56,7 @@ class Rotate extends Module {
       if(!centerPoint.isDefined){
         Siigna.display("Select a base point for the rotation")
         //set the previous module to rotation so 'Point knows 'Rotate is calling, so that it can ask for a rotation angle instead of a point.
-        com.siigna.module.base.Default.previousModule = Some('Rotate)
+        com.siigna.module.base.ModuleInit.previousModule = Some('Rotate)
         events match{
           //exit mechanisms
           case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)

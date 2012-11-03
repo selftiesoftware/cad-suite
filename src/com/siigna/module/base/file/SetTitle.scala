@@ -12,7 +12,7 @@
 /*package com.siigna.module.base.file
 
 import com.siigna._
-import module.base.Default
+import module.base.ModuleInit
 
 class SetTitle extends Module {
 
@@ -24,7 +24,7 @@ class SetTitle extends Module {
 
     'StartCategory -> {
       //TODO: A CLICK IS NEEDED BEFORE SIIGNA REGISTERES KEY INPUT. TO BE FIXED.
-      View.zoom(Default.titleFocus.get, -2)
+      View.zoom(ModuleInit.titleFocus.get, -2)
       Siigna display "type a drawing title"
       'TextInput
     },

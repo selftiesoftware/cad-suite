@@ -200,7 +200,7 @@ class Copy extends Module {
       }
       //clear the vars
       Drawing.deselect()
-      com.siigna.module.base.Default.previousModule = Some('Copy)
+      com.siigna.module.base.ModuleInit.previousModule = Some('Copy)
       ending = false
       gotEndPoint = false
       moduleCallFromMenu = false

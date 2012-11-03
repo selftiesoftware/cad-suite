@@ -193,7 +193,7 @@ class Point extends Module {
 
             //Display the coords when typed.
           } else if (coordinateX.isDefined) {
-            //var prevModule = com.siigna.module.base.Default.lastModule.get.toString
+            //var prevModule = com.siigna.module.base.ModuleInit.lastModule.get.toString
             Some("point (X: "+x+")")
           }
           else {

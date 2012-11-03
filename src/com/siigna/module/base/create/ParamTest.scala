@@ -73,7 +73,7 @@ val eventHandler = new EventHandler(stateMap, stateMachine)
 
       // Clear variables
       points = List[Vector2D]()
-      com.siigna.module.base.Default.previousModule = Some('ParamTest)
+      com.siigna.module.base.ModuleInit.previousModule = Some('ParamTest)
     }),
     'End -> ((events : List[Event]) => {
 

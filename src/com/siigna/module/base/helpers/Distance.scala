@@ -72,7 +72,7 @@ class Distance extends Module {
 
       //clear the points list
       points = List()
-      com.siigna.module.base.Default.previousModule = Some('Distance)
+      com.siigna.module.base.ModuleInit.previousModule = Some('Distance)
 
     })
   )

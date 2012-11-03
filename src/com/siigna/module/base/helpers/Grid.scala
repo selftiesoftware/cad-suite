@@ -13,7 +13,7 @@
 
 import com.siigna._
 import com.siigna.module.Module
-import com.siigna.module.base.Default._
+import com.siigna.module.base.ModuleInit._
 /**
  * A module to draw a grid - with a gridsize set by the user - on the paper.
  */
@@ -77,7 +77,7 @@ class Grid extends Module{
     })
   )
 
-  //this paint method is called in 'Default, which means it is drawn always (if toggled of course)
+  //this paint method is called in 'ModuleInit, which means it is drawn always (if toggled of course)
   override def paint(g : Graphics, t : TransformationMatrix) {
 
     // Get the boundary

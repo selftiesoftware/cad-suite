@@ -12,7 +12,7 @@
 /*package com.siigna.module.base.create
 
 import com.siigna._
-import module.base.Default
+import module.base.ModuleInit
 
 //import java.awt.{Font, Color, TextField}
 //import java.awt.font._
@@ -97,7 +97,7 @@ class Text extends Module {
             text = ""
           }
           else None
-      Default.previousModule = Some('Text)
+      ModuleInit.previousModule = Some('Text)
       }
     })
   )

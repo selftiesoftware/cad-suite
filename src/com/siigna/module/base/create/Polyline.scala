@@ -79,7 +79,7 @@ class Polyline extends Module {
     if(shape.isDefined) CreateCategory(shape.get.setAttributes(attributes))
 
     //clear the vars
-    com.siigna.module.base.Default.previousModule = Some('Polyline)
+    com.siigna.module.base.ModuleInit.previousModule = Some('Polyline)
     shape = None
     points = List()
   }))

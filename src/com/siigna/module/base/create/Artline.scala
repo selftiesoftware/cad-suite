@@ -96,7 +96,7 @@ class Artline extends Module {
             //CreateCategory(shape)
             }
           }
-        com.siigna.module.base.Default.previousModule = Some('Artline)
+        com.siigna.module.base.ModuleInit.previousModule = Some('Artline)
         }
         None
       })

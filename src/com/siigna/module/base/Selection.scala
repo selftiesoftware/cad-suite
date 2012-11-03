@@ -34,8 +34,8 @@ class Selection extends Module {
   }
 
   def hasPartShape = {
-    if (Default.nearestShape.isDefined) {
-      val shape = Default.nearestShape.get
+    if (ModuleInit.nearestShape.isDefined) {
+      val shape = ModuleInit.nearestShape.get
       val part = shape._2.getPart(Siigna.mousePosition)
       Drawing.select(shape._1, part)
       Module('Move)

@@ -12,6 +12,7 @@
 package com.siigna.module.base.radialmenu.category
 
 import com.siigna._
+import module.base.Menu
 import module.base.radialmenu._
 import module.base.radialmenu.MenuCategory
 import module.base.radialmenu.MenuModule
@@ -19,6 +20,9 @@ import module.base.radialmenu.MenuIcons
 
 
 case object StartCategory extends MenuCategory{
+
+  Menu.startCategory = this
+
   val graph = Map[MenuEvent,MenuElement](
     //main cetegories in the start menu:
     EventC -> FileCategory,
