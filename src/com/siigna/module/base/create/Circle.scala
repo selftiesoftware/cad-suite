@@ -31,7 +31,7 @@ class Circle extends Module {
           case MouseDown(_, MouseButtonRight, _) :: tail => 'End
           case Message(p : Vector2D) :: tail => 'SetRadius
           case _ => {
-            Module('Point)
+            Module('Point, "com.siigna.module.base.create")
           }
         }
         None
@@ -58,7 +58,7 @@ class Circle extends Module {
             } else if (!center.isDefined) {
               center = Some(p)
               //Controller ! Message(PointGuide(getCircleGuide))
-              Module('Point)
+              Module('Point, "com.siigna.module.base.create")
             }
           }
           case _ =>

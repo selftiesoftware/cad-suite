@@ -35,7 +35,7 @@ class SampleProperties extends Module{
           attributes = templateShape.get.attributes
           Drawing.deselect()
           'UpdateShapes
-        } else Module('Selection)
+        } else Module('Selection, "com.siigna.module.base")
 
       }
     },
@@ -43,7 +43,7 @@ class SampleProperties extends Module{
       case _ => {
         Siigna display ("select objects to update")
         if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) 'End
-        else Module('Selection)
+        else Module('Selection, "com.siigna.module.base")
       }
     },
     'End -> {

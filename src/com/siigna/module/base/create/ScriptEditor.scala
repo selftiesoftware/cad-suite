@@ -96,7 +96,7 @@ class ScriptEditor extends Module{
           case MouseUp(point, MouseButtonRight, _) :: tail => {
             if(moduleOpen == false){
               moduleOpen = true
-              Module('Menu)
+              Module('Menu, "com.siigna.module.base")
               Controller ! Message(point)
             } else moduleOpen = false
           }
