@@ -23,15 +23,15 @@ import com.siigna._
  *
  * Except when the 'Rotate, 'Scale, or 'Move (if track is active) modules call 'Point,
  * in which cases only one value is entered, and a Message(Double) is returned.
- *
- * It is possible to send a Controller ! Message(Guide(ShapeGuide)) to the 'Point module when it is called
- * if the Point need to draw shapes dynamically while input is entered.
  */
 
 class Point extends Module {
 
   val stateMap: StateMap = Map(
     'Start -> {
+      case Start(_, p : Vector2D) :: tail => {
+        println("In point " + p)
+      }
       case MouseDown(p,_,_)::tail => {
         End(p.transform(View.deviceTransformation))
       }

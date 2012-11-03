@@ -14,14 +14,13 @@ package com.siigna.module.base.radialmenu.category
 import com.siigna.module.base.radialmenu._
 import com.siigna._
 
-
 case object HelpersCategory extends MenuCategory {
   val graph = Map[MenuEvent,MenuElement](
-    EventWNW -> MenuModule(Module('Grid,"com.siigna.module.base.helpers"), RadialMenuIcon.grid),
-    EventSSW -> MenuModule(Module('Area,"com.siigna.module.base.helpers"), RadialMenuIcon.area),
-    EventSSE -> MenuModule(Module('Distance,"com.siigna.module.base.helpers"), RadialMenuIcon.distance)
+    EventWNW -> MenuModule(Module('Grid,"com.siigna.module.base.helpers"), MenuIcons.grid),
+    EventSSW -> MenuModule(Module('Area,"com.siigna.module.base.helpers"), MenuIcons.area),
+    EventSSE -> MenuModule(Module('Distance,"com.siigna.module.base.helpers"), MenuIcons.distance)
   )
 
-  val color = RadialMenuIcon.helpersColor
+  val color = MenuIcons.helpersColor
   val parent = Some(StartCategory)
 }

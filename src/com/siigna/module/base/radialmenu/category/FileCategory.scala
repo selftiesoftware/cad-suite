@@ -21,17 +21,16 @@ import com.siigna._
 
 case object FileCategory extends MenuCategory{
 
-
   val graph = Map[MenuEvent,MenuElement](
 
     EventNNE -> MenuModule(Module('SetTitle,"com.siigna.module.base.file"), Iterable(TextShape("title", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))))),
 
-    EventSSE -> MenuModule(Module('Print,"com.siigna.module.base.file"), RadialMenuIcon.print),
-    EventESE -> MenuModule(Module('Export,"com.siigna.module.io"), RadialMenuIcon.exportDXF),
-    EventENE -> MenuModule(Module('Import,"com.siigna.module.io"), RadialMenuIcon.importDXF)
+    EventSSE -> MenuModule(Module('Print,"com.siigna.module.base.file"), MenuIcons.print),
+    EventESE -> MenuModule(Module('Export,"com.siigna.module.io"), MenuIcons.exportDXF),
+    EventENE -> MenuModule(Module('Import,"com.siigna.module.io"), MenuIcons.importDXF)
   )
 
-  val color = RadialMenuIcon.fileColor
+  val color = MenuIcons.fileColor
 
   val parent = Some(StartCategory)
 }
