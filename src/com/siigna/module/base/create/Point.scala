@@ -150,7 +150,7 @@ class Point extends Module {
         else if (coordinateY.isEmpty && coordinateValue.length > 0) {
           coordinateY = Some(java.lang.Double.parseDouble(coordinateValue))
           coordinateValue = ""
-          //Goto('End)
+          'End
         }
       }
 
@@ -172,67 +172,66 @@ class Point extends Module {
           coordinateValue = "-"
       }
       //case KeyUp(Key.Space, _) :: tail => Goto ('End)
-      case x =>  {
-        println("X: "+x)
-
+      case _ =>  {
 
         //reformat the coordinate value to a decimal number if the input string started with '.' (decimalValue flag is true)
-        if (decimalValue == true && !coordinateValue.isEmpty && coordinateValue != 0) coordinateValue = (coordinateValue.toDouble/(coordinateValue.length +1)).toString
 
-          // DISPLAY a message: Format the x and y coordinate and store the message in a value, unless Rotate or Scale is calling, since they need just one value.
-          val message = {
-            if (coordinateValue.length > 0 ) {
+        //if (decimalValue == true && !coordinateValue.isEmpty && coordinateValue != 0)
+        //  coordinateValue = (coordinateValue.toDouble/(coordinateValue.length +1)).toString
 
-              val x = if (coordinateX.isDefined) "%.2f" format coordinateX.get
-              else coordinateValue
-              val y = if (coordinateY.isDefined) "%.2f" format coordinateY.get
-              else if (coordinateX.isDefined) coordinateValue
-              else ""
+        // DISPLAY a message: Format the x and y coordinate and store the message in a value.
+        val message = {
+          if (coordinateValue.length > 0 ) {
 
-              Some("point (X: "+x+", Y: "+y+").")
+            val x = if (coordinateX.isDefined) "%.2f" format coordinateX.get
+            else coordinateValue
+            val y = if (coordinateY.isDefined) "%.2f" format coordinateY.get
+            else if (coordinateX.isDefined) coordinateValue
+            else ""
 
-              //Display the coords when typed.
-            } else if (coordinateX.isDefined) {
-              //var prevModule = com.siigna.module.base.Default.lastModule.get.toString
-              Some("point (X: "+x+")")
-            }
-            else {
-              None
-            }
+            Some("point (X: "+x+", Y: "+y+").")
+
+            //Display the coords when typed.
+          } else if (coordinateX.isDefined) {
+            //var prevModule = com.siigna.module.base.Default.lastModule.get.toString
+            Some("point (X: "+x+")")
           }
-          // Display the message
-          if(message.isDefined) Siigna display(message.get)
-
-          //if the next point has been typed, add it to the polyline:
-          if (coordinateX.isDefined && coordinateY.isDefined ) {
-
-            //convert the relative coordinates a global point by adding the latest point
-            val x = coordinateX.get + difference.x
-            val y = coordinateY.get + difference.y
-
-            //add the typed point to the polyline
-            point = Some(Vector2D(x,y))
-            //clear the coordinate vars
-            coordinateX = None
-            coordinateY = None
-            coordinateValue = ""
-            'End
+          else {
+            None
           }
         }
+        // Display the message
+        if(message.isDefined) Siigna display(message.get)
+      }
     },
     'End -> {
       case _ => {
-        println("IN POINT - END")
-        // If a point was set (unless it is the first point, in which case it will be set in 'End), save it as the PreviousPoint.
-        if(point.isDefined) {
-          previousPoint = point
-        }
 
-        // Return a point if it is defined
-        if (point.isDefined) {
-          // Return the point
-         println("return a point here")
-         // Message(point.get)
+        //if the next point has been typed, return it:
+        if (coordinateX.isDefined && coordinateY.isDefined ) {
+          println("IN END WITH COORDS")
+          //convert the relative coordinates a global point by adding the latest point
+          val x = coordinateX.get + difference.x
+          val y = coordinateY.get + difference.y
+
+          //add the typed point to the polyline
+          point = Some(Vector2D(x,y))
+          //clear the coordinate vars
+          coordinateX = None
+          coordinateY = None
+          coordinateValue = ""
+
+          println("IN POINT - END")
+          // If a point was set (unless it is the first point, in which case it will be set in 'End), save it as the PreviousPoint.
+          //if(point.isDefined) {
+          //  previousPoint = point
+          //}
+
+          // Return a point if it is defined
+          if (point.isDefined) {
+            // Return the point
+            End(point.get)
+          }
         }
       }
     }
