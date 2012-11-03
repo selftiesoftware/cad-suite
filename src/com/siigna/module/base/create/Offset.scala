@@ -12,55 +12,69 @@
 /*package com.siigna.module.base.create
 
 import com.siigna._
+import module.base.create.PointGuide._
 
 class Offset extends Module {
 
-  var distance : Option[Vector2D] = None
+  var distancePoint : Option[Vector2D] = None
 
   val eventHandler = EventHandler(stateMap, stateMachine)
 
   var originals : Option[Selection] = None
 
+  //a guide to get Point to draw the shape(s) dynamically
   val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
-    // CreateCategory a matrix
-    val t : TransformationMatrix = TransformationMatrix(v, 1)
-    Drawing.selection.get.apply(t)
-  }
 
+    val s = Drawing.selection.get
+    //get a point on the shape perpendicular to the mouse position
+    val p = s.shapes.get(1)
+
+    println(p)
+    // Create a matrix
+
+    val t : TransformationMatrix = TransformationMatrix(v, 1)
+    // Return the shape, transformed
+    s.apply(t)
+  }
+  
   var text  = ""
 
   def stateMap = DirectedGraph(
-    'StartCategory         -> 'KeyEscape ->         'End
+
+    'Start         -> 'Message ->         'SetDistance
+
   )
 
   //Select shapes
   def stateMachine = Map(
-  'StartCategory -> ((events : List[Event]) => {
-    if (!Drawing.selection.isDefined) {
-      Siigna display "No objects selected"
-      Goto('End)
-    }
-    else {
-      Siigna display "type or click to set offset distance"
-      events match {
 
-        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-        case _ => {
-          originals = Some(Drawing.selection.get)
-          Goto('SetDistance)
-        }
-      }
+  'Start -> ((events : List[Event]) => {
+    //println(events)
+
+    if (!Drawing.selection.isDefined) {
+      println("C")
+      Siigna display "select an object to offset"
+      ForwardTo('Selection)
     }
-  None
+    else if (Drawing.selection.isDefined && Drawing.selection.get.size == 1 && !distancePoint.isDefined){
+      Siigna display "click to set the offset distance"
+      println("goint to point")
+      //TODO: causes SetDistance to run before a point is set.
+      //Controller ! Message(PointGuides(shapeGuide))
+      ForwardTo('Point, false)
+    }
   }),
-  //Forward to Point to get offset point
   'SetDistance -> ((events : List[Event]) => {
     events match {
-      case KeyDown(_ ,_ ) :: tail => Goto('TextInput)
+      // Exit strategy
+      case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
+
       case Message(p : Vector2D) :: tail => {
-        distance = Some(p)
+        println("A")
+        distancePoint = Some(p)
         Goto('End)
       }
+
       case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
       case MouseUp(p, _, _) :: tail => {
         //goto 'Point to get the offset distance
@@ -69,30 +83,21 @@ class Offset extends Module {
       }
       case _ =>
     }
-  None
   }),
-  'TextInput -> ((events : List[Event]) => {
-    events match {
-        case KeyDown(Key.Backspace, _) :: tail => {
-            if (text.length != 0) text = text.substring(0, text.length - 1)
-            else Goto('End)
-        }
-        case KeyDown(Key.Enter, _) :: tail => Goto('End)
-        case KeyDown(Key.Esc, _) :: tail => {
-          text = ""
-          Goto('End)
-        }
-        case KeyDown(key, _) :: tail => {
-          text += key.toChar.toString.toLowerCase
-          Siigna display text
-        }
-        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-        case _ =>
-      }
-      None
-    }),
+
     //do the offset calculation here
     'End -> ((events : List[Event]) => {
-    println("offset here")
+      //get the point on the line that is perpendicular to the distance point
+      if(distancePoint.isDefined) {
+        val transformation : TransformationMatrix = TransformationMatrix(distancePoint.get, 1)
+        Drawing.selection.get.apply(transformation)
+      }
+
+      println("END")
+      println("offset here with distance: "+distancePoint)
+      Drawing.deselect()
   }))
+
+
 }*/
+

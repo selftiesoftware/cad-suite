@@ -30,7 +30,10 @@ class Line extends Module {
       case End(v : Vector2D) :: tail => {
         if (startPoint.isEmpty){
           startPoint = Some(v)
-          Start('Point, "com.siigna.module.base.create", v)
+          val guide : Guide = Guide((v : Vector2D) => {
+            Array(LineShape(startPoint.get, v))
+          })
+          Start('Point,"com.siigna.module.base.create", guide)
         } else {
 
           val lShape = LineShape(startPoint.get,v)
@@ -42,12 +45,12 @@ class Line extends Module {
             }
           }
 
-
           val line = setAttribute[Color]("Color",
             setAttribute[Double]("LineWeight", lShape)
           )
 
           Create(line)
+          startPoint = None
           End
         }
       }
