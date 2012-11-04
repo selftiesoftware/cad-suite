@@ -12,19 +12,12 @@
 /*package com.siigna.module.base.modify
 
 import com.siigna._
-import module.base.create.{PointGuides, PointGuide, AngleSnap}
-import com.siigna.module.base.Menu._
 
 class Move extends Module {
 
   var endPoint : Option[Vector2D] = None
 
-  var ending : Boolean = false
-
-  var gotEndPoint : Boolean = false
-
   //a guide to get Point to draw the shape(s) dynamically
-
   val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
     // CreateCategory a matrix
     val t : TransformationMatrix = if (startPoint.isDefined) {
@@ -38,18 +31,18 @@ class Move extends Module {
   var startPoint : Option[Vector2D] = None
   
   var transformation : Option[TransformationMatrix] = None
-
-  def eventHandler = EventHandler(stateMap, stateMachine)
-
-  def stateMap     = DirectedGraph(
-    'StartCategory -> 'KeyDown -> 'End,
-    'Move  -> 'KeyDown -> 'End
-  )
   
   lazy val stateMachine = Map(
-    'StartCategory -> ((events : List[Event]) => {
-      //TODO: a hack to force startPoint value to None (to draw a correct Guide). Find out why StartPoint is not always reset/ Module does not reach 'End.
-      startPoint = None
+    'Start -> {
+      case Start(_, p : Vector2D) :: tail => {
+        startPoint = Some(p)
+        'Delta
+      }
+      case Start(_, s : Selection) :: tail => {
+
+      }
+    }
+    'StartXX -> ((events : List[Event]) => {
       //start 'Move only if there is a selection
       if (!Drawing.selection.isEmpty) {
         if(moduleCallFromMenu == true) Goto('StartPoint, false)
@@ -175,15 +168,9 @@ class Move extends Module {
 
         Drawing.deselect()
       }
-      //clear the vars
-      ending = false
-      gotEndPoint = false
-      moduleCallFromMenu = false
-      startPoint = None
-      endPoint = None
-      transformation = None
     })
   )
+
   //draw the moving geometry when dragging the mouse
   override def paint(g : Graphics, t : TransformationMatrix) {
     Drawing.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))

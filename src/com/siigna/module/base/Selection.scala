@@ -9,10 +9,13 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-/*package com.siigna.module.base
+package com.siigna.module.base
 
 import com.siigna._
 
+/**
+ * A Module for selecting shapes.
+ */
 class Selection extends Module {
 
   private var box : Option[Rectangle2D] = None
@@ -27,101 +30,74 @@ class Selection extends Module {
   private var startPoint : Option[Vector2D] = None
 
   def hasFullShape = {
-    if(nearestShape.isDefined){
+    if (nearestShape.isDefined) {
       Drawing.select(nearestShape.get._1)
-      Module('Move)
+      Start('Move, "com.siigna.module.modify")
     }
   }
 
   def hasPartShape = {
-    if (ModuleInit.nearestShape.isDefined) {
-      val shape = ModuleInit.nearestShape.get
-      val part = shape._2.getPart(Siigna.mousePosition)
+    if (nearestShape.isDefined) {
+      val shape = nearestShape.get
+      val part = shape._2.getPart(mousePosition)
       Drawing.select(shape._1, part)
-      Module('Move)
-      'End
+      Start('Move, "com.siigna.module.modify", Drawing.selection.get)
     }
   }
 
   /**
    * Examines whether the selection is currently enclosed or not.
    */
-  def isEnclosed : Boolean = startPoint.isDefined && startPoint.get.x <= Siigna.mousePosition.x
+  def isEnclosed : Boolean = startPoint.isDefined && startPoint.get.x <= mousePosition.x
 
-  def stateMap     = DirectedGraph(
-    'StartCategory -> 'MouseDrag   -> 'Box,
-    //'StartCategory -> 'MouseMove   -> 'End,
-    'StartCategory -> 'MouseUp     -> 'End,
-    'Box   -> 'MouseMove   -> 'End,
-    'Box   -> 'MouseUp     -> 'End
-  )
+  def stateMap = Map(
+    'Start -> {
+      //double click selects over a shape selects the full shape. Double clicks are registered in different ways:
+      case MouseDown(_, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) ::
+           MouseMove(_, _ ,_) :: MouseDown(_, MouseButtonLeft, _) :: tail => hasFullShape
 
-  Preload('Move, "com.siigna.module.base.modify")
-  Preload('Copy, "com.siigna.module.base.create")
-  def stateMachine = Map(
-    'StartCategory -> ((events : List[Event]) => {
-      //find nearestShape, if any:
-      val m = Siigna.mousePosition
-      if (Drawing(m).size > 0) {
-        val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-        nearestShape = if (nearest._2.distanceTo(m) < 5) Some(nearest) else None
+      case MouseDown(p, _, _) :: tail => {
+        startPoint = Some(p)
+        hasPartShape
       }
-
-      events match {
-        //double click selects over a shape selects the full shape. Double clicks are registered in different ways:
-        case MouseDown(_, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: MouseMove(_, _ ,_) :: MouseDown(_, MouseButtonLeft, _) :: tail => hasFullShape
-        //case MouseDown(_, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: MouseDown(_, MouseButtonLeft ,_) :: tail => hasFullShape
-        //case MouseDown(_, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: MouseUp(_, MouseButtonLeft ,_) :: tail => hasFullShape
-
-
-        case MouseDown(p, _, _) :: tail => {
-          hasPartShape
-          startPoint = Some(p)
-        }
-        case MouseMove(p, _, _) :: tail => {
-          hasPartShape
-          startPoint = Some(p)
-        }
-        case MouseDrag(p, _, _) :: tail => {
-          hasPartShape
-          startPoint = Some(p)
-        }
-
-        case _ =>
+      case MouseMove(p, _, _) :: tail => {
+        startPoint = Some(p)
+        hasPartShape
       }
-    }),
-    'Box -> ((events : List[Event]) => {
-      if (startPoint.isEmpty) {
-        Goto('End)
-      } else {
-        events match {
-          case MouseDrag(p, _, _) :: tail => {
-            var startX = startPoint.get.x
-            if(startPoint.get.x < p.x) {
-              selectFullyEnclosed = true
-              box = Some(Rectangle2D(startPoint.get, p))
-            }
-            else {
-              selectFullyEnclosed = false
-              box = Some(Rectangle2D(startPoint.get, p))
-            }
-          }
-          case _ => Goto('End)
+      case MouseDrag(p, _, _) :: tail => {
+        startPoint = Some(p)
+        hasPartShape match {
+          case m : ModuleInstance => m
+          case _ => 'Box
         }
       }
-    }),
-    'End -> ((events : List[Event]) => {
-      //if the selection is drawn from left to right, select fully enclosed shapes only.:
-      if (box.isDefined && selectFullyEnclosed == true) {
-        Select(box.get, true)
-        box = None
+      case MouseUp(_, _, _) :: tail => End
+      case e => println(e)
+    },
+    'Box -> {
+      case MouseDrag(p, _, _) :: tail => {
+        if(startPoint.get.x < p.x) {
+          selectFullyEnclosed = true
+          box = Some(Rectangle2D(startPoint.get, p))
+        }
+        else {
+          selectFullyEnclosed = false
+          box = Some(Rectangle2D(startPoint.get, p))
+        }
       }
-      //if the selection is drawn from right to left, select partially enclosed shapes as well.:
-      else if (box.isDefined && selectFullyEnclosed == false) {
-        Select(box.get, false)
-        box = None
-      } else None
-    })
+      case MouseUp(_, _, _) :: tail => {
+        if (box.isDefined && selectFullyEnclosed == true) {
+          Select(box.get.transform(View.deviceTransformation), true)
+        }
+        //if the selection is drawn from right to left, select partially enclosed shapes as well.:
+        else if (box.isDefined && selectFullyEnclosed == false) {
+          Select(box.get.transform(View.deviceTransformation), false)
+        }
+        // End the module
+        End
+      }
+      case e => println(e)
+    }
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
@@ -129,8 +105,8 @@ class Selection extends Module {
     val focused  = "Color" -> "#FF9999".color
 
     if (box.isDefined) {
-      g draw PolylineShape(box.get).setAttribute("Color" -> (if (isEnclosed) enclosed else focused)).transform(t)
+      g draw PolylineShape(box.get).setAttribute("Color" -> (if (isEnclosed) enclosed else focused))
     }
 
   }
-}*/
+}
