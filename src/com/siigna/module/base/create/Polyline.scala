@@ -47,6 +47,10 @@ class Polyline extends Module {
               case None => shape// Option isn't set. Do nothing
             }
           }
+          val guide : Guide = Guide((v : Vector2D) => {
+            Array(PolylineShape(points :+ v))
+          })
+          Start('Point,"com.siigna.module.base.create", guide)
         }
       }
 
@@ -73,59 +77,3 @@ class Polyline extends Module {
     })
 
 }
-
-  /**
-  def stateMachine = Map(
-  'StartCategory -> ((events : List[Event]) => {
-    //Log.level += Log.DEBUG + Log.SUCCESS
-    events match {
-      case MouseDown(_, MouseButtonRight, _) :: tail => {
-        Goto('End)
-      }
-      case _ => Module('Point)
-    }
-  }),
-  'SetPoint -> ((events : List[Event]) => {
-
-    set("activeLineWeight", "StrokeWidth")
-    set("activeColor", "Color")
-
-    def getPointGuide = (p : Vector2D) => {
-      if(!points.isEmpty) {
-        set("activeLineWeight", "StrokeWidth")
-        set("activeColor", "Color")
-        PolylineShape(points :+ p).setAttributes(attributes)
-    }
-      else PolylineShape(Vector2D(0,0),Vector2D(0,0))
-    }
-    events match {
-      // Exit strategy
-      case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
-
-      case Message(p : Vector2D) :: tail => {
-        // Save the point
-        points = points :+ p
-        // Define shape if there is enough points
-        if (points.size > 1) {
-          shape = Some(PolylineShape(points))
-        }
-        Module('Point)
-        Controller ! Message(PointGuide(getPointGuide))
-      }
-
-      // Match on everything else
-      case _ => {
-        Module('Point)
-        Controller ! Message(PointGuide(getPointGuide))
-      }
-    }
-  }),
-  'End -> ((events : List[Event]) => {
-    if(shape.isDefined) CreateCategory(shape.get.setAttributes(attributes))
-
-    //clear the vars
-    com.siigna.module.base.ModuleInit.previousModule = Some('Polyline)
-    shape = None
-    points = List()
-  }))
-}*/
