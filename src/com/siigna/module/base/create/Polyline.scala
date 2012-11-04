@@ -9,27 +9,72 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-/*package com.siigna.module.base.create
+package com.siigna.module.base.create
 
 import com.siigna._
+import app.Siigna
+import java.awt.Color
 
 class Polyline extends Module {
 
+  var startPoint: Option[Vector2D] = None
+  private var points   = List[Vector2D]()
   var attributes : Attributes = Attributes()
   def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
-
-  // The points of the polyline
-  private var points   = List[Vector2D]()
 
   // The polylineshape so far
   private var shape : Option[PolylineShape] = None
 
-  val eventHandler = EventHandler(stateMap, stateMachine)
+  val stateMap: StateMap = Map(
+    'Start -> {
+      case End(v : Vector2D) :: tail => {
+        //Hvis status fra returnerende enhed er END, er der besked tilbage fra point med et nyt punkt.
+        println("Starter polyline-modul, med END")
+        points = points :+ v
+        if (startPoint.isEmpty){
+          //Hvis startpunktet ikke er sat, er det første polylineshapedel, vi er i gang med at tegne.
+          startPoint = Some(v)
+          val guide : Guide = Guide((v : Vector2D) => {
+            Array(PolylineShape(startPoint.get, v))
+          })
+          Start('Point,"com.siigna.module.base.create", guide)
+        } else {
+          //Hvis startpunktet er sat, er det ikke første polylineshapedel, vi er i gang med at tegne.
+          var plShape = PolylineShape(points :+ v)
+          def setAttribute[T : Manifest](name:String, shape:Shape) = {
+            Siigna.get(name) match {
+              case s : Some[T] => shape.addAttribute(name, s.get)
+              case None => shape// Option isn't set. Do nothing
+            }
+          }
+        }
+      }
 
-  def stateMap = DirectedGraph(
-    'StartCategory    ->   'Message  ->    'SetPoint
-  )
+      case End :: tail => {
+        var plShape = PolylineShape(points)
+        def setAttribute[T : Manifest](name:String, shape:Shape) = {
+          Siigna.get(name) match {
+            case s : Some[T] => shape.addAttribute(name, s.get)
+            case None => shape// Option isn't set. Do nothing
+          }
+        }
+        val polyLine = setAttribute[Color]("Color",
+          setAttribute[Double]("LineWeight", plShape)
+        )
+      Create(polyLine)
+      startPoint = None
+      points = List()
+      End
+      }
+      case _ => {
+        println("Starter polyline-modul, ikke med END")
+        Start('Point,"com.siigna.module.base.create")
+      }
+    })
 
+}
+
+  /**
   def stateMachine = Map(
   'StartCategory -> ((events : List[Event]) => {
     //Log.level += Log.DEBUG + Log.SUCCESS

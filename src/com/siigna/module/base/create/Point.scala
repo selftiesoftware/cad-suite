@@ -99,9 +99,15 @@ class Point extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
-      case MouseDown(p,_,_)::tail => {
-        End(p.transform(View.deviceTransformation))
+      case MouseDown(p,button,modifier)::tail => {
+        if (button==MouseButtonLeft) {
+          End(p.transform(View.deviceTransformation))
+        } else {
+          // Exit on right mouse button
+          End
+        }
       }
+
       // Check for PointGuide
       case Start(_ ,g : Guide) :: tail => {
         pointGuide = Some(g)
@@ -122,6 +128,7 @@ class Point extends Module {
 
       // Exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
+
       case KeyDown(Key.Backspace, _) :: tail => {
         if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
         else if (coordinateX.isDefined) {
