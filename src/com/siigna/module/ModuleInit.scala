@@ -32,7 +32,6 @@ class ModuleInit extends Module {
         Start(module) // Forward
       }
       case MouseDown(_, MouseButtonRight, _) :: tail => {
-        println("Starting menu")
         Start('Menu, "com.siigna.module.base")
       }
       case KeyDown('c', _) :: KeyUp('p', _) :: tail => {

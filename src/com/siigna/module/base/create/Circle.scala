@@ -14,14 +14,16 @@ package com.siigna.module.base.create
 /* 2012 (C) Copyright by Siigna, all rights reserved. */
 
 import com.siigna._
+import app.Siigna
+import java.awt.Color
 
 class Circle extends Module {
 
-  var attributes : Attributes = Attributes()
-  def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
+  val c = CircleShape(Vector2D(0, 0), 50)
+
+  var r = TransformationMatrix()
 
   var center : Option[Vector2D] = None
-  var radius : Option[Vector2D] = None
 
   def stateMap = Map(
     //StartCategory: Defines a centerpoint for the circle and forwards to 'SetRadius
@@ -29,59 +31,33 @@ class Circle extends Module {
       case events => {
         events match {
           case MouseDown(_, MouseButtonRight, _) :: tail => 'End
-          case Message(p : Vector2D) :: tail => 'SetRadius
-          case _ => {
-            Module('Point, "com.siigna.module.base.create")
-          }
-        }
-        None
-      }
-    },
-
-    //SetRadius: Listens for the radius of the circle and forwards to 'End
-    'SetRadius -> {
-      case events => {
-
-        val getCircleGuide : Vector2D => CircleShape = (v : Vector2D) => {
-          if (center.isDefined) {
-            set("activeLineWeight", "StrokeWidth")
-            set("activeColor", "Color")
-            CircleShape(center.get, v).setAttributes(attributes)
-          } else CircleShape(Vector2D(0,0), Vector2D(0,0))
-        }
-
-        events match {
-          case Message(p : Vector2D) :: tail => {
-            if(center.isDefined) {
-              radius = Some(p)
-              'End
-            } else if (!center.isDefined) {
+          case End(p : Vector2D) :: tail => {
+            if (center.isEmpty) {
               center = Some(p)
-              //Controller ! Message(PointGuide(getCircleGuide))
-              Module('Point, "com.siigna.module.base.create")
+              Start('Point, "com.siigna.module.base.create",
+                Guide(v => Traversable(CircleShape(p, math.abs((p - v).x))))
+              )
+            } else {
+              val circle = CircleShape(center.get, p)
+
+              def setAttribute[T : Manifest](name:String, shape:Shape) = {
+                Siigna.get(name) match {
+                  case s : Some[T] => shape.addAttribute(name, s.get)
+                  case None => shape// Option isn't set. Do nothing
+                }
+              }
+
+              Create(setAttribute[Color]("Color",
+                setAttribute[Double]("LineWeight", circle)
+              ))
+              End
             }
           }
-          case _ =>
+          case _ => {
+            Start('Point, "com.siigna.module.base.create")
+          }
         }
       }
-    },
-
-    'End -> {
-      case _ =>
-        //if(Siigna.double("activeLineWeight").isDefined && center.isDefined && radius.isDefined) {
-        //  CreateCategory(CircleShape(center.get,radius.get).setAttribute("StrokeWidth" -> Siigna.double("activeLineWeight").get))
-        //}
-        //else CreateCategory(CircleShape(center.get,radius.get))
-
-        //create the circle
-        set("activeLineWeight", "StrokeWidth")
-        set("activeColor", "Color")
-
-        if(center.isDefined && radius.isDefined) Create(CircleShape(center.get,radius.get).setAttributes(attributes))
-
-        //clear the points list
-        center = None
-        radius = None
     }
   )
 
