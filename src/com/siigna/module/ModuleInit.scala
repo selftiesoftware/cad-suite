@@ -50,7 +50,7 @@ class ModuleInit extends Module {
         Drawing.redo()
       }
       // Forward to the last initiated module
-      case KeyDown(Key.Space, _) :: tail => if (lastModule.isDefined) Start(lastModule.get.copy())
+      case KeyDown(Key.Space, _) :: tail => if (lastModule.isDefined) Start(lastModule.get.copy)
     }
   )
 
