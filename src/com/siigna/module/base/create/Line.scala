@@ -30,8 +30,8 @@ class Line extends Module {
       case End(v : Vector2D) :: tail => {
         if (startPoint.isEmpty){
           startPoint = Some(v)
-          val guide : Guide = Guide((v : Vector2D) => {
-            Array(LineShape(startPoint.get, v))
+          val guide : PointGuide = Guide((v : Vector2D) => {
+            startPoint, Array(LineShape(startPoint.get, v))
           })
           Start('Point,"com.siigna.module.base.create", guide)
         } else {

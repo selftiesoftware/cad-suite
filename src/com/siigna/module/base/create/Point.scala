@@ -112,6 +112,10 @@ class Point extends Module {
       case Start(_ ,g : Guide) :: tail => {
         pointGuide = Some(g)
       }
+      case Start(_ ,g : PointGuide) :: tail => {
+        pointGuide = Some(g)
+      }
+
       // Check for continued MouseDown
       //case Message(g : Guide) :: Message(p : Vector2D) :: MouseDown(_, MouseButtonLeft, _) :: tail => {
       //  pointGuide = Some(g)
@@ -218,8 +222,8 @@ class Point extends Module {
         if (coordinateX.isDefined && coordinateY.isDefined ) {
           println("IN END WITH COORDS")
           //convert the relative coordinates a global point by adding the latest point
-          val x = coordinateX.get + difference.x
-          val y = coordinateY.get + difference.y
+          val x = coordinateX.get
+          val y = coordinateY.get
 
           //add the typed point to the polyline
           point = Some(Vector2D(x,y))
@@ -289,12 +293,12 @@ class Point extends Module {
  * A class used to draw guides in the point module.
  */
 
-case class Guide( guide : Vector2D => Traversable[Shape])
-/*
-case class PointGuides(guide : Vector2D => Traversable[Shape]) extends Guide{
-  def apply(v : Vector2D) = guide(v)
-}
+case class Guide(guide : Vector2D => Traversable[Shape])
 
+//a case class where the point can be extracted.
+case class PointGuide(point : Vector2D , guide : Vector2D => Traversable[Shape])
+
+/*
 object PointGuide {
   def apply(part : PartialShape) = new PointGuide(p => part(TransformationMatrix(p, 1)))
 }*/
