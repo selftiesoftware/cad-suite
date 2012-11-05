@@ -51,7 +51,9 @@ class Arc extends Module {
                 Guide(v => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
               )
             } else {
-              
+
+              //BUGFIX NEEDED: Crashes if tries to draw on same start or end point.
+
               val arc = ArcShape(startPoint.get,p,endPoint.get)
               
               def setAttribute[T : Manifest](name:String, shape:Shape) = {

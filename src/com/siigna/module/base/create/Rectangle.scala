@@ -38,6 +38,8 @@ class Rectangle extends Module {
           End
         }
       }
+      //If End with no point: End module without drawing anything.
+      case End :: tail => End
      //get the first point
       case _ => Start('Point,"com.siigna.module.base.create")
     }
