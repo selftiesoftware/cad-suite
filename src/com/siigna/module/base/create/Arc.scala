@@ -9,6 +9,90 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
+package com.siigna.module.base.create
+
+/* 2012 (C) Copyright by Siigna, all rights reserved. */
+
+import com.siigna._
+import app.Siigna
+import java.awt.Color
+
+class Arc extends Module {
+
+  var r = TransformationMatrix()
+
+  var startPoint : Option[Vector2D] = None
+  var endPoint : Option[Vector2D] = None
+
+  def stateMap = Map(
+    //StartCategory: Defines a start point for the arc and forwards to 'SetEndPoint
+    'Start -> {
+      case events => {
+        events match {
+          case MouseDown(_, MouseButtonRight, _) :: tail => 'End
+          case End(p : Vector2D) :: tail => {
+            if (startPoint.isEmpty) {
+              println("Startpunkt sat")
+              startPoint = Some(p)
+              Start('Point, "com.siigna.module.base.create",
+                //Guide(v => Traversable(CircleShape(p, math.abs((p - v).x))))
+                Guide(v => Traversable(LineShape(p,v)))
+              )
+            } else if (endPoint.isEmpty) {
+              println("Slutpunkt sat")
+              println("Startpunkt: " + startPoint.get)
+              println("Slutpunkt: " + p)
+              println("forskel mellem start og slut: " + (((p - startPoint.get))) )
+              println("Start plus forskel mellem start og slut: " + (startPoint.get + Vector2D(((p.x - startPoint.get.x)/2).toInt,((p.y - startPoint.get.y)/2).toInt) ))
+
+              endPoint = Some(p)
+              Start('Point, "com.siigna.module.base.create",
+                //Guide(v => Traversable(CircleShape(p, math.abs((p - v).x))))
+                Guide(v => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
+              )
+            } else {
+              
+              val arc = ArcShape(startPoint.get,p,endPoint.get)
+              
+              def setAttribute[T : Manifest](name:String, shape:Shape) = {
+                Siigna.get(name) match {
+                  case s : Some[T] => shape.addAttribute(name, s.get)
+                  case None => shape// Option isn't set. Do nothing
+                }
+              }
+
+              Create(setAttribute[Color]("Color",
+                setAttribute[Double]("LineWeight", arc)
+              ))
+              End
+            }
+          }
+          //Hvis der er trykket escape eller højre museknap lukkes modulet, selvom der ikke er tegnet noget endnu
+          case End :: tail => End
+          case _ => {
+            println("Ukendt kommando i Arc-modulet")
+            Start('Point, "com.siigna.module.base.create")
+          }
+        }
+      }
+    }
+  )
+
+}
+
+
+
+/*
+ * Copyright (c) 2012. Siigna is released under the creative common license by-nc-sa. You are free
+ * to Share — to copy, distribute and transmit the work,
+ * to Remix — to adapt the work
+ *
+ * Under the following conditions:
+ * Attribution —  You must attribute the work to http://siigna.com in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work).
+ * Noncommercial — You may not use this work for commercial purposes.
+ * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
+ */
+
 /*package com.siigna.module.base.create
 
 /* 2012 (C) Copyright by Siigna, all rights reserved. */
