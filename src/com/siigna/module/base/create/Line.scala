@@ -50,7 +50,6 @@ class Line extends Module {
           )
 
           Create(line)
-          startPoint = None
           End
         }
       }
