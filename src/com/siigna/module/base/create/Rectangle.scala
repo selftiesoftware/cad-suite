@@ -12,66 +12,34 @@
 package com.siigna.module.base.create
 
 import com.siigna._
-import app.controller.Controller
 
 class Rectangle extends Module {
 
-  var attributes : Attributes = Attributes()
-
   var points = List[Vector2D]()
+  val stateMap: StateMap = Map(
 
-  def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
-
-  def stateMap = Map(
-    //TODO: draw a dummy rectangle of eg. 1/15 * 1/15 of the paper height/width dynamically before first point is set
     'Start -> {
-      case events => {
-        set("activeLineWeight", "StrokeWidth")
-        set("activeColor", "Color")
+      case End(v : Vector2D) :: tail => {
+        //use the first point
+        if (points.length == 0){
+          points = points :+ v
 
-        events match {
-          case MouseDown(_, MouseButtonRight, _) :: tail => 'End
-          case Message(p : Vector2D) :: tail => 'SetPoint
-          case _ => Module('Point, "com.siigna.module.base.create")
-
-        }
-      }
-    },
-    'SetPoint -> {
-      case events => {
-        //A function that passes a rectangleShape to the point module to be drawn dynamically
-        //from the first point to the mouse position
-        val getRectGuide : Vector2D => PolylineShape = (v : Vector2D) => {
-          if(points.size > 0) {
-            PolylineShape(Rectangle2D(points.head, v)).setAttributes(attributes)
+          //if 'Point returns a point, use it in a Pointguide:
+          val guide : Guide = Guide((v : Vector2D) => {
+            Array(PolylineShape(Rectangle2D(points(0), v)))
+          })
+          Start('Point,"com.siigna.module.base.create", guide)
           }
-          //TODO: a hack to prevent Error when calling Rectangle: Unexpected error in processing state map
-          else PolylineShape(Rectangle2D(Vector2D(0,0), Vector2D(0,0)))
-        }
-
-        events match {
-          case Message(point : Vector2D) :: tail => {
-            if(points.length == 1) {
-              points = points :+ point
-              'End
-            } else if (points.length == 0) {
-              points = points :+ point
-              //Controller ! Message(PointGuide(getRectGuide))
-              Module('Point, "com.siigna.module.base.create")
-            }
-          }
-          case _ =>
+        //use second point
+        else if (points.length == 1) {
+          points = points :+ v
+          //create the rectangle
+          Create(PolylineShape(Rectangle2D(points(0), points(1))))
+          End
         }
       }
-    },
-    'End -> {
-      case _ => {
-        if(!points.isEmpty) Create(PolylineShape(Rectangle2D(points(0), points(1))).setAttributes(attributes))
-
-        // Clear variables
-        points = List[Vector2D]()
-      }
+     //get the first point
+      case _ => Start('Point,"com.siigna.module.base.create")
     }
   )
-
 }
