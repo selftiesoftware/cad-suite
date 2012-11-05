@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2012. Siigna is released under the creative common license by-nc-sa. You are free
- * to Share — to copy, distribute and transmit the work,
- * to Remix — to adapt the work
- *
- * Under the following conditions:
- * Attribution —  You must attribute the work to http://siigna.com in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work).
- * Noncommercial — You may not use this work for commercial purposes.
- * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
- */
+* Copyright (c) 2012. Siigna is released under the creative common license by-nc-sa. You are free
+* to Share — to copy, distribute and transmit the work,
+* to Remix — to adapt the work
+*
+* Under the following conditions:
+* Attribution —  You must attribute the work to http://siigna.com in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work).
+* Noncommercial — You may not use this work for commercial purposes.
+* Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
+*/
 
 package com.siigna.module.base.create
 
@@ -47,10 +47,10 @@ class Point extends Module {
 
   //a function to add a typed distance to a line, after the Angle Gizmo has redined a radial.
   //private def lengthVector(length : Double) : Vector2D = {
-    //a vector that equals the length of the typed distance, rotated by the current radial snap setting.
-    //var rotatedVector = Vector2D(math.sin(currentSnap.get.degree * math.Pi/180), math.cos(currentSnap.get.degree * math.Pi/180)) * length
-    //and transformed by the center point of the offset from the Angle snap gizmo.
-    //rotatedVector + currentSnap.get.center
+  //a vector that equals the length of the typed distance, rotated by the current radial snap setting.
+  //var rotatedVector = Vector2D(math.sin(currentSnap.get.degree * math.Pi/180), math.cos(currentSnap.get.degree * math.Pi/180)) * length
+  //and transformed by the center point of the offset from the Angle snap gizmo.
+  //rotatedVector + currentSnap.get.center
 
 
   /**
@@ -99,9 +99,15 @@ class Point extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
-      case MouseDown(p,_,_)::tail => {
-        End(p.transform(View.deviceTransformation))
+      case MouseDown(p,button,modifier)::tail => {
+        if (button==MouseButtonLeft) {
+          End(p.transform(View.deviceTransformation))
+        } else {
+          // Exit on right mouse button
+          End
+        }
       }
+
       // Check for PointGuide
       case Start(_ ,g : Guide) :: tail => {
         pointGuide = Some(g)
@@ -113,7 +119,7 @@ class Point extends Module {
       //}
 
       //case Message(a : AngleSnap) :: tail => {
-        //currentSnap = Some(a)
+      //currentSnap = Some(a)
       //  eventParser.snapTo(a)
       //}
 
@@ -122,6 +128,7 @@ class Point extends Module {
 
       // Exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
+
       case KeyDown(Key.Backspace, _) :: tail => {
         if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
         else if (coordinateX.isDefined) {
@@ -253,20 +260,20 @@ class Point extends Module {
     // Draw a point guide if a previous point (or guide) is found.
     //if (pointGuide.isDefined || previousPoint.isDefined) {
 
-      //  } else {
-      //the last field _ is replaceable depending on how the point is constructed
-      //  p => Traversable(LineShape(previousPoint.get, p))
+    //  } else {
+    //the last field _ is replaceable depending on how the point is constructed
+    //  p => Traversable(LineShape(previousPoint.get, p))
 
     //  }
 
-      // DRAW THE POINT GUIDE BASED ON THE INFORMATION AVAILABLE:
+    // DRAW THE POINT GUIDE BASED ON THE INFORMATION AVAILABLE:
 
-      //If tracking is active
+    //If tracking is active
     //  if(!coordinateValue.isEmpty && mouseLocation.isDefined && eventParser.isTracking == true) {
     //    var trackPoint = Track.getPointFromDistance(coordinateValue.toDouble)
     //    guide(trackPoint.get).foreach(s => g draw s.transform(t))
     //  }
-      //If a set of coordinates have been typed
+    //If a set of coordinates have been typed
     //  if (x.isDefined && y.isDefined) guide(Vector2D(x.get + difference.x, y.get)).foreach(s => g draw s.transform(t))
     //  else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && !currentSnap.isDefined && eventParser.isTracking == false) guide(Vector2D(x.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
     //  else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && currentSnap.isDefined && eventParser.isTracking == false) guide(lengthVector(x.get - difference.x)).foreach(s => g draw s.transform(t))
@@ -279,7 +286,7 @@ class Point extends Module {
 }
 
 /**
-  * A class used to draw guides in the point module.
+ * A class used to draw guides in the point module.
  */
 
 case class Guide( guide : Vector2D => Traversable[Shape])
