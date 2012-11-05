@@ -55,20 +55,24 @@ class Polyline extends Module {
       }
 
       case End :: tail => {
-        var plShape = PolylineShape(points)
-        def setAttribute[T : Manifest](name:String, shape:Shape) = {
-          Siigna.get(name) match {
-            case s : Some[T] => shape.addAttribute(name, s.get)
-            case None => shape// Option isn't set. Do nothing
+        //Hvis der er tegnet mindst to punkter tegnes linjen
+        if (points.length > 1) {
+          var plShape = PolylineShape(points)
+          def setAttribute[T : Manifest](name:String, shape:Shape) = {
+            Siigna.get(name) match {
+              case s : Some[T] => shape.addAttribute(name, s.get)
+              case None => shape// Option isn't set. Do nothing
+            }
           }
+          val polyLine = setAttribute[Color]("Color",
+            setAttribute[Double]("LineWeight", plShape)
+          )
+          Create(polyLine)
         }
-        val polyLine = setAttribute[Color]("Color",
-          setAttribute[Double]("LineWeight", plShape)
-        )
-        Create(polyLine)
-        startPoint = None
-        points = List()
-        End
+        //Under alle omstændigheder lukkes modulet - om der er tegnet en polylinje eller ej.
+      startPoint = None
+      points = List()
+      End
       }
       case _ => {
         println("Starter polyline-modul, ikke med END")

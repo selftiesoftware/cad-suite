@@ -38,7 +38,7 @@ class Circle extends Module {
                 Guide(v => Traversable(CircleShape(p, math.abs((p - v).x))))
               )
             } else {
-              val circle = CircleShape(center.get, p)
+              val circle = CircleShape(center.get, math.abs((center.get - p).x))
 
               def setAttribute[T : Manifest](name:String, shape:Shape) = {
                 Siigna.get(name) match {
@@ -53,6 +53,8 @@ class Circle extends Module {
               End
             }
           }
+          //Hvis der er trykket escape eller højre museknap lukkes modulet, selvom der ikke er tegnet noget endnu
+          case End :: tail => End
           case _ => {
             Start('Point, "com.siigna.module.base.create")
           }
