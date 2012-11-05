@@ -38,7 +38,7 @@ class Circle extends Module {
                 Guide(v => Traversable(CircleShape(p, math.abs((p - v).x))))
               )
             } else {
-              val circle = CircleShape(center.get, p)
+              val circle = CircleShape(center.get, math.abs((center.get - p).x))
 
               def setAttribute[T : Manifest](name:String, shape:Shape) = {
                 Siigna.get(name) match {
