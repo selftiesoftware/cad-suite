@@ -53,8 +53,6 @@ class Line extends Module {
           End
         }
       }
-      //Hvis der er trykket escape eller højre museknap lukkes modulet, selvom der ikke er tegnet en linje endnu
-      case End :: tail => End
       case _ => Start('Point,"com.siigna.module.base.create")
     }
   )
