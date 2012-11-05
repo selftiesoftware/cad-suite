@@ -112,9 +112,9 @@ class Point extends Module {
       case Start(_ ,g : Guide) :: tail => {
         pointGuide = Some(g)
       }
-      case Start(_ ,g : PointGuide) :: tail => {
+      /*case Start(_ ,g : PointGuide) :: tail => {
         pointGuide = Some(g)
-      }
+      } */
 
       // Check for continued MouseDown
       //case Message(g : Guide) :: Message(p : Vector2D) :: MouseDown(_, MouseButtonLeft, _) :: tail => {
