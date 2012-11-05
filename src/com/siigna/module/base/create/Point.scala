@@ -101,6 +101,7 @@ class Point extends Module {
     'Start -> {
       case MouseDown(p,button,modifier)::tail => {
         if (button==MouseButtonLeft) {
+          println("B")
           End(p.transform(View.deviceTransformation))
         } else {
           // Exit on right mouse button
@@ -112,9 +113,9 @@ class Point extends Module {
       case Start(_ ,g : Guide) :: tail => {
         pointGuide = Some(g)
       }
-      case Start(_ ,g : PointGuide) :: tail => {
-        pointGuide = Some(g)
-      }
+     // case Start(_ ,g : Guide) :: tail => {
+     //   pointGuide = Some(g)
+     // }
 
       // Check for continued MouseDown
       //case Message(g : Guide) :: Message(p : Vector2D) :: MouseDown(_, MouseButtonLeft, _) :: tail => {
