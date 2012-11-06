@@ -19,7 +19,6 @@ import java.awt.Color
 /**
  * A line module (draws one line-segment)
  */
-
 class Line extends Module {
 
   //text input for X values
@@ -36,7 +35,6 @@ class Line extends Module {
   val guide : Guide = Guide((v : Vector2D) => {
     Array(LineShape(startPoint.get, v))
   })
-
   var startPoint: Option[Vector2D] = None
 
   // Save the X value, if any
@@ -86,7 +84,6 @@ class Line extends Module {
       }
       //goto second coordinate if ENTER, COMMA, or TAB is pressed
       case End(KeyDown(Key.Enter | Key.Tab | (','), _)) :: tail => {
-        println("got comma")
         //if noting is entered
         if (coordinateX.isEmpty && coordinateValue.length == 0) End
         //when ENTER is pressed, and a value is set, this value is passed as the first coordinate relative to 0,0
@@ -98,7 +95,11 @@ class Line extends Module {
         else if (coordinateY.isEmpty && coordinateValue.length > 0) {
           coordinateY = Some(java.lang.Double.parseDouble(coordinateValue))
           coordinateValue = ""
-          'End
+
+          //if a full set of coordinates are present, draw the shape.
+          Create(LineShape(startPoint.get, Vector2D(coordinateX.get + startPoint.get.x,coordinateY.get+startPoint.get.y)))
+
+          End
         }
       }
       //if point returns a keyDown - that is not previously intercepted
@@ -137,14 +138,6 @@ class Line extends Module {
         //Display the message
         if(message.isDefined) Siigna display(message.get)
         }
-      //case _ => {
-      //  println("not char")
-      //  if (startPoint.isDefined) {
-      //    Start('Point,"com.siigna.module.base.create", guide)
-      //    } else {
-      //    Start('Point,"com.siigna.module.base.create")
-      //  }
-      //}
 
       //if point returns a mouseDown
       case End(m : MouseDown) :: tail => {
@@ -162,23 +155,6 @@ class Line extends Module {
     }
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
-
-  // Draw a point guide with the new point as a parameter
-
-  //input:
-  //   Vector2D. A guide (the current point / mouse position
-
-  //return:
-  // Immutable Shape : if the calling module has passed a shape it is drawn, including the dynamic part.
-
-  // Draw a point guide if a previous point (or guide) is found.
-  //if (pointGuide.isDefined || previousPoint.isDefined) {
-
-  //  } else {
-  //the last field _ is replaceable depending on how the point is constructed
-  //  p => Traversable(LineShape(previousPoint.get, p))
-
-  //  }
 
   // DRAW THE POINT GUIDE BASED ON THE INFORMATION AVAILABLE:
 
