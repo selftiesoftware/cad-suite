@@ -84,9 +84,26 @@ class Line extends Module {
           End
         }
       }
-      //if point returns a keyDown
-      case End(KeyDown(code, _)) :: tail => {
+      //goto second coordinate if ENTER, COMMA, or TAB is pressed
+      case End(KeyDown(Key.Enter | Key.Tab | (','), _)) :: tail => {
+        println("got comma")
+        //if noting is entered
+        if (coordinateX.isEmpty && coordinateValue.length == 0) End
+        //when ENTER is pressed, and a value is set, this value is passed as the first coordinate relative to 0,0
+        else if (coordinateX.isEmpty && coordinateValue.length > 0) {
+          coordinateX = Some(java.lang.Double.parseDouble(coordinateValue))
 
+          coordinateValue = ""
+        }
+        else if (coordinateY.isEmpty && coordinateValue.length > 0) {
+          coordinateY = Some(java.lang.Double.parseDouble(coordinateValue))
+          coordinateValue = ""
+          'End
+        }
+      }
+      //if point returns a keyDown - that is not previously intercepted
+      case End(KeyDown(code, _)) :: tail => {
+        println(coordinateValue)
         //get the input from the keyboard if it is numbers, (-) or (.)
           val char = code.toChar
           if (char.isDigit)
@@ -95,6 +112,30 @@ class Line extends Module {
             coordinateValue += "."
           else if (char == '-' && coordinateValue.length < 1)
             coordinateValue = "-"
+
+          val message = {
+            if (coordinateValue.length > 0 ) {
+
+              val x = if (coordinateX.isDefined) "%.2f" format coordinateX.get
+              else coordinateValue
+              val y = if (coordinateY.isDefined) "%.2f" format coordinateY.get
+              else if (coordinateX.isDefined) coordinateValue
+              else ""
+
+              Some("point (X: "+x+", Y: "+y+").")
+
+              //Display the coords when typed.
+            } else if (coordinateX.isDefined) {
+              //var prevModule = com.siigna.module.base.ModuleInit.lastModule.get.toString
+              Some("point (X: "+x+")")
+            }
+            else {
+              None
+            }
+          }
+
+        //Display the message
+        if(message.isDefined) Siigna display(message.get)
         }
       //case _ => {
       //  println("not char")
