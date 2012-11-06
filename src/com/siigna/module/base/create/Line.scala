@@ -21,18 +21,12 @@ import java.awt.Color
  */
 class Line extends Module {
 
-  //text input for X values
-  private var coordinateX : Option[Double] = None
+  private var coordinateX : Option[Double] = None   //text input for X values
+  private var coordinateY : Option[Double] = None   //text input for Y values
 
-  //text input for Y values
-  private var coordinateY : Option[Double] = None
+  private var coordinateValue : String = ""  //input string for distances
 
-  //input string for distances
-  private var coordinateValue : String = ""
-
-  private def difference : Vector2D = Vector2D(0, 0)
-
-  val guide : Guide = Guide((v : Vector2D) => {
+  var guide : Guide = Guide((v : Vector2D) => {
     Array(LineShape(startPoint.get, v))
   })
   var startPoint: Option[Vector2D] = None
@@ -41,18 +35,18 @@ class Line extends Module {
   def x : Option[Double] = if (!coordinateX.isEmpty)
     coordinateX
   else if (coordinateValue.length > 0 && coordinateValue != "-")
-    Some(java.lang.Double.parseDouble(coordinateValue) + difference.x)
+    Some(java.lang.Double.parseDouble(coordinateValue))
   else if (coordinateX.isDefined)
-    Some(coordinateX.get + difference.x)
+    Some(coordinateX.get)
   else None
 
   // Save the Y value, if any
   def y : Option[Double] = if (coordinateY.isDefined)
     coordinateY
   else if (coordinateX.isDefined && coordinateValue.length > 0 && coordinateValue != "-")
-    Some(java.lang.Double.parseDouble(coordinateValue) + difference.y)
+    Some(java.lang.Double.parseDouble(coordinateValue))
   else if (coordinateY.isDefined)
-    Some(coordinateY.get + difference.y)
+    Some(coordinateY.get)
   else None
 
   val stateMap: StateMap = Map(
@@ -143,35 +137,28 @@ class Line extends Module {
       case End(m : MouseDown) :: tail => {
         println("Mouse button pressed - other than left..." + m)
         if (startPoint.isDefined) {
-          val guide : Guide = Guide((v : Vector2D) => {
+          guide = Guide((v : Vector2D) => {
             Array(LineShape(startPoint.get, v))
           })
           Start('Point,"com.siigna.module.base.create", guide)
         } else {
-          Start('Point,"com.siigna.module.base.create")
+          Start('Point,"com.siigna.module.base.create", guide)
         }
       }
-      case _ => Start('Point,"com.siigna.module.base.create")
+      case _ => {
+      }
+      //if points are in the process of being typed, then send the current value in a point guide.
+      if(x.isDefined && !y.isDefined){
+        guide = Guide((v : Vector2D) => {
+          Array(LineShape(startPoint.get, Vector2D(x.get + startPoint.get.x,startPoint.get.y)))
+        })
+      }
+      else if(x.isDefined && y.isDefined){
+        guide = Guide((v : Vector2D) => {
+          Array(LineShape(startPoint.get, Vector2D(x.get + startPoint.get.x,y.get + startPoint.get.y)))
+        })
+      }
+      Start('Point,"com.siigna.module.base.create", guide)
     }
   )
-  override def paint(g : Graphics, t : TransformationMatrix) {
-
-  // DRAW THE POINT GUIDE BASED ON THE INFORMATION AVAILABLE:
-
-  //If tracking is active
-  //  if(!coordinateValue.isEmpty && mouseLocation.isDefined && eventParser.isTracking == true) {
-  //    var trackPoint = Track.getPointFromDistance(coordinateValue.toDouble)
-  //    guide(trackPoint.get).foreach(s => g draw s.transform(t))
-  //  }
-  //If a set of coordinates have been typed
-
-    //if (x.isDefined && y.isDefined && startPoint.isDefined) guide(Vector2D(x.get + difference.x, y.get)).foreach(s => g draw s.transform(t))
-    //else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && !currentSnap.isDefined && eventParser.isTracking == false) guide(Vector2D(x.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
-    //else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && currentSnap.isDefined && eventParser.isTracking == false) guide(lengthVector(x.get - difference.x)).foreach(s => g draw s.transform(t))
-    //else if (x.isDefined && mouseLocation.isDefined && filteredX.isDefined  && eventParser.isTracking == false) guide(Vector2D(filteredX.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
-    //else if (mouseLocation.isDefined  && coordinateValue.isEmpty) guide(mouseLocation.get).foreach(s => g draw s.transform(t))
-  //if (coordinateValue.isEmpty) guide(mousePosition).foreach(s => g draw s.transform(t))
-
-  //  else None
-  }
 }
