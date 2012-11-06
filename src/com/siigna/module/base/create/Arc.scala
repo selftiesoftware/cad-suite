@@ -77,6 +77,19 @@ class Arc extends Module {
               )
             }
           }
+
+          //If point module returns a key-pres at the event when it ends:
+          case End(k : KeyDown) :: tail => {
+            // If the key is backspace without modification (shift etc), and a second point is set, it is deleted:
+            if (k == KeyDown(Key.Backspace,ModifierKeys(false,false,false))) {
+              if (endPoint.isDefined) endPoint = None
+            }
+            //And no matter what, a new guide is returned (Line to point from start to end-point, since any second point has been deleted)
+            Start('Point, "com.siigna.module.base.create",
+              Guide(v => Traversable(LineShape(startPoint.get,v)))
+            )
+          }
+
           //If an end command is recieved without a new point, the module exits
           case End :: tail => End
           //If an unknown command is recieved (could happen if guide fails)
