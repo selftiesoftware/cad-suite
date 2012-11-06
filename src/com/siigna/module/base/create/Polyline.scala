@@ -56,11 +56,16 @@ class Polyline extends Module {
             points = points.dropRight(1)
           }
         }
-        //And no matter what, a new guide is returned
+        //And if there is a start point, a new guide is returned
+        if (startPoint.isDefined) {
         val guide : Guide = Guide((v : Vector2D) => {
           Array(PolylineShape(points :+ v))
         })
         Start('Point,"com.siigna.module.base.create", guide)
+        } else {
+        //If not, point is started without guide.
+        Start('Point,"com.siigna.module.base.create")
+        }
       }
 
       case End :: tail => {
