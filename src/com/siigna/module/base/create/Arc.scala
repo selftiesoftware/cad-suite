@@ -36,7 +36,6 @@ class Arc extends Module {
             if (startPoint.isEmpty) {
               startPoint = Some(p)
               Start('Point, "com.siigna.module.base.create",
-                //Guide(v => Traversable(CircleShape(p, math.abs((p - v).x))))
                 Guide(v => Traversable(LineShape(p,v)))
               )
             //If the end point is not set, and the point recieved is not the same as the start point,
@@ -44,19 +43,19 @@ class Arc extends Module {
             } else if ((endPoint.isEmpty) && (startPoint.get != p)) {
               endPoint = Some(p)
               Start('Point, "com.siigna.module.base.create",
-                //Guide(v => Traversable(CircleShape(p, math.abs((p - v).x))))
                 Guide(v => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
               )
             //If the end point is set, but the recieved point is the same as the start point,
             //the recieved point is ignored, and a line guide (between point 1 and 2) is returned again.
             } else if ((endPoint.isEmpty) && (startPoint.get == p)){
               Start('Point, "com.siigna.module.base.create",
-                //Guide(v => Traversable(CircleShape(p, math.abs((p - v).x))))
                 Guide(v => Traversable(LineShape(p,v)))
               )
-            //If neither start or endpoint is empty, and the recieved point is not the same
-            // as start or endpoint, an arc shape is created and module closes.
-            } else if ((startPoint.get != p) && (endPoint != p)) {
+            //If neither start or endpoint is empty, and:
+            // the recieved point is not the same as start or endpoint, and
+            // the three points are not on a straight line, then
+            // an arc shape is created and module closes.
+            } else if ((startPoint.get != p) && (endPoint.get != p) && (math.abs((startPoint.get.x - p.x)/(startPoint.get.y - p.y) ) != math.abs((endPoint.get.x - p.x)/(endPoint.get.y - p.y)))) {
                 val arc = ArcShape(startPoint.get,p,endPoint.get)
                 def setAttribute[T : Manifest](name:String, shape:Shape) = {
                   Siigna.get(name) match {
@@ -67,12 +66,13 @@ class Arc extends Module {
                 Create(setAttribute[Color]("Color",
                   setAttribute[Double]("LineWeight", arc)
                 ))
-              End
+                End
             } else {
             //If start and endpoint is set, but the third point is the same as the start or end point,
+            //or the three points are inline, the recieved point is unusable, and
             //the recieved point is ignored and an arc guide returned again.
+              println ("The three points are in-line, or the third point is the same as one of the two first in arc module.")
               Start('Point, "com.siigna.module.base.create",
-                //Guide(v => Traversable(CircleShape(p, math.abs((p - v).x))))
                 Guide(v => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
               )
             }
@@ -85,12 +85,10 @@ class Arc extends Module {
             //If user is drawing something, the guides should still be drawn:
             if ((startPoint.isDefined) && (endPoint.isEmpty)) {
               Start('Point, "com.siigna.module.base.create",
-                //Guide(v => Traversable(CircleShape(p, math.abs((p - v).x))))
                 Guide(v => Traversable(LineShape(startPoint.get,v)))
               )
             } else if ((startPoint.isDefined) && (endPoint.isDefined)) {
               Start('Point, "com.siigna.module.base.create",
-                //Guide(v => Traversable(CircleShape(p, math.abs((p - v).x))))
                 Guide(v => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
               )
             } else {
