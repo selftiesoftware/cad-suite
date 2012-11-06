@@ -31,49 +31,82 @@ class Arc extends Module {
         events match {
           case MouseDown(_, MouseButtonRight, _) :: tail => 'End
           case End(p : Vector2D) :: tail => {
+            //If no start point is set, the recieved point becomes the start point,
+            //and a line guide is returned (between the start and end point)
             if (startPoint.isEmpty) {
-              println("Startpunkt sat")
               startPoint = Some(p)
               Start('Point, "com.siigna.module.base.create",
-                //Guide(v => Traversable(CircleShape(p, math.abs((p - v).x))))
                 Guide(v => Traversable(LineShape(p,v)))
               )
-            } else if (endPoint.isEmpty) {
-              println("Slutpunkt sat")
-              println("Startpunkt: " + startPoint.get)
-              println("Slutpunkt: " + p)
-              println("forskel mellem start og slut: " + (((p - startPoint.get))) )
-              println("Start plus forskel mellem start og slut: " + (startPoint.get + Vector2D(((p.x - startPoint.get.x)/2).toInt,((p.y - startPoint.get.y)/2).toInt) ))
-
+            //If the end point is not set, and the point recieved is not the same as the start point,
+            //the recieved point is set as the end point, and an arc guide is returned.
+            } else if ((endPoint.isEmpty) && (startPoint.get != p)) {
               endPoint = Some(p)
               Start('Point, "com.siigna.module.base.create",
-                //Guide(v => Traversable(CircleShape(p, math.abs((p - v).x))))
+                Guide(v => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
+              )
+            //If the end point is set, but the recieved point is the same as the start point,
+            //the recieved point is ignored, and a line guide (between point 1 and 2) is returned again.
+            } else if ((endPoint.isEmpty) && (startPoint.get == p)){
+              Start('Point, "com.siigna.module.base.create",
+                Guide(v => Traversable(LineShape(p,v)))
+              )
+            //If neither start or endpoint is empty, and:
+            // the recieved point is not the same as start or endpoint, and
+            // the three points are not on a straight line, then
+            // an arc shape is created and module closes.
+            } else if ((startPoint.get != p) && (endPoint.get != p) && (math.abs((startPoint.get.x - p.x)/(startPoint.get.y - p.y) ) != math.abs((endPoint.get.x - p.x)/(endPoint.get.y - p.y)))) {
+                val arc = ArcShape(startPoint.get,p,endPoint.get)
+                def setAttribute[T : Manifest](name:String, shape:Shape) = {
+                  Siigna.get(name) match {
+                    case s : Some[T] => shape.addAttribute(name, s.get)
+                    case None => shape// Option isn't set. Do nothing
+                  }
+                }
+                Create(setAttribute[Color]("Color",
+                  setAttribute[Double]("LineWeight", arc)
+                ))
+                End
+            } else {
+            //If start and endpoint is set, but the third point is the same as the start or end point,
+            //or the three points are inline, the recieved point is unusable, and
+            //the recieved point is ignored and an arc guide returned again.
+              println ("The three points are in-line, or the third point is the same as one of the two first in arc module.")
+              Start('Point, "com.siigna.module.base.create",
+                Guide(v => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
+              )
+            }
+          }
+
+          //If point module returns a key-pres at the event when it ends:
+          case End(k : KeyDown) :: tail => {
+            // If the key is backspace without modification (shift etc), and a second point is set, it is deleted:
+            if (k == KeyDown(Key.Backspace,ModifierKeys(false,false,false))) {
+              if (endPoint.isDefined) endPoint = None
+            }
+            //And no matter what, a new guide is returned (Line to point from start to end-point, since any second point has been deleted)
+            Start('Point, "com.siigna.module.base.create",
+              Guide(v => Traversable(LineShape(startPoint.get,v)))
+            )
+          }
+
+          //If an end command is recieved without a new point, the module exits
+          case End :: tail => End
+          //If an unknown command is recieved (could happen if guide fails)
+          case _ => {
+            println("Unknown command in Arc-module: ")
+            //If user is drawing something, the guides should still be drawn:
+            if ((startPoint.isDefined) && (endPoint.isEmpty)) {
+              Start('Point, "com.siigna.module.base.create",
+                Guide(v => Traversable(LineShape(startPoint.get,v)))
+              )
+            } else if ((startPoint.isDefined) && (endPoint.isDefined)) {
+              Start('Point, "com.siigna.module.base.create",
                 Guide(v => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
               )
             } else {
-
-              //BUGFIX NEEDED: Crashes if tries to draw on same start or end point.
-
-              val arc = ArcShape(startPoint.get,p,endPoint.get)
-              
-              def setAttribute[T : Manifest](name:String, shape:Shape) = {
-                Siigna.get(name) match {
-                  case s : Some[T] => shape.addAttribute(name, s.get)
-                  case None => shape// Option isn't set. Do nothing
-                }
-              }
-
-              Create(setAttribute[Color]("Color",
-                setAttribute[Double]("LineWeight", arc)
-              ))
-              End
-            }
-          }
-          //Hvis der er trykket escape eller højre museknap lukkes modulet, selvom der ikke er tegnet noget endnu
-          case End :: tail => End
-          case _ => {
-            println("Ukendt kommando i Arc-modulet")
             Start('Point, "com.siigna.module.base.create")
+            }
           }
         }
       }
@@ -81,127 +114,3 @@ class Arc extends Module {
   )
 
 }
-
-
-
-/*
- * Copyright (c) 2012. Siigna is released under the creative common license by-nc-sa. You are free
- * to Share — to copy, distribute and transmit the work,
- * to Remix — to adapt the work
- *
- * Under the following conditions:
- * Attribution —  You must attribute the work to http://siigna.com in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work).
- * Noncommercial — You may not use this work for commercial purposes.
- * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
- */
-
-/*package com.siigna.module.base.create
-
-/* 2012 (C) Copyright by Siigna, all rights reserved. */
-
-import com.siigna._
-
-class Arc extends Module {
-
-  //a flag used to determinie when to stop drawing a circle as a dynamic shape
-  private var inSetArc = false
-
-  private var secondArcPoint : Option[Vector2D] = None
-
-  // The points of the polyline
-  private var points   = List[Vector2D]()
-
-  val eventHandler = EventHandler(stateMap, stateMachine)
-
-  private var secondPointSet = false
-
-  def stateMap = DirectedGraph(
-    'StartCategory        ->   'Message   ->    'SetRadius,
-    'SetRadius    ->   'KeyEscape ->    'End,
-    'SetArc       ->   'KeyEscape ->    'End
-  )
-
-
-  def stateMachine = Map(
-  'StartCategory -> ((events : List[Event]) => {
-    Siigna.display("Set the startpoint, then radius, and endpoint")
-    //Log.level += Log.DEBUG + Log.SUCCESS
-    events match {
-      case MouseDown(_, MouseButtonRight, _) :: tail => {
-        Goto('End)
-      }
-      case _ => Module('Point)
-    }
-  }),
-  'SetRadius -> ((events : List[Event]) => {
-    //before enough information is gathered to send an arcShape as a PointGuide, a circle is sent.
-    val getCircleGuide : Vector2D => CircleShape = (v : Vector2D) => {
-       CircleShape(v, points.head)
-     }
-
-    events match {
-      // Exit mechanisms
-      case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
-
-      case Message(p : Vector2D) :: tail => {
-
-        // Send a circle as a PointGuide to Point if there is enough points set
-        if (points.length < 1) {
-          //proceed to set the Arc segment
-          points = points :+ p
-          Controller ! Message(PointGuide(getCircleGuide))
-          Module('Point)
-        }
-        else if (points.length == 1) {
-          //proceed to set the Arc segment
-          points = points :+ p
-          Goto('SetArc)
-        }
-      }
-      // Match on everything else
-      case _ =>
-    }
-  }),
-  'SetArc -> ((events : List[Event]) => {
-    inSetArc = true
-    val arcGuide : Vector2D => ArcShape = (v : Vector2D) => {
-       val radius = (points(0)-points(1)).length
-       val a1 = (points(0)-points(1)).angle
-       val a2 = (points(0)-v).angle
-       ArcShape(points(1), radius, a1, a2-360)
-     }
-    events match {
-      case Message(p : Vector2D) :: tail => {
-      }
-      case MouseDown(_ ,MouseButtonRight, _) :: tail => Goto('End)
-      case MouseUp(p , _, _) :: tail => {
-        if(secondPointSet == true){
-          secondArcPoint = Some(p)
-          Goto('End)
-        }
-        secondPointSet = true
-      }
-
-      case _ => {
-        Controller ! Message(PointGuide(arcGuide))
-        Module('Point)
-      }
-
-
-    }
-  }),
-  'End -> ((events : List[Event]) => {
-
-    CreateCategory(ArcShape(points(1),(points(0)-points(1)).length,(points(0)-points(1)).angle,(points(0)-secondArcPoint.get).angle-360))
-
-    //clear the vars
-    inSetArc = false
-    points = List()
-    secondPointSet = false
-  }))
-  //draw a guiding circle when relevant.
-  override def paint(g : Graphics, t : TransformationMatrix) {
-    if(inSetArc == false && points.length == 2)
-      g draw CircleShape(points(1), points(0)).transform(t)
-  }
-}*/
