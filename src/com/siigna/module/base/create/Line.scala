@@ -22,7 +22,40 @@ import java.awt.Color
 
 class Line extends Module {
 
+  //text input for X values
+  private var coordinateX : Option[Double] = None
+
+  //text input for Y values
+  private var coordinateY : Option[Double] = None
+
+  //input string for distances
+  private var coordinateValue : String = ""
+
+  private def difference : Vector2D = Vector2D(0, 0)
+
+  val guide : Guide = Guide((v : Vector2D) => {
+    Array(LineShape(startPoint.get, v))
+  })
+
   var startPoint: Option[Vector2D] = None
+
+  // Save the X value, if any
+  def x : Option[Double] = if (!coordinateX.isEmpty)
+    coordinateX
+  else if (coordinateValue.length > 0 && coordinateValue != "-")
+    Some(java.lang.Double.parseDouble(coordinateValue) + difference.x)
+  else if (coordinateX.isDefined)
+    Some(coordinateX.get + difference.x)
+  else None
+
+  // Save the Y value, if any
+  def y : Option[Double] = if (coordinateY.isDefined)
+    coordinateY
+  else if (coordinateX.isDefined && coordinateValue.length > 0 && coordinateValue != "-")
+    Some(java.lang.Double.parseDouble(coordinateValue) + difference.y)
+  else if (coordinateY.isDefined)
+    Some(coordinateY.get + difference.y)
+  else None
 
   val stateMap: StateMap = Map(
 
@@ -31,13 +64,7 @@ class Line extends Module {
         if (startPoint.isEmpty){
           startPoint = Some(v)
 
-          //send a PointGuide to point to draw the line dynamically and let point use the first point if coords are typed.
-          val guide = PointGuide(v, (v : Vector2D) => {
-            (Array(LineShape(startPoint.get, v)))
-          })
-
           Start('Point,"com.siigna.module.base.create", guide)
-          //Start('Point,"com.siigna.module.base.create")
         } else {
 
           val lShape = LineShape(startPoint.get,v)
@@ -57,7 +84,77 @@ class Line extends Module {
           End
         }
       }
+      //if point returns a keyDown
+      case End(KeyDown(code, _)) :: tail => {
+
+        //get the input from the keyboard if it is numbers, (-) or (.)
+          val char = code.toChar
+          if (char.isDigit)
+            coordinateValue += char
+          else if ((char == '.') && !coordinateValue.contains('.'))
+            coordinateValue += "."
+          else if (char == '-' && coordinateValue.length < 1)
+            coordinateValue = "-"
+        }
+      //case _ => {
+      //  println("not char")
+      //  if (startPoint.isDefined) {
+      //    Start('Point,"com.siigna.module.base.create", guide)
+      //    } else {
+      //    Start('Point,"com.siigna.module.base.create")
+      //  }
+      //}
+
+      //if point returns a mouseDown
+      case End(m : MouseDown) :: tail => {
+        println("Mouse button pressed - other than left..." + m)
+        if (startPoint.isDefined) {
+          val guide : Guide = Guide((v : Vector2D) => {
+            Array(LineShape(startPoint.get, v))
+          })
+          Start('Point,"com.siigna.module.base.create", guide)
+        } else {
+          Start('Point,"com.siigna.module.base.create")
+        }
+      }
       case _ => Start('Point,"com.siigna.module.base.create")
     }
   )
+  override def paint(g : Graphics, t : TransformationMatrix) {
+
+  // Draw a point guide with the new point as a parameter
+
+  //input:
+  //   Vector2D. A guide (the current point / mouse position
+
+  //return:
+  // Immutable Shape : if the calling module has passed a shape it is drawn, including the dynamic part.
+
+  // Draw a point guide if a previous point (or guide) is found.
+  //if (pointGuide.isDefined || previousPoint.isDefined) {
+
+  //  } else {
+  //the last field _ is replaceable depending on how the point is constructed
+  //  p => Traversable(LineShape(previousPoint.get, p))
+
+  //  }
+
+  // DRAW THE POINT GUIDE BASED ON THE INFORMATION AVAILABLE:
+
+  //If tracking is active
+  //  if(!coordinateValue.isEmpty && mouseLocation.isDefined && eventParser.isTracking == true) {
+  //    var trackPoint = Track.getPointFromDistance(coordinateValue.toDouble)
+  //    guide(trackPoint.get).foreach(s => g draw s.transform(t))
+  //  }
+  //If a set of coordinates have been typed
+
+    //if (x.isDefined && y.isDefined && startPoint.isDefined) guide(Vector2D(x.get + difference.x, y.get)).foreach(s => g draw s.transform(t))
+    //else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && !currentSnap.isDefined && eventParser.isTracking == false) guide(Vector2D(x.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
+    //else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && currentSnap.isDefined && eventParser.isTracking == false) guide(lengthVector(x.get - difference.x)).foreach(s => g draw s.transform(t))
+    //else if (x.isDefined && mouseLocation.isDefined && filteredX.isDefined  && eventParser.isTracking == false) guide(Vector2D(filteredX.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
+    //else if (mouseLocation.isDefined  && coordinateValue.isEmpty) guide(mouseLocation.get).foreach(s => g draw s.transform(t))
+  //if (coordinateValue.isEmpty) guide(mousePosition).foreach(s => g draw s.transform(t))
+
+  //  else None
+  }
 }

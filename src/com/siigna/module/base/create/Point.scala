@@ -28,18 +28,8 @@ import com.siigna._
 
 class Point extends Module {
 
-  //text input for X values
-  private var coordinateX : Option[Double] = None
-
-  //text input for Y values
-  private var coordinateY : Option[Double] = None
-
-  //input string for distances
-  private var coordinateValue : String = ""
-
   private var decimalValue : Boolean = false
 
-  private def difference : Vector2D = if (previousPoint.isDefined) previousPoint.get else Vector2D(0, 0)
 
   //private var distance : Option[Double] = None
 
@@ -68,9 +58,7 @@ class Point extends Module {
 
   private var point : Option[Vector2D] = None
 
-  var pointGuide : Option[Vector2D => Traversable[Shape]] = None
-
-  var startPoint : Option[Vector2D] = None
+  var pointGuide : Option[Guide] = None
 
   /**
    * The previous point saved as the relative value to the next.
@@ -80,23 +68,7 @@ class Point extends Module {
 
   var snapAngle : Option[Double] = None
 
-  // Save the X value, if any
-  def x : Option[Double] = if (!coordinateX.isEmpty)
-    coordinateX
-  else if (coordinateValue.length > 0 && coordinateValue != "-")
-    Some(java.lang.Double.parseDouble(coordinateValue) + difference.x)
-  else if (coordinateX.isDefined)
-    Some(coordinateX.get + difference.x)
-  else None
 
-  // Save the Y value, if any
-  def y : Option[Double] = if (coordinateY.isDefined)
-    coordinateY
-  else if (coordinateX.isDefined && coordinateValue.length > 0 && coordinateValue != "-")
-    Some(java.lang.Double.parseDouble(coordinateValue) + difference.y)
-  else if (coordinateY.isDefined)
-    Some(coordinateY.get + difference.y)
-  else None
 
   val stateMap: StateMap = Map(
 
@@ -104,93 +76,30 @@ class Point extends Module {
       case MouseDown(p,button,modifier)::tail => {
         // End and return mouse-position-point, if left mouse button is clicked
         if (button==MouseButtonLeft) {
-          println("B")
           End(p.transform(View.deviceTransformation))
         } else {
-          // Exit on right mouse button
-          End
+          // In all other cases, the mouseDown is returned
+          End(MouseDown(p,button,modifier))
         }
       }
 
       // Check for PointGuide
-      case Start(_ ,g : PointGuide) :: tail => {
-        pointGuide = Some(g.guide)
-        startPoint = Some(g.point)
+      case Start(_ ,g : Guide) :: tail => {
+        pointGuide = Some(g)
       }
-     // case Start(_ ,g : Guide) :: tail => {
-     //   pointGuide = Some(g)
-     // }
-
-      // Check for continued MouseDown
-      //case Message(g : Guide) :: Message(p : Vector2D) :: MouseDown(_, MouseButtonLeft, _) :: tail => {
-      //  pointGuide = Some(g)
-      //Module('AngleGizmo)
-      //}
-
-      //case Message(a : AngleSnap) :: tail => {
-      //currentSnap = Some(a)
-      //  eventParser.snapTo(a)
-      //}
-
-      // Avoid ending if the mouse up comes after setting the angle in the AngleGizmo
-      //case MouseDown(p, MouseButtonLeft, _) :: Message(a : AngleSnap) :: tail => previousPoint = Some(p)
 
       // Exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
 
       // End and return backspace, if backspace is pressed
       case KeyDown(Key.Backspace, _) :: tail => {
-        if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
-        else if (coordinateX.isDefined) {
-          coordinateValue = coordinateX.get.toString
-          coordinateX     = None
-        }
         println("Backspace pressed")
         End(KeyDown(Key.Backspace,ModifierKeys(false,false,false)))
       }
-      case (MouseDown(_, _, _) | MouseUp(_ , MouseButtonRight, _)) :: tail => End
-      //use period to define decimal numbers
-      case KeyDown('.', _) :: tail => {
-        if(coordinateValue.isEmpty) decimalValue = true
-        else coordinateValue += '.'
-      }
 
-      //goto second coordinate if ENTER, COMMA, or TAB is pressed
-      case KeyDown(Key.Enter | Key.Tab | (','), _) :: tail => {
+      // All other keyDown events are forwarded:
+      case KeyDown(key,modifier) :: tail => End(KeyDown(key,modifier))
 
-        //if noting is entered
-        if (coordinateX.isEmpty && coordinateValue.length == 0) End
-        //when ENTER is pressed, and a value is set, this value is passed as the first coordinate relative to 0,0
-        else if (coordinateX.isEmpty && coordinateValue.length > 0) {
-          coordinateX = Some(java.lang.Double.parseDouble(coordinateValue))
-
-          coordinateValue = ""
-        }
-        else if (coordinateY.isEmpty && coordinateValue.length > 0) {
-          coordinateY = Some(java.lang.Double.parseDouble(coordinateValue))
-          coordinateValue = ""
-          'End
-        }
-      }
-
-      case KeyDown(Key.Shift, _) :: tail => {
-        Controller ! Message(previousPoint.get)
-        println("open Angle Gizmo here")
-        //Module('AngleGizmo)
-      }
-      case KeyDown(Key.Space, _) :: tail => End
-
-      //get the input from the keyboard if it is numbers, (-) or (.)
-      case KeyDown(code, _) :: tail => {
-        val char = code.toChar
-        if (char.isDigit)
-          coordinateValue += char
-        else if ((char == '.') && !coordinateValue.contains('.'))
-          coordinateValue += "."
-        else if (char == '-' && coordinateValue.length < 1)
-          coordinateValue = "-"
-      }
-      //case KeyUp(Key.Space, _) :: tail => Goto ('End)
       case _ =>  {
 
         //reformat the coordinate value to a decimal number if the input string started with '.' (decimalValue flag is true)
@@ -199,7 +108,7 @@ class Point extends Module {
         //  coordinateValue = (coordinateValue.toDouble/(coordinateValue.length +1)).toString
 
         // DISPLAY a message: Format the x and y coordinate and store the message in a value.
-        val message = {
+        /*val message = {
           if (coordinateValue.length > 0 ) {
 
             val x = if (coordinateX.isDefined) "%.2f" format coordinateX.get
@@ -219,19 +128,20 @@ class Point extends Module {
             None
           }
         }
+        */
         // Display the message
-        if(message.isDefined) Siigna display(message.get)
+        //if(message.isDefined) Siigna display(message.get)
       }
-    },
-    'End -> {
+    }//,
+    /*'End -> {
       case _ => {
 
         //if the next point has been typed, return it:
-        if (coordinateX.isDefined && coordinateY.isDefined & startPoint.isDefined ) {
+        if (coordinateX.isDefined && coordinateY.isDefined ) {
           println("IN END WITH COORDS")
           //convert the relative coordinates a global point by adding the latest point
-          val x = coordinateX.get + startPoint.get.x
-          val y = coordinateY.get + startPoint.get.y
+          val x = coordinateX.get
+          val y = coordinateY.get
 
           //add the typed point to the polyline
           point = Some(Vector2D(x,y))
@@ -253,47 +163,14 @@ class Point extends Module {
           }
         }
       }
-    }
+    } */
   )
 
 
   override def paint(g : Graphics, t : TransformationMatrix) {
 
-    pointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+    pointGuide.foreach(_ .guide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
 
-    // Draw a point guide with the new point as a parameter
-
-    //input:
-    //   Vector2D. A guide (the current point / mouse position
-
-    //return:
-    // Immutable Shape : if the calling module has passed a shape it is drawn, including the dynamic part.
-
-    // Draw a point guide if a previous point (or guide) is found.
-    //if (pointGuide.isDefined || previousPoint.isDefined) {
-
-    //  } else {
-    //the last field _ is replaceable depending on how the point is constructed
-    //  p => Traversable(LineShape(previousPoint.get, p))
-
-    //  }
-
-    // DRAW THE POINT GUIDE BASED ON THE INFORMATION AVAILABLE:
-
-    //If tracking is active
-    //  if(!coordinateValue.isEmpty && mouseLocation.isDefined && eventParser.isTracking == true) {
-    //    var trackPoint = Track.getPointFromDistance(coordinateValue.toDouble)
-    //    guide(trackPoint.get).foreach(s => g draw s.transform(t))
-    //  }
-    //If a set of coordinates have been typed
-    //  if (x.isDefined && y.isDefined) guide(Vector2D(x.get + difference.x, y.get)).foreach(s => g draw s.transform(t))
-    //  else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && !currentSnap.isDefined && eventParser.isTracking == false) guide(Vector2D(x.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
-    //  else if (x.isDefined && mouseLocation.isDefined && !filteredX.isDefined && currentSnap.isDefined && eventParser.isTracking == false) guide(lengthVector(x.get - difference.x)).foreach(s => g draw s.transform(t))
-    //  else if (x.isDefined && mouseLocation.isDefined && filteredX.isDefined  && eventParser.isTracking == false) guide(Vector2D(filteredX.get, mouseLocation.get.y)).foreach(s => g draw s.transform(t))
-    //  else if (mouseLocation.isDefined  && coordinateValue.isEmpty) guide(mouseLocation.get).foreach(s => g draw s.transform(t))
-    //if (coordinateValue.isEmpty) guide(mousePosition).foreach(s => g draw s.transform(t))
-
-    //  else None
   }
 }
 
