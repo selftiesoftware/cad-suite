@@ -30,13 +30,14 @@ class Line extends Module {
       case End(v : Vector2D) :: tail => {
         if (startPoint.isEmpty){
           startPoint = Some(v)
-          //val guide : Guide = Guide(v : Vector2D) => {
-          //  Array(LineShape(startPoint.get, v))
-          //})
-          val guide = PointGuide(p, (v : Vector2D) => {
-            Array(LineShape(StartPoint.get, v))
-          }
+
+          //send a PointGuide to point to draw the line dynamically and let point use the first point if coords are typed.
+          val guide = PointGuide(v, (v : Vector2D) => {
+            (Array(LineShape(startPoint.get, v)))
+          })
+
           Start('Point,"com.siigna.module.base.create", guide)
+          //Start('Point,"com.siigna.module.base.create")
         } else {
 
           val lShape = LineShape(startPoint.get,v)

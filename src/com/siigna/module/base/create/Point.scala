@@ -68,7 +68,9 @@ class Point extends Module {
 
   private var point : Option[Vector2D] = None
 
-  var pointGuide : Option[Guide] = None
+  var pointGuide : Option[Vector2D => Traversable[Shape]] = None
+
+  var startPoint : Option[Vector2D] = None
 
   /**
    * The previous point saved as the relative value to the next.
@@ -110,8 +112,9 @@ class Point extends Module {
       }
 
       // Check for PointGuide
-      case Start(_ ,g : Guide) :: tail => {
-        pointGuide = Some(g)
+      case Start(_ ,g : PointGuide) :: tail => {
+        pointGuide = Some(g.guide)
+        startPoint = Some(g.point)
       }
      // case Start(_ ,g : Guide) :: tail => {
      //   pointGuide = Some(g)
@@ -220,11 +223,11 @@ class Point extends Module {
       case _ => {
 
         //if the next point has been typed, return it:
-        if (coordinateX.isDefined && coordinateY.isDefined ) {
+        if (coordinateX.isDefined && coordinateY.isDefined & startPoint.isDefined ) {
           println("IN END WITH COORDS")
           //convert the relative coordinates a global point by adding the latest point
-          val x = coordinateX.get
-          val y = coordinateY.get
+          val x = coordinateX.get + startPoint.get.x
+          val y = coordinateY.get + startPoint.get.y
 
           //add the typed point to the polyline
           point = Some(Vector2D(x,y))
@@ -252,7 +255,7 @@ class Point extends Module {
 
   override def paint(g : Graphics, t : TransformationMatrix) {
 
-    pointGuide.foreach(_ .guide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+    pointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
 
     // Draw a point guide with the new point as a parameter
 
