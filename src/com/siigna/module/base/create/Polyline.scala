@@ -40,18 +40,27 @@ class Polyline extends Module {
           Start('Point,"com.siigna.module.base.create", guide)
         } else {
           //Hvis startpunktet er sat, er det ikke første polylineshapedel, vi er i gang med at tegne.
-          var plShape = PolylineShape(points :+ v)
-          def setAttribute[T : Manifest](name:String, shape:Shape) = {
-            Siigna.get(name) match {
-              case s : Some[T] => shape.addAttribute(name, s.get)
-              case None => shape// Option isn't set. Do nothing
-            }
-          }
+          points :+ v
           val guide : Guide = Guide((v : Vector2D) => {
             Array(PolylineShape(points :+ v))
           })
           Start('Point,"com.siigna.module.base.create", guide)
         }
+      }
+
+      //If point module returns a key-pres at the event when it ends:
+      case End(k : KeyDown) :: tail => {
+        // If the key is backspace without modification (shift etc), the last bit of line is deleted:
+        if (k == KeyDown(Key.Backspace,ModifierKeys(false,false,false))) {
+          if (points.length > 1) {
+            points = points.dropRight(1)
+          }
+        }
+        //And no matter what, a new guide is returned
+        val guide : Guide = Guide((v : Vector2D) => {
+          Array(PolylineShape(points :+ v))
+        })
+        Start('Point,"com.siigna.module.base.create", guide)
       }
 
       case End :: tail => {
@@ -74,8 +83,8 @@ class Polyline extends Module {
       points = List()
       End
       }
-      case _ => {
-        println("Starter polyline-modul, ikke med END")
+      case x => {
+        println("Ukendt kommando modtaget i polyline-modul: " + x + ". Starter point-modul.")
         Start('Point,"com.siigna.module.base.create")
       }
     })

@@ -100,6 +100,7 @@ class Point extends Module {
 
     'Start -> {
       case MouseDown(p,button,modifier)::tail => {
+        // End and return mouse-position-point, if left mouse button is clicked
         if (button==MouseButtonLeft) {
           End(p.transform(View.deviceTransformation))
         } else {
@@ -133,12 +134,15 @@ class Point extends Module {
       // Exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
 
+      // End and return backspace, if backspace is pressed
       case KeyDown(Key.Backspace, _) :: tail => {
         if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
         else if (coordinateX.isDefined) {
           coordinateValue = coordinateX.get.toString
           coordinateX     = None
         }
+        println("Backspace pressed")
+        End(KeyDown(Key.Backspace,ModifierKeys(false,false,false)))
       }
       case (MouseDown(_, _, _) | MouseUp(_ , MouseButtonRight, _)) :: tail => End
       //use period to define decimal numbers
