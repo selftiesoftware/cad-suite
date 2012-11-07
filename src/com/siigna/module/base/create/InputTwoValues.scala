@@ -24,6 +24,8 @@ class InputTwoValues extends Module {
   private var coordinateX : Option[Double] = None   //text input for X values
   private var coordinateY : Option[Double] = None   //text input for Y values
   private var coordinateValue : String = ""  //input string for distances
+  var pointGuide : Option[Vector2D => Traversable[Shape]] = None
+  var startPoint : Option[Vector2D] = None
 
   // Save the X value, if any
   def x : Option[Double] = if (!coordinateX.isEmpty)
@@ -48,7 +50,12 @@ class InputTwoValues extends Module {
     'Start -> {
 
     //goto second coordinate if ENTER, COMMA, or TAB is pressed
-    case End(KeyDown(Key.Enter | Key.Tab | (','), _)) :: tail => {
+      case Start(_ ,g: PointGuide) :: tail => {
+        pointGuide = Some(g.guide)
+        startPoint = Some(g.point)
+      }
+
+    case KeyDown(Key.Enter | Key.Tab | (','), _) :: tail => {
       //if noting is entered
       if (coordinateX.isEmpty && coordinateValue.length == 0) End
       //when ENTER is pressed, and a value is set, this value is passed as the first coordinate relative to 0,0
@@ -61,14 +68,13 @@ class InputTwoValues extends Module {
         coordinateY = Some(java.lang.Double.parseDouble(coordinateValue))
         coordinateValue = ""
 
+        var p = Vector2D(x.get,y.get)
         //if a full set of coordinates are present, return them to the calling module.
-        println("SEND COORDINATES TO CALLING MODULE HERE")
-        End
+        End(p.transform(View.deviceTransformation))
       }
     }
     //TODO: Backspace is inoperative...?
     case KeyDown(Key.Backspace, _) :: tail => {
-      println("A")
       if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
       else if (coordinateX.isDefined) {
         coordinateValue = coordinateX.get.toString
@@ -76,7 +82,8 @@ class InputTwoValues extends Module {
       }
     }
     //if point returns a keyDown - that is not previously intercepted
-    case End(KeyDown(code, _)) :: tail => {
+    case KeyDown(code, _) :: tail => {
+      println("key in in COORD mod.")
       //get the input from the keyboard if it is numbers, (-) or (.)
       val char = code.toChar
       if (char.isDigit)
@@ -121,5 +128,20 @@ class InputTwoValues extends Module {
       //Display the message
       if(message.isDefined) Siigna display(message.get)
     }
+    case _ => {
+      println(pointGuide)
+    }
   })
+  override def paint(g : Graphics, t: TransformationMatrix) {
+    println("painting in COORd mod")
+    println("X defined? "+x.isDefined)
+    if(x.isDefined && !y.isDefined && pointGuide.isDefined && startPoint.isDefined){
+      println("YES")
+      pointGuide.foreach(_(Vector2D(x.get + startPoint.get.x ,startPoint.get.y).transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+    }
+
+    if(x.isDefined && y.isDefined && pointGuide.isDefined){
+      pointGuide.foreach(_(Vector2D(x.get+startPoint.get.x,y.get+startPoint.get.y).transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+    }
+  }
 }

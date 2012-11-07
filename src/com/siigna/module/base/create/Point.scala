@@ -23,11 +23,15 @@ class Point extends Module {
   //VARS declaration:
   private var decimalValue : Boolean = false
   private var point : Option[Vector2D] = None
-  var pointGuide : Option[Guide] = None
+  var pointGuide : Option[Vector2D => Traversable[Shape]] = None
   var snapAngle : Option[Double] = None
   val stateMap: StateMap = Map(
 
     'Start -> {
+      case End(p : Vector2D) :: tail => {
+        End(p)
+      }
+
       case MouseDown(p,button,modifier)::tail => {
         // End and return mouse-position-point, if left mouse button is clicked
         if (button==MouseButtonLeft) {
@@ -38,8 +42,8 @@ class Point extends Module {
         }
       }
       // Check for PointGuide
-      case Start(_ ,g : Guide) :: tail => {
-        pointGuide = Some(g)
+      case Start(_ ,g : PointGuide) :: tail => {
+        pointGuide = Some(g.guide)
       }
       // Exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
@@ -51,18 +55,23 @@ class Point extends Module {
       // All other keyDown events are forwarded:
 
       case KeyDown(key,modifier) :: tail => {
-        //if(Guide value == 1) Start('InputTwoValues,"com.siigna.module.base.create", guide)
-        //if(Guide value == 2) Start('InputLength,"com.siigna.module.base.create", guide)
-        //if(Guide value == 3) Start('InputAngle,"com.siigna.module.base.create", guide)
+        //TODO: add if statement: if a track-guide is active, forward to a InputLength module instead...
 
-        End(KeyDown(key,modifier))
+        if(pointGuide.isDefined) {
+          println("starting coord with pointGuide")
+          Start('InputTwoValues,"com.siigna.module.base.create", pointGuide.get)
+        }
+        else Start('InputTwoValues,"com.siigna.module.base.create")
+
+        //End(KeyDown(key,modifier))
       }
-      case _ =>
+      case _ => {
+      }
     }
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    pointGuide.foreach(_ .guide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+    pointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
   }
 }
 

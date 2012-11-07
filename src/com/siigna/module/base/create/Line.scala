@@ -21,31 +21,22 @@ import java.awt.Color
  */
 class Line extends Module {
 
-  var guide : Guide = Guide((v : Vector2D) => {
-    Array(LineShape(startPoint.get, v))
-  })
+ // var guide : Guide = Guide((v : Vector2D) => {
+ //   Array(LineShape(startPoint.get, v))
+ // })
+
   var startPoint: Option[Vector2D] = None
 
   val stateMap: StateMap = Map(
 
     'Start -> {
-      //if input is registered, forward to the InputTwoValues module
-      case KeyDown(k, _)::tail => {
-        if (startPoint.isDefined)
-          Start('InputTwoValues,"com.siigna.module.base.create", guide)
-        else Start('InputTwoValues,"com.siigna.module.base.create")
-      }
-
-      case End(KeyDown(k, _)) ::tail => {
-        if (startPoint.isDefined)
-          Start('InputTwoValues,"com.siigna.module.base.create", guide)
-        else Start('InputTwoValues,"com.siigna.module.base.create")
-      }
-
       case End(v : Vector2D) :: tail => {
         if (startPoint.isEmpty){
           startPoint = Some(v)
 
+          val guide = PointGuide(v, (v : Vector2D) => {
+            (Array(LineShape(startPoint.get, v)))
+          })
           Start('Point,"com.siigna.module.base.create", guide)
         } else {
 
@@ -67,20 +58,20 @@ class Line extends Module {
       }
 
       //if point returns a mouseDown
-      case End(m : MouseDown) :: tail => {
-        println("Mouse button pressed - other than left..." + m)
-        if (startPoint.isDefined) {
-          guide = Guide((v : Vector2D) => {
-            Array(LineShape(startPoint.get, v))
-          })
-          Start('Point,"com.siigna.module.base.create", guide)
-        } else {
-          Start('Point,"com.siigna.module.base.create", guide)
-        }
-      }
-      case _ => {
-      }
-      Start('Point,"com.siigna.module.base.create", guide)
+      //case End(m : MouseDown) :: tail => {
+      //  println("Mouse button pressed - other than left..." + m)
+      //  if (startPoint.isDefined) {
+          //val guide = PointGuide(v, (v : Vector2D) => {
+          //  (Array(LineShape(startPoint.get, v)))
+          //})
+          //Start('Point,"com.siigna.module.base.create", guide)
+      //  } else {
+      //    Start('Point,"com.siigna.module.base.create")
+      //  }
+      //}
+      case _ => Start('Point,"com.siigna.module.base.create")
+      //if
+
     }
   )
 }
