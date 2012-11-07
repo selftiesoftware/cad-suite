@@ -56,6 +56,7 @@ class Point extends Module {
       //}
       // All other keyDown events are forwarded:
 
+      //TODO: the first key-input is lost... it should be used in the coords module.
       case KeyDown(key,modifier) :: tail => {
         //TODO: add if statement: if a track-guide is active, forward to a InputLength module instead...
 
@@ -71,7 +72,7 @@ class Point extends Module {
       }
     }
   )
-
+  //TODO: disable this pointGuide if the InputTwoValues module is used
   override def paint(g : Graphics, t : TransformationMatrix) {
     pointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
   }

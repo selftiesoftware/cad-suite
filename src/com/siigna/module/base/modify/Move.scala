@@ -38,17 +38,20 @@ class Move extends Module {
         if(!startPoint.isDefined) {
           startPoint = Some(p)
           Siigna display "set new location"
-          startPoint = Some(p)
         } else {
           endPoint = Some(p)
 
           transformation = Some(TransformationMatrix((p - startPoint.get), 1))
           Drawing.selection.get.transform(transformation.get)
-
+          Drawing.deselect()
         }
       }
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+
       case _ => {
-        Siigna display "set new location"
+        Siigna display "set origin of move"
         Start('Point,"com.siigna.module.base.create")
       }
 
