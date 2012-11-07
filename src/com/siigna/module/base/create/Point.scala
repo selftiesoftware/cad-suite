@@ -55,7 +55,7 @@ class Point extends Module {
         //if(Guide value == 2) Start('InputLength,"com.siigna.module.base.create", guide)
         //if(Guide value == 3) Start('InputAngle,"com.siigna.module.base.create", guide)
 
-        //End(KeyDown(key,modifier))
+        End(KeyDown(key,modifier))
       }
       case _ =>
     }

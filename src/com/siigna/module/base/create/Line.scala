@@ -29,6 +29,19 @@ class Line extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
+      //if input is registered, forward to the InputTwoValues module
+      case KeyDown(k, _)::tail => {
+        if (startPoint.isDefined)
+          Start('InputTwoValues,"com.siigna.module.base.create", guide)
+        else Start('InputTwoValues,"com.siigna.module.base.create")
+      }
+
+      case End(KeyDown(k, _)) ::tail => {
+        if (startPoint.isDefined)
+          Start('InputTwoValues,"com.siigna.module.base.create", guide)
+        else Start('InputTwoValues,"com.siigna.module.base.create")
+      }
+
       case End(v : Vector2D) :: tail => {
         if (startPoint.isEmpty){
           startPoint = Some(v)
