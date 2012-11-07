@@ -27,26 +27,22 @@ class InputTwoValues extends Module {
   var pointGuide : Option[Vector2D => Traversable[Shape]] = None
   var startPoint : Option[Vector2D] = None
 
-  var relativeX : Option[Double] = None
-  var relativeY : Option[Double] = None
+  var relativeX : Double = 0.0
+  var relativeY : Double = 0.0
 
   // Save the X value, if any
-  def x : Option[Double] = if (!coordinateX.isEmpty)
-    coordinateX
+  def x : Double = if (!coordinateX.isEmpty)
+    coordinateX.get
   else if (coordinateValue.length > 0 && coordinateValue != "-")
-    Some(java.lang.Double.parseDouble(coordinateValue))
-  else if (coordinateX.isDefined)
-    Some(coordinateX.get)
-  else None
+    java.lang.Double.parseDouble(coordinateValue)
+  else 0.0
 
   // Save the Y value, if any
-  def y : Option[Double] = if (coordinateY.isDefined)
-    coordinateY
+  def y : Double = if (coordinateY.isDefined)
+    coordinateY.get
   else if (coordinateX.isDefined && coordinateValue.length > 0 && coordinateValue != "-")
-    Some(java.lang.Double.parseDouble(coordinateValue))
-  else if (coordinateY.isDefined)
-    Some(coordinateY.get)
-  else None
+    java.lang.Double.parseDouble(coordinateValue)
+  else 0.0
 
   val stateMap: StateMap = Map(
 
@@ -70,10 +66,11 @@ class InputTwoValues extends Module {
       else if (coordinateY.isEmpty && coordinateValue.length > 0) {
         coordinateY = Some(java.lang.Double.parseDouble(coordinateValue))
         coordinateValue = ""
-
-        var p = Vector2D(x.get,y.get)
         //if a full set of coordinates are present, return them to the calling module.
-        End(p.transform(View.deviceTransformation))
+        if(startPoint.isDefined) {
+          End(Vector2D(startPoint.get.x + x,startPoint.get.y + y))
+        }
+        else End(Vector2D(x,y))
       }
     }
     case KeyDown(Key.Backspace, _) :: tail => {
@@ -115,15 +112,6 @@ class InputTwoValues extends Module {
         }
       }
 
-      //if points are in the process of being typed, then reformat the value to View coordinates..
-      if(x.isDefined && !y.isDefined){
-        relativeX = Some(x.get + startPoint.get.x)
-      }
-      else if(x.isDefined && y.isDefined){
-        relativeX = Some(x.get + startPoint.get.x)
-        relativeY = Some(y.get + startPoint.get.y)
-      }
-
       //Display the message
       if(message.isDefined) Siigna display(message.get)
     }
@@ -131,12 +119,21 @@ class InputTwoValues extends Module {
     }
   })
   override def paint(g : Graphics, t: TransformationMatrix) {
-    if(x.isDefined && !y.isDefined && pointGuide.isDefined && startPoint.isDefined){
-      pointGuide.foreach(_(Vector2D(relativeX.get ,startPoint.get.y).transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
-    }
 
-    if(x.isDefined && y.isDefined && pointGuide.isDefined){
-      pointGuide.foreach(_(Vector2D(relativeX.get,relativeY.get).transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+    println("X: "+x)
+    println("Y: "+y)
+
+    println("relativeX: "+relativeX)
+    println("relativeY: "+relativeY)
+
+    println("stPoint: "+startPoint.get)
+
+    //if points are in the process of being typed, then reformat the value to View coordinates..
+
+    if(pointGuide.isDefined && startPoint.isDefined){
+      relativeX = startPoint.get.x + x
+      relativeY = startPoint.get.y + y
+      pointGuide.foreach(_(Vector2D(startPoint.get.x + x,startPoint.get.y + y)).foreach(s => g.draw(s.transform(t))))
     }
   }
 }
