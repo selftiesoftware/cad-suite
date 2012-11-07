@@ -44,12 +44,19 @@ class Point extends Module {
       // Exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
       // End and return backspace, if backspace is pressed
-      case KeyDown(Key.Backspace, _) :: tail => {
-        println("Backspace pressed")
-        End(KeyDown(Key.Backspace,ModifierKeys(false,false,false)))
-      }
+      //case KeyDown(Key.Backspace, _) :: tail => {
+      //  println("Backspace pressed")
+      //  End(KeyDown(Key.Backspace,ModifierKeys(false,false,false)))
+      //}
       // All other keyDown events are forwarded:
-      case KeyDown(key,modifier) :: tail => End(KeyDown(key,modifier))
+
+      case KeyDown(key,modifier) :: tail => {
+        //if(Guide value == 1) Start('InputTwoValues,"com.siigna.module.base.create", guide)
+        //if(Guide value == 2) Start('InputLength,"com.siigna.module.base.create", guide)
+        //if(Guide value == 3) Start('InputAngle,"com.siigna.module.base.create", guide)
+
+        //End(KeyDown(key,modifier))
+      }
       case _ =>
     }
   )
@@ -61,6 +68,11 @@ class Point extends Module {
 
 /**
  * A class used to draw guides in the point module.
+ * coordType (Int) is passed on to text input modules if values are typed.
+ * possible values:
+ * 1 = x and y coordinates  (handled by the InputTwoValues module)
+ * 2 = one length value     (handled by the InputLength module)
+ * 3 = one angle value      (handled by the InputAngle module)
  */
 case class Guide(guide : Vector2D => Traversable[Shape])
 
