@@ -56,10 +56,10 @@ class Point extends Module {
       case KeyDown(Key.Esc, _) :: tail => End
 
       // End and return backspace, if backspace is pressed
-      case KeyDown(Key.Backspace, _) :: tail => {
-        println("Backspace pressed")
-        End(KeyDown(Key.Backspace,ModifierKeys(false,false,false)))
-      }
+      //case KeyDown(Key.Backspace, _) :: tail => {
+      //  println("Backspace pressed")
+      //  End(KeyDown(Key.Backspace,ModifierKeys(false,false,false)))
+      //}
 
       // All other keyDown events are forwarded:
       case KeyDown(key,modifier) :: tail => End(KeyDown(key,modifier))

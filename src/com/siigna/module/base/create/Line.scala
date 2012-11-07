@@ -23,7 +23,6 @@ class Line extends Module {
 
   private var coordinateX : Option[Double] = None   //text input for X values
   private var coordinateY : Option[Double] = None   //text input for Y values
-
   private var coordinateValue : String = ""  //input string for distances
 
   var guide : Guide = Guide((v : Vector2D) => {
@@ -71,7 +70,6 @@ class Line extends Module {
           val line = setAttribute[Color]("Color",
             setAttribute[Double]("LineWeight", lShape)
           )
-
           Create(line)
           End
         }
@@ -96,6 +94,15 @@ class Line extends Module {
           End
         }
       }
+      //TODO: Backspace is inoperative...?
+      case KeyDown(Key.Backspace, _) :: tail => {
+        if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
+        else if (coordinateX.isDefined) {
+          coordinateValue = coordinateX.get.toString
+          coordinateX     = None
+        }
+      }
+
       //if point returns a keyDown - that is not previously intercepted
       case End(KeyDown(code, _)) :: tail => {
         println(coordinateValue)
@@ -121,7 +128,6 @@ class Line extends Module {
 
               //Display the coords when typed.
             } else if (coordinateX.isDefined) {
-              //var prevModule = com.siigna.module.base.ModuleInit.lastModule.get.toString
               Some("point (X: "+x+")")
             }
             else {
