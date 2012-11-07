@@ -27,6 +27,9 @@ class InputTwoValues extends Module {
   var pointGuide : Option[Vector2D => Traversable[Shape]] = None
   var startPoint : Option[Vector2D] = None
 
+  var relativeX : Option[Double] = None
+  var relativeY : Option[Double] = None
+
   // Save the X value, if any
   def x : Option[Double] = if (!coordinateX.isEmpty)
     coordinateX
@@ -73,7 +76,6 @@ class InputTwoValues extends Module {
         End(p.transform(View.deviceTransformation))
       }
     }
-    //TODO: Backspace is inoperative...?
     case KeyDown(Key.Backspace, _) :: tail => {
       if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
       else if (coordinateX.isDefined) {
@@ -113,35 +115,28 @@ class InputTwoValues extends Module {
         }
       }
 
-      //if points are in the process of being typed, then send the current value in a point guide.
+      //if points are in the process of being typed, then reformat the value to View coordinates..
       if(x.isDefined && !y.isDefined){
-        //guide = Guide((v : Vector2D) => {
-        //  Array(LineShape(startPoint.get, Vector2D(x.get + startPoint.get.x,startPoint.get.y)))
-        //})
+        relativeX = Some(x.get + startPoint.get.x)
       }
       else if(x.isDefined && y.isDefined){
-        //guide = Guide((v : Vector2D) => {
-        //  Array(LineShape(startPoint.get, Vector2D(x.get + startPoint.get.x,y.get + startPoint.get.y)))
-        //})
+        relativeX = Some(x.get + startPoint.get.x)
+        relativeY = Some(y.get + startPoint.get.y)
       }
 
       //Display the message
       if(message.isDefined) Siigna display(message.get)
     }
     case _ => {
-      println(pointGuide)
     }
   })
   override def paint(g : Graphics, t: TransformationMatrix) {
-    println("painting in COORd mod")
-    println("X defined? "+x.isDefined)
     if(x.isDefined && !y.isDefined && pointGuide.isDefined && startPoint.isDefined){
-      println("YES")
-      pointGuide.foreach(_(Vector2D(x.get + startPoint.get.x ,startPoint.get.y).transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+      pointGuide.foreach(_(Vector2D(relativeX.get ,startPoint.get.y).transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
     }
 
     if(x.isDefined && y.isDefined && pointGuide.isDefined){
-      pointGuide.foreach(_(Vector2D(x.get+startPoint.get.x,y.get+startPoint.get.y).transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+      pointGuide.foreach(_(Vector2D(relativeX.get,relativeY.get).transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
     }
   }
 }
