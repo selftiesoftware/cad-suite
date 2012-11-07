@@ -24,6 +24,7 @@ class Point extends Module {
   private var decimalValue : Boolean = false
   private var point : Option[Vector2D] = None
   var pointGuide : Option[Vector2D => Traversable[Shape]] = None
+  var sendGuide : Option[PointGuide] = None
   var snapAngle : Option[Double] = None
   val stateMap: StateMap = Map(
 
@@ -44,6 +45,7 @@ class Point extends Module {
       // Check for PointGuide
       case Start(_ ,g : PointGuide) :: tail => {
         pointGuide = Some(g.guide)
+        sendGuide = Some(g)
       }
       // Exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
@@ -59,7 +61,7 @@ class Point extends Module {
 
         if(pointGuide.isDefined) {
           println("starting coord with pointGuide")
-          Start('InputTwoValues,"com.siigna.module.base.create", pointGuide.get)
+          Start('InputTwoValues,"com.siigna.module.base.create", sendGuide.get)
         }
         else Start('InputTwoValues,"com.siigna.module.base.create")
 
