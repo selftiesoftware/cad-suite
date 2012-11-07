@@ -74,6 +74,7 @@ class Line extends Module {
           End
         }
       }
+      //KEYINPUTS starting here ----------------------------------------------------------------------------------
       //goto second coordinate if ENTER, COMMA, or TAB is pressed
       case End(KeyDown(Key.Enter | Key.Tab | (','), _)) :: tail => {
         //if noting is entered
@@ -102,7 +103,6 @@ class Line extends Module {
           coordinateX     = None
         }
       }
-
       //if point returns a keyDown - that is not previously intercepted
       case End(KeyDown(code, _)) :: tail => {
         println(coordinateValue)
@@ -137,7 +137,8 @@ class Line extends Module {
 
         //Display the message
         if(message.isDefined) Siigna display(message.get)
-        }
+      }
+      //KEYINPUTS ending here ---------------------------------------------------------------------------------
 
       //if point returns a mouseDown
       case End(m : MouseDown) :: tail => {
