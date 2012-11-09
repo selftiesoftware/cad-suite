@@ -34,15 +34,20 @@ class Polyline extends Module {
         if (startPoint.isEmpty){
           //Hvis startpunktet ikke er sat, er det første polylineshapedel, vi er i gang med at tegne.
           startPoint = Some(v)
-          val guide : Guide = Guide((v : Vector2D) => {
-            Array(PolylineShape(startPoint.get, v))
+
+          val guide = PointGuide(v, (v : Vector2D) => {
+            (Array(PolylineShape(startPoint.get, v)))
           })
+
           Start('Point,"com.siigna.module.base.create", guide)
         } else {
           //Hvis startpunktet er sat, er det ikke første polylineshapedel, vi er i gang med at tegne.
           points :+ v
-          val guide : Guide = Guide((v : Vector2D) => {
-            Array(PolylineShape(points :+ v))
+          //val guide : Guide = Guide((v : Vector2D) => {
+          //  Array(PolylineShape(points :+ v))
+          //})
+          val guide = PointGuide(v, (v : Vector2D) => {
+            (Array(PolylineShape(points :+ v)))
           })
           Start('Point,"com.siigna.module.base.create", guide)
         }
@@ -67,6 +72,19 @@ class Polyline extends Module {
         Start('Point,"com.siigna.module.base.create")
         }
       }
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
+
+        var plShape = PolylineShape(points)
+        def setAttribute[T : Manifest](name:String, shape:Shape) = {
+          Siigna.get(name) match {
+            case s : Some[T] => shape.addAttribute(name, s.get)
+            case None => shape// Option isn't set. Do nothing
+          }
+        }
+        val polyLine = setAttribute[Color]("Color",setAttribute[Double]("LineWeight", plShape))
+        Create(polyLine)
+        End
+      }
 
       case End :: tail => {
         //Hvis der er tegnet mindst to punkter tegnes linjen
@@ -78,9 +96,7 @@ class Polyline extends Module {
               case None => shape// Option isn't set. Do nothing
             }
           }
-          val polyLine = setAttribute[Color]("Color",
-            setAttribute[Double]("LineWeight", plShape)
-          )
+          val polyLine = setAttribute[Color]("Color",setAttribute[Double]("LineWeight", plShape))
           Create(polyLine)
         }
         //Under alle omstændigheder lukkes modulet - om der er tegnet en polylinje eller ej.
