@@ -47,7 +47,6 @@ class InputTwoValues extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
-
     //goto second coordinate if ENTER, COMMA, or TAB is pressed
       case Start(_ ,g: PointGuide) :: tail => {
         pointGuide = Some(g.guide)
@@ -82,7 +81,6 @@ class InputTwoValues extends Module {
     }
     //if point returns a keyDown - that is not previously intercepted
     case KeyDown(code, _) :: tail => {
-      println("key in in COORD mod.")
       //get the input from the keyboard if it is numbers, (-) or (.)
       val char = code.toChar
       if (char.isDigit)
@@ -119,17 +117,7 @@ class InputTwoValues extends Module {
     }
   })
   override def paint(g : Graphics, t: TransformationMatrix) {
-
-    println("X: "+x)
-    println("Y: "+y)
-
-    println("relativeX: "+relativeX)
-    println("relativeY: "+relativeY)
-
-    println("stPoint: "+startPoint.get)
-
     //if points are in the process of being typed, then reformat the value to View coordinates..
-
     if(pointGuide.isDefined && startPoint.isDefined){
       relativeX = startPoint.get.x + x
       relativeY = startPoint.get.y + y

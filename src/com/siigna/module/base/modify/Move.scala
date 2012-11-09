@@ -55,25 +55,6 @@ class Move extends Module {
         Siigna display "set origin of move"
         Start('Point,"com.siigna.module.base.create")
       }
-        //def getEndPoint(p : Vector2D) = {
-        //  endPoint = Some(p)
-        //  (p - startPoint.get)
-
-        //}
-        //if moving is initiated and completed by dragging the mouse:
-        //if (startPoint.isDefined && moduleCallFromMenu == false) {
-        //  val translation = events match {
-        //    case MouseDown(p, _, _) :: tail => getEndPoint(p)
-        //    case MouseDrag(p, _, _) :: tail => getEndPoint(p)
-        //    case MouseMove(p, _, _) :: tail => getEndPoint(p)
-        //    case MouseUp(p, _, _) :: tail => {
-        //     ending = true
-        //      getEndPoint(p)
-        //}
     }
   )
-  //draw the moving geometry when dragging the mouse
-  //override def paint(g : Graphics, t : TransformationMatrix) {
-    //Drawing.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))
-  //}
 }

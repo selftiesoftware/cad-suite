@@ -61,7 +61,6 @@ class Point extends Module {
         //TODO: add if statement: if a track-guide is active, forward to a InputLength module instead...
 
         if(pointGuide.isDefined) {
-          println("starting coord with pointGuide")
           Start('InputTwoValues,"com.siigna.module.base.create", sendGuide.get)
         }
         else Start('InputTwoValues,"com.siigna.module.base.create")
