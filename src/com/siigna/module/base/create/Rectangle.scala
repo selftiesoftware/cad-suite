@@ -24,10 +24,10 @@ class Rectangle extends Module {
         if (points.length == 0){
           points = points :+ v
 
-          //if 'Point returns a point, use it in a Pointguide:
-          val guide : Guide = Guide((v : Vector2D) => {
-            Array(PolylineShape(Rectangle2D(points(0), v)))
+          val guide = PointGuide(v, (v : Vector2D) => {
+            (Array(PolylineShape(Rectangle2D(points(0), v))))
           })
+
           Start('Point,"com.siigna.module.base.create", guide)
           }
         //use second point
