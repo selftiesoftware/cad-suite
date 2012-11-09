@@ -12,21 +12,23 @@
 package com.siigna.module.base.modify
 
 import com.siigna._
+import app.Siigna
+import com.siigna.module.base.create._
 
 class Move extends Module {
 
   var endPoint : Option[Vector2D] = None
 
   //a guide to get Point to draw the shape(s) dynamically
-  val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
-    // CreateCategory a matrix
-    val t : TransformationMatrix = if (startPoint.isDefined) {
-      TransformationMatrix(v - startPoint.get, 1)
-    // If no startPoint has been defined - create an empty matrix
-    } else TransformationMatrix()
-    // Return the shape, transformed
-    Drawing.selection.get.apply(t)
-  }
+  //val shapeGuide : Vector2D => Traversable[Shape] = (v : Vector2D) => {
+  // CreateCategory a matrix
+  //  val t : TransformationMatrix = if (startPoint.isDefined) {
+  //    TransformationMatrix(v - startPoint.get, 1)
+  // If no startPoint has been defined - create an empty matrix
+  //  } else TransformationMatrix()
+  // Return the shape, transformed
+  //  Drawing.selection.get.apply(t)
+  //}
 
   var startPoint : Option[Vector2D] = None
   var transformation : Option[TransformationMatrix] = None
@@ -37,13 +39,28 @@ class Move extends Module {
       case End(p : Vector2D) :: tail => {
         if(!startPoint.isDefined) {
           startPoint = Some(p)
-          Siigna display "set new location"
-        } else {
+          Siigna display "set destination"
+
+          val shapeGuide = PointGuide(p, (v : Vector2D) => {
+            val t : TransformationMatrix = if (startPoint.isDefined) {
+               TransformationMatrix(v - startPoint.get, 1)
+              // If no startPoint has been defined - create an empty matrix
+              } else {
+              TransformationMatrix()
+              }
+              // Return the shape, transformed
+            Drawing.selection.get.apply(t)
+          })
+          println("goint to point with guide")
+          Start('Point,"com.siigna.module.base.create", shapeGuide)
+        }
+        else if(startPoint.isDefined){
           endPoint = Some(p)
 
           transformation = Some(TransformationMatrix((p - startPoint.get), 1))
           Drawing.selection.get.transform(transformation.get)
           Drawing.deselect()
+          End
         }
       }
       //exit strategy
@@ -75,8 +92,8 @@ class Move extends Module {
     })
 
   //draw the moving geometry when dragging the mouse
-  override def paint(g : Graphics, t : TransformationMatrix) {
-    Drawing.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))
-  }
+  //override def paint(g : Graphics, t : TransformationMatrix) {
+    //Drawing.selection.foreach(s => transformation.foreach(s.apply(_).foreach(s => g.draw(s.transform(t)))))
+  //}
 
 }
