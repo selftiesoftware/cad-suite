@@ -16,7 +16,7 @@ import com.siigna._
 
 case object ModifyCategory extends MenuCategory{
   val graph = Map[MenuEvent,MenuElement](
-    EventNNW -> MenuModule(Module('scale,"com.siigna.module.base.modify"), MenuIcons.scale)
+    EventNNW -> MenuModule(Module('Scale,"com.siigna.module.base.modify"), MenuIcons.scale)
   )
 
   val color = MenuIcons.modifyColor

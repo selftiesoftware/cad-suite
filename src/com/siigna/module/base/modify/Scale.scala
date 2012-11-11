@@ -25,8 +25,14 @@ class Scale extends Module {
 
     'Start -> {
       case End(p : Vector2D) :: tail => {
-        if(!startPoint.isDefined) {
+        if(!startPoint.isDefined){
           startPoint = Some(p)
+          Siigna display "set reference point for scaling"
+          Start('Point,"com.siigna.module.base.create")
+        }
+
+        else if(startPoint.isDefined && !endPoint.isDefined) {
+          endPoint = Some(p)
           Siigna display "set scaling factor"
 
           // val shapeGuide = PointGuide(p, (v : Vector2D) => {
@@ -43,17 +49,17 @@ class Scale extends Module {
             val refScale : Vector2D = startPoint.get - endPoint.get
             val scaleFactor = ((v - startPoint.get).length/refScale.length)
             //Define a scaling matrix:
-            val t : TransformationMatrix = if (startPoint.isDefined) {
+            val t : TransformationMatrix = {
               TransformationMatrix(Vector2D(0,0), 1).scale(scaleFactor,startPoint.get)
               // If no startPoint has been defined - create an empty matrix
-            } else TransformationMatrix()
+            }
             // Return the shape, transformed
             Drawing.selection.get.apply(t)
           })
           //if the base point for scaling is set, goto point with a shape guide
           Start('Point,"com.siigna.module.base.create", shapeGuide)
         }
-        else if(startPoint.isDefined){
+        else if(startPoint.isDefined && endPoint.isDefined){
           endPoint = Some(p)
           transformation = Some(TransformationMatrix((p - startPoint.get), 1))
           Drawing.selection.get.transform(transformation.get)
