@@ -87,5 +87,5 @@ class Point extends Module {
  */
 case class Guide(guide : Vector2D => Traversable[Shape])
 
-//a case class where the point can be extracted.
+//a case class for sending a point guide from which the point can be extracted.
 case class PointGuide(point : Vector2D , guide : Vector2D => Traversable[Shape])

@@ -74,7 +74,6 @@ class Rotate extends Module {
       //exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
       case MouseDown(p, MouseButtonRight, _) :: tail => End
-
       case _ => {
         Siigna display "set base point for rotation"
         Start('Point,"com.siigna.module.base.create")

@@ -26,7 +26,6 @@ class Copy extends Module {
 
     'Start -> {
       case End(p : Vector2D) :: tail => {
-        println("START WITH POINT")
         if(!startPoint.isDefined && !Drawing.selection.get.isEmpty) {
           shapes = Some(Drawing.selection.get)
           startPoint = Some(p)

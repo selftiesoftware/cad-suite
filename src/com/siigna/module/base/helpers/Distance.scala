@@ -9,72 +9,47 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-/*package com.siigna.module.base.helpers
+package com.siigna.module.base.helpers
 
 import com.siigna._
-import com.siigna.module.Module
-import app.controller.Controller
 import com.siigna.module.base.create._
+import app.Siigna
 
 /**
- * A module that measures and displays a distance between two points
+ * A line module (draws one line-segment)
  */
-
 class Distance extends Module {
 
-  var points = List[Vector2D]()
+  // var guide : Guide = Guide((v : Vector2D) => {
+  //   Array(LineShape(startPoint.get, v))
+  // })
 
-  def stateMachine = Map(
-    'StartCategory -> ((events : List[Event]) => {
-      events match {
-        case MouseDown(_, MouseButtonRight, _) :: tail => {
-          'End
-        }
-        case _ => Module('Point)
-      }
-    }),
-    'SetPoint -> ((events : List[Event]) => {
+  var startPoint: Option[Vector2D] = None
 
-      def getPointGuide = (p : Vector2D) =>
+  val stateMap: StateMap = Map(
 
-        if(points.size == 0) LineShape((p),(p))
-        else {
-          Siigna.display("distance:  " + (p-points(0)).length.round + " millimeters")
-          LineShape(points(0),p)
-        }
+    'Start -> {
+      case End(v : Vector2D) :: tail => {
+        if (startPoint.isEmpty){
+          startPoint = Some(v)
 
-      events match {
-        // exit strategy
-        case (MouseDown(_, MouseButtonRight, _) | MouseUp(_, MouseButtonRight, _) | KeyDown(Key.Esc, _)) :: tail => Goto('End, false)
+          val guide = PointGuide(v, (v : Vector2D) => {
+            (Array(LineShape(startPoint.get, v)))
+          })
 
-        case Message(p : Vector2D) :: tail => {
-          // save the point
-          points = points :+ p
-          // Define shape if there is enough points
-          if (points.size == 1) {
-            Module('Point)
-            //Controller ! Message(PointGuide(getPointGuide))
-          } else 'End
-        }
-
-        // match on everything else
-        case _ => {
-          ForwardTo('Point)
-          //Controller ! Message(PointGuide(getPointGuide))
+          Start('Point,"com.siigna.module.base.create", guide)
+        } else {
+          var length : Int = ((startPoint.get - v).length).toInt
+          Siigna display "length: " + length
+          End
         }
       }
-    }),
-
-    'End -> ((events : List[Event]) => {
-      if (points.size == 2) {
-        Siigna.display("distance:  " + ((points(1)-points(0)).length.round) + " millimeters")
+      case _ => {
+        Siigna display "set two points to measure the distance between them."
+        Start('Point,"com.siigna.module.base.create")
       }
+      //if
 
-      //clear the points list
-      points = List()
-      com.siigna.module.base.ModuleInit.previousModule = Some('Distance)
-
-    })
+    }
   )
 }
-*/
