@@ -53,7 +53,7 @@ class ModuleInit extends Module {
 
       // Release all selections
       case KeyDown(Key.Esc, _) :: tail => Drawing.deselect()
-      case _ => println("a")
+      case _ =>
     }
   )
 
