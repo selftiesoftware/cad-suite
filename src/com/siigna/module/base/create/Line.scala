@@ -36,7 +36,7 @@ class Line extends Module {
 
           val guide = PointGuide(v, (v : Vector2D) => {
             (Array(LineShape(startPoint.get, v)))
-          })
+          },1)//1 : Input type = InputTwoValues
           Start('Point,"com.siigna.module.base.create", guide)
         } else {
 

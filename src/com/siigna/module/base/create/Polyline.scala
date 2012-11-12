@@ -36,7 +36,7 @@ class Polyline extends Module {
 
           val guide = PointGuide(v, (v : Vector2D) => {
             (Array(PolylineShape(startPoint.get, v)))
-          })
+          },1)//1 : Input type = InputTwoValues
 
           Start('Point,"com.siigna.module.base.create", guide)
         } else {
@@ -47,7 +47,7 @@ class Polyline extends Module {
           //})
           val guide = PointGuide(v, (v : Vector2D) => {
             (Array(PolylineShape(points :+ v)))
-          })
+          },1)//1 : Input type = InputTwoValues
           Start('Point,"com.siigna.module.base.create", guide)
         }
       }

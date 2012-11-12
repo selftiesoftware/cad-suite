@@ -26,7 +26,7 @@ class Rectangle extends Module {
 
           val guide = PointGuide(v, (v : Vector2D) => {
             (Array(PolylineShape(Rectangle2D(points(0), v))))
-          })
+          },1) //1 : Input type = InputTwoValues
 
           Start('Point,"com.siigna.module.base.create", guide)
           }

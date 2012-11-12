@@ -12,6 +12,7 @@
 package com.siigna.module.base.create
 
 import com.siigna._
+import java.nio.file.OpenOption
 
 /**
  * The point module answers to requests from many other modules who require a number or one or more points to function.
@@ -24,18 +25,24 @@ class Point extends Module {
   private var decimalValue : Boolean = false
   private var point : Option[Vector2D] = None
   private var guide : Boolean = true
+  private var inputType : Option[Int] = None
   var pointGuide : Option[Vector2D => Traversable[Shape]] = None
   var sendGuide : Option[PointGuide] = None
   var snapAngle : Option[Double] = None
   val stateMap: StateMap = Map(
 
     'Start -> {
+      //if InputTwoValue returns a vector, return it to the calling module:
       case End(p : Vector2D) :: tail => {
         End(p)
       }
+      //if a single value is returned from InputOneValue of InputAngle, eturn it to the calling module:
+      case End(l : Double) :: tail => {
+        End(l)
+      }
 
+      //If left mouse button is clicked: End and return mouse-position-point.
       case MouseDown(p,button,modifier)::tail => {
-        // End and return mouse-position-point, if left mouse button is clicked
         if (button==MouseButtonLeft) {
           End(p.transform(View.deviceTransformation))
         } else {
@@ -46,18 +53,25 @@ class Point extends Module {
       // Check for PointGuide - retrieve both the guide and its reference point, if it is defined.
       case Start(_ ,g : PointGuide) :: tail => {
         pointGuide = Some(g.guide)
+        inputType = Some(g.inputType)
         sendGuide = Some(g)
       }
       // Exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
 
-      //TODO: the first key-input is lost... it should be used in the coords module.
       //TODO: add if statement: if a track-guide is active, forward to a InputLength module instead...
       case KeyDown(key,modifier) :: tail => {
         guide = false
-        if(pointGuide.isDefined) {
+        if(pointGuide.isDefined && inputType == Some(1)) {
           Start('InputTwoValues,"com.siigna.module.base.create", sendGuide.get)
-        } else Start('InputTwoValues,"com.siigna.module.base.create")
+        }
+        else if(pointGuide.isDefined && inputType == Some(2)) {
+          Start('InputOneValue,"com.siigna.module.base.create", sendGuide.get)
+        }
+        else if(pointGuide.isDefined && inputType == Some(3)) {
+          Start('InputAngle,"com.siigna.module.base.create", sendGuide.get)
+        }
+        else None
       }
       case _ => {
       }
@@ -71,16 +85,17 @@ class Point extends Module {
   }
 }
 
-/**
- * A class used to draw guides in the point module.
- * coordType (Int) is passed on to text input modules if values are typed.
- * possible values:
- * 1 = x and y coordinates  (handled by the InputTwoValues module)
- * 2 = one length value     (handled by the InputLength module)
- * 3 = one angle value      (handled by the InputAngle module)
- */
+
 
 case class Guide(guide : Vector2D => Traversable[Shape])
 
-//a case class for sending a point guide from which the point can be extracted.
-case class PointGuide(point : Vector2D , guide : Vector2D => Traversable[Shape])
+/**
+ * a case class for sending a point guide from which the point can be extracted, and the input type is defined.
+ * inputType (Int) is passed on to text input modules if values are typed.
+ * possible values:
+ * 1 = x and y coordinates  (handled by the InputTwoValues module)
+ * 2 = one length value     (handled by the InputOneValue module)
+ * 3 = one angle value      (handled by the InputAngle module)
+ */
+
+case class PointGuide(point : Vector2D , guide : Vector2D => Traversable[Shape] , inputType : Int)

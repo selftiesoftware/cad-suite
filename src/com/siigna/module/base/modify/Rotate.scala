@@ -50,7 +50,7 @@ class Rotate extends Module {
             } else TransformationMatrix()
             // Return the shape, transformed
             Drawing.selection.get.apply(t)
-          })
+          },3) //1 : Input type = InputAngle
           Start('Point,"com.siigna.module.base.create", shapeGuide)
         //If a rotation-vector is set, do the rotation!
         } else if(startVector.isDefined && centerPoint.isDefined) {

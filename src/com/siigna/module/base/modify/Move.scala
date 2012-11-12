@@ -38,7 +38,7 @@ class Move extends Module {
               } else TransformationMatrix()
             // Return the shape, transformed
             Drawing.selection.get.apply(t)
-          })
+          },1) //1 : Input type = InputTwoValues
           //forward to the point module with the shape guide.
           Start('Point,"com.siigna.module.base.create", shapeGuide)
         }

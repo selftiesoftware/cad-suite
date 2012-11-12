@@ -38,7 +38,7 @@ class Copy extends Module {
             } else TransformationMatrix()
             // Return the shape, transformed
             Drawing.selection.get.apply(t)
-          })
+          },1 )//1 : Input type = InputTwoValues
           Start('Point,"com.siigna.module.base.create", shapeGuide)
         }
         else if(startPoint.isDefined){
