@@ -53,17 +53,20 @@ class Rotate extends Module {
           })
           Start('Point,"com.siigna.module.base.create", shapeGuide)
         //If a rotation-vector is set, do the rotation!
-        } else if(startVector.isDefined) {
+        } else if(startVector.isDefined && centerPoint.isDefined) {
            endVector = Some(p)
 
           val t : TransformationMatrix = {
-            val a1 : Double = (startVector.get - centerPoint.get).angle
-            val a2 : Double = (endVector.get - centerPoint.get).angle
-            TransformationMatrix(Vector2D(0,0), 1).rotate(a2 - a1, centerPoint.get)
+            if (endVector.isDefined) {
+              val a1 : Double = (startVector.get - centerPoint.get).angle
+              val a2 : Double = (endVector.get - centerPoint.get).angle
+              TransformationMatrix(Vector2D(0,0), 1).rotate(a2 - a1, centerPoint.get)
+            } else TransformationMatrix()
           }
           //val t = transformation.get.rotate(rotation,centerPoint.get)
           Drawing.selection.get.transform(t)
           Drawing.deselect()
+          End
         }
       }
       //if Point returns a typed angle:

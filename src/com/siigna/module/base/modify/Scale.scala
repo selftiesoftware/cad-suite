@@ -41,7 +41,6 @@ class Scale extends Module {
             val scaleFactor = ((v - startPoint.get).length/refScale.length)
             //Define a scaling matrix:
             val t : TransformationMatrix = {
-              println(v - startPoint.get)
               TransformationMatrix(Vector2D(0,0), 1).scale(scaleFactor,startPoint.get)
               // If no startPoint has been defined - create an empty matrix
             }
