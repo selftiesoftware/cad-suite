@@ -25,23 +25,24 @@ class InputTwoValues extends Module {
   private var coordinateY : Option[Double] = None   //text input for Y values
   private var coordinateValue : String = ""  //input string for distances
 
-  val message = {
+  def message(value : String, xCoord : Option[Double], yCoord : Option[Double]) : String = {
+    println(coordinateValue.length)
     if (coordinateValue.length > 0 ) {
 
-      val x = if (coordinateX.isDefined) "%.2f" format coordinateX.get
-      else coordinateValue
-      val y = if (coordinateY.isDefined) "%.2f" format coordinateY.get
-      else if (coordinateX.isDefined) coordinateValue
+      val x = if (xCoord.isDefined) "%.2f" format xCoord.get
+      else value
+      val y = if (yCoord.isDefined) "%.2f" format yCoord.get
+      else if (xCoord.isDefined) value
       else ""
 
-      Some("point (X: "+x+", Y: "+y+").")
+      ("point (X: "+x+", Y: "+y+").")
 
       //Display the coords when typed.
-    } else if (coordinateX.isDefined) {
-      Some("point (X: "+x+")")
+    } else if (xCoord.isDefined) {
+      ("point (X: "+x+")")
     }
     else {
-      None
+      ""
     }
   }
 
@@ -75,7 +76,7 @@ class InputTwoValues extends Module {
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
 
-        if(message.isDefined) Siigna display(message.get)
+        Siigna display message(coordinateValue, coordinateX, coordinateY)
       }
 
     case KeyDown(Key.Enter | Key.Tab | (','), _) :: tail => {
@@ -98,7 +99,11 @@ class InputTwoValues extends Module {
       }
     }
     case KeyDown(Key.Backspace, _) :: tail => {
-      if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
+      if (coordinateValue.length > 0) {
+        coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
+        Siigna display message(coordinateValue, coordinateX, coordinateY)
+
+      }
       else if (coordinateX.isDefined) {
         coordinateValue = coordinateX.get.toString
         coordinateX     = None
@@ -116,7 +121,7 @@ class InputTwoValues extends Module {
         coordinateValue = "-"
 
       //Display the message
-      if(message.isDefined) Siigna display(message.get)
+      Siigna display message(coordinateValue, coordinateX, coordinateY)
     }
     case _ => {
     }

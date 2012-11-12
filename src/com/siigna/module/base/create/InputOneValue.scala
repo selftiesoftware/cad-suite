@@ -21,21 +21,7 @@ import app.Siigna
 
 class InputOneValue extends Module {
 
-  private var value : Option[Double] = None   //text input for X values
   private var coordinateValue : String = ""  //input string for distances
-
-  val message = {
-    if (coordinateValue.length > 0 ) {
-
-      val x = if (value.isDefined) "%.2f" format value.get
-      else ""
-
-      Some("value: "+x)
-    }
-    else {
-      None
-    }
-  }
 
   var pointGuide : Option[Vector2D => Traversable[Shape]] = None
   var startPoint : Option[Vector2D] = None
@@ -50,23 +36,21 @@ class InputOneValue extends Module {
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
 
-        if(message.isDefined) Siigna display(message.get)
+        Siigna display coordinateValue
       }
 
       case KeyDown(Key.Enter | Key.Tab | (','), _) :: tail => {
         if (coordinateValue.length > 0) {
-            value = Some(java.lang.Double.parseDouble(coordinateValue))
+            var value = Some(java.lang.Double.parseDouble(coordinateValue))
             End(value.get)
           } else End(0.0)
         }
 
       case KeyDown(Key.Backspace, _) :: tail => {
         if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
-        else if (value.isDefined) {
-          coordinateValue = value.get.toString
-          value     = None
-        }
+        Siigna display coordinateValue
       }
+
       //if point returns a keyDown - that is not previously intercepted
       case KeyDown(code, _) :: tail => {
         //get the input from the keyboard if it is numbers, (-) or (.)
@@ -78,8 +62,8 @@ class InputOneValue extends Module {
         else if (char == '-' && coordinateValue.length < 1)
           coordinateValue = "-"
 
-        //Display the message
-        if(message.isDefined) Siigna display(message.get)
+        //Display the input in a message
+        Siigna display coordinateValue
       }
       case _ => {
       }
