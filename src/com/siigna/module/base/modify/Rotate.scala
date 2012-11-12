@@ -19,7 +19,22 @@ class Rotate extends Module {
 
   private var centerPoint : Option[Vector2D] = None
   private var endVector : Option[Vector2D] = None
-  private var rotation : Double = 0.0
+
+  //a guide to get Point to dynamically draw the shape(s) and their rotation
+  def shapeGuide(p: Vector2D) = PointGuide(p, (v : Vector2D) => {
+    // CreateCategory a matrix
+    val t : TransformationMatrix = if (startVector.isDefined && centerPoint.isDefined) {
+      // To find the angle between two vectors (lines): First calculate the separate angles
+      val a1 : Double = (startVector.get - centerPoint.get).angle
+      val a2 : Double = (v - centerPoint.get).angle
+      // ... And then subtract the second from the first
+      TransformationMatrix(Vector2D(0,0), 1).rotate(a2 - a1, centerPoint.get)
+      // If no start- (or center-) point has been defined - create empty matrix
+    } else TransformationMatrix()
+    // Return the shape, transformed
+    Drawing.selection.get.apply(t)
+  },2) //1 : Input type = InputAngle
+
   private var startVector : Option[Vector2D] = None
   var transformation : Option[TransformationMatrix] = None
 
@@ -29,29 +44,15 @@ class Rotate extends Module {
       case End(p : Vector2D) :: tail => {
         if(!centerPoint.isDefined) {
           centerPoint = Some(p)
-          Siigna display "set or type rotation angle"
-          Start('Point,"com.siigna.module.base.create")
+          Siigna display "set a reference point or type a rotation angle"
+          Start('Point,"com.siigna.module.base.create", shapeGuide(p))
         }
 
         // if the center of rotation and origin for rotation is set, return to Point to draw the rotation dynamically.
         else if(centerPoint.isDefined && !startVector.isDefined){
           startVector = Some(p)
 
-          //a guide to get Point to dynamically draw the shape(s) and their rotation
-          val shapeGuide = PointGuide(p, (v : Vector2D) => {
-            // CreateCategory a matrix
-            val t : TransformationMatrix = if (startVector.isDefined && centerPoint.isDefined) {
-              // To find the angle between two vectors (lines): First calculate the separate angles
-              val a1 : Double = (startVector.get - centerPoint.get).angle
-              val a2 : Double = (v - centerPoint.get).angle
-              // ... And then subtract the second from the first
-              TransformationMatrix(Vector2D(0,0), 1).rotate(a2 - a1, centerPoint.get)
-              // If no start- (or center-) point has been defined - create empty matrix
-            } else TransformationMatrix()
-            // Return the shape, transformed
-            Drawing.selection.get.apply(t)
-          },3) //1 : Input type = InputAngle
-          Start('Point,"com.siigna.module.base.create", shapeGuide)
+          Start('Point,"com.siigna.module.base.create", shapeGuide(p))
         //If a rotation-vector is set, do the rotation!
         } else if(startVector.isDefined && centerPoint.isDefined) {
            endVector = Some(p)
@@ -71,7 +72,16 @@ class Rotate extends Module {
       }
       //if Point returns a typed angle:
       case End(a : Double) :: tail => {
-        println("received a typed angle!")
+        println("GOT TYPED ANGLE: "+a)
+        val t : TransformationMatrix = {
+          if (centerPoint.isDefined) {
+            TransformationMatrix(Vector2D(0,0), 1).rotate(-a, centerPoint.get)
+          } else TransformationMatrix()
+        }
+        //val t = transformation.get.rotate(rotation,centerPoint.get)
+        Drawing.selection.get.transform(t)
+        Drawing.deselect()
+        End
       }
 
       //exit strategy

@@ -95,7 +95,6 @@ case class Guide(guide : Vector2D => Traversable[Shape])
  * possible values:
  * 1 = x and y coordinates  (handled by the InputTwoValues module)
  * 2 = one length value     (handled by the InputOneValue module)
- * 3 = one angle value      (handled by the InputAngle module)
  */
 
 case class PointGuide(point : Vector2D , guide : Vector2D => Traversable[Shape] , inputType : Int)
