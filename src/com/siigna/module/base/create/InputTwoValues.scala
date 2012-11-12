@@ -26,24 +26,28 @@ class InputTwoValues extends Module {
   private var coordinateValue : String = ""  //input string for distances
 
   def message(value : String, xCoord : Option[Double], yCoord : Option[Double]) : String = {
-    println(coordinateValue.length)
     if (coordinateValue.length > 0 ) {
-
-      val x = if (xCoord.isDefined) "%.2f" format xCoord.get
-      else value
-      val y = if (yCoord.isDefined) "%.2f" format yCoord.get
-      else if (xCoord.isDefined) value
-      else ""
-
-      ("point (X: "+x+", Y: "+y+").")
-
-      //Display the coords when typed.
-    } else if (xCoord.isDefined) {
-      ("point (X: "+x+")")
+      val x: Option[String] = Some(if (!xCoord.isEmpty) {
+        if (xCoord.get % 1 == 0.0) xCoord.get.toInt.toString
+        else xCoord.get.toString
+      } else value)
+      var y: Option[String] = None 
+      if (!yCoord.isEmpty && ((yCoord.get * 100) % 1) != 0) y = Some(("%.2f" format yCoord.get).toString)
+      else if (!xCoord.isEmpty ) y = Some(value)
+      if (!x.isEmpty && y.isEmpty) ("point (X: " + x.get)
+      else if (!y.isEmpty || y.get.length() == 0) ("point (X: "+x.get+", Y: " + y.get + ").")
+      //Here must be something - at least a string eith a space -
+      // as long as an empty string makes the whole thing go down...
+      else "point (X: "
+    } else if (coordinateValue.length() == 0) {
+      val x: Option[String] = Some(if (!xCoord.isEmpty && ((xCoord.get * 100) % 1) != 0) ("%.2f" format xCoord.get).toString
+      else if (!xCoord.isEmpty ) xCoord.get.toString
+      else value)
+      if (!x.isEmpty && x.get.length() > 0) ("point (X: " + x.get + ", Y:")
+      else ("point (X: " + x.get)
     }
-    else {
-      ""
-    }
+    //Also here - at least a space
+    else " "
   }
 
   var pointGuide : Option[Vector2D => Traversable[Shape]] = None
@@ -69,27 +73,38 @@ class InputTwoValues extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
-    //goto second coordinate if ENTER, COMMA, or TAB is pressed
+
+      //Read numbers and minus:
       case Start(_ ,g: PointGuide) :: KeyDown(code, _) :: tail => {
         pointGuide = Some(g.guide)
         startPoint = Some(g.point)
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
-
+        if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
         Siigna display message(coordinateValue, coordinateX, coordinateY)
       }
 
+    //goto second coordinate if ENTER, COMMA, or TAB is pressed
     case KeyDown(Key.Enter | Key.Tab | (','), _) :: tail => {
-      //if noting is entered
-      if (coordinateX.isEmpty && coordinateValue.length == 0) End
-      //when ENTER is pressed, and a value is set, this value is passed as the first coordinate relative to 0,0
-      else if (coordinateX.isEmpty && coordinateValue.length > 0) {
-        coordinateX = Some(java.lang.Double.parseDouble(coordinateValue))
-
+      //if noting is entered before, it is interpreted as zero:
+      if (coordinateX.isEmpty && coordinateValue.length == 0) {
+        coordinateX = Some(0)
         coordinateValue = ""
       }
+      //when ENTER, "," or TAB is pressed, and a value is set, this value is passed as the first coordinate relative to 0,0
+      else if (coordinateX.isEmpty && coordinateValue.length > 0) {
+        coordinateX = Some(java.lang.Double.parseDouble(coordinateValue))
+        if (((coordinateX.get * 100) % 1) != 0) coordinateX = Some((math.floor(coordinateX.get * 100))/100)
+        else if (((coordinateX.get * 10) % 1) == 0) coordinateX = Some((math.floor(coordinateX.get * 10))/10)
+        else coordinateX = Some(math.floor(coordinateX.get))
+        coordinateValue = ""
+      }
+      //If X is already entered, it is interpreted as Y:
       else if (coordinateY.isEmpty && coordinateValue.length > 0) {
         coordinateY = Some(java.lang.Double.parseDouble(coordinateValue))
+        if (((coordinateY.get * 100) % 1) == 0) coordinateY = Some((math.floor(coordinateY.get * 100))/100)
+        else if (((coordinateY.get * 10) % 1) == 0) coordinateY = Some((math.floor(coordinateY.get * 10))/10)
+        else coordinateY = Some(math.floor(coordinateY.get))
         coordinateValue = ""
         //if a full set of coordinates are present, return them to the calling module.
         if(startPoint.isDefined) {
@@ -99,11 +114,14 @@ class InputTwoValues extends Module {
       }
     }
     case KeyDown(Key.Backspace, _) :: tail => {
+      println("Backspace pressed. coordinateValue er: " + coordinateValue)
+      println("coordinateX og Y er: " + coordinateX + " " + coordinateY)
+      //If there ia an active coordinate string, it is reduced by one and displayed:
       if (coordinateValue.length > 0) {
         coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
         Siigna display message(coordinateValue, coordinateX, coordinateY)
-
       }
+      //If there is no active string, but an active x-coordinate,
       else if (coordinateX.isDefined) {
         coordinateValue = coordinateX.get.toString
         coordinateX     = None
@@ -124,14 +142,18 @@ class InputTwoValues extends Module {
       Siigna display message(coordinateValue, coordinateX, coordinateY)
     }
     case _ => {
+
     }
   })
   override def paint(g : Graphics, t: TransformationMatrix) {
     //if points are in the process of being typed, then draw the shape dynamically on the basis of what coords are given.
+
     if(pointGuide.isDefined && startPoint.isDefined){
       relativeX = startPoint.get.x + x
       relativeY = startPoint.get.y + y
+
       pointGuide.foreach(_(Vector2D(startPoint.get.x + x,startPoint.get.y + y)).foreach(s => g.draw(s.transform(t))))
     }
   }
+
 }
