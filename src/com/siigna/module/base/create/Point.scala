@@ -23,6 +23,7 @@ class Point extends Module {
   //VARS declaration:
   private var decimalValue : Boolean = false
   private var point : Option[Vector2D] = None
+  private var guide : Boolean = true
   var pointGuide : Option[Vector2D => Traversable[Shape]] = None
   var sendGuide : Option[PointGuide] = None
   var snapAngle : Option[Double] = None
@@ -42,38 +43,31 @@ class Point extends Module {
           End(MouseDown(p,button,modifier))
         }
       }
-      // Check for PointGuide
+      // Check for PointGuide - retrieve both the guide and its reference point, if it is defined.
       case Start(_ ,g : PointGuide) :: tail => {
         pointGuide = Some(g.guide)
         sendGuide = Some(g)
       }
       // Exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
-      // End and return backspace, if backspace is pressed
-      //case KeyDown(Key.Backspace, _) :: tail => {
-      //  println("Backspace pressed")
-      //  End(KeyDown(Key.Backspace,ModifierKeys(false,false,false)))
-      //}
-      // All other keyDown events are forwarded:
 
       //TODO: the first key-input is lost... it should be used in the coords module.
+      //TODO: add if statement: if a track-guide is active, forward to a InputLength module instead...
       case KeyDown(key,modifier) :: tail => {
-        //TODO: add if statement: if a track-guide is active, forward to a InputLength module instead...
-
+        guide = false
         if(pointGuide.isDefined) {
           Start('InputTwoValues,"com.siigna.module.base.create", sendGuide.get)
-        }
-        else Start('InputTwoValues,"com.siigna.module.base.create")
-
-        //End(KeyDown(key,modifier))
+        } else Start('InputTwoValues,"com.siigna.module.base.create")
       }
       case _ => {
       }
     }
   )
-  //TODO: disable this pointGuide if the InputTwoValues module is used
   override def paint(g : Graphics, t : TransformationMatrix) {
-    pointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+    //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
+    if ( guide == true) {
+      pointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+    }
   }
 }
 
@@ -85,6 +79,7 @@ class Point extends Module {
  * 2 = one length value     (handled by the InputLength module)
  * 3 = one angle value      (handled by the InputAngle module)
  */
+
 case class Guide(guide : Vector2D => Traversable[Shape])
 
 //a case class for sending a point guide from which the point can be extracted.

@@ -28,11 +28,10 @@ class Polyline extends Module {
   val stateMap: StateMap = Map(
     'Start -> {
       case End(v : Vector2D) :: tail => {
-        //Hvis status fra returnerende enhed er END, er der besked tilbage fra point med et nyt punkt.
-        println("Starter polyline-modul, med END")
+        //if the point module returns with END, a new point is received.
         points = points :+ v
         if (startPoint.isEmpty){
-          //Hvis startpunktet ikke er sat, er det første polylineshapedel, vi er i gang med at tegne.
+          //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
           startPoint = Some(v)
 
           val guide = PointGuide(v, (v : Vector2D) => {
@@ -41,7 +40,7 @@ class Polyline extends Module {
 
           Start('Point,"com.siigna.module.base.create", guide)
         } else {
-          //Hvis startpunktet er sat, er det ikke første polylineshapedel, vi er i gang med at tegne.
+          //If the start point is set, the first segment is made and points should be added.
           points :+ v
           //val guide : Guide = Guide((v : Vector2D) => {
           //  Array(PolylineShape(points :+ v))
@@ -87,7 +86,7 @@ class Polyline extends Module {
       }
 
       case End :: tail => {
-        //Hvis der er tegnet mindst to punkter tegnes linjen
+        //If there are two or more points in the polyline, it can be saved to the Siigna universe.
         if (points.length > 1) {
           var plShape = PolylineShape(points)
           def setAttribute[T : Manifest](name:String, shape:Shape) = {
@@ -99,13 +98,12 @@ class Polyline extends Module {
           val polyLine = setAttribute[Color]("Color",setAttribute[Double]("LineWeight", plShape))
           Create(polyLine)
         }
-        //Under alle omstændigheder lukkes modulet - om der er tegnet en polylinje eller ej.
+        //The module closes - even if no polyline was drawn.
       startPoint = None
       points = List()
       End
       }
       case x => {
-        println("Ukendt kommando modtaget i polyline-modul: " + x + ". Starter point-modul.")
         Start('Point,"com.siigna.module.base.create")
       }
     })

@@ -24,6 +24,27 @@ class InputTwoValues extends Module {
   private var coordinateX : Option[Double] = None   //text input for X values
   private var coordinateY : Option[Double] = None   //text input for Y values
   private var coordinateValue : String = ""  //input string for distances
+
+  val message = {
+    if (coordinateValue.length > 0 ) {
+
+      val x = if (coordinateX.isDefined) "%.2f" format coordinateX.get
+      else coordinateValue
+      val y = if (coordinateY.isDefined) "%.2f" format coordinateY.get
+      else if (coordinateX.isDefined) coordinateValue
+      else ""
+
+      Some("point (X: "+x+", Y: "+y+").")
+
+      //Display the coords when typed.
+    } else if (coordinateX.isDefined) {
+      Some("point (X: "+x+")")
+    }
+    else {
+      None
+    }
+  }
+
   var pointGuide : Option[Vector2D => Traversable[Shape]] = None
   var startPoint : Option[Vector2D] = None
 
@@ -48,9 +69,13 @@ class InputTwoValues extends Module {
 
     'Start -> {
     //goto second coordinate if ENTER, COMMA, or TAB is pressed
-      case Start(_ ,g: PointGuide) :: tail => {
+      case Start(_ ,g: PointGuide) :: KeyDown(code, _) :: tail => {
         pointGuide = Some(g.guide)
         startPoint = Some(g.point)
+        //save the already typed key:
+        if (code.toChar.isDigit) coordinateValue += code.toChar
+
+        if(message.isDefined) Siigna display(message.get)
       }
 
     case KeyDown(Key.Enter | Key.Tab | (','), _) :: tail => {
@@ -90,26 +115,6 @@ class InputTwoValues extends Module {
       else if (char == '-' && coordinateValue.length < 1)
         coordinateValue = "-"
 
-      val message = {
-        if (coordinateValue.length > 0 ) {
-
-          val x = if (coordinateX.isDefined) "%.2f" format coordinateX.get
-          else coordinateValue
-          val y = if (coordinateY.isDefined) "%.2f" format coordinateY.get
-          else if (coordinateX.isDefined) coordinateValue
-          else ""
-
-          Some("point (X: "+x+", Y: "+y+").")
-
-          //Display the coords when typed.
-        } else if (coordinateX.isDefined) {
-          Some("point (X: "+x+")")
-        }
-        else {
-          None
-        }
-      }
-
       //Display the message
       if(message.isDefined) Siigna display(message.get)
     }
@@ -117,7 +122,7 @@ class InputTwoValues extends Module {
     }
   })
   override def paint(g : Graphics, t: TransformationMatrix) {
-    //if points are in the process of being typed, then reformat the value to View coordinates..
+    //if points are in the process of being typed, then draw the shape dynamically on the basis of what coords are given.
     if(pointGuide.isDefined && startPoint.isDefined){
       relativeX = startPoint.get.x + x
       relativeY = startPoint.get.y + y
