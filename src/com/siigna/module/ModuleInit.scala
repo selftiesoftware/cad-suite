@@ -37,11 +37,14 @@ class ModuleInit extends Module {
       case KeyDown('c', _) :: KeyUp('p', _) :: tail => {
         Start('Colors, "com.siigna.module.base.properties")
       }
-      case KeyDown('l', _) :: tail => {
-        Create(LineShape(Vector2D(0, 0), Vector2D(100, 100)))
+      case KeyDown('l', _) :: KeyUp('c', _) :: tail => {
+        Start('Line, "com.siigna.module.base.create")
       }
-      case KeyDown('c', _) :: tail => {
-        Create(CircleShape(Vector2D(100, 100), 12))
+      case KeyDown('p', _) :: KeyUp('c', _) :: tail => {
+        Start('Polyline, "com.siigna.module.base.create")
+      }
+      case KeyDown('c', _) :: KeyUp('c', _) :: tail => {
+        Start('Circle, "com.siigna.module.base.create")
       }
 
       case KeyDown('a', Control) :: tail => Drawing.selectAll()

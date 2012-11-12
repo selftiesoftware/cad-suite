@@ -53,14 +53,20 @@ class Selection extends Module {
   def stateMap = Map(
     'Start -> {
       //double click selects over a shape selects the full shape. Double clicks are registered in different ways:
-      case MouseDown(_, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) ::
-           MouseMove(_, _ ,_) :: MouseDown(_, MouseButtonLeft, _) :: tail => hasFullShape
+      case MouseDown(p, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: tail => {
+        startPoint = Some(p)
+
+        println("nearest defined? "+nearestShape)
+        hasFullShape
+      }
 
       case MouseDown(p, _, _) :: tail => {
+        println("single mouse down")
         startPoint = Some(p)
         hasPartShape
       }
-      case MouseMove(p, _, _) :: tail => {
+
+      case MouseMove(p, _, _) ::  tail => {
         startPoint = Some(p)
         hasPartShape
       }
@@ -71,8 +77,8 @@ class Selection extends Module {
           case _ => 'Box
         }
       }
-      case MouseUp(_, _, _) :: tail => End
-      case e => println(e)
+      //case MouseUp(_, _, _) :: tail => End
+      //case e => println(e)
     },
     'Box -> {
       case MouseDrag(p, _, _) :: tail => {
