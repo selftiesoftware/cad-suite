@@ -41,6 +41,11 @@ class Point extends Module {
         End(l)
       }
 
+      //If an end command is recieved without input (from an input module):
+      case End("no point returned") :: tail => {
+        End("no point returned")
+      }
+
       //If left mouse button is clicked: End and return mouse-position-point.
       case MouseDown(p,button,modifier)::tail => {
         if (button==MouseButtonLeft) {
@@ -56,19 +61,26 @@ class Point extends Module {
         inputType = Some(g.inputType)
         sendGuide = Some(g)
       }
-        
+      
+      //If there is no point guide, only the input type needs to be retrieved  
       case Start(_,inp: Int) :: tail => {
-        println("Inp: " + inp)
         inputType = Some(inp)
-      } 
+      }
         
       // Exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
 
       //TODO: add if statement: if a track-guide is active, forward to a InputLength module instead...
       case KeyDown(key,modifier) :: tail => {
+        println(key + " " + modifier)
         guide = false
-        if(inputType == Some(1)) {
+        //If the input is backspace with no modifiers, this key is returned to the asking module:
+        if (key == Key.backspace && modifier == ModifierKeys(false,false,false)) {
+          println ("Backspaceeeee")
+          (End(KeyDown(key,modifier)))
+        }
+        //If it is other keys, the input is interpreted by the input-modules
+        else if(inputType == Some(1)) {
           if (pointGuide.isDefined) Start('InputTwoValues,"com.siigna.module.base.create", sendGuide.get)
           else Start('InputTwoValues,"com.siigna.module.base.create")
         }
