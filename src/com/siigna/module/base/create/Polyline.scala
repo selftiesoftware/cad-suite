@@ -28,7 +28,7 @@ class Polyline extends Module {
   val stateMap: StateMap = Map(
     'Start -> {
       case End(v : Vector2D) :: tail => {
-        //if the point module returns with END, a new point is received.
+        //if the point module returns with END and a point, a new point is received.
         points = points :+ v
         if (startPoint.isEmpty){
           //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
@@ -52,25 +52,48 @@ class Polyline extends Module {
         }
       }
 
+      //If input module does not return any input:
+      case End("no point returned") :: tail => {
+        //If there only is the start point:
+        if (points.length == 1){
+          //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
+          startPoint = Some(points.last)
+
+          val guide = PointGuide(startPoint.get, (v : Vector2D) => {
+            (Array(PolylineShape(startPoint.get, v)))
+          },1)//1 : Input type = InputTwoValues
+
+          Start('Point,"com.siigna.module.base.create", guide)
+        } else {
+
+          val guide = PointGuide(points.last, (v : Vector2D) => {
+            (Array(PolylineShape(points :+ v)))
+          },1)//1 : Input type = InputTwoValues
+          Start('Point,"com.siigna.module.base.create", guide)
+        }
+      }
+
       //If point module returns a key-pres at the event when it ends:
       case End(k : KeyDown) :: tail => {
+        println("Key in polyline: " + k)
         // If the key is backspace without modification (shift etc), the last bit of line is deleted:
         if (k == KeyDown(Key.Backspace,ModifierKeys(false,false,false))) {
           if (points.length > 1) {
+            println("Points - wil be shortened: " + points)
             points = points.dropRight(1)
           }
-        }
-        //And if there is a start point, a new guide is returned
-        if (startPoint.isDefined) {
-        val guide : Guide = Guide((v : Vector2D) => {
-          Array(PolylineShape(points :+ v))
-        })
-        Start('Point,"com.siigna.module.base.create", guide)
-        } else {
-        //If not, point is started without guide.
-        Start('Point,"com.siigna.module.base.create")
-        }
-      }
+          //And if there is a start point, a new guide is returned
+          if (startPoint.isDefined) {
+            val guide : PointGuide = PointGuide(points.last, (v : Vector2D) => {
+              Array(PolylineShape(points :+ v))
+            },1) //1 : Input type = InputTwoValues
+            Start('Point,"com.siigna.module.base.create", guide)
+          } else {
+            //If not, point is started without guide.
+            Start('Point,"com.siigna.module.base.create")
+          }
+        }}
+
       case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
 
         var plShape = PolylineShape(points)
@@ -104,7 +127,7 @@ class Polyline extends Module {
       End
       }
       case x => {
-        Start('Point,"com.siigna.module.base.create")
+        Start('Point,"com.siigna.module.base.create",1)
       }
     })
 

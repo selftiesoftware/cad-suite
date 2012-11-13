@@ -48,8 +48,7 @@ class InputTwoValues extends Module {
         } else y = Some(value)
       }
       else if (!xCoord.isEmpty && value == "-") y = Some(value)
-      println("y: " +y)
-      
+
       if (!x.isEmpty && y.isEmpty) ("point (X: " + x.get)
       else if (!y.isEmpty || y.get.length() == 0) ("point (X: "+x.get+", Y: " + y.get)
       //Here must be something - at least a string eith a space -
@@ -76,6 +75,7 @@ class InputTwoValues extends Module {
     else " "
   }
 
+  var receivedGuide: Option[PointGuide] = None
   var pointGuide : Option[Vector2D => Traversable[Shape]] = None
   var startPoint : Option[Vector2D] = None
 
@@ -105,6 +105,7 @@ class InputTwoValues extends Module {
       case Start(_ ,g: PointGuide) :: KeyDown(code, _) :: tail => {
         pointGuide = Some(g.guide)
         startPoint = Some(g.point)
+        receivedGuide = Some(g)
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
         if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
@@ -167,7 +168,12 @@ class InputTwoValues extends Module {
         else coordinateValue = coordinateX.get.toString
         coordinateX     = None
         Siigna display message(coordinateValue, coordinateX, coordinateY)
+        //If there is no active string, and also no active coordinate, the module ends:
+      } else if (coordinateValue.length == 0 && coordinateX.isEmpty) {
+          End("no point returned")
       }
+
+      
     }
     //if point returns a keyDown - that is not previously intercepted
     case KeyDown(code, _) :: tail => {
