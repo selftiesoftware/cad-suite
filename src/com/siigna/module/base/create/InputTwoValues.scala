@@ -117,7 +117,6 @@ class InputTwoValues extends Module {
 
       //Read numbers and minus, "," and enter as first entry if no guide is provided:
       case Start(_,_) :: KeyDown(code, _) :: tail => {
-        println("Nonfunct")
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
         if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar

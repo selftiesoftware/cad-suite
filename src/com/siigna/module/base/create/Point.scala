@@ -29,8 +29,12 @@ class Point extends Module {
   private var guideType : Option[Int] = None
   var pointPointGuide : Option[Vector2D => Traversable[Shape]] = None
   var pointDoubleGuide : Option[Double => Traversable[Shape]] = None
-  var sendPointDoubleGuide : Option[PointDoubleGuide] = None
+  var pointPointDoubleGuide : Option[Double => Traversable[Shape]] = None
+  var pointPointPointGuide : Option[Vector2D => Traversable[Shape]] = None
   var sendPointPointGuide : Option[PointPointGuide] = None
+  var sendPointDoubleGuide : Option[PointDoubleGuide] = None
+  var sendPointPointDoubleGuide : Option[PointPointDoubleGuide] = None
+  var sendPointPointPointGuide : Option[PointPointPointGuide] = None
   var snapAngle : Option[Double] = None
   val stateMap: StateMap = Map(
 
@@ -81,6 +85,22 @@ class Point extends Module {
         sendPointDoubleGuide = Some(g)
         guideType = Some(2)
       }
+
+      // Check for PointPointDoubleGuide - retrieve both the guide and its reference point, if it is defined.
+      case Start(_ ,g : PointPointDoubleGuide) :: tail => {
+        pointPointDoubleGuide = Some(g.doubleGuide)
+        inputType = Some(g.inputType)
+        sendPointPointDoubleGuide = Some(g)
+        guideType = Some(3)
+      }
+
+      // Check for PointPointPointGuide - retrieve both the guide and its reference point, if it is defined.
+      case Start(_ ,g : PointPointPointGuide) :: tail => {
+        pointPointPointGuide = Some(g.pointGuide)
+        inputType = Some(g.inputType)
+        sendPointPointPointGuide = Some(g)
+        guideType = Some(3)
+      }
       
       //If there is no guide, only the input type needs to be retrieved
       case Start(_,inp: Int) :: tail => {
@@ -104,6 +124,8 @@ class Point extends Module {
             guide = false
             if (!sendPointPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create",sendPointPointGuide.get)
             else if (!sendPointDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointDoubleGuide.get)
+            else if (!sendPointPointDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointPointDoubleGuide.get)
+            else if (!sendPointPointPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointPointPointGuide.get)
             else Start('InputTwoValues,"com.siigna.module.base.create")
         } else if(inputType == Some(2)) {
             guide = false
@@ -134,6 +156,9 @@ class Point extends Module {
         val distanceFromStartToMouse: Double = math.sqrt(( (startPointX-mousePosition.transform(View.deviceTransformation).x) * (startPointX-mousePosition.transform(View.deviceTransformation).x)) + ( (startPointY-mousePosition.transform(View.deviceTransformation).y) * (startPointY-mousePosition.transform(View.deviceTransformation).y)) )
         pointDoubleGuide.foreach(_(distanceFromStartToMouse).foreach(s => g.draw(s.transform(t))))
       }
+      if (!pointPointPointGuide.isEmpty) {
+        pointPointPointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+      }
     }
   }
 }
@@ -145,10 +170,17 @@ class Point extends Module {
  * 2 = one length value     (handled by the InputOneValue module)
  * 
  * Guide types depend on what the start and end types are. They are:
- * 1 =  PointPointGuide:      Start:    Vector2D     End:     Vector2D     
- * 2 =  PointDoubleGuide:     Start:    Vector2D     End:     Double
+ * 1 =  PointPointGuide:      Start:        Vector2D    End:     Vector2D
+ * 2 =  PointDoubleGuide:     Start:        Vector2D    End:     Double
+ * 3 =  PointPointDouble:     Point1 and 2: Vector2d    End: Double
  */
 
 case class PointPointGuide(point : Vector2D , pointGuide : Vector2D => Traversable[Shape] , inputType : Int)
 
 case class PointDoubleGuide(point : Vector2D , doubleGuide : Double => Traversable[Shape] , inputType : Int)
+
+//For getting Double input based on two points:
+case class PointPointDoubleGuide(point1 : Vector2D, point2 : Vector2D, doubleGuide : Double => Traversable[Shape] , inputType : Int)
+
+//For getting Point input based on two points:
+case class PointPointPointGuide(point1 : Vector2D, point2 : Vector2D, pointGuide : Vector2D => Traversable[Shape] , inputType : Int)
