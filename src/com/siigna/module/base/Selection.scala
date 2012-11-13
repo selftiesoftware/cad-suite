@@ -12,6 +12,8 @@
 package com.siigna.module.base
 
 import com.siigna._
+import com.siigna.module.base.create._
+import app.model
 
 /**
  * A Module for selecting shapes.
@@ -19,10 +21,6 @@ import com.siigna._
 class Selection extends Module {
 
   private var box : Option[Rectangle2D] = None
-
-  val m = mousePosition
-
-
 
   var nearestShape : Option[(Int, Shape)] = None
 
@@ -43,7 +41,7 @@ class Selection extends Module {
   def hasPartShape = {
     if (nearestShape.isDefined) {
       val shape = nearestShape.get
-      val part = shape._2.getPart(mousePosition)
+      val part = shape._2.getPart(mousePosition.transform(View.deviceTransformation))
       Drawing.select(shape._1, part)
       Start('Move, "com.siigna.module.modify", Drawing.selection.get)
     }
@@ -52,33 +50,47 @@ class Selection extends Module {
   /**
    * Examines whether the selection is currently enclosed or not.
    */
-  def isEnclosed : Boolean = startPoint.isDefined && startPoint.get.x <= mousePosition.x
+  def isEnclosed : Boolean = startPoint.isDefined && startPoint.get.x <= mousePosition.transform(View.deviceTransformation).x
 
   def stateMap = Map(
     'Start -> {
 
       //double click selects over a shape selects the full shape.
       case MouseDown(p, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: tail => {
-        println("DOUBLECLICK")
-        hasFullShape
-      }
+        val m = mousePosition.transform(View.deviceTransformation)
 
-
-      case MouseDown(p, _, _) :: tail => {
-        val m = mousePosition
-        //TODO: query for the drawing at a given mouse position is always empty?
-        println("dawing t mouse position; "+Drawing(m))
-
-        //find the shape nearest to the mouse:
+        //find the shape closest to the mouse:
         if (Drawing(m).size > 0) {
           val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
           nearestShape = if (nearest._2.distanceTo(m) < 5) Some(nearest) else None
         }
-        println("nearestShape: "+nearestShape)
-        println("single mouse down")
+        startPoint = Some(p)
+        hasFullShape
+        End
+      }
+      //if ModuleInit forwards to selection with a point, it should be used:
+      case Start(_ ,g : PointGuide) :: tail => {
+        val m = mousePosition.transform(View.deviceTransformation)
+        var p = g.point
+        //find the shape closest to the mouse:
+        if (Drawing(m).size > 0) {
+          val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+          nearestShape = if (nearest._2.distanceTo(m) < 100) Some(nearest) else None
+        }
         startPoint = Some(p)
         hasPartShape
-        End
+      }
+
+      case MouseDown(p, _, _) :: tail => {
+        val m = mousePosition.transform(View.deviceTransformation)
+
+        //find the shape closest to the mouse:
+        if (Drawing(m).size > 0) {
+          val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+          nearestShape = if (nearest._2.distanceTo(m) < 100) Some(nearest) else None
+        }
+        startPoint = Some(p)
+        hasPartShape
       }
 
       case MouseMove(p, _, _) ::  tail => {
@@ -94,7 +106,6 @@ class Selection extends Module {
       }
       //case MouseUp(_, _, _) :: tail => End
       case e => {
-        println("probably failed to catch mouse down properly.. if that is the case it must be fixed!")
         println(e)
       }
     },
