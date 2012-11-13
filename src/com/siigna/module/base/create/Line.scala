@@ -65,7 +65,6 @@ class Line extends Module {
       }}
 
       case End(k : KeyDown) :: tail => {
-        println("Key in line: " + k)
         // If the key is backspace without modification (shift etc), the last point is deleted, if there is any
         if (k == KeyDown(Key.Backspace,ModifierKeys(false,false,false))) {
           if (startPoint.isEmpty) {
