@@ -27,22 +27,45 @@ class InputTwoValues extends Module {
 
   def message(value : String, xCoord : Option[Double], yCoord : Option[Double]) : String = {
     if (coordinateValue.length > 0 ) {
-      val x: Option[String] = Some(if (!xCoord.isEmpty) {
-        if (xCoord.get % 1 == 0.0) xCoord.get.toInt.toString
-        else xCoord.get.toString
-      } else value)
-      var y: Option[String] = None 
-      if (!yCoord.isEmpty && ((yCoord.get * 100) % 1) != 0) y = Some(("%.2f" format yCoord.get).toString)
-      else if (!xCoord.isEmpty ) y = Some(value)
+      //If there is an entered X-value:
+      var x: Option[String] = None
+
+      if (!xCoord.isEmpty) {
+        if (xCoord.get % 1 == 0) x = Some(xCoord.get.toInt.toString)
+        else x = Some(xCoord.get.toString)
+      } else if (value == "-") x = Some(value)
+        else if (((java.lang.Double.parseDouble(value))*100)%1 != 0) {
+        x = Some(coordinateValue.substring(0, coordinateValue.length-1))
+        coordinateValue = x.get
+      }
+        else x = Some(value)
+
+      println("Value: " +value)
+      println("x: " + x)
+      println("Xkoord: " + xCoord)
+      //If there is an entered y-value:
+      var y: Option[String] = None
+      if (!xCoord.isEmpty && value != "-") {
+        if ((((java.lang.Double.parseDouble(value))*100)%1) != 0) {
+          println("her")
+        y = Some(coordinateValue.substring(0, coordinateValue.length-1))
+        coordinateValue = y.get
+        } else y = Some(value)
+      }
+      else if (!xCoord.isEmpty && value == "-") y = Some(value)
+      println("y: " +y)
+      
       if (!x.isEmpty && y.isEmpty) ("point (X: " + x.get)
       else if (!y.isEmpty || y.get.length() == 0) ("point (X: "+x.get+", Y: " + y.get + ").")
       //Here must be something - at least a string eith a space -
       // as long as an empty string makes the whole thing go down...
       else "point (X: "
+      //If the coord string is empty(y-coord deleted, or not entered yet:)
     } else if (coordinateValue.length() == 0) {
-      val x: Option[String] = Some(if (!xCoord.isEmpty && ((xCoord.get * 100) % 1) != 0) ("%.2f" format xCoord.get).toString
-      else if (!xCoord.isEmpty ) xCoord.get.toString
-      else value)
+      val x: Option[String] = Some(if (!xCoord.isEmpty) {
+        if (xCoord.get % 1 == 0) xCoord.get.toInt.toString
+        else xCoord.get.toString
+      } else value)
       if (!x.isEmpty && x.get.length() > 0) ("point (X: " + x.get + ", Y:")
       else ("point (X: " + x.get)
     }
@@ -74,37 +97,35 @@ class InputTwoValues extends Module {
 
     'Start -> {
 
-      //Read numbers and minus:
+      //Read numbers and minus, after drawing of guide:
       case Start(_ ,g: PointGuide) :: KeyDown(code, _) :: tail => {
         pointGuide = Some(g.guide)
         startPoint = Some(g.point)
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
         if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
+        //if a comma is the first thing entered, it is interpreted as zero:
+        if (code.toChar.toString == "," && coordinateValue.length() == 0) {
+          coordinateX = Some(0.0)
+        }
         Siigna display message(coordinateValue, coordinateX, coordinateY)
       }
 
     //goto second coordinate if ENTER, COMMA, or TAB is pressed
     case KeyDown(Key.Enter | Key.Tab | (','), _) :: tail => {
-      //if noting is entered before, it is interpreted as zero:
-      if (coordinateX.isEmpty && coordinateValue.length == 0) {
-        coordinateX = Some(0)
-        coordinateValue = ""
-      }
       //when ENTER, "," or TAB is pressed, and a value is set, this value is passed as the first coordinate relative to 0,0
-      else if (coordinateX.isEmpty && coordinateValue.length > 0) {
+      if (coordinateX.isEmpty && coordinateValue.length > 0) {
         coordinateX = Some(java.lang.Double.parseDouble(coordinateValue))
         if (((coordinateX.get * 100) % 1) != 0) coordinateX = Some((math.floor(coordinateX.get * 100))/100)
         else if (((coordinateX.get * 10) % 1) == 0) coordinateX = Some((math.floor(coordinateX.get * 10))/10)
-        else coordinateX = Some(math.floor(coordinateX.get))
         coordinateValue = ""
+        Siigna display message(coordinateValue, coordinateX, coordinateY)
       }
-      //If X is already entered, it is interpreted as Y:
+      //If X is already entered, it is interpreted as Y, and the module ends:
       else if (coordinateY.isEmpty && coordinateValue.length > 0) {
         coordinateY = Some(java.lang.Double.parseDouble(coordinateValue))
         if (((coordinateY.get * 100) % 1) == 0) coordinateY = Some((math.floor(coordinateY.get * 100))/100)
         else if (((coordinateY.get * 10) % 1) == 0) coordinateY = Some((math.floor(coordinateY.get * 10))/10)
-        else coordinateY = Some(math.floor(coordinateY.get))
         coordinateValue = ""
         //if a full set of coordinates are present, return them to the calling module.
         if(startPoint.isDefined) {
@@ -114,8 +135,6 @@ class InputTwoValues extends Module {
       }
     }
     case KeyDown(Key.Backspace, _) :: tail => {
-      println("Backspace pressed. coordinateValue er: " + coordinateValue)
-      println("coordinateX og Y er: " + coordinateX + " " + coordinateY)
       //If there ia an active coordinate string, it is reduced by one and displayed:
       if (coordinateValue.length > 0) {
         coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
@@ -123,8 +142,10 @@ class InputTwoValues extends Module {
       }
       //If there is no active string, but an active x-coordinate,
       else if (coordinateX.isDefined) {
-        coordinateValue = coordinateX.get.toString
+        if ((coordinateX.get % 1) == 0.0) coordinateValue = coordinateX.get.toInt.toString
+        else coordinateValue = coordinateX.get.toString
         coordinateX     = None
+        Siigna display message(coordinateValue, coordinateX, coordinateY)
       }
     }
     //if point returns a keyDown - that is not previously intercepted
