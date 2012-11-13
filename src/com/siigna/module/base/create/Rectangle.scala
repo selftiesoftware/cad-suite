@@ -38,10 +38,29 @@ class Rectangle extends Module {
           End
         }
       }
+
+      case End("no point returned") :: tail => {
+          if (points.length == 0) {
+            Start('Point,"com.siigna.module.base.create",1)
+          } else {
+            val guide = PointPointGuide(points.head, (v : Vector2D) => {
+              (Array(PolylineShape(Rectangle2D(points(0), v))))
+            },1)//1 : Input type = InputTwoValues
+            Start('Point,"com.siigna.module.base.create", guide)
+          } }
+
       //If End with no point: End module without drawing anything.
       case End :: tail => End
      //get the first point
-      case _ => Start('Point,"com.siigna.module.base.create")
+      case _ => {
+        if (points.length == 0) {
+          Start('Point,"com.siigna.module.base.create",1)
+        } else {
+          val guide = PointPointGuide(points.head, (v : Vector2D) => {
+            (Array(PolylineShape(Rectangle2D(points(0), v))))
+          },1)//1 : Input type = InputTwoValues
+          Start('Point,"com.siigna.module.base.create", guide)
+        } }
     }
   )
 }
