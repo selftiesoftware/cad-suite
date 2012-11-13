@@ -23,16 +23,23 @@ class InputOneValue extends Module {
 
   private var coordinateValue : String = ""  //input string for distances
 
-  var pointGuide : Option[Vector2D => Traversable[Shape]] = None
+  var relativeX : Double = 0.0
+
+  var pointGuide : Option[Double => Traversable[Shape]] = None
   var startPoint : Option[Vector2D] = None
 
   val stateMap: StateMap = Map(
 
     'Start -> {
 
-      case Start(_ ,g: PointPointGuide) :: KeyDown(code, _) :: tail => {
-        pointGuide = Some(g.pointGuide)
+      case Start(_ ,g: PointDoubleGuide) :: KeyDown(code, _) :: tail => {
+        pointGuide = Some(g.doubleGuide)
         startPoint = Some(g.point)
+        //save the already typed key:
+        if (code.toChar.isDigit) coordinateValue += code.toChar
+        if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
+
+        Siigna display coordinateValue
       }
 
       //Ends on return, komma, TAB - returning value:
@@ -65,4 +72,16 @@ class InputOneValue extends Module {
       case _ => {
       }
     })
+
+  override def paint(g : Graphics, t: TransformationMatrix) {
+    //if points are in the process of being typed, then draw the shape dynamically on the basis of what coords are given.
+
+    if(pointGuide.isDefined && startPoint.isDefined){
+      val x = java.lang.Double.parseDouble(coordinateValue)
+
+      relativeX = startPoint.get.x + x
+
+      pointGuide.foreach(_(startPoint.get.x + x).foreach(s => g.draw(s.transform(t))))
+    }
+  }
 }
