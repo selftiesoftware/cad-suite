@@ -77,8 +77,8 @@ class Selection extends Module {
           case _ => 'Box
         }
       }
-      //case MouseUp(_, _, _) :: tail => End
-      //case e => println(e)
+      case MouseUp(_, _, _) :: tail => End
+      case e => println(e)
     },
     'Box -> {
       case MouseDrag(p, _, _) :: tail => {
