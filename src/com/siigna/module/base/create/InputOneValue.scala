@@ -29,16 +29,13 @@ class InputOneValue extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
-      //goto second coordinate if ENTER, COMMA, or TAB is pressed
-      case Start(_ ,g: PointGuide) :: KeyDown(code, _) :: tail => {
-        pointGuide = Some(g.guide)
-        startPoint = Some(g.point)
-        //save the already typed key:
-        if (code.toChar.isDigit) coordinateValue += code.toChar
 
-        Siigna display coordinateValue
+      case Start(_ ,g: PointPointGuide) :: KeyDown(code, _) :: tail => {
+        pointGuide = Some(g.pointGuide)
+        startPoint = Some(g.point)
       }
 
+      //Ends on return, komma, TAB - returning value:
       case KeyDown(Key.Enter | Key.Tab | (','), _) :: tail => {
         if (coordinateValue.length > 0) {
             var value = Some(java.lang.Double.parseDouble(coordinateValue))

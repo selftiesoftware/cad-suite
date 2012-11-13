@@ -33,7 +33,7 @@ class Distance extends Module {
         if (startPoint.isEmpty){
           startPoint = Some(v)
 
-          val guide = PointGuide(v, (v : Vector2D) => {
+          val guide = PointPointGuide(v, (v : Vector2D) => {
             (Array(LineShape(startPoint.get, v)))
           },1)//1 : Input type = InputTwoValues
 

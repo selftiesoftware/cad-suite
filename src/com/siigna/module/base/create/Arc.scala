@@ -33,23 +33,23 @@ class Arc extends Module {
           case End(p : Vector2D) :: tail => {
             //If no start point is set, the recieved point becomes the start point,
             //and a line guide is returned (between the start and end point)
-            if (startPoint.isEmpty) {
+            /*if (startPoint.isEmpty) {
               startPoint = Some(p)
               Start('Point, "com.siigna.module.base.create",
-                Guide(v => Traversable(LineShape(p,v)))
+                //Guide(v => Traversable(LineShape(p,v)))
               )
             //If the end point is not set, and the point recieved is not the same as the start point,
             //the recieved point is set as the end point, and an arc guide is returned.
             } else if ((endPoint.isEmpty) && (startPoint.get != p)) {
               endPoint = Some(p)
               Start('Point, "com.siigna.module.base.create",
-                Guide(v => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
+                //Guide(v => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
               )
             //If the end point is set, but the recieved point is the same as the start point,
             //the recieved point is ignored, and a line guide (between point 1 and 2) is returned again.
             } else if ((endPoint.isEmpty) && (startPoint.get == p)){
               Start('Point, "com.siigna.module.base.create",
-                Guide(v => Traversable(LineShape(p,v)))
+               // Guide(v => Traversable(LineShape(p,v)))
               )
             //If neither start or endpoint is empty, and:
             // the recieved point is not the same as start or endpoint, and
@@ -73,9 +73,9 @@ class Arc extends Module {
             //the recieved point is ignored and an arc guide returned again.
               println ("The three points are in-line, or the third point is the same as one of the two first in arc module.")
               Start('Point, "com.siigna.module.base.create",
-                Guide(v => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
+                //Guide(v => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
               )
-            }
+            } */
           }
 
           //If point module returns a key-pres at the event when it ends:
@@ -85,9 +85,9 @@ class Arc extends Module {
               if (endPoint.isDefined) endPoint = None
             }
             //And no matter what, a new guide is returned (Line to point from start to end-point, since any second point has been deleted)
-            Start('Point, "com.siigna.module.base.create",
-              Guide(v => Traversable(LineShape(startPoint.get,v)))
-            )
+            /*Start('Point, "com.siigna.module.base.create",
+              //Guide(v => Traversable(LineShape(startPoint.get,v)))
+            ) */
           }
 
           //If an end command is recieved without a new point, the module exits
@@ -97,13 +97,13 @@ class Arc extends Module {
             println("Unknown command in Arc-module: ")
             //If user is drawing something, the guides should still be drawn:
             if ((startPoint.isDefined) && (endPoint.isEmpty)) {
-              Start('Point, "com.siigna.module.base.create",
-                Guide(v => Traversable(LineShape(startPoint.get,v)))
-              )
+              /*Start('Point, "com.siigna.module.base.create",
+                //Guide(v => Traversable(LineShape(startPoint.get,v)))
+              ) */
             } else if ((startPoint.isDefined) && (endPoint.isDefined)) {
-              Start('Point, "com.siigna.module.base.create",
-                Guide(v => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
-              )
+              /*Start('Point, "com.siigna.module.base.create",
+                //Guide(v => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
+              )*/
             } else {
             Start('Point, "com.siigna.module.base.create")
             }

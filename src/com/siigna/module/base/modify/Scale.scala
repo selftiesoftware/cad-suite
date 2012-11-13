@@ -28,7 +28,7 @@ class Scale extends Module {
         if(!startPoint.isDefined){
           startPoint = Some(p)
 
-          val shapeGuide = PointGuide(p,(v : Vector2D) => {
+          val shapeGuide = PointPointGuide(p,(v : Vector2D) => {
             val refScale : Vector2D = startPoint.get - p
             val scaleFactor = ((v - startPoint.get).length/refScale.length)
             //Define a scaling matrix:
@@ -45,7 +45,7 @@ class Scale extends Module {
           endPoint = Some(p)
           Siigna display "set scaling factor"
 
-          val shapeGuide = PointGuide(p,(v : Vector2D) => {
+          val shapeGuide = PointPointGuide(p,(v : Vector2D) => {
             val refScale : Vector2D = startPoint.get - endPoint.get
             val scaleFactor = ((v - startPoint.get).length/refScale.length)
             //Define a scaling matrix:

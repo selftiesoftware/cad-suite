@@ -26,8 +26,11 @@ class Point extends Module {
   private var point : Option[Vector2D] = None
   private var guide : Boolean = true
   private var inputType : Option[Int] = None
-  var pointGuide : Option[Vector2D => Traversable[Shape]] = None
-  var sendGuide : Option[PointGuide] = None
+  private var guideType : Option[Int] = None
+  var pointPointGuide : Option[Vector2D => Traversable[Shape]] = None
+  var pointDoubleGuide : Option[Double => Traversable[Shape]] = None
+  var sendPointDoubleGuide : Option[PointDoubleGuide] = None
+  var sendPointPointGuide : Option[PointPointGuide] = None
   var snapAngle : Option[Double] = None
   val stateMap: StateMap = Map(
 
@@ -37,8 +40,8 @@ class Point extends Module {
         End(p)
       }
       //if a single value is returned from InputOneValue of InputAngle, eturn it to the calling module:
-      case End(l : Double) :: tail => {
-        End(l)
+      case End(s : Double) :: tail => {
+        End(s)
       }
 
       //If an end command is recieved without input (from an input module):
@@ -49,20 +52,37 @@ class Point extends Module {
       //If left mouse button is clicked: End and return mouse-position-point.
       case MouseDown(p,button,modifier)::tail => {
         if (button==MouseButtonLeft) {
+          if (!sendPointDoubleGuide.isEmpty)  {
+            val startPointX =sendPointDoubleGuide.get.point.x
+            val startPointY =sendPointDoubleGuide.get.point.y
+            val distanceFromStartToMouse: Double = math.sqrt(( (startPointX-mousePosition.transform(View.deviceTransformation).x) * (startPointX-mousePosition.transform(View.deviceTransformation).x)) + ( (startPointY-mousePosition.transform(View.deviceTransformation).y) * (startPointY-mousePosition.transform(View.deviceTransformation).y)) )
+            if (distanceFromStartToMouse != 0) {
+              End(distanceFromStartToMouse)
+            }
+          } else {
           End(p.transform(View.deviceTransformation))
-        } else {
+        }} else {
           // In all other cases, the mouseDown is returned
           End(MouseDown(p,button,modifier))
         }
       }
-      // Check for PointGuide - retrieve both the guide and its reference point, if it is defined.
-      case Start(_ ,g : PointGuide) :: tail => {
-        pointGuide = Some(g.guide)
+      // Check for PointPointGuide - retrieve both the guide and its reference point, if it is defined.
+      case Start(_ ,g : PointPointGuide) :: tail => {
+        pointPointGuide = Some(g.pointGuide)
         inputType = Some(g.inputType)
-        sendGuide = Some(g)
+        sendPointPointGuide = Some(g)
+        guideType = Some(1)
+      }
+
+      // Check for PointDoubleGuide - retrieve both the guide and its reference point, if it is defined.
+      case Start(_ ,g : PointDoubleGuide) :: tail => {
+        pointDoubleGuide = Some(g.doubleGuide)
+        inputType = Some(g.inputType)
+        sendPointDoubleGuide = Some(g)
+        guideType = Some(2)
       }
       
-      //If there is no point guide, only the input type needs to be retrieved  
+      //If there is no guide, only the input type needs to be retrieved
       case Start(_,inp: Int) :: tail => {
         inputType = Some(inp)
       }
@@ -71,28 +91,32 @@ class Point extends Module {
       case KeyDown(Key.Esc, _) :: tail => End
 
       //TODO: add if statement: if a track-guide is active, forward to a InputLength module instead...
+      
+      
       case KeyDown(key,modifier) :: tail => {
-        println(key + " " + modifier)
-        guide = false
+
         //If the input is backspace with no modifiers, this key is returned to the asking module:
         if (key == Key.backspace && modifier == ModifierKeys(false,false,false)) {
-          println ("Backspaceeeee")
           (End(KeyDown(key,modifier)))
-        }
-        //If it is other keys, the input is interpreted by the input-modules
-        else if(inputType == Some(1)) {
-          if (pointGuide.isDefined) Start('InputTwoValues,"com.siigna.module.base.create", sendGuide.get)
-          else Start('InputTwoValues,"com.siigna.module.base.create")
-        }
-        else if(inputType == Some(2)) {
-          if (pointGuide.isDefined) Start('InputOneValue,"com.siigna.module.base.create", sendGuide.get)
-          else Start('InputOneValue,"com.siigna.module.base.create")
-        }
-        else if(inputType == Some(3)) {
-          if (pointGuide.isDefined) Start('InputAngle,"com.siigna.module.base.create", sendGuide.get)
-          else Start('InputAngle,"com.siigna.module.base.create")
-        }
-        else None
+        //If it is other keys, the input is interpreted by the input-modules.
+        //Any existing guides are forwarded.
+        } else if(inputType == Some(1)) {
+            guide = false
+            if (!sendPointPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create",sendPointPointGuide.get)
+            else if (!sendPointDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointDoubleGuide.get)
+            else Start('InputTwoValues,"com.siigna.module.base.create")
+        } else if(inputType == Some(2)) {
+            guide = false
+            if (!sendPointPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointPointGuide.get)
+            else if (!sendPointDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointDoubleGuide.get)
+            else Start('InputOneValue,"com.siigna.module.base.create")
+        } else if(inputType == Some(3)) {
+            guide = false
+            if (!sendPointPointGuide.isEmpty) Start('InputAngle,"com.siigna.module.base.create", sendPointPointGuide.get)
+            else if (!sendPointDoubleGuide.isEmpty) Start('InputAngle,"com.siigna.module.base.create", sendPointDoubleGuide.get)
+            else Start('InputAngle,"com.siigna.module.base.create")
+        } 
+        
       }
       case _ => {
       }
@@ -101,21 +125,30 @@ class Point extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
     //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
     if ( guide == true) {
-      pointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+      //If a point is the desired return, x and y-coordinates are used in the guide
+      if (!pointPointGuide.isEmpty) pointPointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+      //If a double is the desired return, the distance from the starting point is used in the guide
+      if (!pointDoubleGuide.isEmpty) {
+        val startPointX =sendPointDoubleGuide.get.point.x
+        val startPointY =sendPointDoubleGuide.get.point.y
+        val distanceFromStartToMouse: Double = math.sqrt(( (startPointX-mousePosition.transform(View.deviceTransformation).x) * (startPointX-mousePosition.transform(View.deviceTransformation).x)) + ( (startPointY-mousePosition.transform(View.deviceTransformation).y) * (startPointY-mousePosition.transform(View.deviceTransformation).y)) )
+        pointDoubleGuide.foreach(_(distanceFromStartToMouse).foreach(s => g.draw(s.transform(t))))
+      }
     }
   }
 }
 
-
-
-case class Guide(guide : Vector2D => Traversable[Shape])
-
 /**
- * a case class for sending a point guide from which the point can be extracted, and the input type is defined.
  * inputType (Int) is passed on to text input modules if values are typed.
  * possible values:
  * 1 = x and y coordinates  (handled by the InputTwoValues module)
  * 2 = one length value     (handled by the InputOneValue module)
+ * 
+ * Guide types depend on what the start and end types are. They are:
+ * 1 =  PointPointGuide:      Start:    Vector2D     End:     Vector2D     
+ * 2 =  PointDoubleGuide:     Start:    Vector2D     End:     Double
  */
 
-case class PointGuide(point : Vector2D , guide : Vector2D => Traversable[Shape] , inputType : Int)
+case class PointPointGuide(point : Vector2D , pointGuide : Vector2D => Traversable[Shape] , inputType : Int)
+
+case class PointDoubleGuide(point : Vector2D , doubleGuide : Double => Traversable[Shape] , inputType : Int)

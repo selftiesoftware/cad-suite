@@ -31,32 +31,35 @@ class Circle extends Module {
       case events => {
         events match {
           case MouseDown(_, MouseButtonRight, _) :: tail => 'End
+
+          //If a point is entered, it is the centre:
           case End(p : Vector2D) :: tail => {
-            if (center.isEmpty) {
-              center = Some(p)
-              Start('Point, "com.siigna.module.base.create",
-                Guide(v => Traversable(CircleShape(p, math.abs((p - v).x))))
-              )
-            } else {
-              val circle = CircleShape(center.get, math.abs((center.get - p).x))
-
-              def setAttribute[T : Manifest](name:String, shape:Shape) = {
-                Siigna.get(name) match {
-                  case s : Some[T] => shape.addAttribute(name, s.get)
-                  case None => shape// Option isn't set. Do nothing
-                }
-              }
-
-              Create(setAttribute[Color]("Color",
-                setAttribute[Double]("LineWeight", circle)
-              ))
-              End
-            }
+            center = Some(p)
+            //Send point guide, and ask for one-coordinate input: Radius
+            Start('Point, "com.siigna.module.base.create",
+              PointDoubleGuide(p, (r: Double) => Traversable(CircleShape(p, math.abs(r))),2)
+            )
           }
-          //Hvis der er trykket escape eller højre museknap lukkes modulet, selvom der ikke er tegnet noget endnu
+
+          case End(r : Double) :: tail => {
+            val circle = CircleShape(center.get, math.abs(r))
+            def setAttribute[T : Manifest](name:String, shape:Shape) = {
+              Siigna.get(name) match {
+                case s : Some[T] => shape.addAttribute(name, s.get)
+                case None => shape// Option isn't set. Do nothing
+              }
+            }
+            Create(setAttribute[Color]("Color",
+              setAttribute[Double]("LineWeight", circle)
+            ))
+            End
+          }
+
           case End :: tail => End
+
+          //Starts point, asks for two-value-input (center):
           case _ => {
-            Start('Point, "com.siigna.module.base.create")
+            Start('Point, "com.siigna.module.base.create",1)
           }
         }
       }

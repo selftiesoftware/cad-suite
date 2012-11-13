@@ -34,7 +34,7 @@ class Polyline extends Module {
           //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
           startPoint = Some(v)
 
-          val guide = PointGuide(v, (v : Vector2D) => {
+          val guide = PointPointGuide(v, (v : Vector2D) => {
             (Array(PolylineShape(startPoint.get, v)))
           },1)//1 : Input type = InputTwoValues
 
@@ -45,7 +45,7 @@ class Polyline extends Module {
           //val guide : Guide = Guide((v : Vector2D) => {
           //  Array(PolylineShape(points :+ v))
           //})
-          val guide = PointGuide(v, (v : Vector2D) => {
+          val guide = PointPointGuide(v, (v : Vector2D) => {
             (Array(PolylineShape(points :+ v)))
           },1)//1 : Input type = InputTwoValues
           Start('Point,"com.siigna.module.base.create", guide)
@@ -59,14 +59,14 @@ class Polyline extends Module {
           //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
           startPoint = Some(points.last)
 
-          val guide = PointGuide(startPoint.get, (v : Vector2D) => {
+          val guide = PointPointGuide(startPoint.get, (v : Vector2D) => {
             (Array(PolylineShape(startPoint.get, v)))
           },1)//1 : Input type = InputTwoValues
 
           Start('Point,"com.siigna.module.base.create", guide)
         } else {
 
-          val guide = PointGuide(points.last, (v : Vector2D) => {
+          val guide = PointPointGuide(points.last, (v : Vector2D) => {
             (Array(PolylineShape(points :+ v)))
           },1)//1 : Input type = InputTwoValues
           Start('Point,"com.siigna.module.base.create", guide)
@@ -84,7 +84,7 @@ class Polyline extends Module {
           }
           //And if there is a start point, a new guide is returned
           if (startPoint.isDefined) {
-            val guide : PointGuide = PointGuide(points.last, (v : Vector2D) => {
+            val guide : PointPointGuide = PointPointGuide(points.last, (v : Vector2D) => {
               Array(PolylineShape(points :+ v))
             },1) //1 : Input type = InputTwoValues
             Start('Point,"com.siigna.module.base.create", guide)

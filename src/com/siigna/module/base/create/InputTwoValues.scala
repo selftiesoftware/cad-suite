@@ -75,7 +75,7 @@ class InputTwoValues extends Module {
     else " "
   }
 
-  var receivedGuide: Option[PointGuide] = None
+  var receivedGuide: Option[PointPointGuide] = None
   var pointGuide : Option[Vector2D => Traversable[Shape]] = None
   var startPoint : Option[Vector2D] = None
 
@@ -100,10 +100,9 @@ class InputTwoValues extends Module {
 
     'Start -> {
 
-
       //Read numbers and minus, "," and enter as first entry, after drawing of guide, if a guide is provided:
-      case Start(_ ,g: PointGuide) :: KeyDown(code, _) :: tail => {
-        pointGuide = Some(g.guide)
+      case Start(_ ,g: PointPointGuide) :: KeyDown(code, _) :: tail => {
+        pointGuide = Some(g.pointGuide)
         startPoint = Some(g.point)
         receivedGuide = Some(g)
         //save the already typed key:
@@ -118,6 +117,7 @@ class InputTwoValues extends Module {
 
       //Read numbers and minus, "," and enter as first entry if no guide is provided:
       case Start(_,_) :: KeyDown(code, _) :: tail => {
+        println("Nonfunct")
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
         if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
