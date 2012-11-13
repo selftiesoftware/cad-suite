@@ -59,5 +59,7 @@ class ModuleInit extends Module {
       case _ =>
     }
   )
-
+  override def paint(g : Graphics, t : TransformationMatrix) {
+    //println("draw guides here!!")
+  }
 }

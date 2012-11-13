@@ -20,6 +20,10 @@ class Selection extends Module {
 
   private var box : Option[Rectangle2D] = None
 
+  val m = mousePosition
+
+
+
   var nearestShape : Option[(Int, Shape)] = None
 
   private var selectFullyEnclosed : Boolean = false
@@ -52,18 +56,29 @@ class Selection extends Module {
 
   def stateMap = Map(
     'Start -> {
-      //double click selects over a shape selects the full shape. Double clicks are registered in different ways:
-      case MouseDown(p, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: tail => {
-        startPoint = Some(p)
 
-        println("nearest defined? "+nearestShape)
+      //double click selects over a shape selects the full shape.
+      case MouseDown(p, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: tail => {
+        println("DOUBLECLICK")
         hasFullShape
       }
 
+
       case MouseDown(p, _, _) :: tail => {
+        val m = mousePosition
+        //TODO: query for the drawing at a given mouse position is always empty?
+        println("dawing t mouse position; "+Drawing(m))
+
+        //find the shape nearest to the mouse:
+        if (Drawing(m).size > 0) {
+          val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+          nearestShape = if (nearest._2.distanceTo(m) < 5) Some(nearest) else None
+        }
+        println("nearestShape: "+nearestShape)
         println("single mouse down")
         startPoint = Some(p)
         hasPartShape
+        End
       }
 
       case MouseMove(p, _, _) ::  tail => {
@@ -77,8 +92,11 @@ class Selection extends Module {
           case _ => 'Box
         }
       }
-      case MouseUp(_, _, _) :: tail => End
-      case e => println(e)
+      //case MouseUp(_, _, _) :: tail => End
+      case e => {
+        println("probably failed to catch mouse down properly.. if that is the case it must be fixed!")
+        println(e)
+      }
     },
     'Box -> {
       case MouseDrag(p, _, _) :: tail => {
@@ -102,7 +120,10 @@ class Selection extends Module {
         // End the module
         End
       }
-      case e => println(e)
+      case e => {
+
+        println(e)
+      }
     }
   )
 
