@@ -39,15 +39,10 @@ class InputTwoValues extends Module {
         coordinateValue = x.get
       }
         else x = Some(value)
-
-      println("Value: " +value)
-      println("x: " + x)
-      println("Xkoord: " + xCoord)
       //If there is an entered y-value:
       var y: Option[String] = None
       if (!xCoord.isEmpty && value != "-") {
         if ((((java.lang.Double.parseDouble(value))*100)%1) != 0) {
-          println("her")
         y = Some(coordinateValue.substring(0, coordinateValue.length-1))
         coordinateValue = y.get
         } else y = Some(value)
