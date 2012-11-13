@@ -69,7 +69,7 @@ class Line extends Module {
       //    Start('Point,"com.siigna.module.base.create")
       //  }
       //}
-      case _ => Start('Point,"com.siigna.module.base.create")
+      case _ => Start('Point,"com.siigna.module.base.create",1)
       //if
 
     }

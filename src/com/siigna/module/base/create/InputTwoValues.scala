@@ -51,7 +51,7 @@ class InputTwoValues extends Module {
       println("y: " +y)
       
       if (!x.isEmpty && y.isEmpty) ("point (X: " + x.get)
-      else if (!y.isEmpty || y.get.length() == 0) ("point (X: "+x.get+", Y: " + y.get + ").")
+      else if (!y.isEmpty || y.get.length() == 0) ("point (X: "+x.get+", Y: " + y.get)
       //Here must be something - at least a string eith a space -
       // as long as an empty string makes the whole thing go down...
       else "point (X: "
@@ -61,7 +61,15 @@ class InputTwoValues extends Module {
         if (xCoord.get % 1 == 0) xCoord.get.toInt.toString
         else xCoord.get.toString
       } else value)
-      if (!x.isEmpty && x.get.length() > 0) ("point (X: " + x.get + ", Y:")
+      var y: Option[String] = None
+      if (!yCoord.isEmpty) {
+        if (yCoord.get % 1 == 0) y = Some(yCoord.get.toInt.toString)
+        else y = Some(yCoord.get.toString)
+      }
+      if (!x.isEmpty && x.get.length() > 0) {
+        if (y.isEmpty) ("point (X: " + x.get + ", Y:")
+        else ("point (X: " + x.get + ", Y: " + y.get + ")")
+      }
       else ("point (X: " + x.get)
     }
     //Also here - at least a space
@@ -92,15 +100,28 @@ class InputTwoValues extends Module {
 
     'Start -> {
 
-      //Read numbers and minus, after drawing of guide:
+
+      //Read numbers and minus, "," and enter as first entry, after drawing of guide, if a guide is provided:
       case Start(_ ,g: PointGuide) :: KeyDown(code, _) :: tail => {
         pointGuide = Some(g.guide)
         startPoint = Some(g.point)
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
         if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
-        //if a comma is the first thing entered, it is interpreted as zero:
-        if (code.toChar.toString == "," && coordinateValue.length() == 0) {
+        //if a comma or enter is the first thing entered, it is interpreted as zero:
+        if ((code.toChar.toString == "," || code == Key.enter) && coordinateValue.length() == 0) {
+          coordinateX = Some(0.0)
+        }
+        Siigna display message(coordinateValue, coordinateX, coordinateY)
+      }
+
+      //Read numbers and minus, "," and enter as first entry if no guide is provided:
+      case Start(_,_) :: KeyDown(code, _) :: tail => {
+        //save the already typed key:
+        if (code.toChar.isDigit) coordinateValue += code.toChar
+        if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
+        //if a comma or enter is the first thing entered, it is interpreted as zero:
+        if ((code.toChar.toString == "," || code == Key.enter) && coordinateValue.length() == 0) {
           coordinateX = Some(0.0)
         }
         Siigna display message(coordinateValue, coordinateX, coordinateY)
@@ -109,19 +130,24 @@ class InputTwoValues extends Module {
     //goto second coordinate if ENTER, COMMA, or TAB is pressed
     case KeyDown(Key.Enter | Key.Tab | (','), _) :: tail => {
       //when ENTER, "," or TAB is pressed, and a value is set, this value is passed as the first coordinate relative to 0,0
-      if (coordinateX.isEmpty && coordinateValue.length > 0) {
-        coordinateX = Some(java.lang.Double.parseDouble(coordinateValue))
-        if (((coordinateX.get * 100) % 1) != 0) coordinateX = Some((math.floor(coordinateX.get * 100))/100)
-        else if (((coordinateX.get * 10) % 1) == 0) coordinateX = Some((math.floor(coordinateX.get * 10))/10)
-        coordinateValue = ""
+      if (coordinateX.isEmpty) {
+        if (coordinateValue.length > 0) {
+          coordinateX = Some(java.lang.Double.parseDouble(coordinateValue))
+          if (((coordinateX.get * 100) % 1) != 0) coordinateX = Some((math.floor(coordinateX.get * 100))/100)
+          else if (((coordinateX.get * 10) % 1) == 0) coordinateX = Some((math.floor(coordinateX.get * 10))/10)
+          coordinateValue = ""
+        } else coordinateX = Some(0)
         Siigna display message(coordinateValue, coordinateX, coordinateY)
       }
       //If X is already entered, it is interpreted as Y, and the module ends:
-      else if (coordinateY.isEmpty && coordinateValue.length > 0) {
-        coordinateY = Some(java.lang.Double.parseDouble(coordinateValue))
-        if (((coordinateY.get * 100) % 1) == 0) coordinateY = Some((math.floor(coordinateY.get * 100))/100)
-        else if (((coordinateY.get * 10) % 1) == 0) coordinateY = Some((math.floor(coordinateY.get * 10))/10)
-        coordinateValue = ""
+      else if (coordinateY.isEmpty) {
+        if (coordinateValue.length > 0) {
+          coordinateY = Some(java.lang.Double.parseDouble(coordinateValue))
+          if (((coordinateY.get * 100) % 1) == 0) coordinateY = Some((math.floor(coordinateY.get * 100))/100)
+          else if (((coordinateY.get * 10) % 1) == 0) coordinateY = Some((math.floor(coordinateY.get * 10))/10)
+          coordinateValue = ""
+        } else coordinateY = Some(0)
+        Siigna display message(coordinateValue, coordinateX, coordinateY)
         //if a full set of coordinates are present, return them to the calling module.
         if(startPoint.isDefined) {
           End(Vector2D(startPoint.get.x + x,startPoint.get.y + y))

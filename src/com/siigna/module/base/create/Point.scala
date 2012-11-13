@@ -56,20 +56,29 @@ class Point extends Module {
         inputType = Some(g.inputType)
         sendGuide = Some(g)
       }
+        
+      case Start(_,inp: Int) :: tail => {
+        println("Inp: " + inp)
+        inputType = Some(inp)
+      } 
+        
       // Exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
 
       //TODO: add if statement: if a track-guide is active, forward to a InputLength module instead...
       case KeyDown(key,modifier) :: tail => {
         guide = false
-        if(pointGuide.isDefined && inputType == Some(1)) {
-          Start('InputTwoValues,"com.siigna.module.base.create", sendGuide.get)
+        if(inputType == Some(1)) {
+          if (pointGuide.isDefined) Start('InputTwoValues,"com.siigna.module.base.create", sendGuide.get)
+          else Start('InputTwoValues,"com.siigna.module.base.create")
         }
-        else if(pointGuide.isDefined && inputType == Some(2)) {
-          Start('InputOneValue,"com.siigna.module.base.create", sendGuide.get)
+        else if(inputType == Some(2)) {
+          if (pointGuide.isDefined) Start('InputOneValue,"com.siigna.module.base.create", sendGuide.get)
+          else Start('InputOneValue,"com.siigna.module.base.create")
         }
-        else if(pointGuide.isDefined && inputType == Some(3)) {
-          Start('InputAngle,"com.siigna.module.base.create", sendGuide.get)
+        else if(inputType == Some(3)) {
+          if (pointGuide.isDefined) Start('InputAngle,"com.siigna.module.base.create", sendGuide.get)
+          else Start('InputAngle,"com.siigna.module.base.create")
         }
         else None
       }
