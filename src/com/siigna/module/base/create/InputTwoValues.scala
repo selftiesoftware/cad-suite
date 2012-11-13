@@ -133,6 +133,7 @@ class InputTwoValues extends Module {
       //when ENTER, "," or TAB is pressed, and a value is set, this value is passed as the first coordinate relative to 0,0
       if (coordinateX.isEmpty) {
         if (coordinateValue.length > 0) {
+          if (coordinateValue == "-") coordinateValue = "0"
           coordinateX = Some(java.lang.Double.parseDouble(coordinateValue))
           if (((coordinateX.get * 100) % 1) != 0) coordinateX = Some((math.floor(coordinateX.get * 100))/100)
           else if (((coordinateX.get * 10) % 1) == 0) coordinateX = Some((math.floor(coordinateX.get * 10))/10)
@@ -143,6 +144,7 @@ class InputTwoValues extends Module {
       //If X is already entered, it is interpreted as Y, and the module ends:
       else if (coordinateY.isEmpty) {
         if (coordinateValue.length > 0) {
+          if (coordinateValue == "-") coordinateValue = "0"
           coordinateY = Some(java.lang.Double.parseDouble(coordinateValue))
           if (((coordinateY.get * 100) % 1) == 0) coordinateY = Some((math.floor(coordinateY.get * 100))/100)
           else if (((coordinateY.get * 10) % 1) == 0) coordinateY = Some((math.floor(coordinateY.get * 10))/10)
