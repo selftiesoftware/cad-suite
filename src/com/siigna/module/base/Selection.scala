@@ -12,6 +12,8 @@
 package com.siigna.module.base
 
 import com.siigna._
+import com.siigna.module.base.create._
+import app.model
 
 /**
  * A Module for selecting shapes.
@@ -39,7 +41,7 @@ class Selection extends Module {
   def hasPartShape = {
     if (nearestShape.isDefined) {
       val shape = nearestShape.get
-      val part = shape._2.getPart(mousePosition)
+      val part = shape._2.getPart(mousePosition.transform(View.deviceTransformation))
       Drawing.select(shape._1, part)
       Start('Move, "com.siigna.module.modify", Drawing.selection.get)
     }
@@ -48,20 +50,45 @@ class Selection extends Module {
   /**
    * Examines whether the selection is currently enclosed or not.
    */
-  def isEnclosed : Boolean = startPoint.isDefined && startPoint.get.x <= mousePosition.x
+  def isEnclosed : Boolean = startPoint.isDefined && startPoint.get.x <= mousePosition.transform(View.deviceTransformation).x
 
   def stateMap = Map(
     'Start -> {
-      //double click selects over a shape selects the full shape. Double clicks are registered in different ways:
-      case MouseDown(p, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: tail => {
-        startPoint = Some(p)
 
-        println("nearest defined? "+nearestShape)
+      //double click selects over a shape selects the full shape.
+      case MouseDown(p, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: tail => {
+        val m = mousePosition.transform(View.deviceTransformation)
+
+        //find the shape closest to the mouse:
+        if (Drawing(m).size > 0) {
+          val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+          nearestShape = if (nearest._2.distanceTo(m) < 5) Some(nearest) else None
+        }
+        startPoint = Some(p)
         hasFullShape
+        End
+      }
+      //if ModuleInit forwards to selection with a point, it should be used:
+      case Start(_ ,g : PointGuide) :: tail => {
+        val m = mousePosition.transform(View.deviceTransformation)
+        var p = g.point
+        //find the shape closest to the mouse:
+        if (Drawing(m).size > 0) {
+          val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+          nearestShape = if (nearest._2.distanceTo(m) < 100) Some(nearest) else None
+        }
+        startPoint = Some(p)
+        hasPartShape
       }
 
       case MouseDown(p, _, _) :: tail => {
-        println("single mouse down")
+        val m = mousePosition.transform(View.deviceTransformation)
+
+        //find the shape closest to the mouse:
+        if (Drawing(m).size > 0) {
+          val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+          nearestShape = if (nearest._2.distanceTo(m) < 100) Some(nearest) else None
+        }
         startPoint = Some(p)
         hasPartShape
       }
@@ -77,8 +104,10 @@ class Selection extends Module {
           case _ => 'Box
         }
       }
-      case MouseUp(_, _, _) :: tail => End
-      case e => println(e)
+      //case MouseUp(_, _, _) :: tail => End
+      case e => {
+        println(e)
+      }
     },
     'Box -> {
       case MouseDrag(p, _, _) :: tail => {
@@ -102,7 +131,10 @@ class Selection extends Module {
         // End the module
         End
       }
-      case e => println(e)
+      case e => {
+
+        println(e)
+      }
     }
   )
 

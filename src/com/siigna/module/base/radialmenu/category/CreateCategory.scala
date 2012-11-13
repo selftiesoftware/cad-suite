@@ -14,7 +14,6 @@ package com.siigna.module.base.radialmenu.category
 import com.siigna.module.base.radialmenu._
 import com.siigna._
 
-
 case object CreateCategory extends MenuCategory{
   val graph = Map[MenuEvent,MenuElement](
     EventN -> GeometryCategory,

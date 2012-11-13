@@ -11,6 +11,7 @@
 
 package com.siigna.module
 
+import base.create.PointGuide
 import base.Menu
 import base.radialmenu.category.StartCategory
 import com.siigna._
@@ -32,7 +33,12 @@ class ModuleInit extends Module {
         Start(module) // Forward
       }
       case MouseDown(_, MouseButtonRight, _) :: tail => Start('Menu, "com.siigna.module.base")
-      case MouseDown(_, _, _) :: tail                => Start('Selection, "com.siigna.module.base")
+      case MouseDown(p, _, _) :: tail                => {
+        val selectGuide = PointGuide(p, (v : Vector2D) => {
+          None
+        },1)//1 : Input type = InputTwoValues
+        Start('Selection, "com.siigna.module.base", selectGuide)
+      }
 
       case KeyDown('c', _) :: KeyUp('p', _) :: tail => {
         Start('Colors, "com.siigna.module.base.properties")
@@ -59,5 +65,7 @@ class ModuleInit extends Module {
       case _ =>
     }
   )
-
+  override def paint(g : Graphics, t : TransformationMatrix) {
+    //println("draw guides here!!")
+  }
 }
