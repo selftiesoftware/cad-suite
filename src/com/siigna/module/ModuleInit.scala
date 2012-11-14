@@ -11,7 +11,6 @@
 
 package com.siigna.module
 
-import base.create.PointPointGuide
 import base.Menu
 import base.radialmenu.category.StartCategory
 import com.siigna._
@@ -32,12 +31,15 @@ class ModuleInit extends Module {
         lastModule = Some(module) // Store it as a last module
         Start(module) // Forward
       }
+
+      //Rightclick starts menu:
       case MouseDown(_, MouseButtonRight, _) :: tail => Start('Menu, "com.siigna.module.base")
-      case MouseDown(p, _, _) :: tail                => {
-        val selectGuide = PointPointGuide(p, (v : Vector2D) => {
-          None
-        },1)//1 : Input type = InputTwoValues
-        Start('Selection, "com.siigna.module.base", selectGuide)
+
+      //Leftclick starts select:
+      case MouseDown(p, MouseButtonLeft, _) :: tail                => {
+        println("Getting ready to start selection")
+
+        Start('Selection, "com.siigna.module.base", p)
       }
 
       case KeyDown('c', _) :: KeyUp('p', _) :: tail => {
@@ -61,6 +63,7 @@ class ModuleInit extends Module {
       case KeyDown(Key.Space, _) :: tail => if (lastModule.isDefined) Start(lastModule.get.copy)
 
       // Release all selections
+      case End :: tail => Drawing.deselect()
       case KeyDown(Key.Esc, _) :: tail => Drawing.deselect()
       case _ =>
     }
