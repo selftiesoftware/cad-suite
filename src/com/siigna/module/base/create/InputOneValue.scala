@@ -78,10 +78,7 @@ class InputOneValue extends Module {
 
     if(pointGuide.isDefined && startPoint.isDefined){
       val x = java.lang.Double.parseDouble(coordinateValue)
-
-      relativeX = startPoint.get.x + x
-
-      pointGuide.foreach(_(startPoint.get.x + x).foreach(s => g.draw(s.transform(t))))
+      pointGuide.foreach(_(x).foreach(s => g.draw(s.transform(t))))
     }
   }
 }
