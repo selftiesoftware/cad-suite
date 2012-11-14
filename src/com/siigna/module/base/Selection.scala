@@ -69,7 +69,7 @@ class Selection extends Module {
         End
       }
       //if ModuleInit forwards to selection with a point, it should be used:
-      case Start(_ ,g : PointPointGuide) :: tail => {
+      case Start(_ ,g : PointGuide) :: tail => {
         val m = mousePosition.transform(View.deviceTransformation)
         var p = g.point
         //find the shape closest to the mouse:
