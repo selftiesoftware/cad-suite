@@ -175,16 +175,26 @@ class Point extends Module {
  * 3 =  PointPointDouble:     Point1 and 2: Vector2d    End: Double
  */
 
-//case class PointGuide(point : Vector2D , pointGuide : Vector2D => Traversable[Shape] , inputType : Int)
+//The basic point guide - a vector2D is the base for the shapes
+case class PointGuide(point : Vector2D , pointGuide : Vector2D => Traversable[Shape] , inputType : Int)
 
+//The basic double guide - a double is the base for the shapes
 case class DoubleGuide(point : Vector2D , pointGuide : Double => Traversable[Shape] , inputType : Int)
 
+//A point and a point guide - a vector2D delivered along a basic point guide,
+// for use when the guide needs to relate to a fixed point
 case class PointPointGuide(point : Vector2D , pointGuide : Vector2D => Traversable[Shape] , inputType : Int)
 
+//A point and a double guide - a vector2D delivered along a basic double guide,
+// for use when the guide needs to relate to a fixed point
 case class PointDoubleGuide(point : Vector2D , doubleGuide : Double => Traversable[Shape] , inputType : Int)
 
-//For getting Double input based on two points:
+//two points and a point guide - two vector2Ds delivered along a basic point guide,
+// for use when the guide needs to relate to two fixed points
 case class PointPointDoubleGuide(point1 : Vector2D, point2 : Vector2D, doubleGuide : Double => Traversable[Shape] , inputType : Int)
 
-//For getting Point input based on two points:
+//two points and a double guide - two vector2Ds delivered along a basic double guide,
+// for use when the guide needs to relate to two fixed points
 case class PointPointPointGuide(point1 : Vector2D, point2 : Vector2D, pointGuide : Vector2D => Traversable[Shape] , inputType : Int)
+
+
