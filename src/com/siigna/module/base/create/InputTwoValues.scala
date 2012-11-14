@@ -75,7 +75,7 @@ class InputTwoValues extends Module {
     else " "
   }
 
-  var receivedGuide: Option[PointGuide] = None
+  var receivedGuide: Option[PointPointGuide] = None
   var pointGuide : Option[Vector2D => Traversable[Shape]] = None
   var startPoint : Option[Vector2D] = None
 
@@ -101,7 +101,7 @@ class InputTwoValues extends Module {
     'Start -> {
 
       //Read numbers and minus, "," and enter as first entry, after drawing of guide, if a guide is provided:
-      case Start(_ ,g: PointGuide) :: KeyDown(code, _) :: tail => {
+      case Start(_ ,g: PointPointGuide) :: KeyDown(code, _) :: tail => {
         pointGuide = Some(g.pointGuide)
         startPoint = Some(g.point)
         receivedGuide = Some(g)

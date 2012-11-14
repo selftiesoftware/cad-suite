@@ -38,7 +38,7 @@ class Arc extends Module {
               //If there is a start point2-value-input is needed
               // The guide is a line shape for the first point:
               Start('Point, "com.siigna.module.base.create",
-                PointGuide(p, v => Traversable(LineShape(p,v)), 1 )
+                PointPointGuide(p, v => Traversable(LineShape(p,v)), 1 )
               )
             //If the end point is not set, and the point recieved is not the same as the start point,
             //the recieved point is set as the end point, and an arc guide is returned. A double is needed.
@@ -51,7 +51,7 @@ class Arc extends Module {
             //the recieved point is ignored, and a line guide (between point 1 and 2) is returned again.
             } else if ((endPoint.isEmpty) && (startPoint.get == p)){
               Start('Point, "com.siigna.module.base.create",
-                PointGuide(p, v => Traversable(LineShape(p,v)), 1 )
+                PointPointGuide(p, v => Traversable(LineShape(p,v)), 1 )
               )
             //If neither start or endpoint is empty, and:
             // the recieved point is not the same as start or endpoint, and

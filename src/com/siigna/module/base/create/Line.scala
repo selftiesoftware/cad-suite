@@ -30,7 +30,7 @@ class Line extends Module {
         if (startPoint.isEmpty){
           startPoint = Some(v)
 
-          val guide = PointGuide(v, (v : Vector2D) => {
+          val guide = PointPointGuide(v, (v : Vector2D) => {
             (Array(LineShape(startPoint.get, v)))
           },1)//1 : Input type = InputTwoValues
           Start('Point,"com.siigna.module.base.create", guide)
@@ -58,7 +58,7 @@ class Line extends Module {
         if (startPoint.isEmpty) {
           Start('Point,"com.siigna.module.base.create",1)
         } else {
-        val guide = PointGuide(startPoint.get, (v : Vector2D) => {
+        val guide = PointPointGuide(startPoint.get, (v : Vector2D) => {
           (Array(LineShape(startPoint.get, v)))
         },1)//1 : Input type = InputTwoValues
         Start('Point,"com.siigna.module.base.create", guide)
@@ -70,7 +70,7 @@ class Line extends Module {
           if (startPoint.isEmpty) {
             Start('Point,"com.siigna.module.base.create",1)
           } else {
-            val guide = PointGuide(startPoint.get, (v : Vector2D) => {
+            val guide = PointPointGuide(startPoint.get, (v : Vector2D) => {
               (Array(LineShape(startPoint.get, v)))
             },1)//1 : Input type = InputTwoValues
             Start('Point,"com.siigna.module.base.create", guide)

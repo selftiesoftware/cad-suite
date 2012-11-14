@@ -24,7 +24,7 @@ class Rectangle extends Module {
         if (points.length == 0){
           points = points :+ v
 
-          val guide = PointGuide(v, (v : Vector2D) => {
+          val guide = PointPointGuide(v, (v : Vector2D) => {
             (Array(PolylineShape(Rectangle2D(points(0), v))))
           },1) //1 : Input type = InputTwoValues
 
@@ -43,7 +43,7 @@ class Rectangle extends Module {
           if (points.length == 0) {
             Start('Point,"com.siigna.module.base.create",1)
           } else {
-            val guide = PointGuide(points.head, (v : Vector2D) => {
+            val guide = PointPointGuide(points.head, (v : Vector2D) => {
               (Array(PolylineShape(Rectangle2D(points(0), v))))
             },1)//1 : Input type = InputTwoValues
             Start('Point,"com.siigna.module.base.create", guide)
@@ -56,7 +56,7 @@ class Rectangle extends Module {
         if (points.length == 0) {
           Start('Point,"com.siigna.module.base.create",1)
         } else {
-          val guide = PointGuide(points.head, (v : Vector2D) => {
+          val guide = PointPointGuide(points.head, (v : Vector2D) => {
             (Array(PolylineShape(Rectangle2D(points(0), v))))
           },1)//1 : Input type = InputTwoValues
           Start('Point,"com.siigna.module.base.create", guide)

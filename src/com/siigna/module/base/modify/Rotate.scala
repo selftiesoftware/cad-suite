@@ -21,7 +21,7 @@ class Rotate extends Module {
   private var endVector : Option[Vector2D] = None
 
   //a guide to get Point to dynamically draw the shape(s) and their rotation
-  def shapeGuide(p: Vector2D) = PointGuide(p, (v : Vector2D) => {
+  def shapeGuide(p: Vector2D) = PointPointGuide(p, (v : Vector2D) => {
     // CreateCategory a matrix
     val t : TransformationMatrix = if (startVector.isDefined && centerPoint.isDefined) {
       // To find the angle between two vectors (lines): First calculate the separate angles
