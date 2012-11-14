@@ -31,7 +31,7 @@ class Move extends Module {
 
           //definition of a shape guide that is used to send the selected shapes to the 'Point module
           // where they are drawn dynamically
-          val shapeGuide = PointPointGuide(p, (v : Vector2D) => {
+          val shapeGuide = PointGuide(p, (v : Vector2D) => {
             val t : TransformationMatrix = if (startPoint.isDefined) {
                TransformationMatrix(v - startPoint.get, 1)
               // If no startPoint has been defined - create an empty matrix
