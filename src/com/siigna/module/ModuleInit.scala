@@ -11,7 +11,7 @@
 
 package com.siigna.module
 
-import base.create.PointPointGuide
+import base.create.PointGuide
 import base.Menu
 import base.radialmenu.category.StartCategory
 import com.siigna._
@@ -34,7 +34,7 @@ class ModuleInit extends Module {
       }
       case MouseDown(_, MouseButtonRight, _) :: tail => Start('Menu, "com.siigna.module.base")
       case MouseDown(p, _, _) :: tail                => {
-        val selectGuide = PointPointGuide(p, (v : Vector2D) => {
+        val selectGuide = PointGuide(p, (v : Vector2D) => {
           None
         },1)//1 : Input type = InputTwoValues
         Start('Selection, "com.siigna.module.base", selectGuide)

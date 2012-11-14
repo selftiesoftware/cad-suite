@@ -31,7 +31,7 @@ class Copy extends Module {
           startPoint = Some(p)
           Siigna display "set destination"
 
-          val shapeGuide = PointPointGuide(p, (v : Vector2D) => {
+          val shapeGuide = PointGuide(p, (v : Vector2D) => {
             val t : TransformationMatrix = if (startPoint.isDefined) {
               TransformationMatrix(v - startPoint.get, 1)
               // If no startPoint has been defined - create an empty matrix
