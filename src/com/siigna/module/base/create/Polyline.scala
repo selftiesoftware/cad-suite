@@ -118,7 +118,7 @@ class Polyline extends Module {
               case None => shape// Option isn't set. Do nothing
             }
           }
-          val polyLine = setAttribute[Color]("Color",setAttribute[Double]("LineWeight", plShape))
+          val polyLine = setAttribute[Color](Siigna.activeColor,setAttribute[Double]("LineWeight", plShape))
           Create(polyLine)
         }
         //The module closes - even if no polyline was drawn.

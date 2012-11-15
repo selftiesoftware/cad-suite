@@ -35,10 +35,10 @@ class Copy extends Module {
           val shapeGuide = PointPointGuide(p, (v : Vector2D) => {
             val t : TransformationMatrix = if (startPoint.isDefined) {
               TransformationMatrix(v - startPoint.get, 1)
-              // If no startPoint has been defined - create an empty matrix
-            } else TransformationMatrix()
-            // Return the shape, transformed
-            Drawing.selection.get.apply(t)
+
+            } else TransformationMatrix() // If no startPoint has been defined - create an empty matrix
+
+            Drawing.selection.get.apply(t)// Return the shape, transformed
           },1 )//1 : Input type = InputTwoValues
           Start('Point,"com.siigna.module.base.create", shapeGuide)
         }
@@ -66,7 +66,6 @@ class Copy extends Module {
 
       case _ => {
         if(multiActive == true) {
-          println("A")
           Create(shapes.get.apply(transformation.get))
           End
         }

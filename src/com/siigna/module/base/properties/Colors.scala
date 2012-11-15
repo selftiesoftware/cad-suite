@@ -120,8 +120,8 @@ class Colors extends Module {
         else if (angle == 140) activeColor = Some(dimgrey)
         else if (angle == 165) activeColor = Some(anthracite)
 
-        if(Drawing.selection.isEmpty) {
-          if(activeColor.isDefined) Siigna("activeColor") = activeColor.get
+        if(Drawing.selection.isEmpty && activeColor.isDefined) {
+          Siigna.activeColor = activeColor.toString
         }
         //if a selection is defined, change lineweight of the selected shapes and deselect them.
         else {
@@ -129,7 +129,6 @@ class Colors extends Module {
           Drawing.deselect()
         }
         //clear values and reactivate navigation
-        println("ACTIVE COLOR: "+activeColor)
         eventParser.enable()
         Siigna.navigation = true
         End
