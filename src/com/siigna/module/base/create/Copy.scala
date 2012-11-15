@@ -18,6 +18,7 @@ import com.siigna.module.base.create._
 class Copy extends Module {
 
   var endPoint : Option[Vector2D] = None
+  var multiActive = false
   var startPoint : Option[Vector2D] = None
   var shapes : Option[Selection] = None
   var transformation : Option[TransformationMatrix] = None
@@ -44,21 +45,35 @@ class Copy extends Module {
         else if(startPoint.isDefined){
           endPoint = Some(p)
           transformation = Some(TransformationMatrix((p - startPoint.get), 1))
-          Create(shapes.get.apply(transformation.get))
-
-          //TODO: implement multicopy
-          //Siigna display "type number of copies"
-          End
+          Siigna display "optional: type number of copies"
+          multiActive = true
+          Start('Point, "com.siigna.module.base.create",
+            PointPointGuide(p, v => shapes.get.apply(transformation.get),2))
         } else Siigna display "select object(s) to copy"
+      }
+
+      case End(f : Double) :: tail => {
+        if (multiActive == true && endPoint.isDefined){
+          for (i <- 0 to f.toInt) {
+            Create(shapes.get.apply(TransformationMatrix(Vector2D((endPoint.get.x - startPoint.get.x) * i, (endPoint.get.y - startPoint.get.y) * i), 1)))
+            End
+          }
+        }else End
       }
       //exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
       case MouseDown(p, MouseButtonRight, _) :: tail => End
 
       case _ => {
-        println("START WITHOUT HPOINT")
-        Siigna display "set origin of copy"
-        Start('Point,"com.siigna.module.base.create")
+        if(multiActive == true) {
+          println("A")
+          Create(shapes.get.apply(transformation.get))
+          End
+        }
+        else {
+          Siigna display "set origin of copy"
+          Start('Point,"com.siigna.module.base.create")
+        }
       }
     }
   )
