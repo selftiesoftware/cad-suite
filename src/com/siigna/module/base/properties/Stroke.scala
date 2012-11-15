@@ -94,18 +94,18 @@ class Stroke extends Module {
 
           var activeAngle = getActiveAngle(View.center,mousePosition)
 
-          if (activeAngle == 0) {activeLine = line0}
-          else if (activeAngle == 30) {activeLine = line30}
-          else if (activeAngle == 60) {activeLine = line60}
-          else if (activeAngle == 90) {activeLine = line90}
-          else if (activeAngle == 120) {activeLine = line120}
-          else if (activeAngle == 150) {activeLine = line150}
-          else if (activeAngle == 180) {activeLine = line180}
-          else if (activeAngle == 210) {activeLine = line210}
-          else if (activeAngle == 240) {activeLine = line240}
-          else if (activeAngle == 270) {activeLine = line270}
-          else if (activeAngle == 300) {activeLine = line300}
-          else if (activeAngle == 330) {activeLine = line330}
+          if (activeAngle == 180) {activeLine = line0}
+          else if (activeAngle == 210) {activeLine = line30}
+          else if (activeAngle == 24) {activeLine = line60}
+          else if (activeAngle == 270) {activeLine = line90}
+          else if (activeAngle == 300) {activeLine = line120}
+          else if (activeAngle == 330) {activeLine = line150}
+          else if (activeAngle ==   0) {activeLine = line180}
+          else if (activeAngle ==  30) {activeLine = line210}
+          else if (activeAngle ==  60) {activeLine = line240}
+          else if (activeAngle ==  90) {activeLine = line270}
+          else if (activeAngle == 120) {activeLine = line300}
+          else if (activeAngle == 150) {activeLine = line330}
 
         }
         println("LineWeight: "+activeLine)
