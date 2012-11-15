@@ -55,7 +55,8 @@ class Selection extends Module {
   def stateMap = Map(
     'Start -> {
 
-      //if ModuleInit forwards to selection with a left mouse click:
+      //if ModuleInit forwards to selection with a left mouse click
+      // If a shape is hit, it is selected:
       case Start(_ ,message : MouseDown) :: tail => {
         startPoint = Some(message.position)
         val m = mousePosition.transform(View.deviceTransformation)
@@ -74,10 +75,12 @@ class Selection extends Module {
         }
       }
 
-      //if ModuleInit forwards to selection with a mouse drag:
+      //if ModuleInit forwards to selection with a mouse drag
+      // a drag box is initiated:
       case Start(_,message : MouseDrag) :: tail => {
         startPoint = Some(message.position)
         'Box
+        println("After drag box)")
       }
 
       //double click anywhere on a shape selects the full shape.
@@ -156,13 +159,14 @@ class Selection extends Module {
         End
       }
       case MouseDown(_,MouseButtonRight,_)::tail => {
-
         Drawing.deselect()
-
         End
       }
 
-      case End :: tail =>        
+      case End :: tail => {
+        Drawing.deselect()
+        End
+      }
       case MouseMove(_,_,_) :: tail =>
       case f => { println("Selection recieved unkmnown inout: " + f)}
       //
