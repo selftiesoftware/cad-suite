@@ -139,6 +139,7 @@ class Selection extends Module {
         if (!Drawing.selection.isEmpty) {
           println("Insert delete module here")
           Delete(Drawing.selection.get.self)
+          val ss = new Delete
         }
       }
 
