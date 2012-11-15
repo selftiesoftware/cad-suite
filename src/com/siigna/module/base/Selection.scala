@@ -69,17 +69,13 @@ class Selection extends Module {
 
         if (!nearestShape.isEmpty) hasPartShape
 
-        if (!Drawing.selection.isEmpty) {
-          println("Something selected: " + Drawing.selection.get)
-        } else {
-          println("No nearest shape found at start, module ends")
+        if (Drawing.selection.isEmpty) {
           End
         }
       }
 
       //if ModuleInit forwards to selection with a mouse drag:
       case Start(_,message : MouseDrag) :: tail => {
-        println("BoxSelection to be initiated - position: " + message.position)
         startPoint = Some(message.position)
         'Box
       }
@@ -137,6 +133,22 @@ class Selection extends Module {
           Start('Move, "com.siigna.module.base.modify", p)
         }
       }
+
+      // Delete
+      case KeyDown(Key.Delete, _) :: tail => {
+        if (!Drawing.selection.isEmpty) {
+          println("Insert delete module here")
+          Delete(Drawing.selection.get.self)
+        }
+      }
+
+      // Delete
+      case KeyDown(Key.Backspace, _) :: tail => {
+        if (!Drawing.selection.isEmpty) {
+          println("Insert delete module here")
+          Delete(Drawing.selection.get.self)
+        }
+      }
         
       // Exit strategy
       case KeyDown(Key.Esc, _) :: tail => {
@@ -144,21 +156,15 @@ class Selection extends Module {
         End
       }
       case MouseDown(_,MouseButtonRight,_)::tail => {
-        println("Drawing: " + Drawing)
 
         Drawing.deselect()
-        println("Drawing: " + Drawing)
 
         End
       }
 
-      case End :: tail =>
-        
+      case End :: tail =>        
       case MouseMove(_,_,_) :: tail =>
-
       case f => { println("Selection recieved unkmnown inout: " + f)}
-
-
       //
 
     },
