@@ -22,36 +22,34 @@ class Move extends Module {
 
   val stateMap: StateMap = Map(
     'Start -> {
-      //if the point module returns with a point:
-      case End(p : Vector2D) :: tail => {
-        //set the startpoint for the move operation (if not already set)
-        if(!startPoint.isDefined) {
-          startPoint = Some(p)
-          Siigna display "set destination"
 
-          //definition of a shape guide that is used to send the selected shapes to the 'Point module
-          // where they are drawn dynamically
-          val shapeGuide = PointPointGuide(p, (v : Vector2D) => {
-            val t : TransformationMatrix = if (startPoint.isDefined) {
-               TransformationMatrix(v - startPoint.get, 1)
-              // If no startPoint has been defined - create an empty matrix
-              } else TransformationMatrix()
-            // Return the shape, transformed
-            Drawing.selection.get.apply(t)
-          },1) //1 : Input type = InputTwoValues
-          //forward to the point module with the shape guide.
-          Start('Point,"com.siigna.module.base.create", shapeGuide)
-        }
-        //if a start point has already been defined then the current point must be the end point
-        //in which case the objects are ready to be moved:
-        else if(startPoint.isDefined){
-          endPoint = Some(p)
-          transformation = Some(TransformationMatrix((p - startPoint.get), 1))
-          Drawing.selection.get.transform(transformation.get)
-          Drawing.deselect()
-          End
-        }
+      //If the move module starts with a point, it knows where to start...
+      case Start(_,p: Vector2D) :: tail => {
+        //set the startpoint for the move operation (if not already set)
+        startPoint = Some(p.transform(View.deviceTransformation))
+        //definition of a shape guide that is used to send the selected shapes to the 'Point module
+        // where they are drawn dynamically
+        val shapeGuide = PointPointGuide(p, (v : Vector2D) => {
+          val t : TransformationMatrix = if (startPoint.isDefined) {
+            TransformationMatrix(v - startPoint.get, 1)
+            // If no startPoint has been defined - create an empty matrix
+          } else TransformationMatrix()
+          // Return the shape, transformed
+          Drawing.selection.get.apply(t)
+        },3) //3 : Input type = InputTwoValues, and accepts KeyUp as input metod
+        //forward to the point module with the shape guide.
+        Start('Point,"com.siigna.module.base.create", shapeGuide)
       }
+
+      case End(MouseUp(p,_,_)) :: tail => {
+        endPoint = Some(p.transform(View.deviceTransformation))
+        transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
+        val parts = Drawing.selection.get.self
+        Drawing.selection.get.transform(transformation.get)
+        Drawing.deselect()
+        End
+      }
+
       //exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
       case MouseDown(p, MouseButtonRight, _) :: tail => End

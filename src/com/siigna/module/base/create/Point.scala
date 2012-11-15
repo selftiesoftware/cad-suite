@@ -70,6 +70,15 @@ class Point extends Module {
           End(MouseDown(p,button,modifier))
         }
       }
+
+      //If mouse up is recieved, and input-type is three:
+      // THe mouse-up is returned.
+      case MouseUp(p,button,modifier)::tail => {
+        if (inputType.get == 3) {
+          End(MouseUp(p,button,modifier))
+        }
+      }
+
       // Check for PointGuide - retrieve both the guide and its reference point, if it is defined.
       case Start(_ ,g : PointPointGuide) :: tail => {
         pointPointGuide = Some(g.pointGuide)
@@ -166,8 +175,9 @@ class Point extends Module {
 /**
  * inputType (Int) is passed on to text input modules if values are typed.
  * possible values:
- * 1 = x and y coordinates  (handled by the InputTwoValues module)
- * 2 = one length value     (handled by the InputOneValue module)
+ * 1 = x and y coordinates  (handled by the InputTwoValues module) - any input
+ * 2 = one length value     (handled by the InputOneValue module) -any input
+ * 3 = x and y coordinates  (handled by the InputTwoValues module) - key-input, or on MouseUp
  * 
  * Guide types depend on what the start and end types are. They are:
  * 1 =  PointGuide:      Start:        Vector2D    End:     Vector2D
@@ -176,10 +186,10 @@ class Point extends Module {
  */
 
 //The basic point guide - a vector2D is the base for the shapes
-case class PointGuide(point : Vector2D , pointGuide : Vector2D => Traversable[Shape] , inputType : Int)
+case class PointGuide(pointGuide : Vector2D => Traversable[Shape] , inputType : Int)
 
 //The basic double guide - a double is the base for the shapes
-case class DoubleGuide(point : Vector2D , pointGuide : Double => Traversable[Shape] , inputType : Int)
+case class DoubleGuide(pointGuide : Double => Traversable[Shape] , inputType : Int)
 
 //A point and a point guide - a vector2D delivered along a basic point guide,
 // for use when the guide needs to relate to a fixed point

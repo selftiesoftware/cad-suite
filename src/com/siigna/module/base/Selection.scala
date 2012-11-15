@@ -21,6 +21,7 @@ import app.model
 class Selection extends Module {
 
   private var box : Option[Rectangle2D] = None
+  val selectionDistanceSetInSetup = Siigna.double("selectionDistance")
 
   var nearestShape : Option[(Int, Shape)] = None
 
@@ -32,18 +33,17 @@ class Selection extends Module {
   private var startPoint : Option[Vector2D] = None
 
   def hasFullShape = {
-    if (nearestShape.isDefined) {
+    if (!nearestShape.isEmpty) {
       Drawing.select(nearestShape.get._1)
-      Start('Move, "com.siigna.module.modify")
+      //Start('Move, "com.siigna.module.base.modify")
     }
   }
 
   def hasPartShape = {
-    if (nearestShape.isDefined) {
+    if (!nearestShape.isEmpty) {
       val shape = nearestShape.get
       val part = shape._2.getPart(mousePosition.transform(View.deviceTransformation))
       Drawing.select(shape._1, part)
-      Start('Move, "com.siigna.module.modify", Drawing.selection.get)
     }
   }
 
@@ -55,62 +55,128 @@ class Selection extends Module {
   def stateMap = Map(
     'Start -> {
 
-      //double click selects over a shape selects the full shape.
-      case MouseDown(p, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: tail => {
+      //if ModuleInit forwards to selection with a left mouse click
+      // If a shape is hit, it is selected:
+      case Start(_ ,message : MouseDown) :: tail => {
+        startPoint = Some(message.position)
         val m = mousePosition.transform(View.deviceTransformation)
-
         //find the shape closest to the mouse:
         if (Drawing(m).size > 0) {
-          val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-          nearestShape = if (nearest._2.distanceTo(m) < 5) Some(nearest) else None
+          val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b) 
+          if (nearest._2.distanceTo(m) < selectionDistanceSetInSetup.get) {
+            nearestShape = Some(nearest)
+          } else nearestShape = None
         }
-        startPoint = Some(p)
-        hasFullShape
+
+        if (!nearestShape.isEmpty) hasPartShape
+
+        if (Drawing.selection.isEmpty) {
+          End
+        }
+      }
+
+      //if ModuleInit forwards to selection with a mouse drag
+      // a drag box is initiated:
+      case Start(_,message : MouseDrag) :: tail => {
+        startPoint = Some(message.position)
+        'Box
+        println("After drag box)")
+      }
+
+      //double click anywhere on a shape selects the full shape.
+      case MouseDown(p1, MouseButtonLeft, _) :: MouseUp(_ ,MouseButtonLeft , _) :: MouseDown(p2, MouseButtonLeft, _) :: tail => {
+        if (p1 == p2) {
+          startPoint = Some(p2)
+          val m = mousePosition.transform(View.deviceTransformation)
+          //find the shape closest to the mouse:
+          if (Drawing(m).size > 0) {
+            val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+            nearestShape = if (nearest._2.distanceTo(m) < 5) Some(nearest) else None
+          }
+          //If a nearest shape was found, this is selected
+          if (!nearestShape.isEmpty) {
+            hasFullShape
+            //If nothing is selected, the module ends
+          }
+          if (Drawing.selection.isEmpty) {
+            End
+          }
+      }}
+
+      //Single leftclick selects nearest shapepart, if nothing is selected yet:
+      case MouseDown(p, MouseButtonLeft, _) :: tail => {
+        if (Drawing.selection.isEmpty) {
+          startPoint = Some(p)
+          val m = mousePosition.transform(View.deviceTransformation)
+          nearestShape = None
+          //find the shape closest to the mouse:
+          if (Drawing(m).size > 0) {
+            val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+            nearestShape = if (nearest._2.distanceTo(m) < selectionDistanceSetInSetup.get) Some(nearest) else None
+          }
+          //If a nearest shape was found, this is selected
+          if (!nearestShape.isEmpty) {
+            hasPartShape
+          //If nothing is selected, the module ends
+          }
+        }
+        //If there still is nothing selected, the module ends
+        if (Drawing.selection.isEmpty) {
+          End
+        }
+      }
+
+      //If a drag is performed, and nothing is selected, something should be selected.
+      //If something is selected, it should be moved.
+      case MouseDrag(p,_,_) :: tail => {
+        if (Drawing.selection.isEmpty) {
+          startPoint = Some(p)
+          'Box
+        } else {
+          Start('Move, "com.siigna.module.base.modify", p)
+        }
+      }
+
+      // Delete
+      case KeyDown(Key.Delete, _) :: tail => {
+        if (!Drawing.selection.isEmpty) {
+          println("Insert delete module here")
+          Delete(Drawing.selection.get.self)
+        }
+      }
+
+      // Delete
+      case KeyDown(Key.Backspace, _) :: tail => {
+        if (!Drawing.selection.isEmpty) {
+          println("Insert delete module here")
+          Delete(Drawing.selection.get.self)
+        }
+      }
+        
+      // Exit strategy
+      case KeyDown(Key.Esc, _) :: tail => {
+        Drawing.deselect()
         End
       }
-      //if ModuleInit forwards to selection with a point, it should be used:
-      case Start(_ ,g : PointPointGuide) :: tail => {
-        val m = mousePosition.transform(View.deviceTransformation)
-        var p = g.point
-        //find the shape closest to the mouse:
-        if (Drawing(m).size > 0) {
-          val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-          nearestShape = if (nearest._2.distanceTo(m) < 100) Some(nearest) else None
-        }
-        startPoint = Some(p)
-        hasPartShape
+      case MouseDown(_,MouseButtonRight,_)::tail => {
+        Drawing.deselect()
+        End
       }
 
-      case MouseDown(p, _, _) :: tail => {
-        val m = mousePosition.transform(View.deviceTransformation)
+      case End :: tail => {
+        Drawing.deselect()
+        End
+      }
+      case MouseMove(_,_,_) :: tail =>
+      case f => { println("Selection recieved unkmnown inout: " + f)}
+      //
 
-        //find the shape closest to the mouse:
-        if (Drawing(m).size > 0) {
-          val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-          nearestShape = if (nearest._2.distanceTo(m) < 100) Some(nearest) else None
-        }
-        startPoint = Some(p)
-        hasPartShape
-      }
-
-      case MouseMove(p, _, _) ::  tail => {
-        startPoint = Some(p)
-        hasPartShape
-      }
-      case MouseDrag(p, _, _) :: tail => {
-        startPoint = Some(p)
-        hasPartShape match {
-          case m : ModuleInstance => m
-          case _ => 'Box
-        }
-      }
-      //case MouseUp(_, _, _) :: tail => End
-      case e => {
-        println(e)
-      }
     },
+
     'Box -> {
       case MouseDrag(p, _, _) :: tail => {
+        //Drawing selection box from one side selects all the shapes that "touches" the box
+        // from the other only the shapes that are wholly inside the box:,
         if(startPoint.get.x < p.x) {
           selectFullyEnclosed = true
           box = Some(Rectangle2D(startPoint.get, p))
@@ -120,7 +186,7 @@ class Selection extends Module {
           box = Some(Rectangle2D(startPoint.get, p))
         }
       }
-      case MouseUp(_, _, _) :: tail => {
+      case MouseUp(p, _, _) :: tail => {
         if (box.isDefined && selectFullyEnclosed == true) {
           Select(box.get.transform(View.deviceTransformation), true)
         }
@@ -128,12 +194,12 @@ class Selection extends Module {
         else if (box.isDefined && selectFullyEnclosed == false) {
           Select(box.get.transform(View.deviceTransformation), false)
         }
-        // End the module
-        End
+        //Return from this part
+        box = None
+        'Start
       }
       case e => {
-
-        println(e)
+        println("Box ending: " + e)
       }
     }
   )
