@@ -36,10 +36,14 @@ class ModuleInit extends Module {
       case MouseDown(_, MouseButtonRight, _) :: tail => Start('Menu, "com.siigna.module.base")
 
       //Leftclick starts select:
-      case MouseDown(p, MouseButtonLeft, _) :: tail                => {
-        println("Getting ready to start selection")
+      case MouseDown(p, MouseButtonLeft, modifier) :: tail => {
+        Start('Selection, "com.siigna.module.base", MouseDown(p, MouseButtonLeft, modifier))
+      }
 
-        Start('Selection, "com.siigna.module.base", p)
+      //Drag starts select:
+      case MouseDrag(p, button, modifier) :: tail => {
+        Start('Selection, "com.siigna.module.base", MouseDrag(p, button, modifier))
+
       }
 
       case KeyDown('c', _) :: KeyUp('p', _) :: tail => {
