@@ -14,6 +14,7 @@ package com.siigna.module.base.modify
 import com.siigna._
 import app.Siigna
 import com.siigna.module.base.create._
+import com.siigna.module.ModuleInit
 
 class Rotate extends Module {
 
@@ -88,8 +89,15 @@ class Rotate extends Module {
       case KeyDown(Key.Esc, _) :: tail => End
       case MouseDown(p, MouseButtonRight, _) :: tail => End
       case _ => {
-        Siigna display "set base point for rotation"
-        Start('Point,"com.siigna.module.base.create")
+        //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
+        val l = new ModuleInit
+        if (l.usableSelectionExists) {
+        Siigna display "set centre point for rotation"
+        Start('Point,"com.siigna.module.base.create") 
+        } else {
+          Siigna display "nothing selected"
+          End
+        }
       }
     }
   )
