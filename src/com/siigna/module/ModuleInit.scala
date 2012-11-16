@@ -34,7 +34,6 @@ class ModuleInit extends Module {
 
   protected var lastModule : Option[ModuleInstance] = None
 
-
   def stateMap = Map(
     'Start -> {
       // Match for modules to forward to
@@ -119,7 +118,6 @@ class ModuleInit extends Module {
     }
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
-    //println("draw guides here!!")
   }
 
   //Check if there is a useable selection:
