@@ -53,7 +53,8 @@ class ModuleInit extends Module {
         } }
 
       //Leftclick:
-      // 1: Starts select, to select shape part at cursor, if nothing is selected:
+      // 1: Starts select, to select shape part at cursor, if nothing is selected,
+      // TODO: or if the click was away from the selection:
       case MouseDown(p, MouseButtonLeft, modifier) :: tail => {
         //Check if there is a useable selection:
         if (usableSelectionExists == false) {
@@ -64,6 +65,8 @@ class ModuleInit extends Module {
       //Leftclick and drag starts :
       // 1: Move if something is selected, and near where the drag starts, or
       // 2: Select, if nothing is selected yet, or if something is selected, but away from the cursor
+      // TODO: Change it, so it is if something is not close to the selection - now it if the click
+      // is close to any shape in the drawing
       case MouseDrag(p2, button2, modifier2) :: MouseDown(p, button, modifier) :: tail => {
         if (usableSelectionExists == true) {
           val m = p.transform(View.deviceTransformation)
