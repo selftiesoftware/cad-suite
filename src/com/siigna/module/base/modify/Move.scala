@@ -14,6 +14,7 @@ package com.siigna.module.base.modify
 import com.siigna._
 import app.Siigna
 import com.siigna.module.base.create._
+import module.ModuleInit
 
 class Move extends Module {
   var endPoint : Option[Vector2D] = None
@@ -36,11 +37,13 @@ class Move extends Module {
           } else TransformationMatrix()
           // Return the shape, transformed
           Drawing.selection.get.apply(t)
-        },3) //3 : Input type = InputTwoValues, and accepts KeyUp as input metod
+        },3) //3 : Input type = InputTwoValues, and accepts KeyUp as input metod,
+        //so the coordinates will be returned on key up
         //forward to the point module with the shape guide.
         Start('Point,"com.siigna.module.base.create", shapeGuide)
       }
 
+      //If point returns mouse up, then this is vhere the move should end...
       case End(MouseUp(p,_,_)) :: tail => {
         endPoint = Some(p.transform(View.deviceTransformation))
         transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
@@ -49,14 +52,36 @@ class Move extends Module {
         End
       }
 
+      //If point returns point, then this is vhere the move should end...
+      case End(p: Vector2D) :: tail => {
+        endPoint = Some(p.transform(View.deviceTransformation))
+        transformation = Some(TransformationMatrix(p, 1))
+        Drawing.selection.get.transform(transformation.get)
+        Drawing.deselect()
+        End
+      }
+
       //exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
       case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End :: tail => End
 
       //on first entry, go to point to get the start point for the move operations.
       case _ => {
-        Siigna display "set origin of move"
-        Start('Point,"com.siigna.module.base.create")
+        //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
+        val l = new ModuleInit
+        if (l.usableSelectionExists) {
+          val p = Vector2D(0,0)
+          val shapeGuide = PointGuide((v : Vector2D) => {
+            val t : TransformationMatrix = TransformationMatrix(v - p, 1)
+            // Return the shape, transformed
+            Drawing.selection.get.apply(t)
+          },4) //Input type 4: coordinates, mouse-drag-distance, or key-input.
+          Start('Point, "com.siigna.module.base.create", shapeGuide)
+        } else {
+          Siigna display "nothing selected"
+         End
+        }
       }
     }
   )

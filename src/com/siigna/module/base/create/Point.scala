@@ -27,10 +27,12 @@ class Point extends Module {
   private var guide : Boolean = true
   private var inputType : Option[Int] = None
   private var guideType : Option[Int] = None
+  var pointGuide : Option[Vector2D => Traversable[Shape]] = None
   var pointPointGuide : Option[Vector2D => Traversable[Shape]] = None
   var pointDoubleGuide : Option[Double => Traversable[Shape]] = None
   var pointPointDoubleGuide : Option[Double => Traversable[Shape]] = None
   var pointPointPointGuide : Option[Vector2D => Traversable[Shape]] = None
+  var sendPointGuide : Option[PointGuide] = None
   var sendPointPointGuide : Option[PointPointGuide] = None
   var sendPointDoubleGuide : Option[PointDoubleGuide] = None
   var sendPointPointDoubleGuide : Option[PointPointDoubleGuide] = None
@@ -63,23 +65,42 @@ class Point extends Module {
             if (distanceFromStartToMouse != 0) {
               End(distanceFromStartToMouse)
             }
+          } else if (!pointGuide.isEmpty) {
+            point = Some(p)
+            //Start painting...
+            guide = true
           } else {
           End(p.transform(View.deviceTransformation))
-        }} else {
+          }
+        } else {
           // In all other cases, the mouseDown is returned
           End(MouseDown(p,button,modifier))
         }
       }
 
-      //If mouse up is recieved, and input-type is three:
-      // THe mouse-up is returned.
+      //If mouse up is recieved,
+      // 1: If input type is three the mouse up is returned.
+      // 2: If input type is 4, the difference between point and the start point is returned.
       case MouseUp(p,button,modifier)::tail => {
         if (inputType.get == 3) {
           End(MouseUp(p,button,modifier))
+        } else if (inputType.get == 4) {
+          End(Vector2D((p - point.get).x,-(p - point.get).y))
         }
       }
 
-      // Check for PointGuide - retrieve both the guide and its reference point, if it is defined.
+      // Check for PointGuide - retrieve only the guide, no reference point. 
+      //Returns coordinate difference from mouseDown to Mouse UP, or key-entries.
+      case Start(_ ,g : PointGuide) :: tail => {
+        pointGuide = Some(g.pointGuide)
+        inputType = Some(g.inputType)
+        sendPointGuide = Some(g)
+        guideType = Some(1)
+        //Paint nothing, yet - not until the first click, so the start-code is moved there...
+        guide = false
+      }
+
+      // Check for PointPointGuide - retrieve both the guide and its reference point, if it is defined.
       case Start(_ ,g : PointPointGuide) :: tail => {
         pointPointGuide = Some(g.pointGuide)
         inputType = Some(g.inputType)
@@ -130,23 +151,26 @@ class Point extends Module {
         //If it is other keys, the input is interpreted by the input-modules.
         //Any existing guides are forwarded.
         } else if(inputType == Some(1)) {
-            guide = false
+          if (guide == true) guide = false
             if (!sendPointPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create",sendPointPointGuide.get)
             else if (!sendPointDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointDoubleGuide.get)
             else if (!sendPointPointDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointPointDoubleGuide.get)
             else if (!sendPointPointPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointPointPointGuide.get)
             else Start('InputTwoValues,"com.siigna.module.base.create")
         } else if(inputType == Some(2)) {
-            guide = false
+          if (guide == true) guide = false
             if (!sendPointPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointPointGuide.get)
             else if (!sendPointDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointDoubleGuide.get)
             else Start('InputOneValue,"com.siigna.module.base.create")
         } else if(inputType == Some(3)) {
-            guide = false
+          if (guide == true) guide = false
             if (!sendPointPointGuide.isEmpty) Start('InputAngle,"com.siigna.module.base.create", sendPointPointGuide.get)
             else if (!sendPointDoubleGuide.isEmpty) Start('InputAngle,"com.siigna.module.base.create", sendPointDoubleGuide.get)
             else Start('InputAngle,"com.siigna.module.base.create")
-        } 
+        } else if(inputType == Some(4)) {
+            if (guide == true) guide = false
+            if (!sendPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create",sendPointGuide.get)
+        }
         
       }
       case _ => {
@@ -156,6 +180,8 @@ class Point extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
     //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
     if ( guide == true) {
+      //If a point is the desired return, x and y-coordinates are used in the guide
+      if (!pointGuide.isEmpty) pointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
       //If a point is the desired return, x and y-coordinates are used in the guide
       if (!pointPointGuide.isEmpty) pointPointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
       //If a double is the desired return, the distance from the starting point is used in the guide
@@ -178,6 +204,7 @@ class Point extends Module {
  * 1 = x and y coordinates  (handled by the InputTwoValues module) - any input
  * 2 = one length value     (handled by the InputOneValue module) -any input
  * 3 = x and y coordinates  (handled by the InputTwoValues module) - key-input, or on MouseUp
+ * 4 = x and y coordinates - from mouse drag distance, or key input
  * 
  * Guide types depend on what the start and end types are. They are:
  * 1 =  PointGuide:      Start:        Vector2D    End:     Vector2D
