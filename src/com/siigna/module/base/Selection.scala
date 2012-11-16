@@ -105,14 +105,6 @@ class Selection extends Module {
           End
       }
 
-      // Delete
-      case KeyDown(Key.Delete, _) :: tail => {
-        if (!Drawing.selection.isEmpty) {
-          println("Insert delete module here")
-          Delete(Drawing.selection.get.self)
-        }
-      }
-
       case MouseMove(_,_,_) :: tail =>
       case f => { println("Selection recieved unkmnown inout: " + f)}
       //
@@ -135,13 +127,11 @@ class Selection extends Module {
       case MouseUp(p, _, _) :: tail => {
         if (box.isDefined && selectFullyEnclosed == true) {
           Select(box.get.transform(View.deviceTransformation), true)
-          println("Selected vith enclosed true; selection is: " + Drawing.selection.get)
 
         }
         //if the selection is drawn from right to left, select partially enclosed shapes as well.:
         else if (box.isDefined && selectFullyEnclosed == false) {
           Select(box.get.transform(View.deviceTransformation), false)
-          println("Selected vith enclosed false; selection is: " + Drawing.selection.get)
         }
         End
       }

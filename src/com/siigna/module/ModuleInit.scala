@@ -48,7 +48,6 @@ class ModuleInit extends Module {
 
       //double click anywhere on a shape selects the full shape.
       case  MouseDown(p2, button, modifier) :: MouseUp(p1 ,MouseButtonLeft , _) :: tail => {
-        println("Doubleclick")
         if (p1 == p2){
           Start('Selection, "com.siigna.module.base", MouseDouble(p2,button,modifier))
         } }
@@ -56,7 +55,6 @@ class ModuleInit extends Module {
       //Leftclick:
       // 1: Starts select, to select shape part at cursor, if nothing is selected:
       case MouseDown(p, MouseButtonLeft, modifier) :: tail => {
-        println("Leftclick")
         //Check if there is a useable selection:
         if (usableSelectionExists == false) {
           Start('Selection, "com.siigna.module.base", MouseDown(p, MouseButtonLeft, modifier))
@@ -64,24 +62,33 @@ class ModuleInit extends Module {
       }
 
       //Leftclick and drag starts :
-      // 1: Select, if nothing is selected yet,
-      // 2: Move if something is selected, and near where the drag starts, or
-      // 3: Nothing if something is selected, but away from the cursor
+      // 1: Move if something is selected, and near where the drag starts, or
+      // 2: Select, if nothing is selected yet, or if something is selected, but away from the cursor
       case MouseDrag(p2, button2, modifier2) :: MouseDown(p, button, modifier) :: tail => {
-        println("Drag - size:")
-        if (usableSelectionExists == false) {
-          Start('Selection, "com.siigna.module.base", MouseDrag(p, button, modifier))
-        } else {
+        if (usableSelectionExists == true) {
           val m = p.transform(View.deviceTransformation)
           if (Drawing(m).size > 0) {
             val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-            if (nearest._2.distanceTo(m) < Siigna.double("selectionDistance").get)
-              Start('Move, "com.siigna.module.base.modify", p )
+            if (nearest._2.distanceTo(m) < Siigna.double("selectionDistance").get) {
+            Start('Move, "com.siigna.module.base.modify", p )
+            } else {
+            Start('Selection, "com.siigna.module.base", MouseDrag(p, button, modifier))
+          }} else {
+            //Necessary since Drawing(m).size is 0 when marking far away from selected shape/parts
+            Start('Selection, "com.siigna.module.base", MouseDrag(p, button, modifier))
           }
+        } else {
+          Start('Selection, "com.siigna.module.base", MouseDrag(p, button, modifier))
         }
       }
 
-
+      // Delete
+      case KeyDown(Key.Delete, _) :: tail => {
+        if (usableSelectionExists) {
+          println("Insert delete module here")
+          Delete(Drawing.selection.get.self)
+        }
+      }
 
       case KeyDown('c', _) :: KeyUp('p', _) :: tail => {
         Start('Colors, "com.siigna.module.base.properties")
