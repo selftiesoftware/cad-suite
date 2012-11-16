@@ -136,7 +136,7 @@ class Selection extends Module {
         End
       }
       case e => {
-        println("Box ending: " + e)
+        println("Box ending: DO NOT TRY TO BOX-SELECT ARCS!!! " + e)
       }
     }
   )
