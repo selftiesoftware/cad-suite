@@ -44,7 +44,6 @@ class Move extends Module {
       case End(MouseUp(p,_,_)) :: tail => {
         endPoint = Some(p.transform(View.deviceTransformation))
         transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
-        val parts = Drawing.selection.get.self
         Drawing.selection.get.transform(transformation.get)
         Drawing.deselect()
         End

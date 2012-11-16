@@ -14,6 +14,16 @@ package com.siigna.module
 import base.Menu
 import base.radialmenu.category.StartCategory
 import com.siigna._
+import app.model.shape.GroupShape.Selector
+import app.model.shape.LineShape.Selector
+import app.model.shape.PolylineShape.Selector
+import app.model.shape.CircleShape.Selector
+import app.model.shape.{FullSelector, ShapeSelector}
+import collection.BitSet
+import collection.mutable.BitSet
+import collection.immutable.BitSet
+
+
 
 /**
  * An init module for the cad-suite.
@@ -23,6 +33,7 @@ class ModuleInit extends Module {
   Menu.startCategory = StartCategory
 
   protected var lastModule : Option[ModuleInstance] = None
+
 
   def stateMap = Map(
     'Start -> {
@@ -35,16 +46,42 @@ class ModuleInit extends Module {
       //Rightclick starts menu:
       case MouseDown(_, MouseButtonRight, _) :: tail => Start('Menu, "com.siigna.module.base")
 
-      //Leftclick starts select:
+      //double click anywhere on a shape selects the full shape.
+      case  MouseDown(p2, button, modifier) :: MouseUp(p1 ,MouseButtonLeft , _) :: tail => {
+        println("Doubleclick")
+        if (p1 == p2){
+          Start('Selection, "com.siigna.module.base", MouseDouble(p2,button,modifier))
+        } }
+
+      //Leftclick:
+      // 1: Starts select, to select shape part at cursor, if nothing is selected:
       case MouseDown(p, MouseButtonLeft, modifier) :: tail => {
-        Start('Selection, "com.siigna.module.base", MouseDown(p, MouseButtonLeft, modifier))
+        println("Leftclick")
+        //Check if there is a useable selection:
+        if (usableSelectionExists == false) {
+          Start('Selection, "com.siigna.module.base", MouseDown(p, MouseButtonLeft, modifier))
+        }
       }
 
-      //Drag starts select:
-      case MouseDrag(p, button, modifier) :: tail => {
-        Start('Selection, "com.siigna.module.base", MouseDrag(p, button, modifier))
-
+      //Leftclick and drag starts :
+      // 1: Select, if nothing is selected yet,
+      // 2: Move if something is selected, and near where the drag starts, or
+      // 3: Nothing if something is selected, but away from the cursor
+      case MouseDrag(p2, button2, modifier2) :: MouseDown(p, button, modifier) :: tail => {
+        println("Drag - size:")
+        if (usableSelectionExists == false) {
+          Start('Selection, "com.siigna.module.base", MouseDrag(p, button, modifier))
+        } else {
+          val m = p.transform(View.deviceTransformation)
+          if (Drawing(m).size > 0) {
+            val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+            if (nearest._2.distanceTo(m) < Siigna.double("selectionDistance").get)
+              Start('Move, "com.siigna.module.base.modify", p )
+          }
+        }
       }
+
+
 
       case KeyDown('c', _) :: KeyUp('p', _) :: tail => {
         Start('Colors, "com.siigna.module.base.properties")
@@ -67,7 +104,6 @@ class ModuleInit extends Module {
       case KeyDown(Key.Space, _) :: tail => if (lastModule.isDefined) Start(lastModule.get.copy)
 
       // Release all selections
-      case End :: tail => Drawing.deselect()
       case KeyDown(Key.Esc, _) :: tail => Drawing.deselect()
       case _ =>
     }
@@ -75,4 +111,43 @@ class ModuleInit extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
     //println("draw guides here!!")
   }
+
+  //Check if there is a useable selection:
+  // TODO: Make a more elegant way to check for usable selection - in mainline?
+  def usableSelectionExists = {
+    var usableSelectionExists: Boolean = false
+    if (!Drawing.selection.isEmpty) {
+      //The selection could be an empty map, which is unusable - check for that:
+      if (Drawing.selection.get.self.size != 0)
+      //The map could contain an EmptySelector or a Selector with
+      // an empty bit-set, which is unusable - check for that:
+      Drawing.selection.get.self.foreach((shape) => {
+        shape._2 match {
+          //A FullSelector or a selector containing a BitSet means a useable selection:
+          case FullSelector => usableSelectionExists = true
+          case app.model.shape.PolylineShape.Selector(x) => {
+            if (x.size >0) {
+              //If the bitset is larger than 0, something useful is selected...
+              usableSelectionExists = true
+            }
+          }
+          case app.model.shape.LineShape.Selector(x) => {
+            //If the selector exists, something useful is selected...
+            usableSelectionExists = true
+          }
+          case app.model.shape.CircleShape.Selector(x) => {
+            //If the selector exists, something useful is selected...
+            usableSelectionExists = true
+          }
+          case app.model.shape.GroupShape.Selector(x) => if (x.size >0) {
+            //If the bitset is larger than 0, something useful is selected...
+            usableSelectionExists = true
+          }
+          case _ =>
+        }
+      })
+    }
+    (usableSelectionExists)
+  }
+
 }
