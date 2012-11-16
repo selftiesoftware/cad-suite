@@ -75,7 +75,8 @@ class InputTwoValues extends Module {
     else " "
   }
 
-  var receivedGuide: Option[PointPointGuide] = None
+  var receivedPointPointGuide: Option[PointPointGuide] = None
+  var receivedPointGuide: Option[PointGuide] = None
   var pointGuide : Option[Vector2D => Traversable[Shape]] = None
   var startPoint : Option[Vector2D] = None
 
@@ -104,7 +105,22 @@ class InputTwoValues extends Module {
       case Start(_ ,g: PointPointGuide) :: KeyDown(code, _) :: tail => {
         pointGuide = Some(g.pointGuide)
         startPoint = Some(g.point)
-        receivedGuide = Some(g)
+        receivedPointPointGuide = Some(g)
+        //save the already typed key:
+        if (code.toChar.isDigit) coordinateValue += code.toChar
+        if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
+        //if a comma or enter is the first thing entered, it is interpreted as zero:
+        if ((code.toChar.toString == "," || code == Key.enter) && coordinateValue.length() == 0) {
+          coordinateX = Some(0.0)
+        }
+        Siigna display message(coordinateValue, coordinateX, coordinateY)
+      }
+
+      //Read numbers and minus, "," and enter as first entry, after drawing of guide, if a pointGuide is provided:
+      case Start(_ ,g: PointGuide) :: KeyDown(code, _) :: tail => {
+        pointGuide = Some(g.pointGuide)
+        startPoint = Some(Vector2D(0,0))
+        receivedPointGuide = Some(g)
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
         if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
