@@ -230,7 +230,7 @@ case class PointDoubleGuide(point : Vector2D , doubleGuide : Double => Traversab
 // for use when the guide needs to relate to two fixed points
 case class PointPointDoubleGuide(point1 : Vector2D, point2 : Vector2D, doubleGuide : Double => Traversable[Shape] , inputType : Int)
 
-//two points and a double guide - two vector2Ds delivered along a basic double guide,
+//two points and a double guide - two vector2Ds delivered along a333 basic double guide,
 // for use when the guide needs to relate to two fixed points
 case class PointPointPointGuide(point1 : Vector2D, point2 : Vector2D, pointGuide : Vector2D => Traversable[Shape] , inputType : Int)
 
