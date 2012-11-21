@@ -38,7 +38,7 @@ class Polyline extends Module {
             (Array(PolylineShape(startPoint.get, v)))
           },1)//1 : Input type = InputTwoValues
 
-          Start('Point,"com.siigna.module.base.create", guide)
+          Start('Input,"com.siigna.module.base.create", guide)
         } else {
           //If the start point is set, the first segment is made and points should be added.
           points :+ v
@@ -48,7 +48,7 @@ class Polyline extends Module {
           val guide = PointPointGuide(v, (v : Vector2D) => {
             (Array(PolylineShape(points :+ v)))
           },1)//1 : Input type = InputTwoValues
-          Start('Point,"com.siigna.module.base.create", guide)
+          Start('Input,"com.siigna.module.base.create", guide)
         }
       }
 
@@ -63,13 +63,13 @@ class Polyline extends Module {
             (Array(PolylineShape(startPoint.get, v)))
           },1)//1 : Input type = InputTwoValues
 
-          Start('Point,"com.siigna.module.base.create", guide)
+          Start('Input,"com.siigna.module.base.create", guide)
         } else {
 
           val guide = PointPointGuide(points.last, (v : Vector2D) => {
             (Array(PolylineShape(points :+ v)))
           },1)//1 : Input type = InputTwoValues
-          Start('Point,"com.siigna.module.base.create", guide)
+          Start('Input,"com.siigna.module.base.create", guide)
         }
       }
 
@@ -87,10 +87,10 @@ class Polyline extends Module {
             val guide : PointPointGuide = PointPointGuide(points.last, (v : Vector2D) => {
               Array(PolylineShape(points :+ v))
             },1) //1 : Input type = InputTwoValues
-            Start('Point,"com.siigna.module.base.create", guide)
+            Start('Input,"com.siigna.module.base.create", guide)
           } else {
             //If not, point is started without guide.
-            Start('Point,"com.siigna.module.base.create")
+            Start('Input,"com.siigna.module.base.create")
           }
         }}
 
@@ -127,7 +127,7 @@ class Polyline extends Module {
       End
       }
       case x => {
-        Start('Point,"com.siigna.module.base.create",1)
+        Start('Input,"com.siigna.module.base.create",1)
       }
     })
 

@@ -33,7 +33,7 @@ class Line extends Module {
           val guide = PointPointGuide(v, (v : Vector2D) => {
             (Array(LineShape(startPoint.get, v)))
           },1)//1 : Input type = InputTwoValues
-          Start('Point,"com.siigna.module.base.create", guide)
+          Start('Input,"com.siigna.module.base.create", guide)
         } else {
 
           val lShape = LineShape(startPoint.get,v)
@@ -56,42 +56,27 @@ class Line extends Module {
       //If input module returns nothing:
       case End("no point returned") :: tail => {
         if (startPoint.isEmpty) {
-          Start('Point,"com.siigna.module.base.create",1)
+          Start('Input,"com.siigna.module.base.create",1)
         } else {
         val guide = PointPointGuide(startPoint.get, (v : Vector2D) => {
           (Array(LineShape(startPoint.get, v)))
         },1)//1 : Input type = InputTwoValues
-        Start('Point,"com.siigna.module.base.create", guide)
+        Start('Input,"com.siigna.module.base.create", guide)
       }}
 
       case End(k : KeyDown) :: tail => {
         // If the key is backspace without modification (shift etc), the last point is deleted, if there is any
         if (k == KeyDown(Key.Backspace,ModifierKeys(false,false,false))) {
           if (startPoint.isEmpty) {
-            Start('Point,"com.siigna.module.base.create",1)
+            Start('Input,"com.siigna.module.base.create",1)
           } else {
             val guide = PointPointGuide(startPoint.get, (v : Vector2D) => {
               (Array(LineShape(startPoint.get, v)))
             },1)//1 : Input type = InputTwoValues
-            Start('Point,"com.siigna.module.base.create", guide)
+            Start('Input,"com.siigna.module.base.create", guide)
       } } }
         
-      case _ => Start('Point,"com.siigna.module.base.create",1)
-
-
-      //if point returns a mouseDown
-      //case End(m : MouseDown) :: tail => {
-      //  println("Mouse button pressed - other than left..." + m)
-      //  if (startPoint.isDefined) {
-          //val guide = PointGuide(v, (v : Vector2D) => {
-          //  (Array(LineShape(startPoint.get, v)))
-          //})
-          //Start('Point,"com.siigna.module.base.create", guide)
-      //  } else {
-      //    Start('Point,"com.siigna.module.base.create")
-      //  }
-      //}
-      //if
+      case _ => Start('Input,"com.siigna.module.base.create",1)
 
     }
   )

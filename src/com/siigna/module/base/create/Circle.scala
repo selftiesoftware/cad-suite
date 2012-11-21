@@ -36,8 +36,8 @@ class Circle extends Module {
           case End(p : Vector2D) :: tail => {
             center = Some(p)
             //Send point guide, and ask for one-coordinate input: Radius
-            Start('Point, "com.siigna.module.base.create",
-              PointDoubleGuide(p, (r: Double) => Traversable(CircleShape(p, math.abs(r))),2)
+            Start('Input, "com.siigna.module.base.create",
+              PointDoubleGuide(p, (r: Double) => Traversable(CircleShape(p, math.abs(r))),3)
             )
           }
 
@@ -59,7 +59,7 @@ class Circle extends Module {
 
           //Starts point, asks for two-value-input (center):
           case _ => {
-            Start('Point, "com.siigna.module.base.create",1)
+            Start('Input, "com.siigna.module.base.create",1)
           }
         }
       }
