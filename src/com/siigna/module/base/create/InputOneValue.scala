@@ -34,7 +34,7 @@ class InputOneValue extends Module {
 
       case Start(_ ,g: PointDoubleGuide) :: KeyDown(code, _) :: tail => {
         pointGuide = Some(g.doubleGuide)
-        startPoint = Some(g.point)
+        startPoint = Some(g.point1)
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
         if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
