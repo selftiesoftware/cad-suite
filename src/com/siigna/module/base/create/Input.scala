@@ -78,13 +78,13 @@ class Input extends Module {
               End(distanceFromStartToMouse)
             }
           } else if (inputType == Some(5))  {
-              End(p.x)
+              End(p.transform(View.deviceTransformation).x)
           } else if (inputType == Some(7)) {
-              End(p.y)
+              End(p.transform(View.deviceTransformation).y)
           } 
         } else {
           // In all other cases, where it is not left mouse button, the mouseDown is returned
-          End(MouseDown(p,button,modifier))
+          End(MouseDown(p.transform(View.deviceTransformation),button,modifier))
         }
       }
 
@@ -108,7 +108,9 @@ class Input extends Module {
           End(p.y - point1.get.y)
         } else if (inputType.get == 8) {
           End(MouseUp(Vector2D((p - point1.get).x,-(p - point1.get).y),MouseButtonLeft,ModifierKeys(false,false,false)))
-        }
+        } else if (inputType.get == 9) {
+        End(p.transform(View.deviceTransformation))
+      }
 
       }
 
@@ -227,6 +229,7 @@ class Input extends Module {
  * 6 = Double                       x-coordinate difference from mouse Down to mouseUp, or key
  * 7 = Double                       y-coordinate from mouseDown, or Key
  * 8 = Double                       y-coordinate difference from mouse Down to mouseUp, or key
+ * 9 = Vector2D                     Coordinates at mouseDown)
  *
  * 102 = mouseDown, with Vector2D   MouseDown, Key (handled by the InputTwoValues module)
  *       mouseUp, with Vector2D     Difference from mouseDown to mouseUp

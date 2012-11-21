@@ -37,10 +37,10 @@ class Move extends Module {
           } else TransformationMatrix()
           // Return the shape, transformed
           Drawing.selection.get.apply(t)
-        },3) //3 : Input type = InputTwoValues, and accepts KeyUp as input metod,
+        },9) //9 : Input type = KeyUp as input metod,
         //so the coordinates will be returned on key up
-        //forward to the point module with the shape guide.
-        Start('Point,"com.siigna.module.base.create", shapeGuide)
+        //forward to the Input module with the shape guide.
+        Start('Input,"com.siigna.module.base.create", shapeGuide)
       }
 
       //If point returns mouse up, then this is vhere the move should end...
@@ -54,8 +54,11 @@ class Move extends Module {
 
       //If point returns point, then this is vhere the move should end...
       case End(p: Vector2D) :: tail => {
-        endPoint = Some(p.transform(View.deviceTransformation))
+        if (!startPoint.isEmpty) {
+          transformation = Some(TransformationMatrix((p - startPoint.get), 1))
+        } else {
         transformation = Some(TransformationMatrix(p, 1))
+        }
         Drawing.selection.get.transform(transformation.get)
         Drawing.deselect()
         End
@@ -76,8 +79,8 @@ class Move extends Module {
             val t : TransformationMatrix = TransformationMatrix(v - p, 1)
             // Return the shape, transformed
             Drawing.selection.get.apply(t)
-          },4) //Input type 4: coordinates, mouse-drag-distance, or key-input.
-          Start('Point, "com.siigna.module.base.create", shapeGuide)
+          },102) //Input type 102: coordinates, mouse-drag-distance, or key-input.
+          Start('Input, "com.siigna.module.base.create", shapeGuide)
         } else {
           Siigna display "nothing selected"
          End
