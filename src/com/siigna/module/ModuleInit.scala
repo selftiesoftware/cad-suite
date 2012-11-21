@@ -119,6 +119,7 @@ class ModuleInit extends Module {
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
   }
+  //draw points if snap is selected:
 
   //Check if there is a useable selection:
   // TODO: Make a more elegant way to check for usable selection - in mainline?

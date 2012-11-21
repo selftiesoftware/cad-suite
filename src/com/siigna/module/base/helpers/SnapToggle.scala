@@ -8,10 +8,10 @@
  * Noncommercial — You may not use this work for commercial purposes.
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
-
-/*package com.siigna.module.base.helpers
+/*
+package com.siigna.module.base.helpers
 import com.siigna._
-import app.view.event.Snap
+import com.siigna.util.event.Snap
 
 /**
  * Toggles snap on-off
@@ -19,22 +19,11 @@ import app.view.event.Snap
 
 class SnapToggle extends Module {
 
-  val eventHandler = EventHandler(stateMap, stateMachine)
-
   var isSnapping : Boolean = true
 
-  lazy val stateMap = DirectedGraph (
-    'StartCategory    -> 'Event     -> 'End
-  )
+  def state = Map(
 
-  lazy val stateMachine = Map(
-
-    'StartCategory -> ((events : List[Event]) => {
-      Goto('End)
-      None
-    }),
-
-    'End -> ((events : List[Event]) => {
+    'Start -> {
       if (Snap.snapEnabled == true) {
         Siigna display "snap is off"
         Snap.snapEnabled = false
@@ -42,8 +31,7 @@ class SnapToggle extends Module {
       else {
         Siigna display "snap is on"
         Snap.snapEnabled = true
-      }
-      None
-    })
-  )
-}*/
+    }
+  })
+}
+*/
