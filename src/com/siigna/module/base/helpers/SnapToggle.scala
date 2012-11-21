@@ -8,10 +8,11 @@
  * Noncommercial — You may not use this work for commercial purposes.
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
-/*
+
 package com.siigna.module.base.helpers
+
 import com.siigna._
-import com.siigna.util.event.Snap
+
 
 /**
  * Toggles snap on-off
@@ -21,17 +22,21 @@ class SnapToggle extends Module {
 
   var isSnapping : Boolean = true
 
-  def state = Map(
+  val stateMap : StateMap = Map(
 
-    'Start -> {
-      if (Snap.snapEnabled == true) {
-        Siigna display "snap is off"
-        Snap.snapEnabled = false
+    'Start-> {
+      case _ => {
+        if (Snap.snapEnabled == true) {
+          Snap.snapEnabled = false
+          Siigna display ("snap is off")
+          isSnapping = false
+        }
+        else {
+          Snap.snapEnabled = true
+          Siigna display ("snap is on")
+        }
+        End
       }
-      else {
-        Siigna display "snap is on"
-        Snap.snapEnabled = true
     }
-  })
+  )
 }
-*/
