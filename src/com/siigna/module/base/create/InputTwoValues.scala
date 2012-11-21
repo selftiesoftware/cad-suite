@@ -104,7 +104,7 @@ class InputTwoValues extends Module {
       //Read numbers and minus, "," and enter as first entry, after drawing of guide, if a guide is provided:
       case Start(_ ,g: PointPointGuide) :: KeyDown(code, _) :: tail => {
         pointGuide = Some(g.pointGuide)
-        startPoint = Some(g.point)
+        startPoint = Some(g.point1)
         receivedPointPointGuide = Some(g)
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
