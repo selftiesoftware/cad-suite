@@ -161,7 +161,9 @@ class Point extends Module {
           if (guide == true) guide = false
             if (!sendPointPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointPointGuide.get)
             else if (!sendPointDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointDoubleGuide.get)
-            else Start('InputOneValue,"com.siigna.module.base.create")
+            else {
+              Start('InputOneValue,"com.siigna.module.base.create")
+            }
         } else if(inputType == Some(3)) {
           if (guide == true) guide = false
             if (!sendPointPointGuide.isEmpty) Start('InputAngle,"com.siigna.module.base.create", sendPointPointGuide.get)
@@ -171,7 +173,6 @@ class Point extends Module {
             if (guide == true) guide = false
             if (!sendPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create",sendPointGuide.get)
         }
-        
       }
       case _ => {
       }
@@ -233,5 +234,3 @@ case class PointPointDoubleGuide(point1 : Vector2D, point2 : Vector2D, doubleGui
 //two points and a double guide - two vector2Ds delivered along a333 basic double guide,
 // for use when the guide needs to relate to two fixed points
 case class PointPointPointGuide(point1 : Vector2D, point2 : Vector2D, pointGuide : Vector2D => Traversable[Shape] , inputType : Int)
-
-
