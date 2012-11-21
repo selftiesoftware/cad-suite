@@ -13,7 +13,6 @@ package com.siigna.module.base.helpers
 
 import com.siigna._
 
-
 /**
  * Toggles snap on-off
  */
