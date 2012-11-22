@@ -35,7 +35,7 @@ class Scale extends Module {
           //or a double, which will be the factor,
           //or an other point, which then will be the basis for defining the factor
           val shapeGuide = PointGuide((v : Vector2D) => {
-            val scaleFactor = ((v-p).length/100)
+            val scaleFactor = ((v-p).length/100 + 0.25)
             //Define a scaling matrix:
             val t : TransformationMatrix = TransformationMatrix().scale(scaleFactor,p)
             // Return the shape, transformed
@@ -48,7 +48,7 @@ class Scale extends Module {
           //If there is a start, but no endpoint, and a new point is recieved (from mouseUp),
           //If it the coords are the same as mouse up, it is the startpoint,
           // if not it is the end of a drag, defining a scale operation, which is then done:
-            val scaleFactor = ((p-startPoint.get).length/100)
+            val scaleFactor = ((p-startPoint.get).length/100 + 0.25)
             Siigna display ("scale factor: " + scaleFactor)
             transformation =  Some(TransformationMatrix().scale(scaleFactor,startPoint.get))
             Drawing.selection.get.transform(transformation.get)
