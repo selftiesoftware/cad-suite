@@ -88,6 +88,9 @@ class ModuleInit extends Module {
       case KeyDown(Key.Delete, _) :: tail => {
         if (usableSelectionExists) {
           println("Insert delete module here")
+
+          //TODO: clear guides
+
           Delete(Drawing.selection.get.self)
         }
       }
