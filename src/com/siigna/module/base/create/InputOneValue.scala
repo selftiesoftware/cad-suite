@@ -27,6 +27,7 @@ class InputOneValue extends Module {
 
   var pointGuide : Option[Double => Traversable[Shape]] = None
   var startPoint : Option[Vector2D] = None
+  var inputType: Option[Int] = None
 
   val stateMap: StateMap = Map(
 
@@ -34,32 +35,32 @@ class InputOneValue extends Module {
 
       case Start(_ ,g: DoubleGuide) :: KeyDown(code, _) :: tail => {
         pointGuide = Some(g.pointGuide)
+        inputType = Some(g.inputType)
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
         if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
         if (code.toChar.toString == "." && coordinateValue.length() == 0) coordinateValue += code.toChar
-
         Siigna display coordinateValue
       }
 
       case Start(_ ,g: PointDoubleGuide) :: KeyDown(code, _) :: tail => {
         pointGuide = Some(g.doubleGuide)
+        inputType = Some(g.inputType)
         startPoint = Some(g.point1)
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
         if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
         if (code.toChar.toString == "." && coordinateValue.length() == 0) coordinateValue += code.toChar
-
         Siigna display coordinateValue
       }
 
       case Start(_ ,g: PointPointDoubleGuide) :: KeyDown(code, _) :: tail => {
         pointGuide = Some(g.doubleGuide)
+        inputType = Some(g.inputType)
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
         if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
         if (code.toChar.toString == "." && coordinateValue.length() == 0) coordinateValue += code.toChar
-
         Siigna display coordinateValue
       }
 

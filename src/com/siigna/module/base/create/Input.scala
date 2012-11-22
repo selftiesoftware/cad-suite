@@ -240,7 +240,10 @@ class Input extends Module {
       if (!pointGuide.isEmpty && !point1.isEmpty ) pointGuide.foreach(_(Vector2D((mousePosition - point1.get).x,-(mousePosition - point1.get).y)).foreach(s => g.draw(s.transform(t))))
       //If only the mouse position is used:
       if (!pointGuide.isEmpty && point1.isEmpty ) pointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s =>  g.draw(s.transform(t))))
-      
+      //Double guide:
+      if (!doubleGuide.isEmpty) doubleGuide.foreach(_(0).foreach(s => g.draw(s.transform(t))))
+
+
       //If a point is the desired return, x and y-coordinates are used in the guide
       if (!pointPointGuide.isEmpty) pointPointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
       //If a double is the desired return, the distance from the starting point is used in the guide

@@ -40,15 +40,15 @@ class Copy extends Module {
 
             Drawing.selection.get.apply(t)// Return the shape, transformed
           },1 )//1 : Input type = InputTwoValues
-          Start('Point,"com.siigna.module.base.create", shapeGuide)
+          Start('Input,"com.siigna.module.base.create", shapeGuide)
         }
         else if(startPoint.isDefined){
           endPoint = Some(p)
           transformation = Some(TransformationMatrix((p - startPoint.get), 1))
           Siigna display "optional: type number of copies"
           multiActive = true
-          Start('Point, "com.siigna.module.base.create",
-            PointPointGuide(p, v => shapes.get.apply(transformation.get),2))
+          Start('Input, "com.siigna.module.base.create",
+            DoubleGuide(v => shapes.get.apply(transformation.get),10))
         } else Siigna display "select object(s) to copy"
       }
 
@@ -71,7 +71,7 @@ class Copy extends Module {
         }
         else {
           Siigna display "set origin of copy"
-          Start('Point,"com.siigna.module.base.create")
+          Start('Input,"com.siigna.module.base.create",1)
         }
       }
     }
