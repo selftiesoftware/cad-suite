@@ -196,10 +196,14 @@ class Input extends Module {
           else if (!sendPointPointDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointPointDoubleGuide.get)
           else if (!sendPointPointPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointPointPointGuide.get)
           else Start('InputTwoValues,"com.siigna.module.base.create")
-        } else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(8)) {
+        } else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(8) || inputType == Some(10)) {
           if (guide == true) guide = false
-          if (!sendPointPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointPointGuide.get)
+          if (!sendPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create",sendPointGuide.get)
+          else if (!sendDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendDoubleGuide.get)
+          else if (!sendPointPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create",sendPointPointGuide.get)
           else if (!sendPointDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointDoubleGuide.get)
+          else if (!sendPointPointDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointPointDoubleGuide.get)
+          else if (!sendPointPointPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointPointPointGuide.get)
           else Start('InputOneValue,"com.siigna.module.base.create")
         }
 
@@ -241,7 +245,8 @@ class Input extends Module {
  * 7 = Double                       y-coordinate from mouseDown, or Key
  * 8 = Double                       y-coordinate difference from mouse Down to mouseUp, or key
  * 9 = Vector2D                     Coordinates at mouseUp
- *
+ * 10 = Double                      Key input only
+ * 
  * 102 = mouseDown, with Vector2D   MouseDown
  *       mouseUp, with Vector2D     coordinates from mouseDown to mouseUp, Key (handled by the InputTwoValues module)
  *
