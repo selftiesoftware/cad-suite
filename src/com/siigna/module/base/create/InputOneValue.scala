@@ -38,6 +38,17 @@ class InputOneValue extends Module {
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
         if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
+        if (code.toChar.toString == "." && coordinateValue.length() == 0) coordinateValue += code.toChar
+
+        Siigna display coordinateValue
+      }
+
+      case Start(_ ,g: DoubleGuide) :: KeyDown(code, _) :: tail => {
+        pointGuide = Some(g.pointGuide)
+        //save the already typed key:
+        if (code.toChar.isDigit) coordinateValue += code.toChar
+        if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
+        if (code.toChar.toString == "." && coordinateValue.length() == 0) coordinateValue += code.toChar
 
         Siigna display coordinateValue
       }
@@ -47,6 +58,8 @@ class InputOneValue extends Module {
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
         if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
+        if (code.toChar.toString == "." && coordinateValue.length() == 0) coordinateValue += code.toChar
+
         Siigna display coordinateValue
 
       }
@@ -61,6 +74,8 @@ class InputOneValue extends Module {
 
       case KeyDown(Key.Backspace, _) :: tail => {
         if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
+        //The string must be at least a space - an empty string makes the message-function puke...
+        if (coordinateValue.length == 0) coordinateValue += " "
         Siigna display coordinateValue
       }
 
@@ -70,9 +85,13 @@ class InputOneValue extends Module {
         val char = code.toChar
         if (char.isDigit)
           coordinateValue += char
-        else if ((char == '.') && !coordinateValue.contains('.'))
-          coordinateValue += "."
+        else if ((char == '.') && !coordinateValue.contains('.')) {
+           if (coordinateValue == " ") coordinateValue = "."
+           else coordinateValue += "."
+        }
         else if (char == '-' && coordinateValue.length < 1)
+          coordinateValue = "-"
+        else if (char == '-' && coordinateValue == " ")
           coordinateValue = "-"
 
         //Display the input in a message
@@ -85,9 +104,9 @@ class InputOneValue extends Module {
   override def paint(g : Graphics, t: TransformationMatrix) {
     //if points are in the process of being typed, then draw the shape dynamically on the basis of what coords are given.
 
-    if(pointGuide.isDefined && startPoint.isDefined){
+    if(pointGuide.isDefined && startPoint.isDefined && coordinateValue.length > 0 && coordinateValue != " " && coordinateValue != "-" && coordinateValue != "." && coordinateValue != "-."){
       val x = java.lang.Double.parseDouble(coordinateValue)
-      pointGuide.foreach(_(x).foreach(s => g.draw(s.transform(t))))
+      if (x != 0) pointGuide.foreach(_(x).foreach(s => g.draw(s.transform(t))))
     }
   }
 }
