@@ -42,6 +42,15 @@ class InputOneValue extends Module {
         Siigna display coordinateValue
       }
 
+      //Read numbers and minus, "," and enter as first entry if no guide is provided:
+      case Start(_,_) :: KeyDown(code, _) :: tail => {
+        //save the already typed key:
+        if (code.toChar.isDigit) coordinateValue += code.toChar
+        if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
+        Siigna display coordinateValue
+
+      }
+
       //Ends on return, komma, TAB - returning value:
       case KeyDown(Key.Enter | Key.Tab | (','), _) :: tail => {
         if (coordinateValue.length > 0) {
