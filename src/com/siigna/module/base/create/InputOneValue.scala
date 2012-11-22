@@ -32,6 +32,16 @@ class InputOneValue extends Module {
 
     'Start -> {
 
+      case Start(_ ,g: DoubleGuide) :: KeyDown(code, _) :: tail => {
+        pointGuide = Some(g.pointGuide)
+        //save the already typed key:
+        if (code.toChar.isDigit) coordinateValue += code.toChar
+        if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
+        if (code.toChar.toString == "." && coordinateValue.length() == 0) coordinateValue += code.toChar
+
+        Siigna display coordinateValue
+      }
+
       case Start(_ ,g: PointDoubleGuide) :: KeyDown(code, _) :: tail => {
         pointGuide = Some(g.doubleGuide)
         startPoint = Some(g.point1)
@@ -43,8 +53,8 @@ class InputOneValue extends Module {
         Siigna display coordinateValue
       }
 
-      case Start(_ ,g: DoubleGuide) :: KeyDown(code, _) :: tail => {
-        pointGuide = Some(g.pointGuide)
+      case Start(_ ,g: PointPointDoubleGuide) :: KeyDown(code, _) :: tail => {
+        pointGuide = Some(g.doubleGuide)
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
         if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
@@ -52,6 +62,7 @@ class InputOneValue extends Module {
 
         Siigna display coordinateValue
       }
+
 
       //Read numbers and minus, "," and enter as first entry if no guide is provided:
       case Start(_,_) :: KeyDown(code, _) :: tail => {
@@ -74,6 +85,7 @@ class InputOneValue extends Module {
 
       case KeyDown(Key.Backspace, _) :: tail => {
         if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
+        //The string must be at least a space - an empty string makes the message-function puke...
         //The string must be at least a space - an empty string makes the message-function puke...
         if (coordinateValue.length == 0) coordinateValue += " "
         Siigna display coordinateValue
@@ -104,7 +116,7 @@ class InputOneValue extends Module {
   override def paint(g : Graphics, t: TransformationMatrix) {
     //if points are in the process of being typed, then draw the shape dynamically on the basis of what coords are given.
 
-    if(pointGuide.isDefined && startPoint.isDefined && coordinateValue.length > 0 && coordinateValue != " " && coordinateValue != "-" && coordinateValue != "." && coordinateValue != "-."){
+    if(pointGuide.isDefined && coordinateValue.length > 0 && coordinateValue != " " && coordinateValue != "-" && coordinateValue != "." && coordinateValue != "-."){
       val x = java.lang.Double.parseDouble(coordinateValue)
       if (x != 0) pointGuide.foreach(_(x).foreach(s => g.draw(s.transform(t))))
     }
