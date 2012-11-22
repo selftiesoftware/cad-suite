@@ -47,7 +47,7 @@ class Input extends Module {
         if (inputType == Some(1) || inputType == Some(2)) {
           End(p)
         } else if (inputType == Some(102)) {
-          End(MouseDown(p,MouseButtonLeft,ModifierKeys(false,false,false)))
+          End(MouseUp(p,MouseButtonLeft,ModifierKeys(false,false,false)))
         }
       }
       //if a single value is returned from InputOneValue of InputAngle, return it to the calling module:
@@ -81,7 +81,13 @@ class Input extends Module {
               End(p.transform(View.deviceTransformation).x)
           } else if (inputType == Some(7)) {
               End(p.transform(View.deviceTransformation).y)
-          } 
+          } else if (inputType == Some(102))  {
+            //The mouseDown is saved as point1, if it does not already exist
+            //If there is a mouseUp later, on the same point, the point is returned as a mouseUp (happens in mouseUp-part)
+            if (point1.isEmpty) point1 = Some(p)
+            //Start drawing the guide - necessary if it will be dragged.
+            if (guide == false) guide = true
+          }
         } else {
           // In all other cases, where it is not left mouse button, the mouseDown is returned
           End(MouseDown(p.transform(View.deviceTransformation),button,modifier))
@@ -89,8 +95,6 @@ class Input extends Module {
       }
 
       //If mouse up is recieved,
-      // 1: If input type is three the mouse up is returned.
-      // 2: If input type is 4, the difference between point and the start point is returned.
       case MouseUp(p,button,modifier)::tail => {
         if (inputType.get == 2) {
           End(Vector2D((p - point1.get).x,-(p - point1.get).y))
@@ -109,9 +113,16 @@ class Input extends Module {
         } else if (inputType.get == 8) {
           End(MouseUp(Vector2D((p - point1.get).x,-(p - point1.get).y),MouseButtonLeft,ModifierKeys(false,false,false)))
         } else if (inputType.get == 9) {
-        End(p.transform(View.deviceTransformation))
-      }
-
+          End(p.transform(View.deviceTransformation))
+        } else if (inputType.get == 102) {
+          //If mouseUp occurs on the same point as mouseDown, the point is returned as a mouseDown event.
+          //If mouseUp occurs on a different point, coordinates from mouseDown to up is returned as a mouseUp event.
+          if (!point1.isEmpty) {
+            if (p == point1.get)
+              End(MouseDown(p.transform(View.deviceTransformation),button,modifier))
+            else  End(MouseUp(Vector2D((p - point1.get).x,-(p - point1.get).y),button,modifier))
+          }
+        }
       }
 
       // Check for PointGuide - retrieve only the guide, no reference point. 
@@ -201,7 +212,7 @@ class Input extends Module {
     //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
     if ( guide == true) {
       //If a point is the desired return, x and y-coordinates are used in the guide
-      if (!pointGuide.isEmpty) pointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+      if (!pointGuide.isEmpty) pointGuide.foreach(_(Vector2D((mousePosition - point1.get).x,-(mousePosition - point1.get).y)).foreach(s => g.draw(s.transform(t))))
       //If a point is the desired return, x and y-coordinates are used in the guide
       if (!pointPointGuide.isEmpty) pointPointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
       //If a double is the desired return, the distance from the starting point is used in the guide
@@ -229,10 +240,10 @@ class Input extends Module {
  * 6 = Double                       x-coordinate difference from mouse Down to mouseUp, or key
  * 7 = Double                       y-coordinate from mouseDown, or Key
  * 8 = Double                       y-coordinate difference from mouse Down to mouseUp, or key
- * 9 = Vector2D                     Coordinates at mouseDown)
+ * 9 = Vector2D                     Coordinates at mouseUp
  *
- * 102 = mouseDown, with Vector2D   MouseDown, Key (handled by the InputTwoValues module)
- *       mouseUp, with Vector2D     Difference from mouseDown to mouseUp
+ * 102 = mouseDown, with Vector2D   MouseDown
+ *       mouseUp, with Vector2D     coordinates from mouseDown to mouseUp, Key (handled by the InputTwoValues module)
  *
  */
 

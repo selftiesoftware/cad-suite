@@ -43,25 +43,48 @@ class Move extends Module {
         Start('Input,"com.siigna.module.base.create", shapeGuide)
       }
 
-      //If point returns mouse up, then this is vhere the move should end...
       case End(MouseUp(p,_,_)) :: tail => {
-        endPoint = Some(p.transform(View.deviceTransformation))
-        transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
+        //If start point is defined, it is where the move should end:
+        if (!startPoint.isEmpty) {
+          endPoint = Some(p)
+          transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
+        //If start point is not defined, then p is the vector, that defines the move:
+        } else {
+          transformation = Some(TransformationMatrix(p, 1))
+        }
         Drawing.selection.get.transform(transformation.get)
         Drawing.deselect()
         End
       }
 
-      //If point returns point, then this is vhere the move should end...
+      //If point returns mouse down, then this is where move starts, or ends, 
+      // depending on whether there is a start point yet...
+      case End(MouseDown(p,_,_)) :: tail => {
+        if (startPoint.isEmpty) {
+          startPoint = Some(p)
+          val shapeGuide = PointPointGuide(p, (v : Vector2D) => {
+            val t : TransformationMatrix = TransformationMatrix(v - startPoint.get, 1)
+            // Return the shape, transformed
+            Drawing.selection.get.apply(t)
+          },1)
+          Start('Input,"com.siigna.module.base.create", shapeGuide)
+        } else {
+          endPoint = Some(p.transform(View.deviceTransformation))
+          transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
+          Drawing.selection.get.transform(transformation.get)
+          Drawing.deselect()
+          End
+        }
+      }  
+
+      //If point returns point, then this is where the move should end...
       case End(p: Vector2D) :: tail => {
         if (!startPoint.isEmpty) {
           transformation = Some(TransformationMatrix((p - startPoint.get), 1))
-        } else {
-        transformation = Some(TransformationMatrix(p, 1))
+          Drawing.selection.get.transform(transformation.get)
+          Drawing.deselect()
+          End
         }
-        Drawing.selection.get.transform(transformation.get)
-        Drawing.deselect()
-        End
       }
 
       //exit strategy
@@ -74,9 +97,9 @@ class Move extends Module {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         val l = new ModuleInit
         if (l.usableSelectionExists) {
-          val p = Vector2D(0,0)
+          //val p = Vector2D(0,0)
           val shapeGuide = PointGuide((v : Vector2D) => {
-            val t : TransformationMatrix = TransformationMatrix(v - p, 1)
+            val t : TransformationMatrix = TransformationMatrix(v, 1)
             // Return the shape, transformed
             Drawing.selection.get.apply(t)
           },102) //Input type 102: coordinates, mouse-drag-distance, or key-input.
