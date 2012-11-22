@@ -47,7 +47,7 @@ class Input extends Module {
       case End(p : Vector2D) :: tail => {
         if (inputType == Some(1) || inputType == Some(2)) {
           End(p)
-        } else if (inputType == Some(102)) {
+        } else if (inputType == Some(102) || inputType == Some(1020)) {
           End(MouseUp(p,MouseButtonLeft,ModifierKeys(false,false,false)))
         } else if (inputType == Some(1021)) {
           End(MouseDown(p,MouseButtonLeft,ModifierKeys(false,false,false)))
@@ -84,7 +84,7 @@ class Input extends Module {
               End(p.transform(View.deviceTransformation).x)
           } else if (inputType == Some(7)) {
               End(p.transform(View.deviceTransformation).y)
-          } else if (inputType == Some(102) || inputType == Some(1021) || inputType == Some(103))  {
+          } else if (inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021) || inputType == Some(103))  {
             //The mouseDown is saved as point1, if it does not already exist
             //If there is a mouseUp later, on the same point, the point is returned as a mouseDown (happens in mouseUp-part)
             if (point1.isEmpty) point1 = Some(p)
@@ -117,7 +117,7 @@ class Input extends Module {
           End(MouseUp(Vector2D((p - point1.get).x,-(p - point1.get).y),MouseButtonLeft,ModifierKeys(false,false,false)))
         } else if (inputType.get == 9) {
           End(p.transform(View.deviceTransformation))
-        } else if (inputType.get == 102 || inputType == Some(1021)) {
+        } else if (inputType.get == 102 || inputType == Some(1020) || inputType == Some(1021)) {
           //If mouseUp occurs on the same point as mouseDown, the point is returned as a mouseDown event.
           //If mouseUp occurs on a different point, coordinates from mouseDown to up is returned as a mouseUp event.
           if (!point1.isEmpty) {
@@ -207,7 +207,7 @@ class Input extends Module {
           (End(KeyDown(key,modifier)))
           //If it is other keys, the input is interpreted by the input-modules.
           //Any existing guides are forwarded.
-        } else if(inputType == Some(1) || inputType == Some(2) || inputType == Some(102) || inputType == Some(1021)) {
+        } else if(inputType == Some(1) || inputType == Some(2) || inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021)) {
           if (guide == true) guide = false
           if (!sendPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create",sendPointGuide.get)
           else if (!sendDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendDoubleGuide.get)
@@ -233,7 +233,7 @@ class Input extends Module {
     }
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
-    if (inputType == Some(12)) guide = false
+    if (inputType == Some(12) || inputType == Some(1020)) guide = false
     //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
     if ( guide == true) {
       //If a point is the desired return, x and y-coordinates are used in the guide
@@ -288,6 +288,9 @@ class Input extends Module {
  *
  * 102 = mouseDown, with Vector2D   MouseDown (sent after mouseUp received)
  *       mouseUp, with Vector2D     coordinates from mouseDown to mouseUp, Key (handled by the InputTwoValues module)
+ * 1020 = mouseDown, with Vector2D  MouseDown (sent after mouseUp received)
+ *        mouseUp, with Vector2D    coordinates from mouseDown to mouseUp, Key (handled by the InputTwoValues module)
+ *        Special guide:            Do not draw guide
  * 1021 = mouseDown, with Vector2D  MouseDown (sent after mouseUp received), Key (handled by the InputTwoValues module)
  *       mouseUp, with Vector2D     coordinates from mouseDown to mouseUp
  * 103 = Double                     Length of vector from mouseDown to mouseUp, or key-input
