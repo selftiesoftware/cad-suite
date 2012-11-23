@@ -102,7 +102,7 @@ class Move extends Module {
             val t : TransformationMatrix = TransformationMatrix(v, 1)
             // Return the shape, transformed
             Drawing.selection.get.apply(t)
-          },102) //Input type 102: coordinates, mouse-drag-distance, or key-input.
+          },1020) //Input type 1020: coordinates, mouse-drag-distance, or key-input, do not draw guide.
           Start('Input, "com.siigna.module.base.create", shapeGuide)
         } else {
           Siigna display "nothing selected"

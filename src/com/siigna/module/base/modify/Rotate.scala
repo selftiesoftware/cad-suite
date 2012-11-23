@@ -20,23 +20,9 @@ class Rotate extends Module {
 
   private var centerPoint : Option[Vector2D] = None
   private var endVector : Option[Vector2D] = None
+  var startVectorSet: Boolean = false
 
-  //a guide to get Point to dynamically draw the shape(s) and their rotation
-  def shapeGuide(p: Vector2D) = PointPointGuide(p, (v : Vector2D) => {
-    // CreateCategory a matrix
-    val t : TransformationMatrix = if (startVector.isDefined && centerPoint.isDefined) {
-      // To find the angle between two vectors (lines): First calculate the separate angles
-      val a1 : Double = (startVector.get - centerPoint.get).angle
-      val a2 : Double = (v - centerPoint.get).angle
-      // ... And then subtract the second from the first
-      TransformationMatrix(Vector2D(0,0), 1).rotate(a2 - a1, centerPoint.get)
-      // If no start- (or center-) point has been defined - create empty matrix
-    } else TransformationMatrix()
-    // Return the shape, transformed
-    Drawing.selection.get.apply(t)
-  },2) //1 : Input type = InputAngle
-
-  private var startVector : Option[Vector2D] = None
+  private var startVector : Option[Vector2D] = Some(Vector2D(0,0))
   var transformation : Option[TransformationMatrix] = None
 
   val stateMap: StateMap = Map(
@@ -45,18 +31,32 @@ class Rotate extends Module {
       case End(p : Vector2D) :: tail => {
         if(!centerPoint.isDefined) {
           centerPoint = Some(p)
-          Siigna display "set a reference point or type a rotation angle"
-          Start('Point,"com.siigna.module.base.create", shapeGuide(p))
+          Siigna display "click to set rotation start point, or type a rotation angle"
+          val shapeGuide = DoubleGuide((a : Double) => {
+            val t : TransformationMatrix =
+              TransformationMatrix( ).rotate(-a, centerPoint.get)
+            Drawing.selection.get.apply(t)
+          },12) //12 : Input type = Double from keys, or Vector2D from mouseDown,
+          //Do not draw guide in input (based on mouseposition) - only in InputOneValue
+          Start('Input,"com.siigna.module.base.create", shapeGuide)
         }
 
         // if the center of rotation and origin for rotation is set, return to Point to draw the rotation dynamically.
-        else if(centerPoint.isDefined && !startVector.isDefined){
+        else if(centerPoint.isDefined && startVectorSet == false){
           startVector = Some(p)
+          startVectorSet = true
+          Siigna display "click to finish rotation, or type a rotation angle"
+          val shapeGuide = PointPointDoubleGuide(centerPoint.get, startVector.get, (a : Double) => {
+            val t : TransformationMatrix =
+              TransformationMatrix( ).rotate(-a, centerPoint.get)
+            Drawing.selection.get.apply(t)
+          },13) //13 : Input type = Double from keys, or Vector2D from mouseDown.
+          println("Her")
+          Start('Input,"com.siigna.module.base.create", shapeGuide)
 
-          Start('Point,"com.siigna.module.base.create", shapeGuide(p))
-        //If a rotation-vector is set, do the rotation!
-        } else if(startVector.isDefined && centerPoint.isDefined) {
-           endVector = Some(p)
+          //If a rotation-vector is set, do the rotation!
+        } else if(startVectorSet == true && centerPoint.isDefined) {
+          endVector = Some(p)
 
           val t : TransformationMatrix = {
             if (endVector.isDefined) {
@@ -92,8 +92,8 @@ class Rotate extends Module {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         val l = new ModuleInit
         if (l.usableSelectionExists) {
-        Siigna display "set centre point for rotation"
-        Start('Point,"com.siigna.module.base.create") 
+          Siigna display "set centre point for rotation"
+          Start('Input,"com.siigna.module.base.create",1)
         } else {
           Siigna display "nothing selected"
           End

@@ -10,7 +10,7 @@
  */
 
 package com.siigna.module.base.create
-
+/*
 import com.siigna._
 import app.Siigna
 import com.siigna.module.base.create._
@@ -40,6 +40,7 @@ class Copy extends Module {
           val shapeGuide = PointPointGuide(p, (v : Vector2D) => {
             val t : TransformationMatrix = if (startPoint.isDefined) {
               TransformationMatrix(v - startPoint.get, 1)
+<<<<<<< HEAD
               // If no startPoint has been defined - create an empty matrix
             } else TransformationMatrix()
             // Return the shape, transformed
@@ -47,6 +48,13 @@ class Copy extends Module {
           },9) //9 : Input type = KeyUp as input method,
           //so the coordinates will be returned on key up
           //forward to the Input module with the shape guide.
+=======
+
+            } else TransformationMatrix() // If no startPoint has been defined - create an empty matrix
+
+            Drawing.selection.get.apply(t)// Return the shape, transformed
+          },1 )//1 : Input type = InputTwoValues
+>>>>>>> 3c85e46cbd1343fcd9c995692d0a9ebc241f443b
           Start('Input,"com.siigna.module.base.create", shapeGuide)
         }
       }
@@ -54,6 +62,7 @@ class Copy extends Module {
         //If start point is defined, it is where the copy should end:
         if (startPoint.isDefined) {
           endPoint = Some(p)
+<<<<<<< HEAD
           multiCopy = true
           transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
 
@@ -61,6 +70,13 @@ class Copy extends Module {
           Start('Point, "com.siigna.module.base.create",10)
         } else {
           transformation = Some(TransformationMatrix(p, 1))
+=======
+          transformation = Some(TransformationMatrix((p - startPoint.get), 1))
+          Siigna display "type number of copies"
+          multiActive = true
+          Start('Input, "com.siigna.module.base.create",
+            DoubleGuide(v => shapes.get.apply(transformation.get),10))
+>>>>>>> 3c85e46cbd1343fcd9c995692d0a9ebc241f443b
         }
       }
 
@@ -89,9 +105,13 @@ class Copy extends Module {
         if (multicopy == true && endPoint.isDefined && multicopy == true){
           for (i <- 0 to f.toInt) {
             Create(shapes.get.apply(TransformationMatrix(Vector2D((endPoint.get.x - startPoint.get.x) * i, (endPoint.get.y - startPoint.get.y) * i), 1)))
-            End
           }
+<<<<<<< HEAD
         } else End
+=======
+        }
+        End
+>>>>>>> 3c85e46cbd1343fcd9c995692d0a9ebc241f443b
       }
       //exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
@@ -100,6 +120,7 @@ class Copy extends Module {
 
       //on first entry, go to point to get the start point for the move operations.
       case _ => {
+<<<<<<< HEAD
 
         Siigna display "click to set origin"
 
@@ -113,6 +134,19 @@ class Copy extends Module {
             Drawing.selection.get.apply(t)
           },102) //Input type 102: coordinates, mouse-drag-distance, or key-input.
           Start('Input, "com.siigna.module.base.create", shapeGuide)
+=======
+        //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
+        val l = new ModuleInit
+        if (l.usableSelectionExists) {
+          if(multiActive == true) {
+            Create(shapes.get.apply(transformation.get))
+            End
+          }
+          else {
+            Siigna display "set origin of copy"
+            Start('Input,"com.siigna.module.base.create",1)
+          }
+>>>>>>> 3c85e46cbd1343fcd9c995692d0a9ebc241f443b
         } else {
           Siigna display "nothing selected"
           End
@@ -121,3 +155,4 @@ class Copy extends Module {
     }
   )
 }
+*/
