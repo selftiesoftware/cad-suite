@@ -14,6 +14,7 @@ package com.siigna.module.base.modify
 import com.siigna._
 import app.Siigna
 import com.siigna.module.base.create._
+import module.ModuleInit
 
 class Scale extends Module {
 
@@ -155,11 +156,17 @@ class Scale extends Module {
       case MouseDown(p, MouseButtonRight, _) :: tail => End
 
       case _ => {
-        Siigna display "set base point for scaling, or drag to scale"
-        //Start input, request coordinates from mouse down, or key-input,
-        //or distance from mouseDown to mouseUp, if a drag occurs:
-        Start('Input,"com.siigna.module.base.create",1)
-      }
-    }
+        //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
+        val l = new ModuleInit
+        if (l.usableSelectionExists) {
+          Siigna display "set base point for scaling, or drag to scale"
+          //Start input, request coordinates from mouse down, or key-input,
+          //or distance from mouseDown to mouseUp, if a drag occurs:
+          Start('Input,"com.siigna.module.base.create",1)
+        } else {
+          Siigna display "nothing selected"
+        End
+        }
+    } }
   )
 }
