@@ -9,10 +9,10 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-/*package com.siigna.module.base.create
+package com.siigna.module.base.create
 
 import com.siigna._
-import module.base.ModuleInit
+import module.ModuleInit
 
 //import java.awt.{Font, Color, TextField}
 //import java.awt.font._
@@ -29,14 +29,9 @@ import module.base.ModuleInit
 //
 class Text extends Module {
 
-  val eventHandler = new EventHandler(stateMap, stateMachine)
-
-  var boundingRectangle : Option[Rectangle2D] = None
-  var length = 1
   var text     = ""
   var position : Option[Vector2D] = None
-  var rect : Option[Rectangle2D] = None
-  var scale : Int  = 1
+  var scale : Int  = 5
   var attributes = Attributes( "TextSize" -> 10)
   var shape : Option[TextShape] = None
 
@@ -44,99 +39,34 @@ class Text extends Module {
 //  var currentState = 0
 //  var number   = 0
 
-  def stateMap = DirectedGraph(
+  val stateMap: StateMap = Map(
 
-    //'StartCategory      -> 'KeyDown     -> 'TextInput,
-    'StartCategory      -> 'KeyEscape   -> 'End,
-    'TextInput  -> 'KeyEscape   -> 'End,
-    'StartCategory      -> 'KeyEscape   -> 'End
-  )
+    'Start -> {
 
-  def stateMachine = Map(
-    'StartCategory -> ((events : List[Event]) => {
-      Siigna.display("click to set text")
-      events match {
-        case Message(p : Vector2D) :: tail => {
-          position = Some(p)
-          Goto('TextInput)
-        }
-        case _ => Module('Point)
+      case End(p : Vector2D) :: tail => {
+        position = Some(p)
+        val guide: TextGuide = TextGuide((s: String) => Traversable(TextShape(s + " ", p,  scale * (Siigna.paperScale + 1))),14)
+
+        Start('Input,"com.siigna.module.base.create", guide)
+        //Input type 14: Text by key input
       }
-      None
-    }),
-    'TextInput -> ((events : List[Event]) => {
-      events match {
-        case KeyDown(Key.Backspace, _) :: tail => {
-            if (text.length != 0) text = text.substring(0, text.length - 1)
-            else Goto('End)
-        }
-        case KeyDown(Key.Enter, _) :: tail => Goto('End)
-        case KeyDown(Key.Esc, _) :: tail => {
-          text = ""
-          Goto('End)
-        }
-        case KeyDown(key, _) :: tail => {
-          text += key.toChar.toString.toLowerCase
-        }
-        case MouseUp(_, MouseButtonRight, _) :: tail => Goto('End)
-        case _ =>
-      }
-      None
-    }),
-    'End -> ((events : List[Event]) => {
-      events match {
-        case _ =>
-          if (text.length > 0) {
+
+        case End(s : String) :: tail => {
+          if (s.length > 0) {
             //move the text so that the lower left corner is located at the starting position
-            var textPosition = Vector2D((position.get.x),(position.get.y+(Siigna.paperScale)))
-            shape = Some(TextShape(text+" ", textPosition, scale * (Siigna.paperScale + 1), attributes))
-            CreateCategory(shape)
-
-            //clear the vars
-            position = None
-            text = ""
+            val textPosition = position.get
+            shape = Some(TextShape(s + " ", textPosition, scale * (Siigna.paperScale + 1), attributes))
+            println("Tect shape: " + shape)
+            Create(shape.get)
+            End
           }
-          else None
-      ModuleInit.previousModule = Some('Text)
       }
-    })
-  )
-  override def paint(g : Graphics, t : TransformationMatrix) {
-    //move the text so that the lower left corner is located at the starting position
-    if (position.isDefined){
-      var textPosition = Vector2D((position.get.x),(position.get.y+(Siigna.paperScale )))
-      shape = Some(TextShape(text+" ", textPosition, (scale * (Siigna.paperScale + 1)), attributes))
-      g draw shape.get.transform(t)
-      length = text.length
 
-      val y2Offset = 1*scale
-      val posOffset = Vector2D(0,-1.2*scale)
-      //draw a bounding rectangle guide for the text
-      var x2 = Some(position.get.x+(length * 1.42 *scale))
-      var y2 = Some(position.get.y+y2Offset+ scale)
-      boundingRectangle = Some(Rectangle2D(position.get + posOffset,Vector2D(x2.get,y2.get)))
-      g draw PolylineShape(boundingRectangle.get).setAttribute("Color" -> "#66CC66".color).transform(t)
+
+      case _ => {
+        Siigna.display("click to set text")
+        Start('Input,"com.siigna.module.base.create",1)
+      }
     }
-  }
-
-//  override def paint(g : Graphics, t : TransformationMatrix) {
-//    if (currentState == 1 ) {
-//      // Draw a cursor.
-//      val newShape = if (number <= 10) {
-//        number += 1
-//        TextShape(text+"|", position, scale)
-//      } else if (number < 20) {
-//        number += 1
-//        TextShape(text+" ", position, scale)
-//      } else {
-//        number = 0
-//        TextShape(text+" ", position, scale)
-//      }
-//
-//      // Draw the shape in its current form.
-//      g draw newShape.transform(t)
-//    }
-//  }
-//
+  )
 }
-*/

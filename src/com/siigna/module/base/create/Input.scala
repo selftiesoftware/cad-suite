@@ -27,12 +27,14 @@ class Input extends Module {
   private var point2 : Option[Vector2D] = None
   private var guide : Boolean = true
   private var inputType : Option[Int] = None
+  var textGuide : Option[String => Traversable[Shape]] = None
   var pointGuide : Option[Vector2D => Traversable[Shape]] = None
   var doubleGuide : Option[Double => Traversable[Shape]] = None
   var pointPointGuide : Option[Vector2D => Traversable[Shape]] = None
   var pointDoubleGuide : Option[Double => Traversable[Shape]] = None
   var pointPointDoubleGuide : Option[Double => Traversable[Shape]] = None
   var pointPointPointGuide : Option[Vector2D => Traversable[Shape]] = None
+  var sendTextGuide : Option[TextGuide] = None
   var sendPointGuide : Option[PointGuide] = None
   var sendDoubleGuide : Option[DoubleGuide] = None
   var sendPointPointGuide : Option[PointPointGuide] = None
@@ -58,9 +60,9 @@ class Input extends Module {
         End(s)
       }
 
-      //If an end command is recieved without input (from an input module):
-      case End("no point returned") :: tail => {
-        End("no point returned")
+      //if a string is returned, return it to the calling module:
+      case End(s : String) :: tail => {
+        End(s)
       }
 
       //If left mouse button is clicked: End and return mouse-position-point.
@@ -189,6 +191,12 @@ class Input extends Module {
         point2 = Some(g.point2)
       }
 
+      case Start(_ ,g : TextGuide) :: tail => {
+        textGuide = Some(g.textGuide)
+        inputType = Some(g.inputType)
+        sendTextGuide = Some(g)
+      }
+
       //If there is no guide, only the input type needs to be retrieved
       case Start(_,inp: Int) :: tail => {
         inputType = Some(inp)
@@ -225,8 +233,11 @@ class Input extends Module {
           else if (!sendPointPointDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointPointDoubleGuide.get)
           else if (!sendPointPointPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointPointPointGuide.get)
           else Start('InputOneValue,"com.siigna.module.base.create")
+        } else if(inputType == Some(14) ) {
+          if (guide == true) guide = false
+          if (!textGuide.isEmpty) Start('InputText,"com.siigna.module.base.create",sendTextGuide.get)
+          else Start('InputText,"com.siigna.module.base.create")
         }
-
       }
       case _ => {
       }
@@ -285,6 +296,7 @@ class Input extends Module {
  *      Special guide:              Do not draw guide
  * 13 = Double                      For use when getting angle: Key (one value)
  *      Vector2D                    MouseDown. Guide is drawn.
+ * 14 = String                      Key input, text
  *
  * 102 = mouseDown, with Vector2D   MouseDown (sent after mouseUp received)
  *       mouseUp, with Vector2D     coordinates from mouseDown to mouseUp, Key (handled by the InputTwoValues module)
@@ -323,4 +335,5 @@ case class PointPointDoubleGuide(point1 : Vector2D, point2 : Vector2D, doubleGui
 // for use when the guide needs to relate to two fixed points
 case class PointPointPointGuide(point1 : Vector2D, point2 : Vector2D, pointGuide : Vector2D => Traversable[Shape] , inputType : Int)
 
-
+//The basic point guide - a vector2D is the base for the shapes
+case class TextGuide(textGuide : String => Traversable[Shape] , inputType : Int)
