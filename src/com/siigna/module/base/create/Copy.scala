@@ -19,49 +19,55 @@ import module.ModuleInit
 class Copy extends Module {
 
   var endPoint : Option[Vector2D] = None
+  var multiCopy = false
   var startPoint : Option[Vector2D] = None
   var transformation : Option[TransformationMatrix] = None
+  var shapes : Option[Selection] = None
 
   val stateMap: StateMap = Map(
     'Start -> {
 
       //If the move module starts with a point, it knows where to start...
       case Start(_,p: Vector2D) :: tail => {
-        //set the startpoint for the move operation (if not already set)
-        startPoint = Some(p.transform(View.deviceTransformation))
-        //definition of a shape guide that is used to send the selected shapes to the 'Point module
-        // where they are drawn dynamically
-        val shapeGuide = PointPointGuide(p, (v : Vector2D) => {
-          val t : TransformationMatrix = if (startPoint.isDefined) {
-            TransformationMatrix(v - startPoint.get, 1)
-            // If no startPoint has been defined - create an empty matrix
-          } else TransformationMatrix()
-          // Return the shape, transformed
-          Drawing.selection.get.apply(t)
-        },9) //9 : Input type = KeyUp as input metod,
-        //so the coordinates will be returned on key up
-        //forward to the Input module with the shape guide.
-        Start('Input,"com.siigna.module.base.create", shapeGuide)
-      }
+        if(!Drawing.selection.isEmpty) {
+          //set the startpoint for the move operation (if not already set)
+          startPoint = Some(p.transform(View.deviceTransformation))
 
+          shapes = Some(Drawing.selection.get)
+
+          //definition of a shape guide that is used to send the selected shapes to the 'Point module
+          // where they are drawn dynamically
+          val shapeGuide = PointPointGuide(p, (v : Vector2D) => {
+            val t : TransformationMatrix = if (startPoint.isDefined) {
+              TransformationMatrix(v - startPoint.get, 1)
+              // If no startPoint has been defined - create an empty matrix
+            } else TransformationMatrix()
+            // Return the shape, transformed
+            Drawing.selection.get.apply(t)
+          },9) //9 : Input type = KeyUp as input method,
+          //so the coordinates will be returned on key up
+          //forward to the Input module with the shape guide.
+          Start('Input,"com.siigna.module.base.create", shapeGuide)
+        }
+      }
       case End(MouseUp(p,_,_)) :: tail => {
-        //If start point is defined, it is where the move should end:
-        if (!startPoint.isEmpty) {
+        //If start point is defined, it is where the copy should end:
+        if (startPoint.isDefined) {
           endPoint = Some(p)
+          multiCopy = true
           transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
-          //If start point is not defined, then p is the vector, that defines the move:
+
+          Siigna display "optional: type number of copies"
+          Start('Point, "com.siigna.module.base.create",10)
         } else {
           transformation = Some(TransformationMatrix(p, 1))
         }
-        Drawing.selection.get.transform(transformation.get)
-        Drawing.deselect()
-        End
       }
 
       //If point returns mouse down, then this is where move starts, or ends,
       // depending on whether there is a start point yet...
       case End(MouseDown(p,_,_)) :: tail => {
-        if (startPoint.isEmpty) {
+        if (!startPoint.isDefined && !Drawing.selection.isEmpty) {
           startPoint = Some(p)
           val shapeGuide = PointPointGuide(p, (v : Vector2D) => {
             val t : TransformationMatrix = TransformationMatrix(v - startPoint.get, 1)
@@ -69,12 +75,6 @@ class Copy extends Module {
             Drawing.selection.get.apply(t)
           },1)
           Start('Input,"com.siigna.module.base.create", shapeGuide)
-        } else {
-          endPoint = Some(p.transform(View.deviceTransformation))
-          transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
-          Drawing.selection.get.transform(transformation.get)
-          Drawing.deselect()
-          End
         }
       }
 
@@ -82,12 +82,17 @@ class Copy extends Module {
       case End(p: Vector2D) :: tail => {
         if (!startPoint.isEmpty) {
           transformation = Some(TransformationMatrix((p - startPoint.get), 1))
-          Drawing.selection.get.transform(transformation.get)
-          Drawing.deselect()
-          End
         }
       }
-
+      //multicopy
+      case End(f : Double) :: tail => {
+        if (multicopy == true && endPoint.isDefined && multicopy == true){
+          for (i <- 0 to f.toInt) {
+            Create(shapes.get.apply(TransformationMatrix(Vector2D((endPoint.get.x - startPoint.get.x) * i, (endPoint.get.y - startPoint.get.y) * i), 1)))
+            End
+          }
+        } else End
+      }
       //exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
       case MouseDown(p, MouseButtonRight, _) :: tail => End
@@ -95,6 +100,9 @@ class Copy extends Module {
 
       //on first entry, go to point to get the start point for the move operations.
       case _ => {
+
+        Siigna display "click to set origin"
+
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         val l = new ModuleInit
         if (l.usableSelectionExists) {
