@@ -9,13 +9,13 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-/*package com.siigna.module.base.create
+package com.siigna.module.base.create
 
 /* 2010 (C) Copyright by Siigna, all rights reserved. */
 
-import com.siigna.module.Module
 
 import com.siigna._
+import module.{ModuleInit, Module}
 
 /**
  * Created by IntelliJ IDEA.
@@ -29,20 +29,51 @@ class Explode extends Module{
 
   var explodedPolylines : Int = 0
 
-  lazy val stateMap = Map(
+  val stateMap: StateMap = Map(
 
-    State('StartCategory, {
+    'Start -> {
       // GENERAL NOTE: after the Menu forwards to a module with the (presumably) last events,
       // other events may be registered while the ForwardTo mechanism is running.
       // These events can trigger Goto events in the module unless ruled out by case matches.
-      case MouseUp(_, _, _) :: tail => {
-        if(Drawing.selection.isDefined) {
-          'Explode
+      
+      case _ => {
+        //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
+        val l = new ModuleInit
+        if (l.usableSelectionExists) {
+          //val p = Vector2D(0,0)
+          val shapeGuide = PointGuide((v : Vector2D) => {
+            val t : TransformationMatrix = TransformationMatrix(v, 1)
+            // Return the shape, transformed
+            Drawing.selection.get.apply(t)
+          },1020) //Input type 1020: coordinates, mouse-drag-distance, or key-input, do not draw guide.
+          Drawing.selection.get.self.foreach((shape) => {
+            println(shape)
+            println(shape._1)
+            println(Drawing.get(shape._1).get)
+
+          })
+          
+          
+          
+          
+          
+          //Start('Input, "com.siigna.module.base.create", 1)
+        
+        
+        
+        
+        
+        
+        
+        
+        } else {
+          Siigna display "nothing selected"
+          End
         }
       }
-      case _ =>
-    }),
+    })
 
+    /*
     'Explode -> {
       def explode (shape : Shape) : Seq[Shape] = {
         try {
@@ -79,12 +110,11 @@ class Explode extends Module{
         //use the IDs from the Seq to delete the original shapes
         Delete(explodeableShapes.keys)
         //use the shapeParts to create the exploded shapes
-        CreateCategory(explodeableShapes.values.flatten)
+        //NE// CreateCategory(explodeableShapes.values.flatten)
       }
 
       Siigna display "Exploded "+explodedPolylines+" polylines to lines"
       'End
-    },
-    'End -> ()
-  )
-}*/
+    }
+  ) */
+}
