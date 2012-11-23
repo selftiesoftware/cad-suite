@@ -14,6 +14,7 @@ package com.siigna.module.base.create
 import com.siigna._
 import app.Siigna
 import com.siigna.module.base.create._
+import module.ModuleInit
 
 class Copy extends Module {
 
@@ -45,33 +46,40 @@ class Copy extends Module {
         else if(startPoint.isDefined){
           endPoint = Some(p)
           transformation = Some(TransformationMatrix((p - startPoint.get), 1))
-          Siigna display "optional: type number of copies"
+          Siigna display "type number of copies"
           multiActive = true
           Start('Input, "com.siigna.module.base.create",
             DoubleGuide(v => shapes.get.apply(transformation.get),10))
-        } else Siigna display "select object(s) to copy"
+        }
       }
 
       case End(f : Double) :: tail => {
         if (multiActive == true && endPoint.isDefined){
           for (i <- 0 to f.toInt) {
             Create(shapes.get.apply(TransformationMatrix(Vector2D((endPoint.get.x - startPoint.get.x) * i, (endPoint.get.y - startPoint.get.y) * i), 1)))
-            End
           }
-        }else End
+        }
+        End
       }
       //exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
       case MouseDown(p, MouseButtonRight, _) :: tail => End
 
       case _ => {
-        if(multiActive == true) {
-          Create(shapes.get.apply(transformation.get))
+        //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
+        val l = new ModuleInit
+        if (l.usableSelectionExists) {
+          if(multiActive == true) {
+            Create(shapes.get.apply(transformation.get))
+            End
+          }
+          else {
+            Siigna display "set origin of copy"
+            Start('Input,"com.siigna.module.base.create",1)
+          }
+        } else {
+          Siigna display "nothing selected"
           End
-        }
-        else {
-          Siigna display "set origin of copy"
-          Start('Input,"com.siigna.module.base.create",1)
         }
       }
     }
