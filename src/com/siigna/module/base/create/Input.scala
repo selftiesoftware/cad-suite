@@ -16,17 +16,19 @@ import java.nio.file.OpenOption
 
 /**
  * The point module answers to requests from many other modules who require a number or one or more points to function.
- *
  */
 
 class Input extends Module {
 
   //VARS declaration:
+  private var currentSnap : Option[AngleSnap] = None
   private var decimalValue : Boolean = false
-  private var point1 : Option[Vector2D] = None
-  private var point2 : Option[Vector2D] = None
   private var guide : Boolean = true
   private var inputType : Option[Int] = None
+
+  private var point1 : Option[Vector2D] = None
+  private var point2 : Option[Vector2D] = None
+
   var textGuide : Option[String => Traversable[Shape]] = None
   var pointGuide : Option[Vector2D => Traversable[Shape]] = None
   var doubleGuide : Option[Double => Traversable[Shape]] = None
@@ -55,14 +57,18 @@ class Input extends Module {
           End(MouseDown(p,MouseButtonLeft,ModifierKeys(false,false,false)))
         }
       }
-      //if a single value is returned from InputOneValue of InputAngle, return it to the calling module:
-      case End(s : Double) :: tail => {
-        End(s)
-      }
+      //if a single value is returned from InputOneValue or InputAngle, return it to the calling module:
+      case End(s : Double) :: tail => End(s)
 
       //if a string is returned, return it to the calling module:
       case End(s : String) :: tail => {
         End(s)
+      }
+
+      //if a snap angle is returned from the Angle Gizmo module, use it to set a distance on the active radial
+      case End(a : AngleSnap) :: tail => {
+        currentSnap = Some(a)
+        eventParser.snapTo(a)
       }
 
       //If left mouse button is clicked: End and return mouse-position-point.
@@ -99,7 +105,7 @@ class Input extends Module {
         }
       }
 
-      //If mouse up is recieved,
+      //If mouse up is received,
       case MouseUp(p,button,modifier)::tail => {
         if (inputType.get == 2) {
           End(Vector2D((p - point1.get).x,-(p - point1.get).y))
@@ -207,12 +213,18 @@ class Input extends Module {
 
       //TODO: add if statement: if a track-guide is active, forward to a InputLength module instead...
 
-
       case KeyDown(key,modifier) :: tail => {
 
         //If the input is backspace with no modifiers, this key is returned to the asking module:
         if (key == Key.backspace && modifier == ModifierKeys(false,false,false)) {
           (End(KeyDown(key,modifier)))
+
+          //if SHIFT is pressed, forward to the Angle Gizmo
+        } else if(key == Key.shift) {
+          //println("start angle gizmo here")
+          if (!sendPointGuide.isEmpty) Start('AngleGizmo,"com.siigna.module.base.create",sendPointGuide.get)
+          else if (!sendPointPointGuide.isEmpty) Start('AngleGizmo,"com.siigna.module.base.create",sendPointPointGuide.get)
+
           //If it is other keys, the input is interpreted by the input-modules.
           //Any existing guides are forwarded.
         } else if(inputType == Some(1) || inputType == Some(2) || inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021)) {
@@ -310,8 +322,6 @@ class Input extends Module {
  * 1031 = Double                    key-input
  *        Vector2D                  Point at mouseDown
  */
-
-
 
 //The basic point guide - a vector2D is the base for the shapes
 case class PointGuide(pointGuide : Vector2D => Traversable[Shape] , inputType : Int)

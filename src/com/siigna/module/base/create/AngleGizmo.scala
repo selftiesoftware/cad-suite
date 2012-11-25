@@ -9,11 +9,10 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-/*package com.siigna.module.base.create
+package com.siigna.module.base.create
 
 import com.siigna._
 import scala.Predef._
-import com.siigna.module.base.create.Point._
 
 /**
  * An object that handles the angle-gizmo.
@@ -21,170 +20,109 @@ import com.siigna.module.base.create.Point._
 
 class AngleGizmo extends Module {
 
-  // a flag telling if the desired angle is set
-  var anglePointIsSet = false
-
-  //a flag to disregard the timer if CTRL is pressed
-  var ctrl = false
-
-  /**
-   * The degree of the angle-guide, given in degrees where 0 is North clockwise.
-   */
-  private var degrees : Option[Int] = None
-
+  //variables:
+  var anglePointIsSet = false    // a flag telling if the desired angle is set
+  var ctrl = false    //a flag to disregard the timer if CTRL is pressed
+  private var degrees : Option[Int] = None   //The degree of the angle-guide, given in degrees where 0 is North clockwise.
   var guideLength = 0
   var gizmoMode = 45
   val gizmoRadius = 220
-
   val gizmoScale = 0.7
-
   val gizmoShapes = List[Shape]()
+  val gizmoTime = 300   //time to press and hold the mouse button before the gizmo mode is activated
+  private var gizmoIsActive = false     // A flag to determine whether the angle gizmo was activated
+  var pointGuide : Option[Vector2D => Traversable[Shape]] = None
+  var pointPointGuide : Option[Vector2D => Traversable[Shape]] = None
+  private var startPoint : Option[Vector2D] = None    // The starting point of the angle gizmo
 
-  //time to press and hold the mouse button before the gizmo mode is activated
-  val gizmoTime = 300
-  
-  // A flag to determine whether the angle gizmo was activated
-  private var gizmoIsActive = false
-
-  // The starting point of the angle gizmo
-  private var startPoint : Option[Vector2D] = None
-
-  private var startTime : Option[Long] = None
-
-  def eventHandler = EventHandler(stateMap, stateMachine)
+  //TODO: implement activation of Angle Gizmo if left mouse is pressed for 1-2 sec while in the Input module.
+  //private var startTime : Option[Long] = None
 
   // Snaps an angle to the current interval of the gizmo mode.
   def roundSnap(angle : Double) = ((angle/gizmoMode).round * gizmoMode).round.toInt
 
-  def stateMap = DirectedGraph(
-    'StartCategory         -> 'KeyEscape -> 'End,
-    'Mousecheck    -> 'KeyEscape -> 'End,
-    'AngleGizmo    -> 'KeyEscape -> 'End
+  val stateMap: StateMap = Map(
+    'Start -> {
+
+      // Exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+
+      case Start(_ ,g : PointGuide) :: tail => {
+        pointGuide = Some(g.pointGuide)
+      }
+
+      case Start(_ ,g : PointPointGuide) :: tail => {
+        pointPointGuide = Some(g.pointGuide)
+        startPoint = Some(g.point1)
+      }
+
+      case MouseMove(p, _, _) :: tail => {
+        //get the current radial - but only if the angle is not set yet.
+        if (startPoint.isDefined && !anglePointIsSet) {
+
+          val m = mousePosition.transform(View.deviceTransformation)
+          val clockwiseDegrees = (m - startPoint.get).angle.round.toInt * -1 // Flip the degree-value to get the clockwise values
+          val northDegrees = (clockwiseDegrees + 360 + 90) % 360   // Move the 0 to North and normalize to [0; 360]
+
+          // Save it
+          degrees = Some(roundSnap(northDegrees))
+          //if the radial is set, calculate the length of the guide from the startPoint to the mousePosition
+        }
+      }
+
+      //if the right mouse button is pressed, exit.
+      case (MouseUp(_, MouseButtonRight, _) | MouseDown(_, MouseButtonRight, _)) :: tail => End
+
+      //case MouseUp(_, _, _) :: MouseDrag(_, _, _) :: tail => {
+      //  anglePointIsSet = true
+      //  End
+      //}
+
+      // if the left mouse button is pressed (after the mouse has been moved), then set the radial.
+      case MouseDown(p, _, _) :: MouseMove(_, _, _) :: tail =>  {
+        //return the angle
+        if (startPoint.isDefined && degrees.isDefined) {
+          //send the active snap angle
+          val point = startPoint.get
+          val d = degrees.get
+          End(new AngleSnap(point, d))
+
+          //if the gizmo is not needed, but a point has been set, return the point in a message, but send no angle.
+        } else if (startPoint.isDefined) {
+          val point = startPoint.get
+
+          // If the gizmo was not activated, then return the point so the
+          // point module can utilize it to whatever
+          //Message(point)
+          End
+        }
+
+      }
+      //case KeyUp(Key.Control, _) :: tail => {
+      //  Goto('End, false)
+      //}
+
+      case _=>
+    }
   )
-
-  def stateMachine = Map(
-    'StartCategory -> ((events : List[Event]) => {
-      startTime = Some(System.currentTimeMillis())
-
-      events match {
-        case Message(_) :: Message(_) :: MouseDown(p, _, _) :: tail => {
-          startPoint = Some(p)
-        }
-        case Message(p : Vector2D) :: KeyDown(Key.Shift, _) :: tail => {
-          startPoint = Some(p)
-        }
-        case _ =>
-      }
-      // Listen to mouse-events
-      Goto('MouseCheck, false)
-    }),
-    //check if a mouse up is happening while running the angle gizmo loop, if so, the angle module will exit.
-    'MouseCheck -> ((events : List[Event]) => {
-      //if CTRL was presed in point, activate the gizmo
-      events match {
-        case KeyUp(Key.Shift, _) :: Message(_) :: tail => {
-          ctrl = true
-          Goto('AngleGizmo)
-        }
-
-        case _ =>
-      }
-      // If the gizmo check has expired then activate the gizmo,
-      // if the latest event has not been set before
-      if (!ctrl == true && System.currentTimeMillis() - startTime.get < gizmoTime) {
-        Goto('End)
-
-      // If the time has run out and an event has been registered, then exit
-      } else {
-        Goto('AngleGizmo)
-
-      // Otherwise continue
-      }
-    }),
-    //this state is activated if the Gizmo is called:
-    'AngleGizmo -> ((events : List[Event]) => {
-      // Activate!
-      gizmoIsActive = true
-      events match {
-        //if the right mouse button is pressed, exit.
-        case (MouseUp(_, MouseButtonRight, _) | MouseDown(_, MouseButtonRight, _)) :: tail => {
-          Goto('End, false)
-        }
-
-        case MouseUp(_, _, _) :: MouseDrag(_, _, _) :: tail => {
-          anglePointIsSet = true
-          Goto('End)
-        }
-
-        case MouseDown(p, _, _) :: MouseMove(_, _, _) :: tail =>  {
-          anglePointIsSet = true
-          Goto('End)
-        }
-        //case KeyUp(Key.Control, _) :: tail => {
-        //  Goto('End, false)
-        //}
-
-        case _=>
-
-      }
-
-      //get the current radial
-      if (startPoint.isDefined) {
-        // Flip the degree-value to get the clockwise values
-        val clockwiseDegrees = (Siigna.mousePosition - startPoint.get).angle.round.toInt * -1
-
-        // Move the 0 to North and normalize to [0; 360]
-        val northDegrees = (clockwiseDegrees + 360 + 90) % 360
-
-        // Save it
-        degrees = Some(roundSnap(northDegrees))
-      }
-    }),
-    'End -> ((events : List[Event]) => {
-      def reset() {
-        //Reset variables
-        ctrl = false
-        degrees = None
-        gizmoIsActive = false
-        anglePointIsSet = false
-        startPoint = None
-        startTime = None
-      }
-
-      // If the gizmo was activated, then return the message and reset the vars
-      if (gizmoIsActive && anglePointIsSet && startPoint.isDefined && degrees.isDefined) {
-        //send the active snap angle
-        val point = startPoint.get
-        val d = degrees.get
-        reset()
-        Message(new AngleSnap(point, d))
-
-      //if the gizmo is not needed, but a point has been set, return the point in a message, but send no angle.
-      } else if (startPoint.isDefined) {
-        val point = startPoint.get
-        reset()
-        // If the gizmo was not activated, then return the point so the
-        // point module can utilize it to whatever
-        Message(point)
-      }
-    })
-  )
-
-  //Draw the Angle Gizmo perimeter
   override def paint(g : Graphics, t : TransformationMatrix) {
 
+    //TODO: forward and draw shapes to the Angle gizmo, and draw them dynamically while defining the angle.
     //get the point Guide from the calling module:
-    val guide : Vector2D => Traversable[Shape] = {
-        pointGuide.get
-      }
+    //val guide : Vector2D => Traversable[Shape] = {
+    //  pointGuide.get
+    //}
 
-    if (startPoint.isDefined && (startTime.isDefined && System.currentTimeMillis() - startTime.get > gizmoTime)) {
+    //if (startPoint.isDefined && (startTime.isDefined && System.currentTimeMillis() - startTime.get > gizmoTime)) {
+    if (startPoint.isDefined) {
+
+      var m = mousePosition.transform(View.deviceTransformation)
 
       //draw the shape under creation:
       var parsedPoint = Vector2D(startPoint.get.x, startPoint.get.y+guideLength)
       //using startPoint is a hack to prevent the line from the last point to the mousePosition being drawn on top of the angle guide.
       //TODO: use a guide that allows rectangles to be drawn dynamically ( mousePosition works, but is not snapped to the radians.) parsedPoint does not work??
-      if(pointGuide.isDefined) guide(startPoint.get).foreach(s => g draw s.transform(t))
+      //if(pointGuide.isDefined) guide(startPoint.get).foreach(s => g draw s.transform(t))
 
       //modify the TransformationMatrix to preserve AngleGizmo scaling.
       def scaling(a : Double) = scala.math.pow(a,-1)
@@ -192,7 +130,7 @@ class AngleGizmo extends Module {
       val transformation : TransformationMatrix = t.scale((scaling(View.zoom)*gizmoScale), startPoint.get)
 
       //Set Angle Gizmo mode based on distance to center
-      def distanceToStart = Siigna.mousePosition - startPoint.get
+      def distanceToStart = m - startPoint.get
       if (distanceToStart.length < 50*scaling(View.zoom)*gizmoScale) gizmoMode = 90
       else if (distanceToStart.length > 50*scaling(View.zoom)*gizmoScale && distanceToStart.length < 100*scaling(View.zoom)*gizmoScale) gizmoMode = 45
       else if (distanceToStart.length > 100*scaling(View.zoom)*gizmoScale && distanceToStart.length < 170*scaling(View.zoom)*gizmoScale) gizmoMode = 10
@@ -221,4 +159,3 @@ class AngleGizmo extends Module {
     }
   }
 }
-*/

@@ -34,6 +34,9 @@ class ModuleInit extends Module {
 
   protected var lastModule : Option[ModuleInstance] = None
 
+  //The nearest shape to the current mouse position.
+  var nearestShape : Option[(Int, Shape)] = None
+
   def stateMap = Map(
     'Start -> {
       // Match for modules to forward to
@@ -122,7 +125,17 @@ class ModuleInit extends Module {
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
   }
-  //draw points if snap is selected:
+  //draw highlighted vertices and segments that are selectable (close to the mouse)
+  if (nearestShape.isDefined) {
+    val shape  = nearestShape.get._2
+    val part = shape.getPart(mousePosition)
+    val points = shape.getVertices(part)
+    //points.foreach(p => g.draw(t.transform(p)))
+
+    //TODO: activate this -> implement adding attributes to parts in mainline
+    //g draw part.setAttributes("Color" -> "#22FFFF".color, "StrokeWidth" -> 1.0).transform(t)
+
+  }
 
   //Check if there is a useable selection:
   // TODO: Make a more elegant way to check for usable selection - in mainline?
