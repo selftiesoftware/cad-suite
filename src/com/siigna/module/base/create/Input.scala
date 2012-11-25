@@ -12,7 +12,7 @@
 package com.siigna.module.base.create
 
 import com.siigna._
-import java.nio.file.OpenOption
+import app.model.shape.Shape
 
 /**
  * The point module answers to requests from many other modules who require a number or one or more points to function.
@@ -67,6 +67,7 @@ class Input extends Module {
 
       //if a snap angle is returned from the Angle Gizmo module, use it to set a distance on the active radial
       case End(a : AngleSnap) :: tail => {
+        inputType = None
         currentSnap = Some(a)
         eventParser.snapTo(a)
       }
@@ -252,6 +253,7 @@ class Input extends Module {
         }
       }
       case _ => {
+        println("SHAPES: "+Drawing.shapes)
       }
     }
   )
