@@ -50,6 +50,13 @@ class Explode extends Module{
             println(shape)
             println(shape._1)
             println(Drawing.get(shape._1).get)
+            Drawing.get(shape._1).get match {
+              case p : PolylineShape => {
+                println("Poly") 
+
+            }
+
+            }
 
           })
           
