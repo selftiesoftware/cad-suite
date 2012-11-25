@@ -26,19 +26,19 @@ class Distance extends Module {
 
   var startPoint: Option[Vector2D] = None
 
-  val stateMap: StateMap = Map(
+  def stateMap: StateMap = Map(
 
     'Start -> {
       case End(v : Vector2D) :: tail => {
-        if (startPoint.isEmpty){
+        if (!startPoint.isDefined){
           startPoint = Some(v)
 
           val guide = PointPointGuide(v, (v : Vector2D) => {
             (Array(LineShape(startPoint.get, v)))
           },1)//1 : Input type = InputTwoValues
+          Start('Input,"com.siigna.module.base.create", guide)
 
-          Start('Point,"com.siigna.module.base.create", guide)
-        } else {
+        } else if (startPoint.isDefined) {
           var length : Int = ((startPoint.get - v).length).toInt
           Siigna display "length: " + length
           End
@@ -46,7 +46,7 @@ class Distance extends Module {
       }
       case _ => {
         Siigna display "set two points to measure the distance between them."
-        Start('Point,"com.siigna.module.base.create")
+        Start('Input,"com.siigna.module.base.create")
       }
       //if
 

@@ -30,7 +30,7 @@ case class AngleSnap(center: Vector2D, degree : Int) extends EventSnap{
   private val radian = (degree * -1 + 90) * math.Pi / 180
 
   // Define a line segment that we can perform calculations on
-  private val line = Line2D(center, center + Vector2D(math.cos(radian), math.sin(radian)))
+  private val line = Line2D(center, center + Vector2D(math.cos(radian), math.sin(radian))).transform(View.drawingTransformation)
 
   /**
    * Parse events to follow the guide given in the constructor.
@@ -47,6 +47,4 @@ case class AngleSnap(center: Vector2D, degree : Int) extends EventSnap{
    * Snaps a given point to the guide given in the constructor.
    */
   def snapToRadian(point : Vector2D) : Vector2D = line.closestPoint(point)
-
-
 }

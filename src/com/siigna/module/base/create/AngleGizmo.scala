@@ -85,6 +85,7 @@ class AngleGizmo extends Module {
           //send the active snap angle
           val point = startPoint.get
           val d = degrees.get
+          println("startPoint AG: "+point)
           End(new AngleSnap(point, d))
         }
       }

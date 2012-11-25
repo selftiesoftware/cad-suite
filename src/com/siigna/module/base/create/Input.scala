@@ -44,7 +44,18 @@ class Input extends Module {
   var sendPointPointDoubleGuide : Option[PointPointDoubleGuide] = None
   var sendPointPointPointGuide : Option[PointPointPointGuide] = None
   var snapAngle : Option[Double] = None
+
+  //a function to add a typed distance to a line, after the Angle Gizmo has redined a radial.
+  private def lengthVector(length : Double) : Vector2D = {
+    //a vector that equals the length of the typed distance, rotated by the current radial snap setting.
+    var rotatedVector = Vector2D(math.sin(currentSnap.get.degree * math.Pi/180), math.cos(currentSnap.get.degree * math.Pi/180)) * length
+    //and transformed by the center point of the offset from the Angle snap gizmo.
+    rotatedVector + currentSnap.get.center
+  }
+
   val stateMap: StateMap = Map(
+
+
 
     'Start -> {
       //if InputTwoValue returns a vector, return it to the calling module:
@@ -62,7 +73,8 @@ class Input extends Module {
         if (inputType != Some(15)) {
           End(s)
         } else {
-          End(Vector2D(math.sin(currentSnap.get.degree * math.Pi/180), math.cos(currentSnap.get.degree * math.Pi/180)) * s)
+          //End(Vector2D(math.sin(currentSnap.get.degree * math.Pi/180), math.cos(currentSnap.get.degree * math.Pi/180)) * s)
+          End(lengthVector(s))
         }
       }
 
@@ -232,7 +244,10 @@ class Input extends Module {
         } else if(key == Key.shift) {
           //println("start angle gizmo here")
           if (!sendPointGuide.isEmpty) Start('AngleGizmo,"com.siigna.module.base.create",sendPointGuide.get)
-          else if (!sendPointPointGuide.isEmpty) Start('AngleGizmo,"com.siigna.module.base.create",sendPointPointGuide.get)
+          else if (!sendPointPointGuide.isEmpty) {
+            println("startPoint INPUT: "+ sendPointPointGuide.get.point1)
+            Start('AngleGizmo,"com.siigna.module.base.create",sendPointPointGuide.get)
+          }
 
           //If it is other keys, the input is interpreted by the input-modules.
           //Any existing guides are forwarded.
