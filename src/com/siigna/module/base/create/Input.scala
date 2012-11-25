@@ -12,7 +12,7 @@
 package com.siigna.module.base.create
 
 import com.siigna._
-import app.model.shape.Shape
+import java.nio.file.OpenOption
 
 /**
  * The point module answers to requests from many other modules who require a number or one or more points to function.
@@ -58,7 +58,13 @@ class Input extends Module {
         }
       }
       //if a single value is returned from InputOneValue or InputAngle, return it to the calling module:
-      case End(s : Double) :: tail => End(s)
+      case End(s : Double) :: tail => {
+        if (inputType != Some(15)) {
+          End(s)
+        } else {
+          End(Vector2D(math.sin(currentSnap.get.degree * math.Pi/180), math.cos(currentSnap.get.degree * math.Pi/180)) * s)
+        }
+      }
 
       //if a string is returned, return it to the calling module:
       case End(s : String) :: tail => {
@@ -67,7 +73,9 @@ class Input extends Module {
 
       //if a snap angle is returned from the Angle Gizmo module, use it to set a distance on the active radial
       case End(a : AngleSnap) :: tail => {
-        inputType = None
+        val inputTypeFormer = inputType
+        inputType = Some(15)
+        //inputType = None
         currentSnap = Some(a)
         eventParser.snapTo(a)
       }
@@ -75,7 +83,7 @@ class Input extends Module {
       //If left mouse button is clicked: End and return mouse-position-point.
       case MouseDown(p,button,modifier)::tail => {
         if (button==MouseButtonLeft) {
-          if (inputType == Some(1) || inputType == Some (11) || inputType == Some (12) || inputType == Some (13) || inputType == Some(1031)) {
+          if (inputType == Some(1) || inputType == Some (11) || inputType == Some (12) || inputType == Some (13) || inputType == Some (15) || inputType == Some(1031)) {
             End(p.transform(View.deviceTransformation))
           } else if (inputType == Some(2) || inputType == Some(4) || inputType == Some(6) | inputType == Some(8))  {
             point1 = Some(p)
@@ -237,7 +245,7 @@ class Input extends Module {
           else if (!sendPointPointDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointPointDoubleGuide.get)
           else if (!sendPointPointPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointPointPointGuide.get)
           else Start('InputTwoValues,"com.siigna.module.base.create")
-        } else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(8) || inputType == Some(10) || inputType == Some(12) || inputType == Some(13) || inputType == Some(103) || inputType == Some(1031)) {
+        } else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(8) || inputType == Some(10) || inputType == Some(12) || inputType == Some(13) || inputType == Some(15) || inputType == Some(103) || inputType == Some(1031)) {
           if (guide == true) guide = false
           if (!sendPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create",sendPointGuide.get)
           else if (!sendDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendDoubleGuide.get)
@@ -253,7 +261,6 @@ class Input extends Module {
         }
       }
       case _ => {
-        println("SHAPES: "+Drawing.shapes)
       }
     }
   )
@@ -311,6 +318,7 @@ class Input extends Module {
  * 13 = Double                      For use when getting angle: Key (one value)
  *      Vector2D                    MouseDown. Guide is drawn.
  * 14 = String                      Key input, text
+ * 15 = Vector2D                    AngleGizmo-controlled MouseDown, or defined by distance from start point on AngleGizmo defined radian
  *
  * 102 = mouseDown, with Vector2D   MouseDown (sent after mouseUp received)
  *       mouseUp, with Vector2D     coordinates from mouseDown to mouseUp, Key (handled by the InputTwoValues module)

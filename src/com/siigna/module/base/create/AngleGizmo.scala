@@ -86,17 +86,7 @@ class AngleGizmo extends Module {
           val point = startPoint.get
           val d = degrees.get
           End(new AngleSnap(point, d))
-
-          //if the gizmo is not needed, but a point has been set, return the point in a message, but send no angle.
-        } else if (startPoint.isDefined) {
-          val point = startPoint.get
-
-          // If the gizmo was not activated, then return the point so the
-          // point module can utilize it to whatever
-          //Message(point)
-          End
         }
-
       }
       //case KeyUp(Key.Control, _) :: tail => {
       //  Goto('End, false)

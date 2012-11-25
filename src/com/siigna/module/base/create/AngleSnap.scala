@@ -39,7 +39,7 @@ case class AngleSnap(center: Vector2D, degree : Int) extends EventSnap{
     case MouseMove(point, a, b) => MouseMove(snapToRadian(point), a, b)
     case MouseDrag(point, a, b) => MouseMove(snapToRadian(point), a, b)
     case MouseDown(point, a, b) => MouseDown(snapToRadian(point), a, b)
-    case MouseUp(point, a, b)   => MouseDown(snapToRadian(point), a, b)
+    case MouseUp(point, a, b)   => MouseUp(snapToRadian(point), a, b)
     case some => some
   }
 
