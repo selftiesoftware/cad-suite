@@ -9,12 +9,12 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-/*package com.siigna.module.base.create
+package com.siigna.module.base.create
 
 /* 2011 (C) Copyright by Siigna, all rights reserved. */
 
 import com.siigna._
-import com.siigna.module.base.ModuleInit
+import com.siigna.module.ModuleInit
 
 class Lineardim extends Module {
 
@@ -56,8 +56,6 @@ class Lineardim extends Module {
                       scale))
     else
       None
-
-  val eventHandler = EventHandler(stateMap, stateMachine)
 
   var finalOffset : Option[Vector2D] = None
 
@@ -110,47 +108,17 @@ class Lineardim extends Module {
 
   private var transformation = TransformationMatrix()
 
+  def stateMap = Map(
 
-  def stateMap = DirectedGraph(
-    'StartCategory         -> 'KeyEscape -> 'End,
-    'SelectSide    -> 'KeyEscape -> 'End
-  )
-
-  def stateMachine = Map(
-    'StartCategory -> ((events : List[Event]) => {
-      //get the current paperScale
-      scale = Siigna.paperScale
-
-      events match {
-        //set the first point of the dim line
-        case MouseUp(p, _, _):: MouseDown(_, _, _) :: tail => {
-            points = points :+ p
-            Goto('SecondPoint, false)
-        }
-        case _ =>
-      }
-      None
-      }),
-    'SecondPoint -> ((events : List[Event]) => {
-      events match {
-        //draw the other end dynamically
-        case MouseMove(p, _, _):: tail => {
-          currentMouse = Some(p)
-        }
-        //set the other end of the dim line
-        case MouseDown(p, _, _):: tail => {
-
-          points = points :+ p
-          Goto('SelectSide, false)
-        }
-        case _ =>
-      }
-      None
-      }),
-    'SelectSide -> ((events : List[Event]) => {
-      events match {
-        //point the mouse to the side the dim line should be offset
-        case MouseMove(p, _, _):: tail => {
+    'Start -> {
+      case End(p : Vector2D) :: tail => {
+        points = points :+ p
+        if (points.length == 1) {
+          val guide: PointGuide = PointGuide((v : Vector2D) => {
+            (Array(LineShape(p, v)))
+          },1)
+          Start('Input,"com.siigna.module.base.create", guide)
+        } else if (points.length == 2) {
           val line = points(1) - points(0)
           val point = points(0) - p
           val scalar = line.normal * point
@@ -158,27 +126,22 @@ class Lineardim extends Module {
             offsetSide = false
           else
             offsetSide = true
-        finalOffset = Some(p)
-
-        }
-        case MouseDown(_, MouseButtonRight, _):: tail => Goto('End)
-        case MouseDown(_, MouseButtonLeft, _):: tail => {
-        //finalOffset = Some(p)
-          Goto('End)
-        }
-        case _ =>
-      }
-    None
-    }),
-    'End -> ((events : List[Event]) => {
+          Siigna display "click on the side away from the pointers"
+          val guide: PointGuide = PointGuide((v : Vector2D) => {
+            (Array(LineShape(points(0), points(1))))
+          },11) //Input 11: Vector2D, only by mouseDown
+          Start('Input,"com.siigna.module.base.create", guide)
+        } else if (points.length == 3) {
+          //Finalise
           val line = points(1) - points(0)
-          val point = points(0) - finalOffset.get
+          val point = points(0) - p
           val scalar = line.normal * point
           if (scalar >= 0)
             offsetSide = false
           else
             offsetSide = true
-          CreateCategory(
+          //Creates a CollectionShape:
+          Create(
             shapeA.get.setAttributes(color, "StrokeWidth" -> 0.25),
             shapeB.get.setAttributes(color, "StrokeWidth" -> 0.25),
             normalShape1.get.setAttributes(color, "StrokeWidth" -> 0.25),
@@ -187,24 +150,19 @@ class Lineardim extends Module {
             diaMark2.get.setAttributes("Color" -> "#777777".color, "StrokeWidth" -> 1.6),
             dimText.get.setAttribute(color)
           )
-          //clear the list of points
-          points = List[Vector2D]()
-      ModuleInit.previousModule = Some('Lineardim)
-    })
-  )
-  override def paint(g : Graphics, t : TransformationMatrix) {
-    if (currentMouse.isDefined && simpleA.isDefined && dynamicDimText.isDefined) {
-      g draw simpleA.get.transform(t).setAttribute(color)
-      g draw dynamicDimText.get.transform(t)
-    }
-    else if (hasBothPoints) {
-      g draw shapeA.get.transform(t).setAttributes(color, "StrokeWidth" -> 0.25)
-      g draw shapeB.get.transform(t).setAttributes(color, "StrokeWidth" -> 0.25)
-      g draw normalShape1.get.transform(t).setAttributes(color, "StrokeWidth" -> 0.25)
-      g draw normalShape2.get.transform(t).setAttributes(color, "StrokeWidth" -> 0.25)
-      g draw diaMark1.get.transform(t).setAttributes("Color" -> "#777777".color, "StrokeWidth" -> 1.6)
-      g draw diaMark2.get.transform(t).setAttributes("Color" -> "#777777".color, "StrokeWidth" -> 1.6)
-      g draw dimText.get.transform(t)
-    }
-  }
-}*/
+         End
+        }
+      }
+      
+      
+
+      case _ => {
+      //get the current paperScale
+      scale = Siigna.paperScale
+        Start('Input,"com.siigna.module.base.create", 1)       
+      }
+      
+      
+  })
+
+}
