@@ -152,7 +152,7 @@ class ModuleInit extends Module {
           case FullSelector => usableSelectionExists = true
           case app.model.shape.PolylineShape.Selector(x) => {
             if (x.size >0) {
-              //If the bitset is larger than 0, something useful is selected...
+              //If the size of the bitset is larger than 0, something useful is selected...
               usableSelectionExists = true
             }
           }

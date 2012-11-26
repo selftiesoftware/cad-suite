@@ -15,6 +15,8 @@ package com.siigna.module.base.create
 
 
 import com.siigna._
+import app.model.shape.FullSelector
+import app.model.shape.PolylineShape
 import module.{ModuleInit, Module}
 
 /**
@@ -38,41 +40,55 @@ class Explode extends Module{
       
       case _ => {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
+        var somethingExploded: Boolean = false
         val l = new ModuleInit
         if (l.usableSelectionExists) {
-          //val p = Vector2D(0,0)
-          val shapeGuide = PointGuide((v : Vector2D) => {
-            val t : TransformationMatrix = TransformationMatrix(v, 1)
-            // Return the shape, transformed
-            Drawing.selection.get.apply(t)
-          },1020) //Input type 1020: coordinates, mouse-drag-distance, or key-input, do not draw guide.
-          Drawing.selection.get.self.foreach((shape) => {
+            //Match on shapes in the selection to check for polylines:
+            Drawing.selection.get.self.foreach((shape) => {
             println(shape)
             println(shape._1)
             println(Drawing.get(shape._1).get)
             Drawing.get(shape._1).get match {
               case p : PolylineShape => {
                 println("Poly") 
+                //Check if some of, or the whole shape has been selected:
+                println("Selected part ow whole shape: " + Drawing.selection.get(shape._1))
+                shape._2 match {
+                  case FullSelector => {
+                    //If the whole shape has been selected, explode it!
+                    //First create all the shapes, the polyline consists off:
+                    Create(p.shapes)
+                    //Then delete the original shape;
+                    Delete(shape._1)
+                    somethingExploded = true
+                  }
+                  //If only part of the shape has been selected:
+                  case app.model.shape.PolylineShape.Selector(x) => {
+                    println("Bitset x: " + x)
+                    x.foreach((bitset) => {
+                      //Exclude the endpoints of the polyline:
+                      var usefulSplitPoints: Int = 0
+                      if (bitset != 0 && bitset != p.size) {
+                        usefulSplitPoints = usefulSplitPoints + 1
+                        println ("bitset " + bitset )
+                        //For now, the splitting only at selected points is not implemented...
 
+
+                      }
+                    })
+                  }
+                  case _ =>
+                }
+              }
+              case _ =>
             }
-
-            }
-
           })
-          
-          
-          
-          
-          
-          //Start('Input, "com.siigna.module.base.create", 1)
-        
-        
-        
-        
-        
-        
-        
-        
+          if (somethingExploded == true) {
+            Siigna display "polylines in selection exploded"
+          } else {
+            Siigna display "none of the selected shapes can be exploded"
+          }
+          End
         } else {
           Siigna display "nothing selected"
           End
