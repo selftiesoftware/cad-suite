@@ -111,7 +111,7 @@ class Stroke extends Module {
         println("LineWeight: "+activeLine)
       //if no objects are selected, make the chosen lineWeight the default lineWeight
       if(Drawing.selection.isEmpty) {
-        Siigna("activeLineWeight") = activeLine
+        Siigna.activeLineWeight = activeLine.toString
       }
       //if a selection is defined, change lineweight of the selected shapes and deselect them.
       else {

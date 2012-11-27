@@ -9,9 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-/*package com.siigna.module.base.file
-
-/* 2010 (C) Copyright by Siigna, all rights reserved. */
+package com.siigna.module.base.file
 
 import java.awt.{Color, Graphics => AWTGraphics, Graphics2D, RenderingHints}
 import java.awt.geom.AffineTransform
@@ -20,18 +18,24 @@ import java.awt.print.{PageFormat, Paper, Printable, PrinterJob}
 
 import com.siigna._
 
+/**
+ * A printing module (currently bitmap-printing only)
+ */
+
+//TODO: implement vector-printing
 class Print extends Module {
 
-  var firstOpen : Boolean = true
+  val margin = Siigna.double("printMargin").getOrElse(13.0)
+  val pageFormat = printerJob.defaultPage
+  val paper = new Paper()
+  val printerJob = PrinterJob.getPrinterJob
 
-  lazy val stateMap = Map(
-    'StartCategory -> ((events : List[Event]) => {
-      //a hack to prevent the print dialog from opening over and over again. Caused by an error in the Message system.
-      if (firstOpen == true) {
-        firstOpen = false
+  val stateMap: StateMap = Map(
+  'Start -> {
+      case _ => {
+        println("in print")
         try {
-          val printerJob = PrinterJob.getPrinterJob
-          val pageFormat = printerJob.defaultPage
+
 
           printerJob.setJobName("Siigna Printout");
           printerJob.setCopies(1);
@@ -44,8 +48,8 @@ class Print extends Module {
             pageFormat.setOrientation(PageFormat.PORTRAIT)
           }
 
-          val paper = new Paper()
-          val margin = Siigna.double("printMargin").getOrElse(13.0)
+
+
           paper.setImageableArea(margin, margin, paper.getWidth() - margin * 2, paper.getHeight() - margin * 2);
           pageFormat.setPaper(paper)
 
@@ -58,16 +62,9 @@ class Print extends Module {
         } catch {
           case e => println(e)
         }
-      } else {
-        firstOpen = false
       }
-      'End
-    }),
-    'End -> ((events : List[Event]) => {
-      None
-    })
+    }
   )
-
 }
 
 class MyPrintable extends Printable {
@@ -125,4 +122,4 @@ class MyPrintable extends Printable {
       Printable.PAGE_EXISTS
     }
   }
-}*/
+}

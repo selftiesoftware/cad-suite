@@ -17,10 +17,19 @@ import java.awt.Color
 
 class Polyline extends Module {
 
+  val color = Siigna.activeColor
+  var lineWeight = Siigna.activeLineWeight
   var startPoint: Option[Vector2D] = None
   private var points   = List[Vector2D]()
   var attributes : Attributes = Attributes()
   def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
+
+  def setAttribute[T : Manifest](name:String, shape:Shape) = {
+    Siigna.get(name) match {
+      case s : Some[T] => shape.addAttribute(name, s.get)
+      case None => shape// Option isn't set. Do nothing
+    }
+  }
 
   // The polylineshape so far
   private var shape : Option[PolylineShape] = None
@@ -28,6 +37,7 @@ class Polyline extends Module {
   val stateMap: StateMap = Map(
     'Start -> {
       case End(v : Vector2D) :: tail => {
+        println(lineWeight)
         //if the point module returns with END and a point, a new point is received.
         points = points :+ v
         if (startPoint.isEmpty){
@@ -96,30 +106,22 @@ class Polyline extends Module {
 
       case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
 
-        var plShape = PolylineShape(points)
-        def setAttribute[T : Manifest](name:String, shape:Shape) = {
-          Siigna.get(name) match {
-            case s : Some[T] => shape.addAttribute(name, s.get)
-            case None => shape// Option isn't set. Do nothing
-          }
-        }
-        val polyLine = setAttribute[Color]("Color",setAttribute[Double]("LineWeight", plShape))
-        Create(polyLine)
+        val plShape = PolylineShape(points).addAttribute("Color",color)
+
+        //val polyLine = setAttribute[Color](color,setAttribute[Double](lineWeight, plShape))
+        val polyline = plShape.addAttribute("Stroke",lineWeight)
+        Create(polyline)
         End
       }
 
       case End :: tail => {
         //If there are two or more points in the polyline, it can be saved to the Siigna universe.
         if (points.length > 1) {
-          var plShape = PolylineShape(points)
-          def setAttribute[T : Manifest](name:String, shape:Shape) = {
-            Siigna.get(name) match {
-              case s : Some[T] => shape.addAttribute(name, s.get)
-              case None => shape// Option isn't set. Do nothing
-            }
-          }
-          val polyLine = setAttribute[Color](Siigna.activeColor,setAttribute[Double]("LineWeight", plShape))
-          Create(polyLine)
+          var plShape = PolylineShape(points).addAttribute("Color",color)
+
+          //val polyLine = setAttribute[Color](color,setAttribute[Double](lineWeight, plShape))
+          val polyline = plShape.addAttribute("Stroke",lineWeight)
+          Create(polyline)
         }
         //The module closes - even if no polyline was drawn.
       startPoint = None

@@ -122,6 +122,7 @@ class Colors extends Module {
 
         if(Drawing.selection.isEmpty && activeColor.isDefined) {
           Siigna.activeColor = activeColor.toString
+          println(Siigna.activeColor)
         }
         //if a selection is defined, change lineweight of the selected shapes and deselect them.
         else {

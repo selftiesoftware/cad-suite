@@ -9,16 +9,140 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-/*package com.siigna.module.base.create
+package com.siigna.module.base.create
 
 import com.siigna._
 import app.Siigna
 import com.siigna.module.Module
-import app.controller.Controller
 
 import java.awt.Color
 
 class Fill extends Module {
+
+  var startPoint: Option[Vector2D] = None
+  private var points   = List[Vector2D]()
+  lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, 1.00f)
+  var attributes : Attributes = Attributes()
+  def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
+
+  // The polylineshape so far
+  private var shape : Option[PolylineShape] = None
+
+  val stateMap: StateMap = Map(
+    'Start -> {
+      case End(v : Vector2D) :: tail => {
+        //if the point module returns with END and a point, a new point is received.
+        points = points :+ v
+        if (startPoint.isEmpty){
+          //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
+          startPoint = Some(v)
+
+          val guide = PointPointGuide(v, (v : Vector2D) => {
+            //(Array(PolylineShape(startPoint.get, v)))
+            if(!points.isEmpty) {
+              val closedPolyline = points.reverse :+ v
+              val areaGuide = closedPolyline.reverse :+ v
+              if(Siigna.get("activeColor").isDefined) {
+                Array(PolylineShape((areaGuide)).setAttributes("raster" -> Siigna("activeColor"), "StrokeWidth" -> 0.0))
+              }
+              else Array(PolylineShape((areaGuide)).setAttributes("raster" -> anthracite, "StrokeWidth" -> 0.0))
+            }
+            else Array(PolylineShape(Vector2D(0,0),Vector2D(0,0)))
+          },1)//1 : Input type = InputTwoValues
+
+          Start('Input,"com.siigna.module.base.create", guide)
+        } else {
+          //If the start point is set, the first segment is made and points should be added.
+          points :+ v
+          //val guide : Guide = Guide((v : Vector2D) => {
+          //  Array(PolylineShape(points :+ v))
+          //})
+          val guide = PointPointGuide(v, (v : Vector2D) => {
+            (Array(PolylineShape(points :+ v)))
+          },1)//1 : Input type = InputTwoValues
+          Start('Input,"com.siigna.module.base.create", guide)
+        }
+      }
+
+      //If input module does not return any input:
+      case End("no point returned") :: tail => {
+        //If there only is the start point:
+        if (points.length == 1){
+          //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
+          startPoint = Some(points.last)
+
+          val guide = PointPointGuide(startPoint.get, (v : Vector2D) => {
+            (Array(PolylineShape(startPoint.get, v)))
+          },1)//1 : Input type = InputTwoValues
+
+          Start('Input,"com.siigna.module.base.create", guide)
+        } else {
+
+          val guide = PointPointGuide(points.last, (v : Vector2D) => {
+            (Array(PolylineShape(points :+ v)))
+          },1)//1 : Input type = InputTwoValues
+          Start('Input,"com.siigna.module.base.create", guide)
+        }
+      }
+
+      //If point module returns a key-pres at the event when it ends:
+      case End(k : KeyDown) :: tail => {
+        // If the key is backspace without modification (shift etc), the last bit of line is deleted:
+        if (k == KeyDown(Key.Backspace,ModifierKeys(false,false,false))) {
+          if (points.length > 1) {
+            points = points.dropRight(1)
+          }
+          //And if there is a start point, a new guide is returned
+          if (startPoint.isDefined) {
+            val guide : PointPointGuide = PointPointGuide(points.last, (v : Vector2D) => {
+              Array(PolylineShape(points :+ v))
+            },1) //1 : Input type = InputTwoValues
+            Start('Input,"com.siigna.module.base.create", guide)
+          } else {
+            //If not, point is started without guide.
+            Start('Input,"com.siigna.module.base.create")
+          }
+        }}
+
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
+
+        var plShape = PolylineShape(points)
+        def setAttribute[T : Manifest](name:String, shape:Shape) = {
+          Siigna.get(name) match {
+            case s : Some[T] => shape.addAttribute(name, s.get)
+            case None => shape// Option isn't set. Do nothing
+          }
+        }
+        val polyLine = setAttribute[Color]("Color",setAttribute[Double]("LineWeight", plShape))
+        Create(polyLine)
+        End
+      }
+
+      case End :: tail => {
+        //If there are two or more points in the polyline, it can be saved to the Siigna universe.
+        if (points.length > 1) {
+          var plShape = PolylineShape(points)
+          def setAttribute[T : Manifest](name:String, shape:Shape) = {
+            Siigna.get(name) match {
+              case s : Some[T] => shape.addAttribute(name, s.get)
+              case None => shape// Option isn't set. Do nothing
+            }
+          }
+          val polyLine = setAttribute[Color](Siigna.activeColor,setAttribute[Double]("LineWeight", plShape))
+          Create(polyLine)
+        }
+        //The module closes - even if no polyline was drawn.
+      startPoint = None
+      points = List()
+      End
+      }
+      case x => {
+        Start('Input,"com.siigna.module.base.create",1)
+      }
+    })
+
+}
+/*
 
   var points = List[Vector2D]()
 

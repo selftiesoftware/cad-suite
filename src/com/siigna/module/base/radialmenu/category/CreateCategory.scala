@@ -23,7 +23,9 @@ case object CreateCategory extends MenuCategory{
 
     EventWNW -> MenuModule(Module('Text,"com.siigna.module.base.create"), MenuIcons.text),
     EventSSE -> MenuModule(Module('Explode,"com.siigna.module.base.create"), MenuIcons.explode),
-    EventWSW -> MenuModule(Module('Lineardim,"com.siigna.module.base.create"), MenuIcons.linearDimension)
+    EventWSW -> MenuModule(Module('Lineardim,"com.siigna.module.base.create"), MenuIcons.linearDimension),
+    EventSSW -> MenuModule(Module('Fill,"com.siigna.module.base.create"), MenuIcons.raster)
+
   )
 
   val color = MenuIcons.createColor

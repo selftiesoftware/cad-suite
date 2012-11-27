@@ -119,7 +119,8 @@ class InputOneValue extends Module {
 
     if(pointGuide.isDefined && coordinateValue.length > 0 && coordinateValue != " " && coordinateValue != "-" && coordinateValue != "." && coordinateValue != "-."){
       val x = java.lang.Double.parseDouble(coordinateValue)
-      if (x != 0) pointGuide.foreach(_(x).foreach(s => g.draw(s.transform(t))))
+      if (x != 0 && inputType != Some(116)) pointGuide.foreach(_(x).foreach(s => g.draw(s.transform(t))))
+      //else pointGuide.foreach(_(x).foreach(val xx = Track.getPointFromDistance(s) => g.draw(xx.transform(t))))
     }
   }
 }

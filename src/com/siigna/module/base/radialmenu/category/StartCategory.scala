@@ -30,8 +30,10 @@ case object StartCategory extends MenuCategory{
     EventN -> CreateCategory,
     EventW -> PropertiesCategory,
     EventS -> ModifyCategory,
+
     //drawing tools in the default menu:
-    EventENE -> MenuModule(Module('SnapToggle,"com.siigna.module.base.helpers"), MenuIcons.snap),
+    //EventENE -> MenuModule(Module('SnapToggle,"com.siigna.module.base.helpers"), MenuIcons.snap),
+    EventENE -> MenuModule(Module('Print,"com.siigna.module.base.file"), MenuIcons.print),
     EventNNE -> MenuModule(Module('Polyline,"com.siigna.module.base.create"), MenuIcons.polyline),
     EventNNW -> MenuModule(Module('Copy,"com.siigna.module.base.create"), MenuIcons.copy),
     EventWNW -> MenuModule(Module('Stroke,"com.siigna.module.base.properties"), MenuIcons.weight),

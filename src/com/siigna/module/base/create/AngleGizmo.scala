@@ -100,9 +100,6 @@ class AngleGizmo extends Module {
 
     //TODO: forward and draw shapes to the Angle gizmo, and draw them dynamically while defining the angle.
     //get the point Guide from the calling module:
-    //val guide : Vector2D => Traversable[Shape] = {
-    //  pointGuide.get
-    //}
 
     //if (startPoint.isDefined && (startTime.isDefined && System.currentTimeMillis() - startTime.get > gizmoTime)) {
     if (startPoint.isDefined) {
@@ -114,6 +111,8 @@ class AngleGizmo extends Module {
       //using startPoint is a hack to prevent the line from the last point to the mousePosition being drawn on top of the angle guide.
       //TODO: use a guide that allows rectangles to be drawn dynamically ( mousePosition works, but is not snapped to the radians.) parsedPoint does not work??
       //if(pointGuide.isDefined) guide(startPoint.get).foreach(s => g draw s.transform(t))
+      //if (!pointGuide.isEmpty && !startPoint.isEmpty ) pointGuide.foreach(_(Vector2D((mousePosition - startPoint.get).x,-(mousePosition - startPoint.get).y)).foreach(s => g.draw(s.transform(t))))
+
 
       //modify the TransformationMatrix to preserve AngleGizmo scaling.
       def scaling(a : Double) = scala.math.pow(a,-1)
