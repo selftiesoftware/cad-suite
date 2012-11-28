@@ -46,10 +46,10 @@ class Copy extends Module {
         else if(startPoint.isDefined){
           endPoint = Some(p)
           transformation = Some(TransformationMatrix((p - startPoint.get), 1))
-          Siigna display "type number of copies"
+          Siigna display "type number of copies or click for one"
           multiActive = true
           Start('Input, "com.siigna.module.base.create",
-            DoubleGuide(v => shapes.get.apply(transformation.get),10))
+            DoubleGuide(v => shapes.get.apply(transformation.get),17))
         }
       }
 
