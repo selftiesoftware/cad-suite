@@ -76,7 +76,7 @@ class Input extends Module {
       case End(s : Double) :: tail => {
         if (inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6)
           || inputType == Some(7) || inputType == Some(8) || inputType == Some(9) || inputType == Some(10)
-          || inputType == Some(12) || inputType == Some(13) || inputType == Some(17) || inputType == Some(103)
+          || inputType == Some(12) || inputType == Some(13) || inputType == Some(17) || inputType == Some(103) 
           || inputType == Some(1031)) {
           End(s)
         } else if (inputType == Some(15)) {
@@ -123,7 +123,7 @@ class Input extends Module {
             End(p.transform(View.deviceTransformation).x)
           } else if (inputType == Some(7)) {
             End(p.transform(View.deviceTransformation).y)
-          } else if (inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021)
+          } else if (inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021) 
             || inputType == Some(103))  {
             //The mouseDown is saved as point1, if it does not already exist
             //If there is a mouseUp later, on the same point, the point is returned as a mouseDown (happens in mouseUp-part)
@@ -137,7 +137,7 @@ class Input extends Module {
         } else {
           if (inputType == Some(17)) {
             End
-          } else {
+          } else { 
             // In all other cases, where it is not left mouse button, the mouseDown is returned
           End(MouseDown(p.transform(View.deviceTransformation),button,modifier))
           }
@@ -282,7 +282,7 @@ class Input extends Module {
         } else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) 
                   || inputType == Some(7) || inputType == Some(8) || inputType == Some(10) || inputType == Some(12) 
                   || inputType == Some(13) || inputType == Some(15) || inputType == Some(16) || inputType == Some(17)
-                  || inputType == Some(103) || inputType == Some(111) || inputType == Some(112) || inputType == Some(1031)) {
+                  || inputType == Some(103)    || inputType == Some(111) || inputType == Some(112) || inputType == Some(1031)) {
           if (guide == true) guide = false
           if (!sendPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create",sendPointGuide.get)
           else if (!sendDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendDoubleGuide.get)
