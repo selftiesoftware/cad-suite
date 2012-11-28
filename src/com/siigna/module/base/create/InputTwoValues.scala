@@ -167,10 +167,7 @@ class InputTwoValues extends Module {
         } else coordinateY = Some(0)
         Siigna display message(coordinateValue, coordinateX, coordinateY)
         //if a full set of coordinates are present, return them to the calling module.
-        if(startPoint.isDefined) {
-          End(Vector2D(startPoint.get.x + x,startPoint.get.y + y))
-        }
-        else End(Vector2D(x,y))
+        End(Vector2D(x,y))
       }
     }
     case KeyDown(Key.Backspace, _) :: tail => {
