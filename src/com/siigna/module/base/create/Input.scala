@@ -60,7 +60,7 @@ class Input extends Module {
     'Start -> {
       //if InputTwoValue returns a vector, return it to the calling module:
       case End(p : Vector2D) :: tail => {
-        if (inputType == Some(1) || inputType == Some(2) || inputType == Some(116)) {
+        if (inputType == Some(1) || inputType == Some(2) || inputType == Some(111)) {
           End(p)
         } else if (inputType == Some(102) || inputType == Some(1020)) {
           End(MouseUp(p,MouseButtonLeft,ModifierKeys(false,false,false)))
@@ -75,7 +75,7 @@ class Input extends Module {
         } else if (inputType == Some(15)) {
           //End(Vector2D(math.sin(currentSnap.get.degree * math.Pi/180), math.cos(currentSnap.get.degree * math.Pi/180)) * s)
           End(lengthVector(s))
-        } else if ((inputType == Some(16) || inputType == Some(116)) && Track.isTracking == true) {
+        } else if ((inputType == Some(16) || inputType == Some(111)) && Track.isTracking == true) {
           End(Track.getPointFromDistance(s).get)
         }
       }
@@ -97,7 +97,7 @@ class Input extends Module {
       //If left mouse button is clicked: End and return mouse-position-point.
       case MouseDown(p,button,modifier)::tail => {
         if (button==MouseButtonLeft) {
-          if (inputType == Some(1) || inputType == Some (11) || inputType == Some (12) || inputType == Some (13) || inputType == Some (15) || inputType == Some (116) || inputType == Some(1031)) {
+          if (inputType == Some(1) || inputType == Some (11) || inputType == Some (12) || inputType == Some (13) || inputType == Some (15) || inputType == Some (111) || inputType == Some(1031)) {
             End(p.transform(View.deviceTransformation))
           } else if (inputType == Some(2) || inputType == Some(4) || inputType == Some(6) | inputType == Some(8))  {
             point1 = Some(p)
@@ -248,13 +248,12 @@ class Input extends Module {
           //println("start angle gizmo here")
           if (!sendPointGuide.isEmpty) Start('AngleGizmo,"com.siigna.module.base.create",sendPointGuide.get)
           else if (!sendPointPointGuide.isEmpty) {
-            println("startPoint INPUT: "+ sendPointPointGuide.get.point1)
             Start('AngleGizmo,"com.siigna.module.base.create",sendPointPointGuide.get)
           }
 
           //If it is other keys, the input is interpreted by the input-modules.
           //Any existing guides are forwarded.
-        } else if(inputType == Some(1) || inputType == Some(2) || inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021) || (inputType == Some(116) && Track.isTracking == false)) {
+        } else if(inputType == Some(1) || inputType == Some(2) || inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021) || (inputType == Some(111) && Track.isTracking == false)) {
           if (guide == true) guide = false
           if (!sendPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create",sendPointGuide.get)
           else if (!sendDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendDoubleGuide.get)
@@ -263,7 +262,7 @@ class Input extends Module {
           else if (!sendPointPointDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointPointDoubleGuide.get)
           else if (!sendPointPointPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointPointPointGuide.get)
           else Start('InputTwoValues,"com.siigna.module.base.create")
-        } else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(8) || inputType == Some(10) || inputType == Some(12) || inputType == Some(13) || inputType == Some(15) || inputType == Some(16) || inputType == Some(103) || inputType == Some(116) || inputType == Some(1031)) {
+        } else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(8) || inputType == Some(10) || inputType == Some(12) || inputType == Some(13) || inputType == Some(15) || inputType == Some(16) || inputType == Some(103) || inputType == Some(111) || inputType == Some(1031)) {
           if (guide == true) guide = false
           if (!sendPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create",sendPointGuide.get)
           else if (!sendDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendDoubleGuide.get)
@@ -350,7 +349,7 @@ class Input extends Module {
  *       mouseDown, with Vector2D   mouseDown (sent after mouseUp received)
  * 1031 = Double                    key-input
  *        Vector2D                  Point at mouseDown
- * 116 = Vector2D                   Point at mouseDown, or point by key(two values) or point guided by trackguide (input One value)
+ * 111 = Vector2D                   Point at mouseDown, or point by key(two values) or point guided by trackguide (input One value)
  */
 
 //The basic point guide - a vector2D is the base for the shapes

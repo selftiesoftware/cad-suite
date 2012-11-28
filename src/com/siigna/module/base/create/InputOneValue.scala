@@ -132,7 +132,7 @@ class InputOneValue extends Module {
       val x = java.lang.Double.parseDouble(coordinateValue)
       if (x != 0) doubleGuide.foreach(_(x).foreach(s => g.draw(s.transform(t))))
     }
-    if(inputType == Some(116) && pointGuide.isDefined && coordinateValue.length > 0 && coordinateValue != " " && coordinateValue != "-" && coordinateValue != "." && coordinateValue != "-."){
+    if(inputType == Some(111) && pointGuide.isDefined && coordinateValue.length > 0 && coordinateValue != " " && coordinateValue != "-" && coordinateValue != "." && coordinateValue != "-."){
       val x = java.lang.Double.parseDouble(coordinateValue)
       if (x != 0) pointGuide.foreach(_(Track.getPointFromDistance(x).get).foreach(s => g.draw(s.transform(t))))
     }
