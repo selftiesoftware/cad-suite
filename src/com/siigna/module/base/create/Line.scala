@@ -30,9 +30,9 @@ class Line extends Module {
         if (startPoint.isEmpty){
           startPoint = Some(v)
 
-          val guide = PointGuide((v : Vector2D) => {
+          val guide = PointPointGuide(startPoint.get,(v : Vector2D) => {
             (Array(LineShape(startPoint.get, v)))
-          },1)//1 : Input type = InputTwoValues
+          },112)
           Start('Input,"com.siigna.module.base.create", guide)
         } else {
 
@@ -56,11 +56,11 @@ class Line extends Module {
       //If input module returns nothing:
       case End("no point returned") :: tail => {
         if (startPoint.isEmpty) {
-          Start('Input,"com.siigna.module.base.create",1)
+          Start('Input,"com.siigna.module.base.create",111)
         } else {
-        val guide = PointGuide((v : Vector2D) => {
+        val guide = PointPointGuide(startPoint.get, (v : Vector2D) => {
           (Array(LineShape(startPoint.get, v)))
-        },1)//1 : Input type = InputTwoValues
+        },112)//1 : Input type = InputTwoValues
         Start('Input,"com.siigna.module.base.create", guide)
       }}
 
@@ -68,15 +68,15 @@ class Line extends Module {
         // If the key is backspace without modification (shift etc), the last point is deleted, if there is any
         if (k == KeyDown(Key.Backspace,ModifierKeys(false,false,false))) {
           if (startPoint.isEmpty) {
-            Start('Input,"com.siigna.module.base.create",1)
+            Start('Input,"com.siigna.module.base.create",111)
           } else {
-            val guide = PointGuide((v : Vector2D) => {
+            val guide = PointPointGuide(startPoint.get,(v : Vector2D) => {
               (Array(LineShape(startPoint.get, v)))
-            },1)//1 : Input type = InputTwoValues
+            },112)
             Start('Input,"com.siigna.module.base.create", guide)
       } } }
         
-      case _ => Start('Input,"com.siigna.module.base.create",1)
+      case _ => Start('Input,"com.siigna.module.base.create",111)
 
     }
   )
