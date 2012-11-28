@@ -359,7 +359,10 @@ class Input extends Module {
  * 16 = Vector2D                    Key input, one-coordinate, offset from existing point when on a track guide
  * 17 = Double                      Key - InputOneValue
  *      End                         All other inputs sends End
- * 
+ *
+ * 111 = Vector2D                   Point at mouseDown, or point by key(absolute - twoValues) or point guided by trackguide (input One value) if a track guide is active.
+ * 112 = Vector2D                   Point at MouseDown, or point by key(relative - two values) or point guided by trackguide (input One value) if a track guide is active.
+ *
  * 102 = mouseDown, with Vector2D   MouseDown (sent after mouseUp received)
  *       mouseUp, with Vector2D     coordinates from mouseDown to mouseUp, Key (absolute - handled by the InputTwoValues module)
  * 1020 = mouseDown, with Vector2D  MouseDown (sent after mouseUp received)
@@ -371,10 +374,7 @@ class Input extends Module {
  *       mouseDown, with Vector2D   mouseDown (sent after mouseUp received)
  * 1031 = Double                    key-input
  *        Vector2D                  Point at mouseDown
- * 111 = Vector2D                   Point at mouseDown, or point by key(absolute - twoValues) or point guided by trackguide (input One value)
- * 112 = Vector2D                   Point at MouseDown, Vector2D by Key if no track guide active (relative - handled by the InputTwoValues module), 
- *                                  or point guided by trackguide (input One value) if a track guide is active.
- *                                  Requires referencepoint (point1) to be set.
+
  * 
  * 
  */
