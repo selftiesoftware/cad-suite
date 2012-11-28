@@ -60,7 +60,7 @@ class Input extends Module {
     'Start -> {
       //if InputTwoValue returns a vector, return it to the calling module:
       case End(p : Vector2D) :: tail => {
-        if (inputType == Some(1) || inputType == Some(2) || inputType == Some(111)) {
+        if (inputType == Some(1) || inputType == Some(2) || inputType == Some(111) ) {
           End(p)
         } else if (inputType == Some(102) || inputType == Some(1020)) {
           End(MouseUp(p,MouseButtonLeft,ModifierKeys(false,false,false)))
@@ -72,7 +72,9 @@ class Input extends Module {
       }
       //if a single value is returned from InputOneValue or InputAngle, return it to the calling module:
       case End(s : Double) :: tail => {
-        if (inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(8) || inputType == Some(9) || inputType == Some(10) || inputType == Some(12) || inputType == Some(13)) {
+        if (inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6)
+          || inputType == Some(7) || inputType == Some(8) || inputType == Some(9) || inputType == Some(10)
+          || inputType == Some(12) || inputType == Some(13)  || inputType == Some(103) || inputType == Some(1031)) {
           End(s)
         } else if (inputType == Some(15)) {
           //End(Vector2D(math.sin(currentSnap.get.degree * math.Pi/180), math.cos(currentSnap.get.degree * math.Pi/180)) * s)
