@@ -255,7 +255,6 @@ class Input extends Module {
           //If it is other keys, the input is interpreted by the input-modules.
           //Any existing guides are forwarded.
         } else if(inputType == Some(1) || inputType == Some(2) || inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021) || (inputType == Some(116) && Track.isTracking == false)) {
-          println("IsTrackong: " + Track.isTracking)
           if (guide == true) guide = false
           if (!sendPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create",sendPointGuide.get)
           else if (!sendDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendDoubleGuide.get)
@@ -280,8 +279,6 @@ class Input extends Module {
         }
       }
       case _ => {
-        println("IsTrackong: " + Track.isTracking)
-
       }
     }
   )
