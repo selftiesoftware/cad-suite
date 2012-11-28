@@ -97,7 +97,7 @@ class Input extends Module {
       //If left mouse button is clicked: End and return mouse-position-point.
       case MouseDown(p,button,modifier)::tail => {
         if (button==MouseButtonLeft) {
-          if (inputType == Some(1) || inputType == Some (11) || inputType == Some (12) || inputType == Some (13) || inputType == Some (15) || inputType == Some(1031)) {
+          if (inputType == Some(1) || inputType == Some (11) || inputType == Some (12) || inputType == Some (13) || inputType == Some (15) || inputType == Some(116) || inputType == Some(1031)) {
             End(p.transform(View.deviceTransformation))
           } else if (inputType == Some(2) || inputType == Some(4) || inputType == Some(6) | inputType == Some(8))  {
             point1 = Some(p)
@@ -282,6 +282,7 @@ class Input extends Module {
     }
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
+    println("I: "+isTracking)
     if (inputType == Some(12) || inputType == Some(1020)) guide = false
     //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
     if ( guide == true) {

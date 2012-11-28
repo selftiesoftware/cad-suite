@@ -15,16 +15,12 @@ import com.siigna._
 
 class TrackToggle extends Module{
 
-  var isTracking : Boolean = true
-
   val stateMap : StateMap = Map(
-
     'Start-> {
       case _ => {
         if (Track.trackEnabled == true) {
           Track.trackEnabled = false
           Siigna display ("track is off")
-          isTracking = false
         }
         else {
           Track.trackEnabled = true
