@@ -41,7 +41,7 @@ class Rectangle extends Module {
 
       case End("no point returned") :: tail => {
           if (points.length == 0) {
-            Start('Point,"com.siigna.module.base.create",1)
+            Start('Point,"com.siigna.module.base.create",116)
           } else {
             val guide = PointGuide((v : Vector2D) => {
               (Array(PolylineShape(Rectangle2D(points(0), v))))
@@ -53,8 +53,9 @@ class Rectangle extends Module {
       case End :: tail => End
      //get the first point
       case _ => {
+        println("UNK")
         if (points.length == 0) {
-          Start('Input,"com.siigna.module.base.create",1)
+          Start('Input,"com.siigna.module.base.create",116)
         } else {
           val guide = PointGuide((v : Vector2D) => {
             (Array(PolylineShape(Rectangle2D(points(0), v))))
