@@ -25,7 +25,8 @@ class InputOneValue extends Module {
 
   var relativeX : Double = 0.0
 
-  var pointGuide : Option[Double => Traversable[Shape]] = None
+  var doubleGuide : Option[Double => Traversable[Shape]] = None
+  var pointGuide : Option[Vector2D => Traversable[Shape]] = None
   var startPoint : Option[Vector2D] = None
   var inputType: Option[Int] = None
 
@@ -34,7 +35,7 @@ class InputOneValue extends Module {
     'Start -> {
 
       case Start(_ ,g: DoubleGuide) :: KeyDown(code, _) :: tail => {
-        pointGuide = Some(g.pointGuide)
+        doubleGuide = Some(g.doubleGuide)
         inputType = Some(g.inputType)
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
@@ -44,7 +45,7 @@ class InputOneValue extends Module {
       }
 
       case Start(_ ,g: PointDoubleGuide) :: KeyDown(code, _) :: tail => {
-        pointGuide = Some(g.doubleGuide)
+        doubleGuide = Some(g.doubleGuide)
         inputType = Some(g.inputType)
         startPoint = Some(g.point1)
         //save the already typed key:
@@ -55,7 +56,17 @@ class InputOneValue extends Module {
       }
 
       case Start(_ ,g: PointPointDoubleGuide) :: KeyDown(code, _) :: tail => {
-        pointGuide = Some(g.doubleGuide)
+        doubleGuide = Some(g.doubleGuide)
+        inputType = Some(g.inputType)
+        //save the already typed key:
+        if (code.toChar.isDigit) coordinateValue += code.toChar
+        if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
+        if (code.toChar.toString == "." && coordinateValue.length() == 0) coordinateValue += code.toChar
+        Siigna display coordinateValue
+      }
+
+      case Start(_ ,g: PointGuide) :: KeyDown(code, _) :: tail => {
+        pointGuide = Some(g.pointGuide)
         inputType = Some(g.inputType)
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
@@ -117,10 +128,13 @@ class InputOneValue extends Module {
   override def paint(g : Graphics, t: TransformationMatrix) {
     //if points are in the process of being typed, then draw the shape dynamically on the basis of what coords are given.
 
-    if(pointGuide.isDefined && coordinateValue.length > 0 && coordinateValue != " " && coordinateValue != "-" && coordinateValue != "." && coordinateValue != "-."){
+    if(doubleGuide.isDefined && coordinateValue.length > 0 && coordinateValue != " " && coordinateValue != "-" && coordinateValue != "." && coordinateValue != "-."){
       val x = java.lang.Double.parseDouble(coordinateValue)
-      if (x != 0 && inputType != Some(116)) pointGuide.foreach(_(x).foreach(s => g.draw(s.transform(t))))
-      //else pointGuide.foreach(_(x).foreach(val xx = Track.getPointFromDistance(s) => g.draw(xx.transform(t))))
+      if (x != 0) doubleGuide.foreach(_(x).foreach(s => g.draw(s.transform(t))))
+    }
+    if(inputType == Some(116) && pointGuide.isDefined && coordinateValue.length > 0 && coordinateValue != " " && coordinateValue != "-" && coordinateValue != "." && coordinateValue != "-."){
+      val x = java.lang.Double.parseDouble(coordinateValue)
+      if (x != 0) pointGuide.foreach(_(Track.getPointFromDistance(x).get).foreach(s => g.draw(s.transform(t))))
     }
   }
 }

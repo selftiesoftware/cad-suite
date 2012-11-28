@@ -75,8 +75,8 @@ class Input extends Module {
         } else if (inputType == Some(15)) {
           //End(Vector2D(math.sin(currentSnap.get.degree * math.Pi/180), math.cos(currentSnap.get.degree * math.Pi/180)) * s)
           End(lengthVector(s))
-        } else if ((inputType == Some(16) || inputType == Some(116))&& isTracking == true) {
-          End(Track.getPointFromDistance(s))
+        } else if ((inputType == Some(16) || inputType == Some(116)) && Track.isTracking == true) {
+          End(Track.getPointFromDistance(s).get)
         }
       }
 
@@ -97,7 +97,7 @@ class Input extends Module {
       //If left mouse button is clicked: End and return mouse-position-point.
       case MouseDown(p,button,modifier)::tail => {
         if (button==MouseButtonLeft) {
-          if (inputType == Some(1) || inputType == Some (11) || inputType == Some (12) || inputType == Some (13) || inputType == Some (15) || inputType == Some(1031)) {
+          if (inputType == Some(1) || inputType == Some (11) || inputType == Some (12) || inputType == Some (13) || inputType == Some (15) || inputType == Some (116) || inputType == Some(1031)) {
             End(p.transform(View.deviceTransformation))
           } else if (inputType == Some(2) || inputType == Some(4) || inputType == Some(6) | inputType == Some(8))  {
             point1 = Some(p)
@@ -179,7 +179,7 @@ class Input extends Module {
       // Check for DoubleGuide - retrieve only the guide, no reference point.
       //Returns coordinate difference from mouseDown to Mouse UP, or key-entries.
       case Start(_ ,g : DoubleGuide) :: tail => {
-        doubleGuide = Some(g.pointGuide)
+        doubleGuide = Some(g.doubleGuide)
         inputType = Some(g.inputType)
         sendDoubleGuide = Some(g)
         //Paint nothing, yet - not until the first click...
@@ -228,6 +228,7 @@ class Input extends Module {
 
       //If there is no guide, only the input type needs to be retrieved
       case Start(_,inp: Int) :: tail => {
+        println("INP rec." + inp)
         inputType = Some(inp)
       }
 
@@ -253,7 +254,8 @@ class Input extends Module {
 
           //If it is other keys, the input is interpreted by the input-modules.
           //Any existing guides are forwarded.
-        } else if(inputType == Some(1) || inputType == Some(2) || inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021) || (inputType == Some(116) && isTracking == false)) {
+        } else if(inputType == Some(1) || inputType == Some(2) || inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021) || (inputType == Some(116) && Track.isTracking == false)) {
+          println("IsTrackong: " + Track.isTracking)
           if (guide == true) guide = false
           if (!sendPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create",sendPointGuide.get)
           else if (!sendDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendDoubleGuide.get)
@@ -278,6 +280,8 @@ class Input extends Module {
         }
       }
       case _ => {
+        println("IsTrackong: " + Track.isTracking)
+
       }
     }
   )
@@ -356,7 +360,7 @@ class Input extends Module {
 case class PointGuide(pointGuide : Vector2D => Traversable[Shape] , inputType : Int)
 
 //The basic double guide - a double is the base for the shapes
-case class DoubleGuide(pointGuide : Double => Traversable[Shape] , inputType : Int)
+case class DoubleGuide(doubleGuide : Double => Traversable[Shape] , inputType : Int)
 
 //A point and a point guide - a vector2D delivered along a basic point guide,
 // for use when the guide needs to relate to a fixed point
