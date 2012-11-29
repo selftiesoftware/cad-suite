@@ -89,6 +89,7 @@ class ModuleInit extends Module {
       //double click anywhere on a shape selects the full shape.
       case  MouseDown(p2, button, modifier) :: MouseUp(p1 ,MouseButtonLeft , _) :: tail => {
         if (p1 == p2){
+          println("A")
           Start('Selection, "com.siigna.module.base", MouseDouble(p2,button,modifier))
         } }
 
@@ -97,9 +98,7 @@ class ModuleInit extends Module {
       // TODO: or if the click was away from the selection:
       case MouseDown(p, MouseButtonLeft, modifier) :: tail => {
         //Check if there is a useable selection:
-        if (usableSelectionExists == false) {
-          Start('Selection, "com.siigna.module.base", MouseDown(p, MouseButtonLeft, modifier))
-        }
+        Start('Selection, "com.siigna.module.base", MouseDown(p, MouseButtonLeft, modifier))
       }
 
       //Leftclick and drag starts :
