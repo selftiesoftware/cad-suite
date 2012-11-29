@@ -61,12 +61,11 @@ class Selection extends Module {
         if (Drawing(m).size > 0) {
           val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
 
-
-          println("DIST to nearest: "+nearest._2.distanceTo(m))
-          println("sel dist: "+Siigna.selectionDistance)
+          println("DIST to nearest OUTSIDE: "+nearest._2.distanceTo(m))
 
           if (nearest._2.distanceTo(m) < Siigna.selectionDistance) {
-            println("IN RANGE A")
+            println("NEAREST DISTANCE TO MOUSE: "+nearest._2.distanceTo(m))
+            println("SEL DIST IN SELECTION: "+Siigna.selectionDistance)
             nearestShape = Some(nearest)
           } else nearestShape = None
         }

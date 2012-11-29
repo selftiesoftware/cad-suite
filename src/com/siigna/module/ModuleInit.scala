@@ -131,7 +131,6 @@ class ModuleInit extends Module {
           println("Insert delete module here")
 
           //TODO: clear guides
-
           Delete(Drawing.selection.get.self)
         }
       }
