@@ -29,6 +29,7 @@ class Selection extends Module {
 
   // The starting point of the rectangle
   private var startPoint : Option[Vector2D] = None
+  private var zoom : Double = View.zoom
 
   def hasFullShape = {
     if (!nearestShape.isEmpty) {
@@ -40,8 +41,6 @@ class Selection extends Module {
     if (!nearestShape.isEmpty) {
       val shape = nearestShape.get
       val part = shape._2.getPart(mousePosition.transform(View.deviceTransformation))
-      println("SHAPE: "+shape)
-      println("PART: "+part)
       Drawing.select(shape._1, part)
     }
   }
@@ -57,20 +56,17 @@ class Selection extends Module {
       //if ModuleInit forwards to selection with a left mouse click
       // If a shape-part is hit, it is selected:
       case Start(_ ,message : MouseDown) :: tail => {
-        println("B")
-        val m = mousePosition.transform(View.deviceTransformation)
+        val m = mousePosition.transform(View.deviceTransformation) * zoom
+        println("A: "+mousePosition.transform(View.deviceTransformation))
+        println("B: "+m)
         //find the shape closest to the mouse:
         if (Drawing(m).size > 0) {
           val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
 
-          //println("DIST to nearest OUTSIDE: "+nearest._2.distanceTo(m))
+          println("A: NEAREST DISTANCE TO MOUSE: "+ (nearest._2.distanceTo(m)) * (1/zoom))
 
-          if (nearest._2.distanceTo(m) < Siigna.selectionDistance) {
-            println("NEAREST DISTANCE TO MOUSE: "+nearest._2.distanceTo(m))
-            println("SEL DIST IN SELECTION: "+Siigna.selectionDistance)
-            println("nearest SET")
-            nearestShape = Some(nearest)
-          } else nearestShape = None
+
+          nearestShape = if (nearest._2.distanceTo(m) < Siigna.double("selectionDistance").get) Some(nearest) else None
         }
         if (!nearestShape.isEmpty) hasPartShape
         End
@@ -81,11 +77,11 @@ class Selection extends Module {
       // 2: If not a shape-part is hit, a drag box is initiated:
       case Start(_,message : MouseDrag) :: tail => {
         val m = mousePosition.transform(View.deviceTransformation)
+
         //find the shape closest to the mouse:
         if (Drawing(m).size > 0) {
           val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-          if (nearest._2.distanceTo(m) < Siigna.selectionDistance) {
-            println("IN RANGE B")
+          if (nearest._2.distanceTo(m)  * zoom < Siigna.double("selectionDistance").get) {
             nearestShape = Some(nearest)
           } else nearestShape = None
         }
@@ -103,9 +99,9 @@ class Selection extends Module {
           val m = mousePosition.transform(View.deviceTransformation)
           //find the shape closest to the mouse:
           if (Drawing(m).size > 0) {
-
+            println("BB")
             val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-            nearestShape = if (nearest._2.distanceTo(m) < Siigna.selectionDistance) Some(nearest) else None
+            nearestShape = if (nearest._2.distanceTo(m)  * zoom < Siigna.double("selectionDistance").get) Some(nearest) else None
           }
           //If a nearest shape was found, this is selected
           if (!nearestShape.isEmpty) {
@@ -151,7 +147,7 @@ class Selection extends Module {
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    println("NEAREST IN PAINT: "+nearestShape)
+
     //println("ZOOM: "+View.zoom)
     //println("sel distance: "+Siigna.selectionDistance)
     //println("selection distance: "+Siigna.selectionDistance)
