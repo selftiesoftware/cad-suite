@@ -55,7 +55,10 @@ class Copy extends Module {
 
       case End(f : Double) :: tail => {
         if (multiActive == true && endPoint.isDefined){
-          for (i <- 0 to f.toInt) {
+          var g: Double = f
+          if (g == 0) g = 1
+          if (g < 0) g = math.abs(g)
+          for (i <- 1 to g.toInt) {
             Create(shapes.get.apply(TransformationMatrix(Vector2D((endPoint.get.x - startPoint.get.x) * i, (endPoint.get.y - startPoint.get.y) * i), 1)))
           }
         }
