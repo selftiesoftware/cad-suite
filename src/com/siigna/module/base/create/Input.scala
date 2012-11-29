@@ -60,7 +60,7 @@ class Input extends Module {
     'Start -> {
       //if InputTwoValue returns a vector, return it to the calling module:
       case End(p : Vector2D) :: tail => {
-        if (inputType == Some(1) || inputType == Some(2) || inputType == Some(111)) {
+        if (inputType == Some(1) || inputType == Some(2) || inputType == Some(111) ) {
           End(p)
         } else if (inputType == Some(102) || inputType == Some(1020)) {
           End(MouseUp(p,MouseButtonLeft,ModifierKeys(false,false,false)))
@@ -68,11 +68,16 @@ class Input extends Module {
           End(MouseDown(p,MouseButtonLeft,ModifierKeys(false,false,false)))
         } else if (inputType == Some(112)) {
           End(point1.get + p)
+        } else if (inputType == Some(17)) {
+          End
         }
       }
       //if a single value is returned from InputOneValue or InputAngle, return it to the calling module:
       case End(s : Double) :: tail => {
-        if (inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(8) || inputType == Some(9) || inputType == Some(10) || inputType == Some(12) || inputType == Some(13)) {
+        if (inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6)
+          || inputType == Some(7) || inputType == Some(8) || inputType == Some(9) || inputType == Some(10)
+          || inputType == Some(12) || inputType == Some(13) || inputType == Some(17) || inputType == Some(103) 
+          || inputType == Some(1031)) {
           End(s)
         } else if (inputType == Some(15)) {
           //End(Vector2D(math.sin(currentSnap.get.degree * math.Pi/180), math.cos(currentSnap.get.degree * math.Pi/180)) * s)
@@ -118,16 +123,24 @@ class Input extends Module {
             End(p.transform(View.deviceTransformation).x)
           } else if (inputType == Some(7)) {
             End(p.transform(View.deviceTransformation).y)
-          } else if (inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021) || inputType == Some(103))  {
+          } else if (inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021) 
+            || inputType == Some(103))  {
             //The mouseDown is saved as point1, if it does not already exist
             //If there is a mouseUp later, on the same point, the point is returned as a mouseDown (happens in mouseUp-part)
             if (point1.isEmpty) point1 = Some(p)
             //Start drawing the guide - necessary if it will be dragged.
             if (guide == false) guide = true
+          } else if (inputType == Some(17)) {
+            End
           }
+        //Right mouse button:
         } else {
-          // In all other cases, where it is not left mouse button, the mouseDown is returned
+          if (inputType == Some(17)) {
+            End
+          } else { 
+            // In all other cases, where it is not left mouse button, the mouseDown is returned
           End(MouseDown(p.transform(View.deviceTransformation),button,modifier))
+          }
         }
       }
 
@@ -231,7 +244,6 @@ class Input extends Module {
 
       //If there is no guide, only the input type needs to be retrieved
       case Start(_,inp: Int) :: tail => {
-        println("INP rec." + inp)
         inputType = Some(inp)
       }
 
@@ -269,8 +281,8 @@ class Input extends Module {
           else Start('InputTwoValues,"com.siigna.module.base.create")
         } else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) 
                   || inputType == Some(7) || inputType == Some(8) || inputType == Some(10) || inputType == Some(12) 
-                  || inputType == Some(13) || inputType == Some(15) || inputType == Some(16) || inputType == Some(103) 
-                  || inputType == Some(111) || inputType == Some(112) || inputType == Some(1031)) {
+                  || inputType == Some(13) || inputType == Some(15) || inputType == Some(16) || inputType == Some(17)
+                  || inputType == Some(103)    || inputType == Some(111) || inputType == Some(112) || inputType == Some(1031)) {
           if (guide == true) guide = false
           if (!sendPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create",sendPointGuide.get)
           else if (!sendDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendDoubleGuide.get)
@@ -345,8 +357,12 @@ class Input extends Module {
  * 14 = String                      Key input, text
  * 15 = Vector2D                    AngleGizmo-controlled MouseDown, or defined by distance from start point on AngleGizmo defined radian (inputOneValue)
  * 16 = Vector2D                    Key input, one-coordinate, offset from existing point when on a track guide
+ * 17 = Double                      Key - InputOneValue
+ *      End                         All other inputs sends End
  *
- * 
+ * 111 = Vector2D                   Point at mouseDown, or point by key(absolute - twoValues) or point guided by trackguide (input One value) if a track guide is active.
+ * 112 = Vector2D                   Point at MouseDown, or point by key(relative - two values) or point guided by trackguide (input One value) if a track guide is active.
+ *
  * 102 = mouseDown, with Vector2D   MouseDown (sent after mouseUp received)
  *       mouseUp, with Vector2D     coordinates from mouseDown to mouseUp, Key (absolute - handled by the InputTwoValues module)
  * 1020 = mouseDown, with Vector2D  MouseDown (sent after mouseUp received)
@@ -358,10 +374,7 @@ class Input extends Module {
  *       mouseDown, with Vector2D   mouseDown (sent after mouseUp received)
  * 1031 = Double                    key-input
  *        Vector2D                  Point at mouseDown
- * 111 = Vector2D                   Point at mouseDown, or point by key(absolute - twoValues) or point guided by trackguide (input One value)
- * 112 = Vector2D                   Point at MouseDown, Vector2D by Key if no track guide active (relative - handled by the InputTwoValues module), 
- *                                  or point guided by trackguide (input One value) if a track guide is active.
- *                                  Requires referencepoint (point1) to be set.
+
  * 
  * 
  */
