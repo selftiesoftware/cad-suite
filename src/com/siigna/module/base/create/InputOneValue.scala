@@ -35,13 +35,17 @@ class InputOneValue extends Module {
     'Start -> {
 
       case Start(_ ,g: DoubleGuide) :: KeyDown(code, _) :: tail => {
-        doubleGuide = Some(g.doubleGuide)
-        inputType = Some(g.inputType)
-        //save the already typed key:
-        if (code.toChar.isDigit) coordinateValue += code.toChar
-        if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
-        if (code.toChar.toString == "." && coordinateValue.length() == 0) coordinateValue += code.toChar
-        Siigna display coordinateValue
+        //Ends if enter was pressed...
+        if (code == Key.enter) {
+          End(0.0)
+        //Othervise it starts:
+        } else if (code.toChar.isDigit || code.toChar.toString == "-" || code.toChar.toString == ".") {
+          coordinateValue += code.toChar
+          doubleGuide = Some(g.doubleGuide)
+          inputType = Some(g.inputType)
+
+          Siigna display coordinateValue
+        }
       }
 
       case Start(_ ,g: PointDoubleGuide) :: KeyDown(code, _) :: tail => {
