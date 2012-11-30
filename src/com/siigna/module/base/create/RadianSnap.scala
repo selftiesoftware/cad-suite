@@ -20,7 +20,7 @@ import collection.parallel.immutable.ParIterable
  */
 class RadianSnap(p: Vector2D, radian : Double) extends EventSnap{
 
-  def parse(event : Event, model : Map[Int, Shape]) = event match {
+  def parse(event : Event, model : Traversable[Shape]) = event match {
     case MouseMove(point, a, b) => MouseMove(snapToRadian(point), a, b)
     case some => {
       some
