@@ -22,8 +22,8 @@ class Input extends Module {
 
   //VARS declaration:
   private var currentSnap : Option[AngleSnap] = None
-  private var decimalValue : Boolean = false
   private var guide : Boolean = true
+  private var guideKeepGuideOff: Boolean = true
   private var inputType : Option[Int] = None
 
   private var point1 : Option[Vector2D] = None
@@ -109,8 +109,8 @@ class Input extends Module {
             End(p.transform(View.deviceTransformation))
           } else if (inputType == Some(2) || inputType == Some(4) || inputType == Some(6) | inputType == Some(8))  {
             point1 = Some(p)
-            //Start painting, if it has been turned off (point guide)
-            if (guide == false) guide = true
+            //Start painting, if it has been turned off
+            if (guideKeepGuideOff == true) guideKeepGuideOff = false
           } else if (inputType == Some(3))  {
             //Type is distance from start point, returned as double
             val startPointX = point1.get.x
@@ -129,7 +129,7 @@ class Input extends Module {
             //If there is a mouseUp later, on the same point, the point is returned as a mouseDown (happens in mouseUp-part)
             if (point1.isEmpty) point1 = Some(p)
             //Start drawing the guide - necessary if it will be dragged.
-            if (guide == false) guide = true
+            if (guideKeepGuideOff == true) guideKeepGuideOff = false
           } else if (inputType == Some(17)) {
             End
           }
@@ -188,8 +188,6 @@ class Input extends Module {
         pointGuide = Some(g.pointGuide)
         inputType = Some(g.inputType)
         sendPointGuide = Some(g)
-        //Paint nothing, yet - not until the first click...
-        //guide = false
       }
 
       // Check for DoubleGuide - retrieve only the guide, no reference point.
@@ -198,8 +196,6 @@ class Input extends Module {
         doubleGuide = Some(g.doubleGuide)
         inputType = Some(g.inputType)
         sendDoubleGuide = Some(g)
-        //Paint nothing, yet - not until the first click...
-        //guide = false
       }
 
       // Check for PointPointGuide - retrieve both the guide and its reference point, if it is defined.
@@ -303,7 +299,11 @@ class Input extends Module {
     }
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
-    if (inputType == Some(12) || inputType == Some(1020)) guide = false
+    if (inputType == Some(12)) guide = false
+    if (inputType == Some(1020)) {
+      if (guideKeepGuideOff == true) guide = false
+      else guide = true
+    }
     //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
     if ( guide == true) {
       //If a point is the desired return, x and y-coordinates are used in the guide
@@ -368,7 +368,7 @@ class Input extends Module {
  *       mouseUp, with Vector2D     coordinates from mouseDown to mouseUp, Key (absolute - handled by the InputTwoValues module)
  * 1020 = mouseDown, with Vector2D  MouseDown (sent after mouseUp received)
  *        mouseUp, with Vector2D    coordinates from mouseDown to mouseUp, Key (absolute - handled by the InputTwoValues module)
- *        Special guide:            Do not draw guide
+ *        Special guide:            Do not draw guide in input until left mouse button is clicked.
  * 1021 = mouseDown, with Vector2D  MouseDown (sent after mouseUp received), Key (absolute - handled by the InputTwoValues module)
  *       mouseUp, with Vector2D     coordinates from mouseDown to mouseUp
  * 103 = Double                     Length of vector from mouseDown to mouseUp, or key-input
