@@ -60,7 +60,7 @@ class Selection extends Module {
         //find the shape closest to the mouse:
         if (Drawing(m).size > 0) {
           val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-          nearestShape = if (nearest._2.distanceTo(m) < Siigna.double("selectionDistance").get) Some(nearest) else None
+          nearestShape = if (nearest._2.distanceTo(m) < Siigna.selectionDistance) Some(nearest) else None
         }
         if (!nearestShape.isEmpty) hasPartShape
         End
@@ -75,7 +75,7 @@ class Selection extends Module {
         //find the shape closest to the mouse:
         if (Drawing(m).size > 0) {
           val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-          if (nearest._2.distanceTo(m) < Siigna.double("selectionDistance").get) {
+          if (nearest._2.distanceTo(m) < Siigna.selectionDistance) {
             nearestShape = Some(nearest)
           } else nearestShape = None
         }
@@ -94,7 +94,7 @@ class Selection extends Module {
           //find the shape closest to the mouse:
           if (Drawing(m).size > 0) {
             val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-            nearestShape = if (nearest._2.distanceTo(m) < Siigna.double("selectionDistance").get) Some(nearest) else None
+            nearestShape = if (nearest._2.distanceTo(m) < Siigna.selectionDistance) Some(nearest) else None
           }
           //If a nearest shape was found, this is selected
           if (!nearestShape.isEmpty) {
