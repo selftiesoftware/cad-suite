@@ -22,7 +22,9 @@ class Polyline extends Module {
   var startPoint: Option[Vector2D] = None
   private var points   = List[Vector2D]()
   var attributes : Attributes = Attributes()
-  def set(name : String, attr : String) = Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
+  def set(name : String, attr : String) {
+    Siigna.get(name).foreach((p : Any) => attributes = attributes + (attr -> p))
+  }
 
   def setAttribute[T : Manifest](name:String, shape:Shape) = {
     Siigna.get(name) match {
@@ -30,9 +32,6 @@ class Polyline extends Module {
       case None => shape// Option isn't set. Do nothing
     }
   }
-
-  // The polylineshape so far
-  private var shape : Option[PolylineShape] = None
 
   val stateMap: StateMap = Map(
     'Start -> {
@@ -124,9 +123,9 @@ class Polyline extends Module {
           Create(polyline)
         }
         //The module closes - even if no polyline was drawn.
-      startPoint = None
-      points = List()
-      End
+        startPoint = None
+        points = List()
+        End
       }
       case x => {
         Start('Input,"com.siigna.module.base.create",1)
