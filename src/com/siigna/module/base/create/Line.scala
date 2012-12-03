@@ -12,7 +12,6 @@
 package com.siigna.module.base.create
 
 import com.siigna._
-import app.controller.Controller
 import app.Siigna
 import java.awt.Color
 
