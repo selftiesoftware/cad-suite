@@ -205,6 +205,8 @@ class Input extends Module {
         sendPointPointGuide = Some(g)
         point1 = Some(g.point1)
         eventParser.snapTo(() => g.pointGuide(mousePosition))
+        //eventParser.trackTo(() => g.pointGuide(mousePosition))
+
       }
 
       // Check for PointDoubleGuide - retrieve both the guide and its reference point, if it is defined.
