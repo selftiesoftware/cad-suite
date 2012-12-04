@@ -110,7 +110,7 @@ class ModuleInit extends Module {
           val m = p.transform(View.deviceTransformation)
           if (Drawing(m).size > 0) {
             val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-            if (nearest._2.distanceTo(m) < Siigna.double("selectionDistance").get) {
+            if (nearest._2.distanceTo(m) < Siigna.selectionDistance) {
             Start('Move, "com.siigna.module.base.modify", p )
             } else {
             Start('Selection, "com.siigna.module.base", MouseDrag(p, button, modifier))
