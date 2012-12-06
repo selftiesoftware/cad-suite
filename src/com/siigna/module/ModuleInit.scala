@@ -130,6 +130,7 @@ class ModuleInit extends Module {
         }
       }
 
+      //shortcuts
       case KeyDown('c', _) :: KeyUp('p', _) :: tail => {
         Start('Colors, "com.siigna.module.base.properties")
       }

@@ -45,23 +45,19 @@ class Text extends Module {
 
       case End(p : Vector2D) :: tail => {
         position = Some(p)
-        val guide: TextGuide = TextGuide((s: String) => Traversable(TextShape(s + " ", p,  scale * (Siigna.paperScale + 1))),14)
-
+        val guide: TextGuide = TextGuide((s: String) => Traversable(TextShape(s + " ", p,  scale * (Siigna.paperScale + 1))),9)
         Start('Input,"com.siigna.module.base.create", guide)
-        //Input type 14: Text by key input
       }
 
-        case End(s : String) :: tail => {
-          if (s.length > 0) {
-            //move the text so that the lower left corner is located at the starting position
-            val textPosition = position.get
-            shape = Some(TextShape(s + " ", textPosition, scale * (Siigna.paperScale + 1), attributes))
-            println("Tect shape: " + shape)
-            Create(shape.get)
-            End
-          }
+      case End(s : String) :: tail => {
+        if (s.length > 0) {
+          //move the text so that the lower left corner is located at the starting position
+          val textPosition = position.get
+          shape = Some(TextShape(s + " ", textPosition, scale * (Siigna.paperScale + 1), attributes))
+          Create(shape.get)
+          End
+        }
       }
-
 
       case _ => {
         Siigna.display("click to set text")
