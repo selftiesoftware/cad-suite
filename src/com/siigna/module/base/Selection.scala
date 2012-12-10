@@ -25,7 +25,7 @@ class Selection extends Module {
 
   var nearestShape : Option[(Int, Shape)] = None
 
-  private var selectFullyEnclosed : Boolean = false
+  private var selectEntireShape : Boolean = false
 
   // The starting point of the rectangle
   private var startPoint : Option[Vector2D] = None
@@ -110,25 +110,26 @@ class Selection extends Module {
 
     'Box -> {
       case MouseDrag(p, _, _) :: tail => {
-        //Drawing selection box from RIGHT TO LEFT selects all the shapes that intersect the box
-        // from LEFT TO RIGHT only the shapes that are fully enclosed in the box are selected:,
+        //Dragging a selection box from LEFT TO RIGHT: ONLY shapes that are fully enclosed in the box are selected.
         if(startPoint.get.x < p.x) {
-          println("AA")
-          selectFullyEnclosed = true
+          selectEntireShape = false
           box = Some(Rectangle2D(startPoint.get, p))
         }
+        //Dragging from RIGHT TO LEFT selects all the shapes that intersect the box
         else {
-          selectFullyEnclosed = false
+          selectEntireShape = true
           box = Some(Rectangle2D(startPoint.get, p))
         }
       }
       case MouseUp(p, _, _) :: tail => {
-        if (box.isDefined && selectFullyEnclosed == true) {
+        if (box.isDefined && selectEntireShape == true) {
+
           Select(box.get.transform(View.deviceTransformation), true)
 
         }
         //if the selection is drawn from right to left, select partially enclosed shapes as well.:
-        else if (box.isDefined && selectFullyEnclosed == false) {
+        else if (box.isDefined && selectEntireShape == false) {
+          println("no not select entire shape. going to selection")
           Select(box.get.transform(View.deviceTransformation), false)
         }
         End
