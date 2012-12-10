@@ -45,7 +45,7 @@ class Polyline extends Module {
 
           val guide = PointPointGuide(v, (v : Vector2D) => {
             (Array(PolylineShape(startPoint.get, v)))
-          },1)//1 : Input type = InputTwoValues
+          },112)//1 : Input type = InputTwoValues
 
           Start('Input,"com.siigna.module.base.create", guide)
         } else {
@@ -56,7 +56,7 @@ class Polyline extends Module {
           //})
           val guide = PointPointGuide(v, (v : Vector2D) => {
             (Array(PolylineShape(points :+ v)))
-          },1)//1 : Input type = InputTwoValues
+          },112)//1 : Input type = InputTwoValues
           Start('Input,"com.siigna.module.base.create", guide)
         }
       }
@@ -70,14 +70,14 @@ class Polyline extends Module {
 
           val guide = PointPointGuide(startPoint.get, (v : Vector2D) => {
             (Array(PolylineShape(startPoint.get, v)))
-          },1)//1 : Input type = InputTwoValues
+          },112)//1 : Input type = InputTwoValues
 
           Start('Input,"com.siigna.module.base.create", guide)
         } else {
 
           val guide = PointPointGuide(points.last, (v : Vector2D) => {
             (Array(PolylineShape(points :+ v)))
-          },1)//1 : Input type = InputTwoValues
+          },112)//1 : Input type = InputTwoValues
           Start('Input,"com.siigna.module.base.create", guide)
         }
       }
@@ -95,7 +95,7 @@ class Polyline extends Module {
           if (startPoint.isDefined) {
             val guide : PointPointGuide = PointPointGuide(points.last, (v : Vector2D) => {
               Array(PolylineShape(points :+ v))
-            },1) //1 : Input type = InputTwoValues
+            },112) //1 : Input type = InputTwoValues
             Start('Input,"com.siigna.module.base.create", guide)
           } else {
             //If not, point is started without guide.
