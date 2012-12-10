@@ -122,20 +122,12 @@ class Selection extends Module {
         }
       }
       case MouseUp(p, _, _) :: tail => {
-        if (box.isDefined && selectEntireShape == true) {
-
-          Select(box.get.transform(View.deviceTransformation), true)
-
-        }
-        //if the selection is drawn from right to left, select partially enclosed shapes as well.:
-        else if (box.isDefined && selectEntireShape == false) {
-          println("no not select entire shape. going to selection")
-          Select(box.get.transform(View.deviceTransformation), false)
-        }
+        if (box.isDefined && selectEntireShape == true) Select(box.get.transform(View.deviceTransformation), true)
+        else if (box.isDefined && selectEntireShape == false) Select(box.get.transform(View.deviceTransformation), false)
         End
       }
       case e => {
-        println("Box ending: DO NOT TRY TO BOX-SELECT LINES, ARCS OR TEXT!!! " + e)
+        println("Box ending: cannot select this...")
         End
       }
     }
