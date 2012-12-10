@@ -13,7 +13,6 @@ package com.siigna.module.base.create
 
 import com.siigna._
 import app.Siigna
-import java.awt.Color
 
 class Polyline extends Module {
 
@@ -98,8 +97,6 @@ class Polyline extends Module {
         }}
 
       case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
-        println("A: "+Siigna.activeLineWeight)
-
         val polyline = PolylineShape(points).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight)
         Create(polyline)
         End
@@ -108,7 +105,6 @@ class Polyline extends Module {
       case End :: tail => {
         //If there are two or more points in the polyline, it can be saved to the Siigna universe.
         if (points.length > 1) {
-          println(Siigna.activeLineWeight)
           val polyline = PolylineShape(points).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight)
           Create(polyline)
         }

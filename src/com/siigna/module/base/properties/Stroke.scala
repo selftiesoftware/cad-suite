@@ -13,7 +13,6 @@ package com.siigna.module.base.properties
 
 import com.siigna.app.view.Graphics
 import com.siigna._
-import com.siigna.module.base.Menu
 import java.awt.Color
 
 /**
@@ -23,7 +22,7 @@ import java.awt.Color
 
 class Stroke extends Module {
 
-  var activeLine : Double = 0
+  var activeLine : Option[Double] = None
 
   //TODO: make this dynamic so that each line is drawn by the same function, only changing the .
   //a list of the possible lines
@@ -87,34 +86,31 @@ class Stroke extends Module {
     },
     'Interaction -> {
 
-        case MouseDown(point, MouseButtonRight, _) :: tail => End
+      case MouseDown(point, MouseButtonRight, _) :: tail => End
 
-        //selects the color to use
-        case MouseDown(point, MouseButtonLeft, _) :: tail => {
+      //selects the color to use
+      case MouseDown(point, MouseButtonLeft, _) :: tail => {
 
-          var activeAngle = getActiveAngle(View.center,mousePosition)
+        var activeAngle = getActiveAngle(View.center,mousePosition)
 
-          if (activeAngle == 180) {activeLine = line0}
-          else if (activeAngle == 210) {activeLine = line30}
-          else if (activeAngle == 24) {activeLine = line60}
-          else if (activeAngle == 270) {activeLine = line90}
-          else if (activeAngle == 300) {activeLine = line120}
-          else if (activeAngle == 330) {activeLine = line150}
-          else if (activeAngle ==   0) {activeLine = line180}
-          else if (activeAngle ==  30) {activeLine = line210}
-          else if (activeAngle ==  60) {activeLine = line240}
-          else if (activeAngle ==  90) {activeLine = line270}
-          else if (activeAngle == 120) {activeLine = line300}
-          else if (activeAngle == 150) {activeLine = line330}
+        if (activeAngle == 180) {activeLine = Some(line0)}
+        else if (activeAngle == 210) {activeLine = Some(line30)}
+        else if (activeAngle == 24) {activeLine = Some(line60)}
+        else if (activeAngle == 270) {activeLine = Some(line90)}
+        else if (activeAngle == 300) {activeLine = Some(line120)}
+        else if (activeAngle == 330) {activeLine = Some(line150)}
+        else if (activeAngle ==   0) {activeLine = Some(line180)}
+        else if (activeAngle ==  30) {activeLine = Some(line210)}
+        else if (activeAngle ==  60) {activeLine = Some(line240)}
+        else if (activeAngle ==  90) {activeLine = Some(line270)}
+        else if (activeAngle == 120) {activeLine = Some(line300)}
+        else if (activeAngle == 150) {activeLine = Some(line330)}
 
-        }
-      //if no objects are selected, make the chosen lineWeight the default lineWeight
-      if(Drawing.selection.isEmpty) {
-        Siigna.activeLineWeight = activeLine
       }
+      if(activeLine.isDefined) Siigna.activeLineWeight = activeLine.get
       //if a selection is defined, change lineweight of the selected shapes and deselect them.
-      else {
-        Drawing.selection.foreach(s => s.addAttribute("StrokeWidth" -> activeLine))
+      if(!Drawing.selection.isEmpty) {
+        Drawing.selection.foreach(s => s.addAttributes("StrokeWidth" -> activeLine.get, "Color" -> Siigna.activeColor))
         Drawing.deselect()
       }
 
