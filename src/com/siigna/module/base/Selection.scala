@@ -110,9 +110,10 @@ class Selection extends Module {
 
     'Box -> {
       case MouseDrag(p, _, _) :: tail => {
-        //Drawing selection box from one side selects all the shapes that "touches" the box
-        // from the other only the shapes that are wholly inside the box:,
+        //Drawing selection box from RIGHT TO LEFT selects all the shapes that intersect the box
+        // from LEFT TO RIGHT only the shapes that are fully enclosed in the box are selected:,
         if(startPoint.get.x < p.x) {
+          println("AA")
           selectFullyEnclosed = true
           box = Some(Rectangle2D(startPoint.get, p))
         }
@@ -134,6 +135,7 @@ class Selection extends Module {
       }
       case e => {
         println("Box ending: DO NOT TRY TO BOX-SELECT LINES, ARCS OR TEXT!!! " + e)
+        End
       }
     }
   )
@@ -142,7 +144,7 @@ class Selection extends Module {
 
     //println("ZOOM: "+View.zoom)
     //println("sel distance: "+Siigna.selectionDistance)
-    println("selection distance: "+Siigna.selectionDistance)
+    //println("selection distance: "+Siigna.selectionDistance)
 
     val enclosed = "Color" -> "#9999FF".color
     val focused  = "Color" -> "#FF9999".color
