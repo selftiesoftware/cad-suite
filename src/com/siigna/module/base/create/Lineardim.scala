@@ -15,12 +15,14 @@ package com.siigna.module.base.create
 
 import com.siigna._
 import com.siigna.module.ModuleInit
+import java.awt.Color
 
 class Lineardim extends Module {
 
   var currentMouse : Option[Vector2D] = None
 
-  val color = "Color" -> "#666666".color
+  val color = "Color" -> new Color(0.15f, 0.15f, 0.15f, 1.00f)
+  val colorBlack = "Color" -> new Color(0.00f, 0.00f, 0.00f, 1.00f)
 
   def diaMark(point : Vector2D) = if (hasBothPoints)
       Some(LineShape((diaRotation1.get + point + normalUnitVector2D(points(0),points(1)) * scale * offsetDistance),
@@ -146,8 +148,8 @@ class Lineardim extends Module {
             shapeB.get.setAttributes(color, "StrokeWidth" -> 0.25),
             normalShape1.get.setAttributes(color, "StrokeWidth" -> 0.25),
             normalShape2.get.setAttributes(color, "StrokeWidth" -> 0.25),
-            diaMark1.get.setAttributes("Color" -> "#777777".color, "StrokeWidth" -> 1.6),
-            diaMark2.get.setAttributes("Color" -> "#777777".color, "StrokeWidth" -> 1.6),
+            diaMark1.get.setAttributes(colorBlack, "StrokeWidth" -> 1.6),
+            diaMark2.get.setAttributes(colorBlack, "StrokeWidth" -> 1.6),
             dimText.get.setAttribute(color)
           )
          End

@@ -30,7 +30,6 @@ class ModuleInit extends Module {
 
   //The nearest shape to the current mouse position.
   var nearestShape : Option[(Int, Shape)] = None
-  val headerShapes = paperHeader
 
   //Check if there is a useable selection:
   // TODO: Make a more elegant way to check for usable selection - in mainline?
@@ -152,6 +151,9 @@ class ModuleInit extends Module {
     }
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
+
+    val headerShapes = new paperHeader
+
     //val transformation = headerShapes.transformation
     val scale = headerShapes.scale
     //val unitX = headerShapes.unitX(4)

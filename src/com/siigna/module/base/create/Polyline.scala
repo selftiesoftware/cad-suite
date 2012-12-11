@@ -16,16 +16,13 @@ import app.Siigna
 
 class Polyline extends Module {
 
-  val color = Siigna.activeColor
+  println(Siigna.color("activeColor"))
+  println(Siigna.double("activeLineWidth"))
+
+  var color = Siigna.color("activeColor")
+  val lineWidth = Siigna.double("activeLineWidth")
   var startPoint: Option[Vector2D] = None
   private var points   = List[Vector2D]()
-
-  def setAttribute[T : Manifest](name:String, shape:Shape) = {
-    Siigna.get(name) match {
-      case s : Some[T] => shape.addAttribute(name, s.get)
-      case None => shape// Option isn't set. Do nothing
-    }
-  }
 
   val stateMap: StateMap = Map(
     'Start -> {
@@ -37,7 +34,7 @@ class Polyline extends Module {
           startPoint = Some(v)
 
           val guide = PointPointGuide(v, (v : Vector2D) => {
-            (Array(PolylineShape(points :+ v).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight)))
+            (Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
           },112)//1 : Input type = InputTwoValues
 
           Start('Input,"com.siigna.module.base.create", guide)
@@ -48,7 +45,7 @@ class Polyline extends Module {
           //  Array(PolylineShape(points :+ v))
           //})
           val guide = PointPointGuide(v, (v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight))
+            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
           },112)//1 : Input type = InputTwoValues
           Start('Input,"com.siigna.module.base.create", guide)
         }
@@ -62,14 +59,14 @@ class Polyline extends Module {
           startPoint = Some(points.last)
 
           val guide = PointPointGuide(startPoint.get, (v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight))
+            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
           },112)//1 : Input type = InputTwoValues
 
           Start('Input,"com.siigna.module.base.create", guide)
         } else {
 
           val guide = PointPointGuide(points.last, (v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight))
+            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
           },112)//1 : Input type = InputTwoValues
           Start('Input,"com.siigna.module.base.create", guide)
         }
@@ -87,7 +84,7 @@ class Polyline extends Module {
           //And if there is a start point, a new guide is returned
           if (startPoint.isDefined) {
             val guide : PointPointGuide = PointPointGuide(points.last, (v : Vector2D) => {
-              Array(PolylineShape(points :+ v).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight))
+              Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
             },112) //1 : Input type = InputTwoValues
             Start('Input,"com.siigna.module.base.create", guide)
           } else {
@@ -97,7 +94,7 @@ class Polyline extends Module {
         }}
 
       case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
-        val polyline = PolylineShape(points).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight)
+        val polyline = PolylineShape(points).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)
         Create(polyline)
         End
       }
@@ -105,7 +102,7 @@ class Polyline extends Module {
       case End :: tail => {
         //If there are two or more points in the polyline, it can be saved to the Siigna universe.
         if (points.length > 1) {
-          val polyline = PolylineShape(points).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight)
+          val polyline = PolylineShape(points).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)
           Create(polyline)
         }
         //The module closes - even if no polyline was drawn.

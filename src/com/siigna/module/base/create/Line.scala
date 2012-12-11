@@ -20,8 +20,9 @@ import java.awt.Color
  */
 class Line extends Module {
 
+  var color = Siigna.color("activeColor")
+  val lineWidth = Siigna.double("activeLineWidth")
   var startPoint: Option[Vector2D] = None
-
   val stateMap: StateMap = Map(
 
     'Start -> {
@@ -30,12 +31,12 @@ class Line extends Module {
           startPoint = Some(v)
 
           val guide = PointPointGuide(startPoint.get,(v : Vector2D) => {
-            Array(LineShape(startPoint.get, v).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight))
+            Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth))
           },112)
           Start('Input,"com.siigna.module.base.create", guide)
         } else {
 
-          val lShape = LineShape(startPoint.get,v).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight)
+          val lShape = LineShape(startPoint.get,v).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth)
 
           def setAttribute[T : Manifest](name:String, shape:Shape) = {
             Siigna.get(name) match {
@@ -58,7 +59,7 @@ class Line extends Module {
           Start('Input,"com.siigna.module.base.create",111)
         } else {
         val guide = PointPointGuide(startPoint.get, (v : Vector2D) => {
-          Array(LineShape(startPoint.get, v).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight))
+          Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth))
         },112)//1 : Input type = InputTwoValues
         Start('Input,"com.siigna.module.base.create", guide)
       }}
@@ -69,7 +70,7 @@ class Line extends Module {
             Start('Input,"com.siigna.module.base.create",111)
           } else {
             val guide = PointPointGuide(startPoint.get,(v : Vector2D) => {
-              Array(LineShape(startPoint.get, v).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight))
+              Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth))
             },112)
             Start('Input,"com.siigna.module.base.create", guide)
           }

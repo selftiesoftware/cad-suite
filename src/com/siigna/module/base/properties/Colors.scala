@@ -120,10 +120,10 @@ class Colors extends Module {
         else if (angle == 140) activeColor = Some(dimgrey)
         else if (angle == 165) activeColor = Some(anthracite)
 
-        if(activeColor.isDefined) Siigna.activeColor = activeColor.get
+        if(activeColor.isDefined) Siigna("activeColor") = activeColor
 
         if(!Drawing.isEmpty) {
-          Drawing.selection.foreach(s => s.addAttributes("Color" -> activeColor.get, "StrokeWidth" -> Siigna.activeLineWeight))
+          Drawing.selection.foreach(s => s.addAttributes("Color" -> activeColor.get ))
           Drawing.deselect()
         }
         //clear values and reactivate navigation

@@ -107,10 +107,10 @@ class Stroke extends Module {
         else if (activeAngle == 150) {activeLine = Some(line330)}
 
       }
-      if(activeLine.isDefined) Siigna.activeLineWeight = activeLine.get
+      if(activeLine.isDefined) Siigna("activeLineWidth") = activeLine
       //if a selection is defined, change lineweight of the selected shapes and deselect them.
       if(!Drawing.selection.isEmpty) {
-        Drawing.selection.foreach(s => s.addAttributes("StrokeWidth" -> activeLine.get, "Color" -> Siigna.activeColor))
+        Drawing.selection.foreach(s => s.addAttribute("StrokeWidth" -> activeLine.get))
         Drawing.deselect()
       }
 

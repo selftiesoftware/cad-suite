@@ -12,9 +12,11 @@
 package com.siigna.module.base.create
 
 import com.siigna._
+import com.siigna.Siigna
 
 class Rectangle extends Module {
-
+  var color = Siigna.color("activeColor")
+  val lineWidth = Siigna.double("activeLineWidth")
   var points = List[Vector2D]()
   val stateMap: StateMap = Map(
 
@@ -25,7 +27,7 @@ class Rectangle extends Module {
           points = points :+ v
 
           val guide = PointPointGuide(points(0),(v : Vector2D) => {
-            Array(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight))
+            Array(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth))
           },112) //1 : Input type = InputTwoValues
 
           Start('Input,"com.siigna.module.base.create", guide)
@@ -34,7 +36,7 @@ class Rectangle extends Module {
         else if (points.length == 1) {
           points = points :+ v
           //create the rectangle
-          Create(PolylineShape(Rectangle2D(points(0), points(1))).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight))
+          Create(PolylineShape(Rectangle2D(points(0), points(1))).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth))
           End
         }
       }
@@ -44,7 +46,7 @@ class Rectangle extends Module {
             Start('Point,"com.siigna.module.base.create",111)
           } else {
             val guide = PointPointGuide(points(0),(v : Vector2D) => {
-              Array(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight))
+              Array(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth))
             },112)//1 : Input type = InputTwoValues
             Start('Input,"com.siigna.module.base.create", guide)
           } }
@@ -57,7 +59,7 @@ class Rectangle extends Module {
           Start('Input,"com.siigna.module.base.create",111)
         } else {
           val guide = PointPointGuide(points(0),(v : Vector2D) => {
-            Array(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight))
+            Array(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth))
           },112)
           Start('Input,"com.siigna.module.base.create", guide)
         } }
