@@ -62,7 +62,6 @@ class Line extends Module {
         },112)//1 : Input type = InputTwoValues
         Start('Input,"com.siigna.module.base.create", guide)
       }}
-
       case End(k : KeyDown) :: tail => {
         // If the key is backspace without modification (shift etc), the last point is deleted, if there is any
         if (k == KeyDown(Key.Backspace,ModifierKeys(false,false,false))) {
@@ -73,10 +72,10 @@ class Line extends Module {
               Array(LineShape(startPoint.get, v).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight))
             },112)
             Start('Input,"com.siigna.module.base.create", guide)
-      } } }
-        
+          }
+        }
+      }
       case _ => Start('Input,"com.siigna.module.base.create",111)
-
     }
   )
 }
