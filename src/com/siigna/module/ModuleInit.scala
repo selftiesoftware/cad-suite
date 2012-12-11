@@ -14,28 +14,23 @@ package com.siigna.module
 import base.Menu
 import base.radialmenu.category.StartCategory
 import com.siigna._
-import app.model.shape.GroupShape.Selector
-import app.model.shape.LineShape.Selector
-import app.model.shape.PolylineShape.Selector
-import app.model.shape.CircleShape.Selector
 import app.model.shape.{FullSelector, ShapeSelector}
-import collection.BitSet
-import collection.mutable.BitSet
-import collection.immutable.BitSet
 import java.awt.Color
+import com.siigna.module.base.paperHeader
 
 
 /**
  * An init module for the cad-suite.
  */
 class ModuleInit extends Module {
-
+  println("INIT")
   Menu.startCategory = StartCategory
 
   protected var lastModule : Option[ModuleInstance] = None
 
   //The nearest shape to the current mouse position.
   var nearestShape : Option[(Int, Shape)] = None
+  val headerShapes = paperHeader
 
   //Check if there is a useable selection:
   // TODO: Make a more elegant way to check for usable selection - in mainline?
@@ -157,6 +152,16 @@ class ModuleInit extends Module {
     }
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
+    //val transformation = headerShapes.transformation
+    val scale = headerShapes.scale
+    //val unitX = headerShapes.unitX(4)
+
+    g draw headerShapes.openness(t) //draw frame to indicate level of openness:
+    g draw headerShapes.horizontal(t) // Draw horizontal headerborder
+    g draw headerShapes.vertical(t) //Draw vertical headerborder
+    //g.draw(headerShapes.getURL.transform(transformation.translate(scale.boundary.topRight + unitX))) //g draw separator
+    g.draw(scale.transform(headerShapes.transformation(t)))   //draw paperScale
+
     //draw highlighted vertices and segments that are selectable (close to the mouse)
     if (nearestShape.isDefined) {
       val shape  = nearestShape.get._2
@@ -166,77 +171,6 @@ class ModuleInit extends Module {
 
       //TODO: activate this -> implement adding attributes to parts in mainline
       //g draw part.setAttributes("Color" -> "#22FFFF".color, "StrokeWidth" -> 1.0).transform(t)
-
     }
-    // Draw boundary
-    drawBoundary(g, t)
-  }
-  /*
-   function to draw a boundary displaying:
-   -the actual paper scale
-   -author name (if applicable)
-   -title (if applicaple)
-   -the actual level of openness
-  */
-  private def drawBoundary(g : Graphics, t : TransformationMatrix) {
-    def unitX(times : Int) = Vector2D(times * Siigna.paperScale, 0)
-
-    // Get the boundary
-    val boundary = Drawing.boundary
-
-    val br = boundary.bottomRight
-    val bl = boundary.bottomLeft
-
-    // Define header
-    val headerHeight = scala.math.min(boundary.height, boundary.width) * 0.025
-
-    // Paper scale
-    val scale = TextShape("Scale 1:"+ (Siigna.paperScale), unitX(-10), headerHeight * 0.55)
-    // Get URL
-    val getURL = TextShape(" ", Vector2D(0, 0), headerHeight * 0.7)
-
-    val headerWidth  = (scale.boundary.width + getURL.boundary.width) * 1.2
-
-    val transformation : TransformationMatrix = t.concatenate(TransformationMatrix(boundary.bottomRight - Vector2D(headerWidth * 0.99, -headerHeight * 0.8), 1))
-
-    val oversize1 = (boundary.bottomLeft + Vector2D(-2 * Siigna.paperScale, -2 * Siigna.paperScale))
-    val oversize2 = (boundary.topRight + Vector2D(2 * Siigna.paperScale, 2 * Siigna.paperScale))
-
-    //draw frame to indicate level of openness:
-    g draw PolylineShape(Rectangle2D(oversize1, oversize2)).transform(t).setAttributes("Color" -> new Color(0.25f, 0.85f, 0.25f, 0.20f), "StrokeWidth" -> 4.0)
-
-    // Draw horizontal headerborder
-    g draw LineShape(br + Vector2D(0,(6*(Siigna.paperScale))), Vector2D((br.x/2 + bl.x),br.y) + Vector2D(0,(6*(Siigna.paperScale)))).setAttribute("StrokeWidth" -> 0.3).transform(t)
-
-    //Draw vertical headerborder
-    g draw LineShape(Vector2D((br.x/2 + bl.x),br.y), Vector2D((br.x/2 + bl.x),br.y) + Vector2D(0,(6*(Siigna.paperScale)))).setAttribute("StrokeWidth" -> 0.3).transform(t)
-
-    //g draw separator
-    g.draw(getURL.transform(transformation.translate(scale.boundary.topRight + unitX(4))))
-
-    //draw paperScale
-    g.draw(scale.transform(transformation))
-
-    //TODO: letter width: 50% letter spacing: 200%
-
-    // Draw ID and title
-    //if (!SetTitle.text.isEmpty) {
-    //  val title = TextShape(SetTitle.text, unitX(-72), headerHeight * 0.7)
-    //  g draw(title.transform(transformation))
-    //}
-    //draw title
-    //if (Drawing.attributes.int("title").isDefined && (Drawing.attributes.string("title").get.length() > 0) && SetTitle.text.isEmpty) {
-    //  val title = TextShape(Drawing.attributes.string("title").get, unitX(-72), headerHeight * 0.7)
-    //  g draw(title.transform(transformation))
-    //}
-    //draw ID
-    if (Drawing.attributes.long("id").isDefined) {
-      val id = TextShape("ID: "+Drawing.attributes.long("id").get, unitX(-28), headerHeight * 0.7, Attributes("Color" -> "#AAAAAA".color))
-      g draw(id.transform(transformation))
-    }
-    //if (Siigna.user.isDefined && Siigna.user.get.name.length() > 0) {
-    //  val contributor = TextShape("author: "+Siigna.user.get.name, unitX(-120), headerHeight * 0.7)
-    //  g draw(contributor.transform(transformation))
-    //}
   }
 }
