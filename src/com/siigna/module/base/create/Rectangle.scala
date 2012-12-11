@@ -25,7 +25,7 @@ class Rectangle extends Module {
           points = points :+ v
 
           val guide = PointPointGuide(points(0),(v : Vector2D) => {
-            (Array(PolylineShape(Rectangle2D(points(0), v))))
+            Array(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight))
           },112) //1 : Input type = InputTwoValues
 
           Start('Input,"com.siigna.module.base.create", guide)
@@ -34,7 +34,7 @@ class Rectangle extends Module {
         else if (points.length == 1) {
           points = points :+ v
           //create the rectangle
-          Create(PolylineShape(Rectangle2D(points(0), points(1))))
+          Create(PolylineShape(Rectangle2D(points(0), points(1))).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight))
           End
         }
       }
@@ -44,7 +44,7 @@ class Rectangle extends Module {
             Start('Point,"com.siigna.module.base.create",111)
           } else {
             val guide = PointPointGuide(points(0),(v : Vector2D) => {
-              (Array(PolylineShape(Rectangle2D(points(0), v))))
+              Array(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight))
             },112)//1 : Input type = InputTwoValues
             Start('Input,"com.siigna.module.base.create", guide)
           } }
@@ -57,7 +57,7 @@ class Rectangle extends Module {
           Start('Input,"com.siigna.module.base.create",111)
         } else {
           val guide = PointPointGuide(points(0),(v : Vector2D) => {
-            (Array(PolylineShape(Rectangle2D(points(0), v))))
+            Array(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> Siigna.activeColor, "StrokeWidth" -> Siigna.activeLineWeight))
           },112)
           Start('Input,"com.siigna.module.base.create", guide)
         } }

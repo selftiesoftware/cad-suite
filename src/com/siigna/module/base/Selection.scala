@@ -25,7 +25,7 @@ class Selection extends Module {
 
   var nearestShape : Option[(Int, Shape)] = None
 
-  private var selectFullyEnclosed : Boolean = false
+  private var selectEntireShape : Boolean = false
 
   // The starting point of the rectangle
   private var startPoint : Option[Vector2D] = None
@@ -60,7 +60,7 @@ class Selection extends Module {
         //find the shape closest to the mouse:
         if (Drawing(m).size > 0) {
           val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-          nearestShape = if (nearest._2.distanceTo(m) < Siigna.double("selectionDistance").get) Some(nearest) else None
+          nearestShape = if (nearest._2.distanceTo(m) < Siigna.selectionDistance) Some(nearest) else None
         }
         if (!nearestShape.isEmpty) hasPartShape
         End
@@ -75,7 +75,7 @@ class Selection extends Module {
         //find the shape closest to the mouse:
         if (Drawing(m).size > 0) {
           val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-          if (nearest._2.distanceTo(m) < Siigna.double("selectionDistance").get) {
+          if (nearest._2.distanceTo(m) < Siigna.selectionDistance) {
             nearestShape = Some(nearest)
           } else nearestShape = None
         }
@@ -94,7 +94,7 @@ class Selection extends Module {
           //find the shape closest to the mouse:
           if (Drawing(m).size > 0) {
             val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-            nearestShape = if (nearest._2.distanceTo(m) < Siigna.double("selectionDistance").get) Some(nearest) else None
+            nearestShape = if (nearest._2.distanceTo(m) < Siigna.selectionDistance) Some(nearest) else None
           }
           //If a nearest shape was found, this is selected
           if (!nearestShape.isEmpty) {
@@ -110,30 +110,25 @@ class Selection extends Module {
 
     'Box -> {
       case MouseDrag(p, _, _) :: tail => {
-        //Drawing selection box from one side selects all the shapes that "touches" the box
-        // from the other only the shapes that are wholly inside the box:,
+        //Dragging a selection box from LEFT TO RIGHT: ONLY shapes that are fully enclosed in the box are selected.
         if(startPoint.get.x < p.x) {
-          selectFullyEnclosed = true
+          selectEntireShape = false
           box = Some(Rectangle2D(startPoint.get, p))
         }
+        //Dragging from RIGHT TO LEFT selects all the shapes that intersect the box
         else {
-          selectFullyEnclosed = false
+          selectEntireShape = true
           box = Some(Rectangle2D(startPoint.get, p))
         }
       }
       case MouseUp(p, _, _) :: tail => {
-        if (box.isDefined && selectFullyEnclosed == true) {
-          Select(box.get.transform(View.deviceTransformation), true)
-
-        }
-        //if the selection is drawn from right to left, select partially enclosed shapes as well.:
-        else if (box.isDefined && selectFullyEnclosed == false) {
-          Select(box.get.transform(View.deviceTransformation), false)
-        }
+        if (box.isDefined && selectEntireShape == true) Select(box.get.transform(View.deviceTransformation), true)
+        else if (box.isDefined && selectEntireShape == false) Select(box.get.transform(View.deviceTransformation), false)
         End
       }
       case e => {
-        println("Box ending: DO NOT TRY TO BOX-SELECT LINES, ARCS OR TEXT!!! " + e)
+        println("Box ending: cannot select this...")
+        End
       }
     }
   )
@@ -142,7 +137,7 @@ class Selection extends Module {
 
     //println("ZOOM: "+View.zoom)
     //println("sel distance: "+Siigna.selectionDistance)
-    println("selection distance: "+Siigna.selectionDistance)
+    //println("selection distance: "+Siigna.selectionDistance)
 
     val enclosed = "Color" -> "#9999FF".color
     val focused  = "Color" -> "#FF9999".color
