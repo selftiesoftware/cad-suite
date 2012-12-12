@@ -46,7 +46,7 @@ class Distance extends Module {
       }
       case _ => {
         Siigna display "set two points to measure the distance between them."
-        Start('Input,"com.siigna.module.base.create")
+        Start('Input,"com.siigna.module.base.create",1)
       }
       //if
 
