@@ -17,41 +17,49 @@ import scala.Array._
 class Offset extends Module {
 
   //a function to offset a line segment
-  def offset(s : LineShape) : LineShape = {
-    //TODO: this distance appears to be wrong.
-    val mouseDistance = s.distanceTo(mousePosition)
+  def offset(s : LineShape, dist : Double) : LineShape = {
     val lT = s.transform(TransformationMatrix(-s.p1,1)) //move the segment to 0,0
     val length : Int = ((s.p2 - s.p1).length).toInt //get the length of the segment
     val lS = lT.transform(TransformationMatrix.apply(Vector2D(0,0),1/length.toDouble))//scale it to the unit vector
     val lR = lS.transform(TransformationMatrix().rotate(90, Vector2D(0,0))) //rotate it 90 degrees
     val pt = if(lR.p1 == Vector2D(0,0)) lR.p2 else lR.p1  //get the point on the vector which is not on (0,0)
-    val offsetDirection = -pt * mouseDistance //get the length of the offsetvector
+    val offsetDirection = -pt * dist //get the length of the offsetvector
     val offset = s.transform(TransformationMatrix(offsetDirection,1))//offset with the current distance
     offset
   }  
   var distancePoint : Option[Vector2D] = None
   var originals : Option[Selection] = None
-
+  
   //a guide to get Point to draw the shape(s) dynamically
   val guide: PointGuide = PointGuide((v : Vector2D) => {
     val shape = Drawing.selection.head.shapes.head._2
+    //TODO: get the offset distance by using the segment which has the shortest mouseDistance.
     val vertices = shape.geometry.vertices
-      //make a list of each line segment in the shape
-      var l = List[LineShape]()
+    //make a list of each line segment in the shape
+    var l = List[LineShape]()
+    val m = mousePosition.transform(View.deviceTransformation)
 
     def run = {
+      var nearestShape = LineShape(vertices(0), vertices(1))
+
+      //iterate through the shapes to find the shape closest to the mouse
+      def calcNearest = for (i <- 0 to vertices.length-2) {
+        val s = LineShape(vertices(i), vertices(i+1))
+        if (s.distanceTo(m) < nearestShape.distanceTo(m)) nearestShape = s
+      }
+      calcNearest
+      val distance = nearestShape.distanceTo(mousePosition.transform(View.deviceTransformation))
+
+      //offset the shapes with the distance set in calcNearest
       for (i <- 0 to vertices.length-2) {
-        l = l :+ offset(LineShape(vertices(i), vertices(i+1)))
+        
+        l = l :+ offset(LineShape(vertices(i), vertices(i+1)),distance)
       }
       //TODO: evaluate the segments in pairs - if their ends intersect, trim them. If not, extend them.
       l
     }
-    println(run.toTraversable)
-    run.toTraversable
-    //Traversable(offset(LineShape(vertices(0), vertices(1))))
-
     //run the offset function
-
+    run.toTraversable
   },1)//1 : Input type = InputTwoValues
 
   //Select shapes
