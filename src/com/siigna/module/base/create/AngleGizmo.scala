@@ -97,7 +97,6 @@ class AngleGizmo extends Module {
     }
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
-
     //TODO: forward and draw shapes to the Angle gizmo, and draw them dynamically while defining the angle.
     //get the point Guide from the calling module:
 

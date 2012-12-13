@@ -21,7 +21,7 @@ case object CreateCategory extends MenuCategory{
     EventNNW -> MenuModule(Module('Rectangle,"com.siigna.module.base.create"), MenuIcons.rectangle),
     EventNNE -> MenuModule(Module('Line,"com.siigna.module.base.create"), MenuIcons.line),
 
-    //EventENE -> MenuModule(Module('DXFImport,"com.siigna.module.porter.DXF"), MenuIcons.importDXF),
+    EventENE -> MenuModule(Module('Offset,"com.siigna.module.base.create"), MenuIcons.offset),
 
     EventWNW -> MenuModule(Module('Text,"com.siigna.module.base.create"), MenuIcons.text),
     EventSSE -> MenuModule(Module('Explode,"com.siigna.module.base.create"), MenuIcons.explode),

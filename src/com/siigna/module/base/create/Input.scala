@@ -94,6 +94,7 @@ class Input extends Module {
 
       //if a snap angle is returned from the Angle Gizmo module, use it to set a distance on the active radial
       case End(a : AngleSnap) :: tail => {
+        println("A")
         val inputTypeFormer = inputType
         inputType = Some(15)
         //inputType = None
