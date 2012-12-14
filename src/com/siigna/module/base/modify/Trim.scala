@@ -16,7 +16,7 @@ import com.siigna._
 
 class Trim extends Module {
 
-  var nearestShape : Option[(Int, Shape)] = None
+  var nearestShape : Option[Shape] = None
 
   var selection = List[Vector2D]()
   var shapes : List[Shape] = List()
@@ -26,6 +26,20 @@ class Trim extends Module {
 
   var selectionBoxStart : Option[Vector2D] = None
   var selectionBoxEnd : Option[Vector2D] = None
+
+  //returns the intersecting points of a series of line segments.
+  def getKnots(l : List[LineShape]) = {
+    var k = List[Vector2D]()
+    for (i <- 0 to l.length -2) {
+      val s1 = l(i)
+      val s2 = l(i+1)
+      val l1 = Line2D(s1.p1,s1.p2)
+      val l2 = Line2D(s2.p1,s2.p2)
+      val int = l1.intersections(l2).head
+      k = k :+ int
+    }
+    k
+  }
 
   val stateMap: StateMap = Map(
 
@@ -41,11 +55,14 @@ class Trim extends Module {
         //find the shape closest to the mouse:
         if (Drawing(m).size > 0) {
           val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-          nearestShape = if (nearest._2.distanceTo(m) < Siigna.selectionDistance) Some(nearest) else None
+          nearestShape = if (nearest._2.distanceTo(m) < Siigna.selectionDistance) Some(nearest._2) else None
           println("got shape: "+nearestShape.get)
-
+          
+          val trimShapes = nearestShape.get.geometry
+          val guideShape = trimGuide.get.geometry
           //do the trimming:
-
+          //val intersections = trimShapes.intersections(guideShape)
+          //println("intersections: "+intersections)
 
         } else {
           println("got no shape. trying again.")

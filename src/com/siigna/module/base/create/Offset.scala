@@ -75,7 +75,7 @@ class Offset extends Module {
     def calcNearest : Double = {
       var nearestDist : Double = LineShape(v(0), v(1)).distanceTo(m)
       var closestSegment : Option[LineShape] = None
-      for (i <- 0 to v.length-2) {
+      for (i <- 0 to v.length -2) {
         var currentSegment = LineShape(v(i), v(i+1))
         if (currentSegment.distanceTo(m) < nearestDist) {
           closestSegment = Some(currentSegment)
@@ -142,6 +142,10 @@ class Offset extends Module {
       else if (Drawing.selection.isDefined && Drawing.selection.get.size == 1 ){
         Siigna display "click to set the offset distance"
         Start('Input,"com.siigna.module.base.create", guide)
+      } else {
+         Siigna display "please select one shape to offset"
+        Drawing.deselect()
+        End
       }
     }
   })
