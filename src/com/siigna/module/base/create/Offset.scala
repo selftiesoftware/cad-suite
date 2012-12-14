@@ -26,84 +26,79 @@ class Offset extends Module {
     val offsetDirection = -pt * dist //get the length of the offsetvector
     val offset = s.transform(TransformationMatrix(offsetDirection,1))//offset with the current distance
     offset
-  }  
-  var distancePoint : Option[Vector2D] = None
-  var originals : Option[Selection] = None
-  
+  }
+  //returns the intersecting points of a series of line segments.
+  def getKnots(l : List[LineShape]) = {
+    var k =  List[Vector2D]()
+    for (i <- 0 to l.length -2) {
+      val s1 = l(i)
+      val s2 = l(i+1)
+      val l1 = Line2D(s1.p1,s1.p2)
+      val l2 = Line2D(s2.p1,s2.p2)
+      val int = l1.intersections(l2).head
+      k = k :+ int
+    }
+    k
+  }
+  //calculates the distance to offset ehapes by, then calls the offset function to returns offset shapes as a list
+  def offsetLines(s : Shape, m : Vector2D) = {
+    var l = List[LineShape]()
+    var v = s.geometry.vertices
+    //iterate through the shapes to find the shape closest to the mouse
+    def calcNearest = {
+      var nearestDist : Option[Double] = None
+      for (i <- 0 to v.length-2) {
+        var currentSegment = LineShape(v(i), v(i+1))
+        if (!nearestDist.isDefined || (nearestDist.isDefined && currentSegment.distanceTo(m) < nearestDist.get)) {
+          nearestDist = Some(currentSegment.distanceTo(m))
+          //println("nearestShape: "+s)
+        }
+      }
+      nearestDist //return the distance
+    }
+    val distance = calcNearest.get
+    //println("DISTANCE: "+distance)
+    //run the offset function to offset shapes with the distance set in calcNearest
+    for (i <- 0 to v.length-2) l = l :+ offset(LineShape(v(i), v(i+1)),distance)
+    l//return the list
+  }
+
   //a guide to get Point to draw the shape(s) dynamically
   val guide: PointGuide = PointGuide((v : Vector2D) => {
     val shape = Drawing.selection.head.shapes.head._2
-    //TODO: get the offset distance by using the segment which has the shortest mouseDistance.
-    val vertices = shape.geometry.vertices
-    //make a list of each line segment in the shape
-    var l = List[LineShape]()
     val m = mousePosition.transform(View.deviceTransformation)
 
-    def offsetLines = {
-      var nearestShape = LineShape(vertices(0), vertices(1))
-
-      //iterate through the shapes to find the shape closest to the mouse
-      def calcNearest = for (i <- 0 to vertices.length-2) {
-        val s = LineShape(vertices(i), vertices(i+1))
-        if (s.distanceTo(m) < nearestShape.distanceTo(m)) nearestShape = s
-      }
-      calcNearest
-      val distance = nearestShape.distanceTo(mousePosition.transform(View.deviceTransformation))
-
-      //offset the shapes with the distance set in calcNearest
-      for (i <- 0 to vertices.length-2) {
-        
-        l = l :+ offset(LineShape(vertices(i), vertices(i+1)),distance)
-      }
-      l
-    }
-    //extend the offset lines so adjecent lines always intersect (unless they are parallel)
-
-    def extend(s : List[LineShape]) = {
-      var list = List[LineShape]()
-      s.foreach(t => list = list :+ t.transform(TransformationMatrix().scale(2,t.geometry.center)))
-      list
-    }
-
-    val infinityOffsets = extend(offsetLines)
+    val newLines = offsetLines(shape, m) //offset the lines by the current mouseposition
     var knots = List[Vector2D]()
-    //add the first point to the list
-    knots = knots :+ l.head.p1
-    //println("knots before: "+knots)
-    val getKnots = {
-      var k =  List[Vector2D]()
-      for (i <- 0 to infinityOffsets.length -2) {
-        val s1 = infinityOffsets(i)
-        val s2 = infinityOffsets(i+1)
-        val l1 = Line2D(s1.p1,s1.p2)
-        val l2 = Line2D(s2.p1,s2.p2)
-        val int = l1.intersections(l2).head
-        k = k :+ int
-      }
-      k
-    }
-    def result = getKnots.foreach(s => knots = knots :+ s) //add the intersections to the konts list
+
+    knots = knots :+ newLines.head.p1 //add the first point to the list
+
+    def result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
     result
-    //add the last
-    knots = knots :+ l.reverse.head.p2
+    knots = knots :+ newLines.reverse.head.p2 //add the last vertex
+    Array(PolylineShape(knots))//create a polylineShape from the offset knots:
 
-    //create a polylineShape from the offset knots:
-    Array(PolylineShape(knots))
-
-  },1)//1 : Input type = InputTwoValues
+  },1)//,1: MouseDown, Key (absolute - handled by the InputTwoValues module)
 
   //Select shapes
   val stateMap: StateMap = Map(
 
   'Start -> {
-     case Message(p : Vector2D) :: tail => {
-      distancePoint = Some(p)
+
+    case End(p : Vector2D) :: tail => {
+      val shape = Drawing.selection.head.shapes.head._2
+      val newLines = offsetLines(shape, p) //offset the lines by the returned point
+      var knots = List[Vector2D]()
+
+      knots = knots :+ newLines.head.p1 //add the first point to the list
+
+      def result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
+      result
+      knots = knots :+ newLines.reverse.head.p2 //add the last vertex
+      Create(PolylineShape(knots))//create a polylineShape from the offset knots:
     }
 
     case MouseUp(_, MouseButtonRight, _) :: tail => End
-    case MouseUp(p, _, _) :: tail => {
-      //goto 'Point to get the offset distance
-    }
 
     //exit strategy
     case KeyDown(Key.Esc, _) :: tail => End
@@ -114,26 +109,11 @@ class Offset extends Module {
         Siigna display "select an object to offset first"
         End
       }
-      else if (Drawing.selection.isDefined && Drawing.selection.get.size == 1 && !distancePoint.isDefined){
+      else if (Drawing.selection.isDefined && Drawing.selection.get.size == 1 ){
         Siigna display "click to set the offset distance"
         Start('Input,"com.siigna.module.base.create", guide)
       }
     }
   })
-
-    //do the offset calculation here
-    //'End -> ((events : List[Event]) => {
-      //get the point on the line that is perpendicular to the distance point
-      //if(distancePoint.isDefined) {
-      //  val transformation : TransformationMatrix = TransformationMatrix(distancePoint.get, 1)
-      //  Drawing.selection.get.apply(transformation)
-      //}
-
-      //println("END")
-      //println("offset here with distance: "+distancePoint)
-      //Drawing.deselect()
-  //}))
-
-
 }
 
