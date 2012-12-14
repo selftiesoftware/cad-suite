@@ -23,7 +23,6 @@ import com.siigna.module.base.paperHeader
  * An init module for the cad-suite.
  */
 class ModuleInit extends Module {
-  println("INIT")
   Menu.startCategory = StartCategory
 
   protected var lastModule : Option[ModuleInstance] = None

@@ -9,17 +9,14 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-/*
+
 package com.siigna.module.base.modify
-
-/* 2010 (C) Copyright by Siigna, all rights reserved. */
-
 
 import com.siigna._
 
 class Trim extends Module {
 
-  lazy val eventHandler = EventHandler(stateMap, stateMachine)
+  var nearestShape : Option[(Int, Shape)] = None
 
   var selection = List[Vector2D]()
   var shapes : List[Shape] = List()
@@ -30,124 +27,45 @@ class Trim extends Module {
   var selectionBoxStart : Option[Vector2D] = None
   var selectionBoxEnd : Option[Vector2D] = None
 
-      /*
-        Function:   if lines are already selected: go to trim mode.
-                    if lines are NOT selected: Use the select module to choose lines.
+  val stateMap: StateMap = Map(
 
-                    Trim:
-                    If mouseclick: Remove the selected linesegment until next (selected) intersection.
-                    If mousedrag (selection): Remove all line segments hit by the selection-boxen until next (selected) intersection.
+  'Start -> {
+    //exit strategy
+    case KeyDown(Key.Esc, _) :: tail => End
+    case MouseDown(p, MouseButtonRight, _) :: tail => End
 
-                    End:
-                    Esc or right click.
-      */
+    //if selection returns a point, evaluate if there areany shapes to trim at that point:
+    case End(v : Vector2D) :: tail => {
+      if(trimGuide.isDefined ) {
+        val m = mousePosition.transform(View.deviceTransformation)
+        //find the shape closest to the mouse:
+        if (Drawing(m).size > 0) {
+          val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+          nearestShape = if (nearest._2.distanceTo(m) < Siigna.selectionDistance) Some(nearest) else None
+          println("got shape: "+nearestShape.get)
 
-  lazy val stateMap  = DirectedGraph  ('StartCategory            -> 'MouseMove -> 'StartCategory,
-                                       'StartCategory            -> 'MouseDown -> 'SelectLines,
-                                       'StartCategory            -> 'KeyEscape -> 'End,
-                                       'SelectLines      -> 'KeyEscape -> 'End,
-                                       'SelectionBox     -> 'KeyEscape -> 'End,
-                                       'StartSelection   -> 'KeyEscape -> 'End)
+          //do the trimming:
 
- lazy val stateMachine = Map(
-  //check if a selection of objects has already been made:
-  'StartCategory ->  ((events : List[Event]) => {
-    events match {
-      case MouseMove(point, _, _) :: tail => {
-        if (Drawing.selected.size == 1) {
-          trimGuide = Some(Drawing.selected.head.shape)
-          Goto('StartSelection)
+
         } else {
-          Siigna.display("Select an object to trim objects by")
-          Module('Select)
-        }
+          println("got no shape. trying again.")
+          Start('Input,"com.siigna.module.base.create",1)
+        } //if the point is not set next to a shape, goto selection and try again
       }
-      case _ =>
-     }
-    None
-   }),
+      Track.trackEnabled = true
 
-   'SelectLines ->  ((events : List[Event]) => {
-     events match {
-       case MouseDown (p,_,_) :: tail => {
-         val closestShape = Drawing(p)
-         if (closestShape.isDefined && closestShape.get.distanceTo(p) < 5 && closestShape.get.isInstanceOf[Shape]) {
-           Drawing.select(Drawing.findId(_ == closestShape.get.asInstanceOf[Shape]))
-           if (Drawing.selected.size == 1) {
-             trimGuide = Some(Drawing.selected.head.shape)
-             Goto('StartSelection)
-           }
-         }
-       }
-       case _ =>
-     }
-     None
-   }),
-
-  //StartSelection: StartCategory selecting line(s).
-  'StartSelection -> ((events : List[Event]) => {
-    Siigna.display("click or drag mouse to trim lines")
-      events match {
-        case MouseUp(p2, _, _) :: _ :: MouseDown(p1, _, _) :: tail => {
-          if ((p2 - p1).length <= 2) {
-            val closestShape = Drawing(p2)
-            if (closestShape.isDefined && closestShape.get.distanceTo(p2) <= 10 && closestShape.isInstanceOf[Shape]) {
-              trimShapes ++:= Iterable(closestShape.get.asInstanceOf[Shape])
-            }
-          }
-        }
-        case MouseDrag(p2, _, _) :: MouseDown(p1, _, _) :: tail => {
-          if ((p2 - p1).length > 2) {
-            selectionBoxStart = Some(p1)
-            selectionBoxEnd = Some(p2)
-            Goto('SelectionBox)
-          }
-        }
-        case _ =>
-       }
-      None
-    }),
-
-    'SelectionBox -> ((events : List[Event]) => {
-      events match {
-        case MouseDrag(p, _, _) :: tail => {
-          selectionBoxEnd = Some(p)
-        }
-        case MouseUp(p, _, _) :: tail => {
-          selectionBoxEnd = Some(p)
-          val box = Rectangle2D(selectionBoxStart.get, selectionBoxEnd.get)
-          trimShapes = Drawing.queryForShapes(box).filter(s => s.geometry.intersects(box))
-          Goto('End)
-        }
-        case _ =>
-      }
-      None
-    }),
-
-    'End -> ((events : List[Event]) => {
-      try {
-        val lineGuide  = trimGuide.get.asInstanceOf[PolylineShape]
-        val lineShapes = trimShapes.filter(_.isInstanceOf[PolylineShape])
-
-        //lineShapes.foreach(polyline => {
-        //  val intersections = polyline.intersects(lineGuide)
-        //})
-      } catch {
-        case e => Log.error("Trimming only works with polylines for now.")
-      }
-      None
-    })
-  )
-
-  override def paint(g : Graphics, t : TransformationMatrix) {
-    if (selectionBoxStart.isDefined && selectionBoxEnd.isDefined) {
-      val box = Rectangle2D(selectionBoxStart.get, selectionBoxEnd.get)
-      //TODO: activate drawing once polyline is created
-      //g draw PolylineShape.fromRectangle(box).attributes_+=("Color" -> "#66CC66".color).transform(t)
     }
-  }
+    case _ => {
+      Track.trackEnabled = false
+      if (Drawing.selection.isDefined && Drawing.selection.get.size == 1) {
+        trimGuide = Some(Drawing.selection.head.shapes.head._2)
+        Siigna.display("Select shapes to trim")
+        Start('Input,"com.siigna.module.base.create",1)
 
+      } else {
+        Siigna.display("Select an object to trim objects by")
+        Start('Input,"com.siigna.module.base.create",1)
+      }
+    }
+  })
 }
-
-
-*/

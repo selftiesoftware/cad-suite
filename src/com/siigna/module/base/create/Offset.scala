@@ -12,7 +12,6 @@
 package com.siigna.module.base.create
 
 import com.siigna._
-import java.lang.Double.POSITIVE_INFINITY
 
 class Offset extends Module {
 

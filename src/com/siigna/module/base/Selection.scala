@@ -52,6 +52,8 @@ class Selection extends Module {
 
   def stateMap = Map(
     'Start -> {
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
 
       //if ModuleInit forwards to selection with a left mouse click
       // If a shape-part is hit, it is selected:
@@ -109,6 +111,10 @@ class Selection extends Module {
     },
 
     'Box -> {
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+
       case MouseDrag(p, _, _) :: tail => {
         //Dragging a selection box from LEFT TO RIGHT: ONLY shapes that are fully enclosed in the box are selected.
         if(startPoint.get.x < p.x) {
