@@ -12,7 +12,7 @@
 package com.siigna.module.base.create
 
 import com.siigna._
-import scala.Array._
+import java.lang.Double.POSITIVE_INFINITY
 
 class Offset extends Module {
 
@@ -39,7 +39,7 @@ class Offset extends Module {
     var l = List[LineShape]()
     val m = mousePosition.transform(View.deviceTransformation)
 
-    def run = {
+    def offsetLines = {
       var nearestShape = LineShape(vertices(0), vertices(1))
 
       //iterate through the shapes to find the shape closest to the mouse
@@ -55,11 +55,41 @@ class Offset extends Module {
         
         l = l :+ offset(LineShape(vertices(i), vertices(i+1)),distance)
       }
-      //TODO: evaluate the segments in pairs - if their ends intersect, trim them. If not, extend them.
       l
     }
-    //run the offset function
-    run.toTraversable
+    //extend the offset lines so adjecent lines always intersect (unless they are parallel)
+
+    def extend(s : List[LineShape]) = {
+      var list = List[LineShape]()
+      s.foreach(t => list = list :+ t.transform(TransformationMatrix().scale(2,t.geometry.center)))
+      list
+    }
+
+    val infinityOffsets = extend(offsetLines)
+    var knots = List[Vector2D]()
+    //add the first point to the list
+    knots = knots :+ l.head.p1
+    //println("knots before: "+knots)
+    val getKnots = {
+      var k =  List[Vector2D]()
+      for (i <- 0 to infinityOffsets.length -2) {
+        val s1 = infinityOffsets(i)
+        val s2 = infinityOffsets(i+1)
+        val l1 = Line2D(s1.p1,s1.p2)
+        val l2 = Line2D(s2.p1,s2.p2)
+        val int = l1.intersections(l2).head
+        k = k :+ int
+      }
+      k
+    }
+    def result = getKnots.foreach(s => knots = knots :+ s) //add the intersections to the konts list
+    result
+    //add the last
+    knots = knots :+ l.reverse.head.p2
+
+    //create a polylineShape from the offset knots:
+    Array(PolylineShape(knots))
+
   },1)//1 : Input type = InputTwoValues
 
   //Select shapes
@@ -67,7 +97,6 @@ class Offset extends Module {
 
   'Start -> {
      case Message(p : Vector2D) :: tail => {
-      println("A")
       distancePoint = Some(p)
     }
 
@@ -75,6 +104,11 @@ class Offset extends Module {
     case MouseUp(p, _, _) :: tail => {
       //goto 'Point to get the offset distance
     }
+
+    //exit strategy
+    case KeyDown(Key.Esc, _) :: tail => End
+    case MouseDown(p, MouseButtonRight, _) :: tail => End
+
     case _ => {
       if (!Drawing.selection.isDefined) {
         Siigna display "select an object to offset first"
