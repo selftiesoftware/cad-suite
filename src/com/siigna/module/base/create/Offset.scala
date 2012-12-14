@@ -17,15 +17,15 @@ import java.lang.Double.POSITIVE_INFINITY
 class Offset extends Module {
 
   //a function to offset a line segment
-  def offset(s : LineShape, dist : Double) : LineShape = {
+  def calcOffset(s : LineShape, dist : Double) : LineShape = {
     val lT = s.transform(TransformationMatrix(-s.p1,1)) //move the segment to 0,0
     val length : Int = ((s.p2 - s.p1).length).toInt //get the length of the segment
     val lS = lT.transform(TransformationMatrix.apply(Vector2D(0,0),1/length.toDouble))//scale it to the unit vector
     val lR = lS.transform(TransformationMatrix().rotate(90, Vector2D(0,0))) //rotate it 90 degrees
     val pt = if(lR.p1 == Vector2D(0,0)) lR.p2 else lR.p1  //get the point on the vector which is not on (0,0)
     val offsetDirection = -pt * dist //get the length of the offsetvector
-    val offset = s.transform(TransformationMatrix(offsetDirection,1))//offset with the current distance
-    offset
+    val offsetGeom = s.transform(TransformationMatrix(offsetDirection,1))//offset with the current distance
+    offsetGeom
   }
   //returns the intersecting points of a series of line segments.
   def getKnots(l : List[LineShape]) = {
@@ -40,26 +40,57 @@ class Offset extends Module {
     }
     k
   }
+  //calculate on which side of a given line segment the offset should be.
+  def offsetSide (s: LineShape, m : Vector2D) : Boolean = {
+    val angleRaw = ((s.p2-s.p1).angle * -1) + 450
+    val angle = if(angleRaw > 360) angleRaw - 360 else angleRaw
+    val linePt = s.geometry.closestPoint(m)
+    val lx = linePt.x
+    val ly = linePt.y
+    val mx = m.x
+    val my = m.y
+
+    if(angle > 0 && angle < 90) {
+      if(my > ly) false
+      else true
+    }
+    else if(angle > 90 && angle < 180) {
+      if(my > ly) false
+      else true
+    }
+    else if(angle > 180 && angle < 270) {
+      if(my < ly) false
+      else true
+    }
+    else {
+      if(my < ly) false
+      else true
+    }
+  }
+
   //calculates the distance to offset ehapes by, then calls the offset function to returns offset shapes as a list
   def offsetLines(s : Shape, m : Vector2D) = {
     var l = List[LineShape]()
     var v = s.geometry.vertices
     //iterate through the shapes to find the shape closest to the mouse
-    def calcNearest = {
-      var nearestDist : Option[Double] = None
+    def calcNearest : Double = {
+      var nearestDist : Double = LineShape(v(0), v(1)).distanceTo(m)
+      var closestSegment : Option[LineShape] = None
       for (i <- 0 to v.length-2) {
         var currentSegment = LineShape(v(i), v(i+1))
-        if (!nearestDist.isDefined || (nearestDist.isDefined && currentSegment.distanceTo(m) < nearestDist.get)) {
-          nearestDist = Some(currentSegment.distanceTo(m))
-          //println("nearestShape: "+s)
+        if (currentSegment.distanceTo(m) < nearestDist) {
+          closestSegment = Some(currentSegment)
+          nearestDist = currentSegment.distanceTo(m)
         }
       }
-      nearestDist //return the distance
+      //check on which side of the original the offset should take place
+      val n = if(closestSegment.isDefined && offsetSide(closestSegment.get, m) == true) nearestDist  else - nearestDist
+      n
     }
-    val distance = calcNearest.get
-    //println("DISTANCE: "+distance)
+
+    val distance : Double = calcNearest
     //run the offset function to offset shapes with the distance set in calcNearest
-    for (i <- 0 to v.length-2) l = l :+ offset(LineShape(v(i), v(i+1)),distance)
+    for (i <- 0 to v.length-2) l = l :+ calcOffset(LineShape(v(i), v(i+1)),distance)
     l//return the list
   }
 
@@ -78,7 +109,7 @@ class Offset extends Module {
     knots = knots :+ newLines.reverse.head.p2 //add the last vertex
     Array(PolylineShape(knots))//create a polylineShape from the offset knots:
 
-  },1)//,1: MouseDown, Key (absolute - handled by the InputTwoValues module)
+  },1)//,1: MouseDown or typed length
 
   //Select shapes
   val stateMap: StateMap = Map(
