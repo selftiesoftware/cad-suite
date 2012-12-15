@@ -28,6 +28,49 @@ class Trim extends Module {
   var selectionBoxStart : Option[Vector2D] = None
   var selectionBoxEnd : Option[Vector2D] = None
 
+  def IsOnSegment(pt1 : Vector2D, pt2 : Vector2D, pt3 : Vector2D) = {
+    val xi = pt1.x
+    val yi = pt1.y
+    val xj = pt2.x
+    val yj = pt2.y
+    val xk = pt3.x
+    val yk = pt3.y
+    if((xi <= xk || xj <= xk) && (xk <= xi || xk <= xj) && (yi <= yk || yj <= yk) && (yk <= yi || yk <= yj)) {
+      true
+    } else false
+  }
+
+  def ComputeDirection(pt1 : Vector2D, pt2 : Vector2D, pt3 : Vector2D) = {
+    val xi = pt1.x
+    val yi = pt1.y
+    val xj = pt2.x
+    val yj = pt2.y
+    val xk = pt3.x
+    val yk = pt3.y
+    val a = (xk - xi) * (yj - yi)
+    val b = (xj - xi) * (yk - yi)
+    //return (a < b) ? -1 : a > b ? 1 : 0
+    if(a < b) -1
+    else if(a > b) 1
+    else 0
+  }
+
+  /** Do line segments (x1, y1)--(x2, y2) and (x3, y3)--(x4, y4) intersect? */
+  def IntersectEval(pt1 : Vector2D, pt2 : Vector2D, pt3 : Vector2D,  pt4 : Vector2D) : Boolean = {
+    val d1 = ComputeDirection(pt3, pt4, pt1)
+    val d2 = ComputeDirection(pt3, pt4, pt2)
+    val d3 = ComputeDirection(pt1, pt2, pt3)
+    val d4 = ComputeDirection(pt1, pt2, pt4)    
+    var intersects = false
+
+    if(((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) intersects = true
+    if((d1 == 0 && IsOnSegment(pt3, pt4, pt1)) || (d2 == 0 && IsOnSegment(pt3, pt4, pt2)) || (d3 == 0 && IsOnSegment(pt1, pt2, pt3)) || (d4 == 0 && IsOnSegment(pt1, pt2, pt4))) intersects = true
+
+  println("I: "+intersects)
+  intersects
+  }
+
+
   //calculate on which side of a given line segment the trim should be.
   def trimSide (l: Line2D, m : Vector2D) : Boolean = {
     val s = LineShape(l.p1,l.p2)
@@ -61,10 +104,13 @@ class Trim extends Module {
       val l1 = Line2D(t(i),t(i+1)) //create a line segment to evaluate
       //TODO: allow trimming of lines that intersect the guide multiple times
       //TODO: add a way to exclude intersections that happen in the extension of the segment
-      //val isIntersecting = l1.intersects(guide)
-      //println("inr ?: "+isIntersecting)
+      val isIntersecting : Boolean = IntersectEval(l1.p1,l1.p2,g(0),g(1))
+
       //if the guide and the segment intersects, get the intersection.
-      val int = l1.intersections(gLine)
+      val int = {
+        if(isIntersecting == true) l1.intersections(gLine)
+        else Seq()
+      }
       //test on what side of the intersection the trimming should take place
       val getTrim = {
         if(!int.isEmpty && trimSide(gLine, p) == false) {
