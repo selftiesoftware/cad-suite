@@ -13,6 +13,7 @@
 package com.siigna.module.base.modify
 
 import com.siigna._
+import util.geom.Geometry2D
 
 class Trim extends Module {
 
@@ -27,18 +28,22 @@ class Trim extends Module {
   var selectionBoxStart : Option[Vector2D] = None
   var selectionBoxEnd : Option[Vector2D] = None
 
-  //returns the intersecting points of a series of line segments.
-  def getKnots(l : List[LineShape]) = {
+  //returns the intersecting points between two lines consisting of a number of line segments.
+  def trim(guide : Geometry2D, trimLine : Geometry2D) = {
+    println("A")
+    val g = guide.vertices
+    val t = trimLine.vertices
     var k = List[Vector2D]()
-    for (i <- 0 to l.length -2) {
-      val s1 = l(i)
-      val s2 = l(i+1)
-      val l1 = Line2D(s1.p1,s1.p2)
-      val l2 = Line2D(s2.p1,s2.p2)
-      val int = l1.intersections(l2).head
-      k = k :+ int
+    var trimV = List[Vector2D]()
+    for (i <- 0 to t.length -2) {
+      val gLine = Line2D(g(0),g(1))
+      val l1 = Line2D(t(i),t(i+1))
+      val int = l1.intersections(gLine).head
+      trimV = trimV :+ t(i)
+        trimV = trimV :+ int
+        //k = k :+ int
     }
-    k
+    trimV
   }
 
   val stateMap: StateMap = Map(
@@ -56,13 +61,14 @@ class Trim extends Module {
         if (Drawing(m).size > 0) {
           val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
           nearestShape = if (nearest._2.distanceTo(m) < Siigna.selectionDistance) Some(nearest._2) else None
-          println("got shape: "+nearestShape.get)
-          
+
           val trimShapes = nearestShape.get.geometry
           val guideShape = trimGuide.get.geometry
+
           //do the trimming:
-          //val intersections = trimShapes.intersections(guideShape)
-          //println("intersections: "+intersections)
+          Delete(nearest._1)
+          Create(PolylineShape(trim(guideShape, trimShapes)))
+          End
 
         } else {
           println("got no shape. trying again.")
