@@ -28,20 +28,23 @@ class Trim extends Module {
   var selectionBoxStart : Option[Vector2D] = None
   var selectionBoxEnd : Option[Vector2D] = None
 
-  //returns the intersecting points between two lines consisting of a number of line segments.
-  def trim(guide : Geometry2D, trimLine : Geometry2D) = {
+  //evaluates a guideline and a (poly)line returns the polyline, trimmed by the line.
+  def trim(guide : Geometry2D, trimLine : Geometry2D, p : Vector2D) = {
     println("A")
     val g = guide.vertices
     val t = trimLine.vertices
-    var k = List[Vector2D]()
     var trimV = List[Vector2D]()
+    //make a line segment of the guide line. //TODO: allow polylines to be guide objects
+    val gLine = Line2D(g(0),g(1))
     for (i <- 0 to t.length -2) {
-      val gLine = Line2D(g(0),g(1))
-      val l1 = Line2D(t(i),t(i+1))
+      val l1 = Line2D(t(i),t(i+1)) //create a line segment to evaluate
+      //TODO: allow trimming of lines that intersect the guide multiple times
+      //if the guide and the segment intersects, get the intersection.
+      //TODO: add a way to exclude intersections that happen in the extension of the segment
       val int = l1.intersections(gLine).head
-      trimV = trimV :+ t(i)
-        trimV = trimV :+ int
-        //k = k :+ int
+      trimV = trimV :+ t(i) //add the first point on the segment - unalteres
+      //TODO: add a mechanism to evaluate which side of the line sebment should be trimmed
+      trimV = trimV :+ int  //add the new intersection point instead of the second point
     }
     trimV
   }
@@ -67,7 +70,7 @@ class Trim extends Module {
 
           //do the trimming:
           Delete(nearest._1)
-          Create(PolylineShape(trim(guideShape, trimShapes)))
+          Create(PolylineShape(trim(guideShape, trimShapes, v)))
           End
 
         } else {

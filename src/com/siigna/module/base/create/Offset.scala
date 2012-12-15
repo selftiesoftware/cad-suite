@@ -15,6 +15,7 @@ import com.siigna._
 
 class Offset extends Module {
 
+  var done = false
   //a function to offset a line segment
   def calcOffset(s : LineShape, dist : Double) : LineShape = {
     val lT = s.transform(TransformationMatrix(-s.p1,1)) //move the segment to 0,0
@@ -23,6 +24,7 @@ class Offset extends Module {
     val lR = lS.transform(TransformationMatrix().rotate(90, Vector2D(0,0))) //rotate it 90 degrees
     val pt = if(lR.p1 == Vector2D(0,0)) lR.p2 else lR.p1  //get the point on the vector which is not on (0,0)
     val offsetDirection = -pt * dist //get the length of the offsetvector
+    println("pt in calcOffset: "+pt)
     val offsetGeom = s.transform(TransformationMatrix(offsetDirection,1))//offset with the current distance
     offsetGeom
   }
@@ -40,13 +42,13 @@ class Offset extends Module {
     k
   }
   //calculate on which side of a given line segment the offset should be.
+  //TODO: first segment always offsets to the same side.
   def offsetSide (s: LineShape, m : Vector2D) : Boolean = {
     val angleRaw = ((s.p2-s.p1).angle * -1) + 450
     val angle = if(angleRaw > 360) angleRaw - 360 else angleRaw
+    println("S: "+s)
     val linePt = s.geometry.closestPoint(m)
-    val lx = linePt.x
     val ly = linePt.y
-    val mx = m.x
     val my = m.y
 
     if(angle > 0 && angle < 90) {
@@ -67,7 +69,7 @@ class Offset extends Module {
     }
   }
 
-  //calculates the distance to offset ehapes by, then calls the offset function to returns offset shapes as a list
+  //calculates the distance to offset shapes by, then calls the offset function to returns offset shapes as a list
   def offsetLines(s : Shape, m : Vector2D) = {
     var l = List[LineShape]()
     var v = s.geometry.vertices
@@ -125,6 +127,7 @@ class Offset extends Module {
       def result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
       result
       knots = knots :+ newLines.reverse.head.p2 //add the last vertex
+      done = true
       Create(PolylineShape(knots))//create a polylineShape from the offset knots:
     }
 
@@ -135,15 +138,17 @@ class Offset extends Module {
     case MouseDown(p, MouseButtonRight, _) :: tail => End
 
     case _ => {
-      if (!Drawing.selection.isDefined) {
+      if (!Drawing.selection.isDefined && done == false) {
         Siigna display "select an object to offset first"
         End
       }
       else if (Drawing.selection.isDefined && Drawing.selection.get.size == 1 ){
         Siigna display "click to set the offset distance"
         Start('Input,"com.siigna.module.base.create", guide)
-      } else {
-         Siigna display "please select one shape to offset"
+      }
+      else if (done == true) End
+      else {
+        Siigna display "please select one shape to offset"
         Drawing.deselect()
         End
       }
