@@ -24,7 +24,6 @@ class Offset extends Module {
     val lR = lS.transform(TransformationMatrix().rotate(90, Vector2D(0,0))) //rotate it 90 degrees
     val pt = if(lR.p1 == Vector2D(0,0)) lR.p2 else lR.p1  //get the point on the vector which is not on (0,0)
     val offsetDirection = -pt * dist //get the length of the offsetvector
-    //println("pt in calcOffset: "+pt)
     val offsetGeom = s.transform(TransformationMatrix(offsetDirection,1))//offset with the current distance
     offsetGeom
   }
@@ -42,27 +41,18 @@ class Offset extends Module {
     k
   }
   //calculate on which side of a given line segment the offset should be.
-  //TODO: first segment always offsets to the same side.
   def offsetSide (s: LineShape, m : Vector2D) : Boolean = {
     val angleRaw = ((s.p2-s.p1).angle * -1) + 450
     val angle = if(angleRaw > 360) angleRaw - 360 else angleRaw
-    println("S: "+s)
     val linePt = s.geometry.closestPoint(m)
     val ly = linePt.y
     val my = m.y
-
-    if(angle > 0 && angle < 90) {
+    //if the mouse is north of the shape, offset should extend upwards
+    if(angle > 0 && angle < 180) {
       if(my > ly) false
       else true
     }
-    else if(angle > 90 && angle < 180) {
-      if(my > ly) false
-      else true
-    }
-    else if(angle > 180 && angle < 270) {
-      if(my < ly) false
-      else true
-    }
+    //if the mouse is south of the shape, offset should extend downwards
     else {
       if(my < ly) false
       else true
@@ -100,7 +90,6 @@ class Offset extends Module {
   val guide: PointGuide = PointGuide((v : Vector2D) => {
     val shape = Drawing.selection.head.shapes.head._2
     val m = mousePosition.transform(View.deviceTransformation)
-
     val newLines = offsetLines(shape, m) //offset the lines by the current mouseposition
     var knots = List[Vector2D]()
 
@@ -110,14 +99,12 @@ class Offset extends Module {
     result
     knots = knots :+ newLines.reverse.head.p2 //add the last vertex
     Array(PolylineShape(knots))//create a polylineShape from the offset knots:
-
   },1)//,1: MouseDown or typed length
 
   //Select shapes
   val stateMap: StateMap = Map(
 
   'Start -> {
-
     case End(p : Vector2D) :: tail => {
       val shape = Drawing.selection.head.shapes.head._2
       val newLines = offsetLines(shape, p) //offset the lines by the returned point
@@ -131,7 +118,6 @@ class Offset extends Module {
       done = true
       Create(PolylineShape(knots))//create a polylineShape from the offset knots:
     }
-
     case MouseUp(_, MouseButtonRight, _) :: tail => End
 
     //exit strategy
