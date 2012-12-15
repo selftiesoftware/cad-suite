@@ -24,7 +24,7 @@ class Offset extends Module {
     val lR = lS.transform(TransformationMatrix().rotate(90, Vector2D(0,0))) //rotate it 90 degrees
     val pt = if(lR.p1 == Vector2D(0,0)) lR.p2 else lR.p1  //get the point on the vector which is not on (0,0)
     val offsetDirection = -pt * dist //get the length of the offsetvector
-    println("pt in calcOffset: "+pt)
+    //println("pt in calcOffset: "+pt)
     val offsetGeom = s.transform(TransformationMatrix(offsetDirection,1))//offset with the current distance
     offsetGeom
   }
@@ -76,7 +76,7 @@ class Offset extends Module {
     //iterate through the shapes to find the shape closest to the mouse
     def calcNearest : Double = {
       var nearestDist : Double = LineShape(v(0), v(1)).distanceTo(m)
-      var closestSegment : Option[LineShape] = None
+      var closestSegment : Option[LineShape] = Some(LineShape(v(0), v(1)))
       for (i <- 0 to v.length -2) {
         var currentSegment = LineShape(v(i), v(i+1))
         if (currentSegment.distanceTo(m) < nearestDist) {
@@ -85,7 +85,8 @@ class Offset extends Module {
         }
       }
       //check on which side of the original the offset should take place
-      val n = if(closestSegment.isDefined && offsetSide(closestSegment.get, m) == true) nearestDist  else - nearestDist
+      val n = if(closestSegment.isDefined && offsetSide(closestSegment.get, m) == true) nearestDist
+      else  - nearestDist
       n
     }
 
