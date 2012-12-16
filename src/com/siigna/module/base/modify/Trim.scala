@@ -65,8 +65,6 @@ class Trim extends Module {
 
     if(((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) intersects = true
     if((d1 == 0 && IsOnSegment(pt3, pt4, pt1)) || (d2 == 0 && IsOnSegment(pt3, pt4, pt2)) || (d3 == 0 && IsOnSegment(pt1, pt2, pt3)) || (d4 == 0 && IsOnSegment(pt1, pt2, pt4))) intersects = true
-
-  println("I: "+intersects)
   intersects
   }
 
@@ -81,10 +79,11 @@ class Trim extends Module {
     val linePt = s.geometry.closestPoint(m)//get a point on the line to evaluate against
     val ly = linePt.y
     val my = m.y
+    println("ANGLE: "+angle)
     //if the mouse is north of the shape, offset should extend upwards
     if(angle > 0 && angle < 90) {
-      if(my > ly)true
-      else false
+      if(my > ly)false
+      else true
     }
     //if the mouse is south of the shape, offset should extend downwards
     else {
@@ -92,37 +91,59 @@ class Trim extends Module {
       else true
     }
   }
-  
+  //a function that splits a shape into two lists by a point
+  def splitPolyline(p : List[Vector2D], splitPoint : Vector2D) : (List[Vector2D], List[Vector2D]) = {
+    var list1 = List[Vector2D]()
+    var list2 = List[Vector2D]()
+    //evaluate on which segment the splitpoint lies
+    var r = 0
+    if(p.length >= 2) {
+      for(i <- 0 to (p.length - 2)) {
+        if(IsOnSegment(p(i),p(i+1),splitPoint) == true) {
+          r = i
+        }
+      }
+    }
+    //make a list of points up until the split segment
+    for (i <- 0 to r) list2 = list2 :+ p(i)
+    //make a list of points after the split segment
+    for (i <- r to p.length - 2) list1 = list1 :+ p(i)
+    (list1, list2)
+  }
+
   //evaluates a guideline and a (poly)line returns the polyline, trimmed by the line.
-  def trim(guide : Geometry2D, trimLine : Geometry2D, p : Vector2D) = {
+  //TODO: allow trimming of lines that intersect the guide multiple times
+  def trim(guide : Geometry2D, trimLine : Geometry2D, p : Vector2D) : List[Vector2D] = {
     val g = guide.vertices
-    val t = trimLine.vertices
+    val t : Seq[Vector2D] = trimLine.vertices
     var trimV = List[Vector2D]()
     //make a line segment of the guide line. //TODO: allow polylines to be guide objects
     val gLine = Line2D(g(0),g(1))
-    for (i <- 0 to t.length -2) {
-      val l1 = Line2D(t(i),t(i+1)) //create a line segment to evaluate
-      //TODO: allow trimming of lines that intersect the guide multiple times
-      //TODO: add a way to exclude intersections that happen in the extension of the segment
-      val isIntersecting : Boolean = IntersectEval(l1.p1,l1.p2,g(0),g(1))
 
+    for (i <- 0 to t.length - 2) {
+      val l1 = Line2D(t(i),t(i+1)) //create a line segment to evaluate
+      //exclude intersections that happen in the extension of the guide segment
+      val isIntersecting : Boolean = IntersectEval(t(i),t(i+1),g(0),g(1))
       //if the guide and the segment intersects, get the intersection.
       val int = {
         if(isIntersecting == true) l1.intersections(gLine)
         else Seq()
       }
       //test on what side of the intersection the trimming should take place
-      val getTrim = {
-        if(!int.isEmpty && trimSide(gLine, p) == false) {
-          trimV = trimV :+ t(i) //add the first point on the segment - unaltered
-          trimV = trimV :+ int.head  //add the new intersection point instead of the second point
-        } else if (!int.isEmpty && trimSide (gLine, p) == true){
-          trimV = trimV :+ t(i+1) //add the first point on the segment - unaltered
-          trimV = trimV :+ int.head  //add the new intersection point instead of the second point
-        }
+      //split the (poly)line at the trim segment
+      val trimmedLines = if(!int.isEmpty) splitPolyline(t.toList,int.head) else (List[Vector2D](), List[Vector2D]())
+
+      if(!int.isEmpty && trimSide(gLine, p) == false) {
+        println("LEFT: "+trimmedLines._2)
+        trimV = trimmedLines._2 //add the points before the trim
+        trimV = trimV :+ int.head  //add the new intersection point instead of the second point
+      } else if (!int.isEmpty && trimSide (gLine, p) == true){
+        println("RIGHT: "+trimmedLines._1)
+        trimV = trimmedLines._1.reverse.take(trimmedLines._2.length - 1) //add the points after the trim
+        trimV = trimV :+ int.head  //add the new intersection point instead of the second point
       }
-      getTrim
     }
+    println("returning, trimV: "+trimV)
     trimV
   }
 
@@ -147,7 +168,9 @@ class Trim extends Module {
 
           //do the trimming:
           Delete(nearest._1)
-          Create(PolylineShape(trim(guideShape, trimShapes, v)))
+          val l = trim(guideShape, trimShapes, v)
+          println("trim result: "+l)
+          Create(PolylineShape(l))
           End
 
         } else {
@@ -156,7 +179,7 @@ class Trim extends Module {
         } //if the point is not set next to a shape, goto selection and try again
       }
       Track.trackEnabled = true
-
+      End
     }
     case _ => {
       Track.trackEnabled = false

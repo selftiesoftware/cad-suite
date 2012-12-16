@@ -117,6 +117,7 @@ class Offset extends Module {
       knots = knots :+ newLines.reverse.head.p2 //add the last vertex
       done = true
       Create(PolylineShape(knots))//create a polylineShape from the offset knots:
+      End
     }
     case MouseUp(_, MouseButtonRight, _) :: tail => End
 
