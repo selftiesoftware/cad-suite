@@ -21,7 +21,6 @@ import java.nio.file.OpenOption
 class Input extends Module {
 
   //VARS declaration:
-  private var currentSnap : Option[AngleSnap] = None
   private var guide : Boolean = true
   private var guideKeepGuideOff: Boolean = true
   private var inputType : Option[Int] = None
@@ -44,14 +43,6 @@ class Input extends Module {
   var sendPointPointDoubleGuide : Option[PointPointDoubleGuide] = None
   var sendPointPointPointGuide : Option[PointPointPointGuide] = None
   var snapAngle : Option[Double] = None
-
-  //a function to add a typed distance to a line, after the Angle Gizmo has redined a radial.
-  private def lengthVector(length : Double) : Vector2D = {
-    //a vector that equals the length of the typed distance, rotated by the current radial snap setting.
-    var rotatedVector = Vector2D(math.sin(currentSnap.get.degree * math.Pi/180), math.cos(currentSnap.get.degree * math.Pi/180)) * length
-    //and transformed by the center point of the offset from the Angle snap gizmo.
-    rotatedVector + currentSnap.get.center
-  }
 
   val stateMap: StateMap = Map(
 
@@ -79,9 +70,6 @@ class Input extends Module {
           || inputType == Some(12) || inputType == Some(13) || inputType == Some(17) || inputType == Some(103) 
           || inputType == Some(1031)) {
           End(s)
-        } else if (inputType == Some(15)) {
-          //End(Vector2D(math.sin(currentSnap.get.degree * math.Pi/180), math.cos(currentSnap.get.degree * math.Pi/180)) * s)
-          End(lengthVector(s))
         } else if ((inputType == Some(16) || inputType == Some(111)|| inputType == Some(112)) && Track.isTracking == true) {
           End(Track.getPointFromDistance(s).get)
         }
@@ -92,16 +80,11 @@ class Input extends Module {
         End(s)
       }
 
-      //if a snap angle is returned from the Angle Gizmo module, use it to set a distance on the active radial
-      case End(a : AngleSnap) :: tail => {
-        println("A")
-        val inputTypeFormer = inputType
-        inputType = Some(15)
-        //inputType = None
-        currentSnap = Some(a)
-        eventParser.snapTo(a)
+      //If a mouseDown is returned (angle gizmo does that)  
+      case End(MouseDown(p,button,modifier)) :: tail => {
+        End(p)
       }
-
+        
       //If left mouse button is clicked: End and return mouse-position-point.
       case MouseDown(p,button,modifier)::tail => {
         if (button==MouseButtonLeft) {
@@ -201,6 +184,7 @@ class Input extends Module {
 
       // Check for PointPointGuide - retrieve both the guide and its reference point, if it is defined.
       case Start(_ ,g : PointPointGuide) :: tail => {
+        println("pointpointGuide in input")
         pointPointGuide = Some(g.pointGuide)
         inputType = Some(g.inputType)
         sendPointPointGuide = Some(g)
@@ -258,43 +242,48 @@ class Input extends Module {
         if (key == Key.backspace && modifier == ModifierKeys(false,false,false)) {
           (End(KeyDown(key,modifier)))
 
-          //if SHIFT is pressed, forward to the Angle Gizmo
-        } else if(key == Key.shift) {
-          //println("start angle gizmo here")
+          //if SHIFT is pressed, forward to the Angle Gizmo - 
+        } else if(key == Key.shift && (inputType == Some(1) || inputType == Some(111) || inputType == Some(112))) {
+          //Start angle gizmo, and send the the active guide.
+          //The gizmo draws guide, so input should not.
+          if (guide == true) guide = false
           if (!sendPointGuide.isEmpty) Start('AngleGizmo,"com.siigna.module.base.create",sendPointGuide.get)
-          else if (!sendPointPointGuide.isEmpty) {
-            Start('AngleGizmo,"com.siigna.module.base.create",sendPointPointGuide.get)
-          }
+          else if (!sendDoubleGuide.isEmpty) Start('AngleGizmo,"com.siigna.module.base.create", sendDoubleGuide.get)
+          else if (!sendPointPointGuide.isEmpty) Start('AngleGizmo,"com.siigna.module.base.create",sendPointPointGuide.get)
+          else if (!sendPointDoubleGuide.isEmpty) Start('AngleGizmo,"com.siigna.module.base.create", sendPointDoubleGuide.get)
+          else if (!sendPointPointDoubleGuide.isEmpty) Start('AngleGizmo,"com.siigna.module.base.create", sendPointPointDoubleGuide.get)
+          else if (!sendPointPointPointGuide.isEmpty) Start('AngleGizmo,"com.siigna.module.base.create", sendPointPointPointGuide.get)
+          else Start('AngleGizmo,"com.siigna.module.base.create")
 
           //If it is other keys, the input is interpreted by the input-modules.
           //Any existing guides are forwarded.
         } else if(inputType == Some(1) || inputType == Some(2) || inputType == Some(102) || inputType == Some(1020) 
                   || inputType == Some(1021)
                   || ((inputType == Some(16) || inputType == Some(111) || inputType == Some(112)) && Track.isTracking == false)) {
-          if (guide == true) guide = false
-          if (!sendPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create",sendPointGuide.get)
-          else if (!sendDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendDoubleGuide.get)
-          else if (!sendPointPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create",sendPointPointGuide.get)
-          else if (!sendPointDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointDoubleGuide.get)
-          else if (!sendPointPointDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointPointDoubleGuide.get)
-          else if (!sendPointPointPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointPointPointGuide.get)
-          else Start('InputTwoValues,"com.siigna.module.base.create")
+            if (guide == true) guide = false
+            if (!sendPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create",sendPointGuide.get)
+            else if (!sendDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendDoubleGuide.get)
+            else if (!sendPointPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create",sendPointPointGuide.get)
+            else if (!sendPointDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointDoubleGuide.get)
+            else if (!sendPointPointDoubleGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointPointDoubleGuide.get)
+            else if (!sendPointPointPointGuide.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create", sendPointPointPointGuide.get)
+            else Start('InputTwoValues,"com.siigna.module.base.create")
         } else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) 
                   || inputType == Some(7) || inputType == Some(8) || inputType == Some(10) || inputType == Some(12) 
                   || inputType == Some(13) || inputType == Some(15) || inputType == Some(16) || inputType == Some(17)
                   || inputType == Some(103)    || inputType == Some(111) || inputType == Some(112) || inputType == Some(1031)) {
-          if (guide == true) guide = false
-          if (!sendPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create",sendPointGuide.get)
-          else if (!sendDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendDoubleGuide.get)
-          else if (!sendPointPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create",sendPointPointGuide.get)
-          else if (!sendPointDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointDoubleGuide.get)
-          else if (!sendPointPointDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointPointDoubleGuide.get)
-          else if (!sendPointPointPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointPointPointGuide.get)
-          else Start('InputOneValue,"com.siigna.module.base.create")
+            if (guide == true) guide = false
+            if (!sendPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create",sendPointGuide.get)
+            else if (!sendDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendDoubleGuide.get)
+            else if (!sendPointPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create",sendPointPointGuide.get)
+            else if (!sendPointDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointDoubleGuide.get)
+            else if (!sendPointPointDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointPointDoubleGuide.get)
+            else if (!sendPointPointPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", sendPointPointPointGuide.get)
+            else Start('InputOneValue,"com.siigna.module.base.create")
         } else if(inputType == Some(14) ) {
-          if (guide == true) guide = false
-          if (!textGuide.isEmpty) Start('InputText,"com.siigna.module.base.create",sendTextGuide.get)
-          else Start('InputText,"com.siigna.module.base.create")
+            if (guide == true) guide = false
+            if (!textGuide.isEmpty) Start('InputText,"com.siigna.module.base.create",sendTextGuide.get)
+            else Start('InputText,"com.siigna.module.base.create")
         }
       }
       case _ => {
@@ -341,43 +330,45 @@ class Input extends Module {
 
 /**
  * inputType (Int) lets the modules tell, what return they accept:
- *     Return:                      Input method:
- * 1 = Vector2D                     MouseDown, Key (absolute - handled by the InputTwoValues module)
- * 2 = Vector2D                     Coordinates from mouseDown to mouseUp, or Key (absolute - handled by the InputTwoValues module)
- * 3 = Double                       Distance from given start point to point given by mouseDown, or Key (handled by the InputOneValues module)
- * 4 = Double                       Distance from mouse down to mouse up, or Key (handled by the InputOneValues module)
- * 5 = Double                       x-coordinate from mouseDown, or Key
- * 6 = Double                       x-coordinate difference from mouse Down to mouseUp, or key
- * 7 = Double                       y-coordinate from mouseDown, or Key
- * 8 = Double                       y-coordinate difference from mouse Down to mouseUp, or key
- * 9 = Vector2D                     Coordinates at mouseUp
- * 10 = Double                      Key input only
- * 11 = Vector2D                    Left mouse click only
- * 12 = Double                      For use when getting angle: Key (one value)
- *      Vector2D                    MouseDown
- *      Special guide:              Do not draw guide
- * 13 = Double                      For use when getting angle: Key (one value)
- *      Vector2D                    MouseDown. Guide is drawn.
- * 14 = String                      Key input, text
- * 15 = Vector2D                    AngleGizmo-controlled MouseDown, or defined by distance from start point on AngleGizmo defined radian (inputOneValue)
- * 16 = Vector2D                    Key input, one-coordinate, offset from existing point when on a track guide
- * 17 = Double                      Key - InputOneValue
- *      End                         All other inputs sends End
+ * Returned            AngleGizmo     Input method:
+ * variable type      (x: Activated)  How the returned variable is produced:
+ * 1 = Vector2D                    x  MouseDown, Key (absolute - handled by the InputTwoValues module)
+ * 2 = Vector2D                       Coordinates from mouseDown to mouseUp, or Key (absolute - handled by the InputTwoValues module)
+ * 3 = Double                         Distance from given start point to point given by mouseDown, or Key (handled by the InputOneValues module)
+ * 4 = Double                         Distance from mouse down to mouse up, or Key (handled by the InputOneValues module)
+ * 5 = Double                         x-coordinate from mouseDown, or Key
+ * 6 = Double                         x-coordinate difference from mouse Down to mouseUp, or key
+ * 7 = Double                         y-coordinate from mouseDown, or Key
+ * 8 = Double                         y-coordinate difference from mouse Down to mouseUp, or key
+ * 9 = Vector2D                       Coordinates at mouseUp
+ * 10 = Double                        Key input only
+ * 11 = Vector2D                      Left mouse click only
+ * 12 = Double                        Key (one value)
+ *      Vector2D                      MouseDown
+ *      Special guide:                Do not draw guide
+ * 13 = Double                        Key (one value)
+ *      Vector2D                      MouseDown. Guide is drawn.
+ * 14 = String                        Key input, text
+ * 151 = Special guide                InputOneValue only: Interprets input as angle, and draws angle gizmo. Returns double from inputOneValue. Returns nothing from input.
+ * 152 = Special guide                InputOneValue only: Interprets input as length, and draws guide. Returns double from inputOneValue. Returns nothing from input.
+ * 16 = Vector2D                      Key input, one-coordinate, offset from existing point when on a track guide
+ * 17 = Double                        Key - InputOneValue
+ *      End                           All other inputs sends End
  *
- * 111 = Vector2D                   Point at mouseDown, or point by key(absolute - twoValues) or point guided by trackguide (input One value) if a track guide is active.
- * 112 = Vector2D                   Point at MouseDown, or point by key(relative - two values) or point guided by trackguide (input One value) if a track guide is active.
+ * 111 = Vector2D                  x  Point at mouseDown, or point by key(absolute - twoValues) or point guided by trackguide (input One value) if a track guide is active.
+ * 112 = Vector2D                  x  Point at MouseDown, or point by key(relative - two values) or point guided by trackguide (input One value) if a track guide is active.
  *
- * 102 = mouseDown, with Vector2D   MouseDown (sent after mouseUp received)
- *       mouseUp, with Vector2D     coordinates from mouseDown to mouseUp, Key (absolute - handled by the InputTwoValues module)
- * 1020 = mouseDown, with Vector2D  MouseDown (sent after mouseUp received)
- *        mouseUp, with Vector2D    coordinates from mouseDown to mouseUp, Key (absolute - handled by the InputTwoValues module)
- *        Special guide:            Do not draw guide in input until left mouse button is clicked.
- * 1021 = mouseDown, with Vector2D  MouseDown (sent after mouseUp received), Key (absolute - handled by the InputTwoValues module)
- *       mouseUp, with Vector2D     coordinates from mouseDown to mouseUp
- * 103 = Double                     Length of vector from mouseDown to mouseUp, or key-input
- *       mouseDown, with Vector2D   mouseDown (sent after mouseUp received)
- * 1031 = Double                    key-input
- *        Vector2D                  Point at mouseDown
+ * 102 = mouseDown, with Vector2D     MouseDown (sent after mouseUp received)
+ *       mouseUp, with Vector2D       coordinates from mouseDown to mouseUp, Key (absolute - handled by the InputTwoValues module)
+ * 1020 = mouseDown, with Vector2D    MouseDown (sent after mouseUp received)
+ *        mouseUp, with Vector2D      coordinates from mouseDown to mouseUp, Key (absolute - handled by the InputTwoValues module)
+ *        Special guide:              Do not draw guide in input until left mouse button is clicked.
+ * 1021 = mouseDown, with Vector2D    MouseDown (sent after mouseUp received), Key (absolute - handled by the InputTwoValues module)
+ *       mouseUp, with Vector2D       coordinates from mouseDown to mouseUp
+ * 103 = Double                       Length of vector from mouseDown to mouseUp, or key-input
+ *       mouseDown, with Vector2D     mouseDown (sent after mouseUp received)
+ * 1031 = Double                      key-input
+ *        Vector2D                    Point at mouseDown
 
  * 
  * 

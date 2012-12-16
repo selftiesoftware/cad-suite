@@ -21,7 +21,7 @@ import collection.parallel.immutable.{ParMap, ParIterable}
  * @param center  The center point of the angle snap
  * @param degree The degree to snap to, calculated clockwise from North
  */
-case class AngleSnap(center: Vector2D, degree : Int) extends EventSnap{
+case class AngleSnap(center: Vector2D, degree : Double) extends EventSnap{
 
   /**
    * Hack to make sure we use radians to calculate the correct angle.
