@@ -16,8 +16,8 @@ import base.radialmenu.category.StartCategory
 import com.siigna._
 import app.model.shape.{FullSelector, ShapeSelector}
 import java.awt.Color
-import com.siigna.module.base.paperHeader
-
+import com.siigna.module.base.{paperHeader, inputFeedback}
+import java.util.{Timer,TimerTask}
 
 /**
  * An init module for the cad-suite.
@@ -29,6 +29,11 @@ class ModuleInit extends Module {
 
   //The nearest shape to the current mouse position.
   var nearestShape : Option[(Int, Shape)] = None
+
+  var shortcut = ""
+  //draw feedback when typing shortcuts
+  val textFeedback = new inputFeedback
+  val timer = new Timer()
 
   //Check if there is a useable selection:
   // TODO: Make a more elegant way to check for usable selection - in mainline?
@@ -124,18 +129,78 @@ class ModuleInit extends Module {
       }
 
       //shortcuts
-      case KeyDown('c', _) :: KeyUp('p', _) :: tail => {
-        Start('Colors, "com.siigna.module.base.properties")
-      }
-      case KeyDown('l', _) :: KeyUp('c', _) :: tail => {
-        Start('Line, "com.siigna.module.base.create")
-      }
-      case KeyDown('p', _) :: KeyUp('c', _) :: tail => {
-        Start('Polyline, "com.siigna.module.base.create")
+
+      //CREATE
+      case KeyDown('a', _) :: KeyUp('c', _) :: tail => {
+        Start('Arc, "com.siigna.module.base.create")
       }
       case KeyDown('c', _) :: KeyUp('c', _) :: tail => {
         Start('Circle, "com.siigna.module.base.create")
       }
+      case KeyDown('d', _) :: KeyUp('c', _) :: tail => {
+        Start('Lineardim, "com.siigna.module.base.create")
+      }
+      case KeyDown('e', _) :: KeyUp('c', _) :: tail => {
+        Start('Explode, "com.siigna.module.base.create")
+      }
+      case KeyDown('l', _) :: KeyUp('c', _) :: tail => {
+        shortcut = "l"
+        lastModule = Some(Module('Line,"com.siigna.module.base.create"))
+        Start('Line, "com.siigna.module.base.create")
+      }
+      case KeyDown('o', _) :: KeyUp('c', _) :: tail => {
+        Start('Offset, "com.siigna.module.base.create")
+      }
+      case KeyDown('p', _) :: KeyUp('c', _) :: tail => {
+        shortcut = "p"
+        lastModule = Some(Module('Polyline,"com.siigna.module.base.create"))
+        Start('Polyline, "com.siigna.module.base.create")
+      }
+      case KeyDown('r', _) :: KeyUp('c', _) :: tail => {
+        Start('Rectangle, "com.siigna.module.base.create")
+      }
+      case KeyDown('t', _) :: KeyUp('c', _) :: tail => {
+        Start('Text, "com.siigna.module.base.create")
+      }
+
+
+      //HELPERS
+      case KeyDown('d', _) :: KeyUp('h', _) :: tail => {
+        Start('Distance, "com.siigna.module.base.helpers")
+      }
+      case KeyDown('s', _) :: KeyUp('h', _) :: tail => {
+        Start('SnapToggle, "com.siigna.module.base.helpers")
+      }
+      case KeyDown('t', _) :: KeyUp('h', _) :: tail => {
+        Start('TrackToggle, "com.siigna.module.base.helpers")
+      }
+
+      //MODIFY
+      case KeyDown('m', _) :: KeyUp('m', _) :: tail => {
+        shortcut = "m"
+        lastModule = Some(Module('Move,"com.siigna.module.base.modify"))
+        Start('Move, "com.siigna.module.base.modify")
+      }
+      case KeyDown('r', _) :: KeyUp('m', _) :: tail => {
+        Start('Rotate, "com.siigna.module.base.modify")
+      }
+      case KeyDown('s', _) :: KeyUp('m', _) :: tail => {
+        Start('Scale, "com.siigna.module.base.modify")
+      }
+      case KeyDown('t', _) :: KeyUp('m', _) :: tail => {
+        shortcut = "t"
+        lastModule = Some(Module('Trim,"com.siigna.module.base.modify"))
+        Start('Trim, "com.siigna.module.base.modify")
+      }
+
+      //PROPERTIES
+      case KeyDown('c', _) :: KeyUp('p', _) :: tail => {
+        Start('Colors, "com.siigna.module.base.properties")
+      }
+      case KeyDown('s', _) :: KeyUp('p', _) :: tail => {
+        Start('Stroke, "com.siigna.module.base.properties")
+      }
+
 
       case KeyDown('a', Control) :: tail => Drawing.selectAll()
       case KeyDown('z', Control) :: tail => Drawing.undo()
@@ -146,14 +211,22 @@ class ModuleInit extends Module {
 
       // Release all selections
       case KeyDown(Key.Esc, _) :: tail => Drawing.deselect()
+
+      //MENU SHORTCUTS
+      case KeyDown('c', _) :: tail => {
+        shortcut = "c"
+      }
+
       case _ =>
     }
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
 
+    if(shortcut.size != 0) {
+      textFeedback.suggestion(shortcut)
+    }
+    //construct header elements
     val headerShapes = new paperHeader
-
-    //val transformation = headerShapes.transformation
     val scale = headerShapes.scale
     //val unitX = headerShapes.unitX(4)
 
