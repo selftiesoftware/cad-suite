@@ -33,6 +33,8 @@ class AngleGizmo extends Module {
   val gizmoTime = 300   //time to press and hold the mouse button before the gizmo mode is activated
   private var drawGizmo = true
   private var drawGuide = true
+  private var backFromOneValue = false
+  private var oldMousePosition: Option[Vector2D] = None
 
   private var inputType : Option[Int] = None
 
@@ -148,7 +150,6 @@ class AngleGizmo extends Module {
           val point = point1.get
           val d = degrees.get
           anglePointIsSet = true
-          println("point1 AG: "+p)
           currentSnap = Some(new AngleSnap(point,d))
           eventParser.snapTo(currentSnap.get)
           drawGizmo = false
@@ -160,8 +161,9 @@ class AngleGizmo extends Module {
       case KeyDown(key,modifier) :: tail => {
         drawGuide = false
         var guide: Option[DoubleGuide] = None
+        //A DoubleGuide for a line is sent to InputOneValue, to draw a guide for the segment being drawn:
         if (anglePointIsSet == false) {
-          guide = Some(DoubleGuide((d: Double) => Traversable(LineShape(point1.get, point1.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * 100))),15))
+          guide = Some(DoubleGuide((d: Double) => Traversable(LineShape(point1.get, point1.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * 150))),15))
         } else {
           guide = Some(DoubleGuide((d: Double) => Traversable(LineShape(point1.get, lengthVector (d))),15))
         }
@@ -177,6 +179,7 @@ class AngleGizmo extends Module {
         degrees = Some(d)
         drawGizmo = false
         drawGuide = true
+        backFromOneValue = true
         } else {
         End(MouseDown(lengthVector(d),MouseButtonLeft,ModifierKeys(false,false,false)))
         }
@@ -195,40 +198,41 @@ class AngleGizmo extends Module {
 
     //if (point1.isDefined && (startTime.isDefined && System.currentTimeMillis() - startTime.get > gizmoTime)) {
     if (point1.isDefined && anglePointIsSet == false  && drawGizmo == true) {
-
+      //If there is no ongoing key-input, draw the whole guide:
       if (!pointGuide.isEmpty && drawGuide == true) {
         pointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+        //If there is key-input, only draw the fixed part of the shape - the last part being created is drawn by InputOneValue:
       } else if (!pointGuide.isEmpty && drawGuide == false) {
         pointGuide.foreach(_(point1.get).foreach(s => g.draw(s.transform(t))))
       }
 
       var m = mousePosition.transform(View.deviceTransformation)
 
-      //draw the shape under creation:
-      var parsedPoint = Vector2D(point1.get.x, point1.get.y+guideLength)
-      //using point1 is a hack to prevent the line from the last point to the mousePosition being drawn on top of the angle guide.
-      //TODO: use a guide that allows rectangles to be drawn dynamically ( mousePosition works, but is not snapped to the radians.) parsedPoint does not work??
-      //if(pointGuide.isDefined) guide(point1.get).foreach(s => g draw s.transform(t))
-      //if (!pointGuide.isEmpty && !point1.isEmpty ) pointGuide.foreach(_(Vector2D((mousePosition - point1.get).x,-(mousePosition - point1.get).y)).foreach(s => g.draw(s.transform(t))))
-
-
       //modify the TransformationMatrix to preserve AngleGizmo scaling.
       def scaling(a : Double) = scala.math.pow(a,-1)
 
       val transformation : TransformationMatrix = t.scale((scaling(View.zoom)*gizmoScale), point1.get)
 
-      //Set Angle Gizmo mode based on distance to center
-      def distanceToStart = m - point1.get
-      if (distanceToStart.length < 50*scaling(View.zoom)*gizmoScale) gizmoMode = 90
-      else if (distanceToStart.length > 50*scaling(View.zoom)*gizmoScale && distanceToStart.length < 100*scaling(View.zoom)*gizmoScale) gizmoMode = 45
-      else if (distanceToStart.length > 100*scaling(View.zoom)*gizmoScale && distanceToStart.length < 170*scaling(View.zoom)*gizmoScale) gizmoMode = 10
-      else if (distanceToStart.length > 170*scaling(View.zoom)*gizmoScale && distanceToStart.length < 200*scaling(View.zoom)*gizmoScale) gizmoMode = 5
-      else gizmoMode = 1
+      //If there is text-input (drawGuide == false), the gizmo-modes are not needed, and the text doesn't need to be drawn:
+      if (drawGuide == true) {
+        //Set Angle Gizmo mode based on distance to center
+        def distanceToStart = m - point1.get
+        if (distanceToStart.length < 50*scaling(View.zoom)*gizmoScale) gizmoMode = 90
+        else if (distanceToStart.length > 50*scaling(View.zoom)*gizmoScale && distanceToStart.length < 100*scaling(View.zoom)*gizmoScale) gizmoMode = 45
+        else if (distanceToStart.length > 100*scaling(View.zoom)*gizmoScale && distanceToStart.length < 170*scaling(View.zoom)*gizmoScale) gizmoMode = 10
+        else if (distanceToStart.length > 170*scaling(View.zoom)*gizmoScale && distanceToStart.length < 200*scaling(View.zoom)*gizmoScale) gizmoMode = 5
+        else gizmoMode = 1
 
-      if (gizmoMode == 1) {guideLength = 195 }
-      else if (gizmoMode == 5) {guideLength = 165 }
-      else if (gizmoMode == 10) {guideLength = 95 }
-      else guideLength = 45
+        if (gizmoMode == 1) {guideLength = 195 }
+        else if (gizmoMode == 5) {guideLength = 165 }
+        else if (gizmoMode == 10) {guideLength = 95 }
+        else guideLength = 45
+
+        // Draw the text
+        if (degrees.isDefined) {
+          g draw TextShape((roundSnap(degrees.get)).toString, Vector2D(point1.get.x, point1.get.y + 240).transform(transformation.rotate(roundSnap(-degrees.get), point1.get)), 12, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector2D(0.5,0.5)))
+        }
+      }
 
       //draw inactive Angle Gizmo shapes
       def getLine(d1 : Int, d2 : Int, mode : Int) = LineShape(Vector2D(point1.get.x, point1.get.y + d1), Vector2D(point1.get.x, point1.get.y + d2), Attributes("Color" -> (if (gizmoMode == mode) "#999999" else "#CDCDCD").color))
@@ -239,13 +243,19 @@ class AngleGizmo extends Module {
       (0 to 360 by 5).foreach(radian => g draw getLine(170, 200, 5).transform(transformation.rotate(radian, point1.get)))
       (0 to 360 by 1).foreach(radian => g draw getLine(200, 220, 1).transform(transformation.rotate(radian, point1.get)))
 
-      // Draw the text
-      if (degrees.isDefined) {
-        g draw TextShape((roundSnap(degrees.get)).toString, Vector2D(point1.get.x, point1.get.y + 240).transform(transformation.rotate(roundSnap(-degrees.get), point1.get)), 12, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector2D(0.5,0.5)))
-      }
+      //If anglePointSet is true, the angle has been set, and length is the only thing left.
+      // There is no need to display the angle. Draw the guide:
     } else if (point1.isDefined && anglePointIsSet == true) {
-      if (!pointGuide.isEmpty && drawGuide == true) {
+      //If there is no key-input, draw the whole guide:
+        //If the it is just after the angle was set, dont use the mouse position to draw the guide,
+        //as it is not on the correct radian. Use point based on lengthVector instead, until the mouse is moved:
+      if (!pointGuide.isEmpty && drawGuide == true && backFromOneValue == true) {        
+        pointGuide.foreach(_(lengthVector(150)).foreach(s => g.draw(s.transform(t))))
+        if (oldMousePosition.isEmpty) oldMousePosition = Some(mousePosition)
+        if (mousePosition != oldMousePosition.get) backFromOneValue = false
+      } else if (!pointGuide.isEmpty && drawGuide == true) {
         pointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+        //If there is key-input, only draw the fixed part of the shape - the last part being created is drawn by InputOneValue
       } else if (!pointGuide.isEmpty && drawGuide == false) {
         pointGuide.foreach(_(point1.get).foreach(s => g.draw(s.transform(t))))
       }
