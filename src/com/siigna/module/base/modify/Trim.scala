@@ -55,35 +55,32 @@ class Trim extends Module {
     else 0
   }
 
-  /** Do line segments (x1, y1)--(x2, y2) and (x3, y3)--(x4, y4) intersect? */
-  def IntersectEval(pt1 : Vector2D, pt2 : Vector2D, pt3 : Vector2D,  pt4 : Vector2D) : Boolean = {
-    val d1 = ComputeDirection(pt3, pt4, pt1)
-    val d2 = ComputeDirection(pt3, pt4, pt2)
-    val d3 = ComputeDirection(pt1, pt2, pt3)
-    val d4 = ComputeDirection(pt1, pt2, pt4)
-    var intersects = false
+  //getIntersections. Returns the segment number (Int) of the intersection for the respective input shapes: 
+  //the trimguide, and the trimshapes, respectively
+  def getIntersectSegmentNumber(g : Geometry2D, t : Geometry2D) : List[Int] = {
+    val gV = g.vertices
+    val tV = t.vertices
+    var gS = 0
+    var tS = 0
+    if(gV.length >= 2 && tV.length > 2) {
 
-    if(((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) intersects = true
-    if((d1 == 0 && IsOnSegment(pt3, pt4, pt1)) || (d2 == 0 && IsOnSegment(pt3, pt4, pt2)) || (d3 == 0 && IsOnSegment(pt1, pt2, pt3)) || (d4 == 0 && IsOnSegment(pt1, pt2, pt4))) intersects = true
-    intersects
-  }
+      for (i <- 0 to tV.length - 2) {
+        for(j <- 0 to gV.length - 2) {
+          if(IntersectEval(tV(i),tV(i+1),gV(j),gV(j+1)) == true){
+            println("i: "+i)
+            println("j: "+j)
 
-  //a function that splits a shape into two lists by a point
-  def splitPolyline(p : List[Vector2D], splitPoint : Vector2D) : (List[Vector2D], List[Vector2D]) = {
-    var list1 = List[Vector2D]()
-    var list2 = List[Vector2D]()
-    var r = 0
-    //evaluate on which segment the splitpoint lies
-    if(p.length >= 2) for(i <- 0 to (p.length - 2)) if(IsOnSegment(p(i),p(i+1),splitPoint) == true) r = i
+            gS = j
+            tS = i
+          } 
+        }
+      }
+    }
+    List(gS, tS)
+  }  
 
-    //make a list of points up until the split segment
-    for (i <- 0 to r) list1 = list1 :+ p(i)
-    //make a list of points after the split segment
-    for (i <- (r + 1) to p.length - 2) list2 = list2 :+ p(i)
-    //return the two lists  
-    (list2, list1)
-  }
-  /*
+  /* getSubSegment: 
+  
         *----
         | -> second subsegment
         * (d)
@@ -98,45 +95,77 @@ class Trim extends Module {
    Returns 2 if the point is on the first subsegment.
   */
   def getSubSegment (p1: Vector2D, p2 : Vector2D, d : Vector2D, p : Vector2D) : Int = {
-    if(IsOnSegment(p1,d,p)) 1
-    else if(IsOnSegment(p2,d,p)) 2
+    val dist1 = p.distanceTo(Segment2D(p1,d))
+    val dist2 = p.distanceTo(Segment2D(p2,d))
+
+    if(dist1 < dist2) 1
+    else if(dist1 > dist2) 2
     else 0
+  }
+
+  /** Do line segments (x1, y1)--(x2, y2) and (x3, y3)--(x4, y4) intersect? */
+  def IntersectEval(pt1 : Vector2D, pt2 : Vector2D, pt3 : Vector2D,  pt4 : Vector2D) : Boolean = {
+    val d1 = ComputeDirection(pt3, pt4, pt1)
+    val d2 = ComputeDirection(pt3, pt4, pt2)
+    val d3 = ComputeDirection(pt1, pt2, pt3)
+    val d4 = ComputeDirection(pt1, pt2, pt4)
+    var intersects = false
+
+    if(((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) intersects = true
+    if((d1 == 0 && IsOnSegment(pt3, pt4, pt1)) || (d2 == 0 && IsOnSegment(pt3, pt4, pt2)) || (d3 == 0 && IsOnSegment(pt1, pt2, pt3)) || (d4 == 0 && IsOnSegment(pt1, pt2, pt4))) intersects = true
+    intersects
+  }
+
+
+  //a function that splits a shape into two lists by a point
+  def splitPolyline(p : List[Vector2D], splitPoint : Vector2D) : (List[Vector2D], List[Vector2D]) = {
+    var list1 = List[Vector2D]()
+    var list2 = List[Vector2D]()
+    var r = 0
+    //evaluate on which segment the splitpoint lies -unless the length is two, in which case it is not a polyline
+    if(p.length >= 2) for(i <- 0 to (p.length - 2)) if(IsOnSegment(p(i),p(i+1),splitPoint) == true) r = i
+
+    //make a list of points up until the split segment
+    for (i <- 0 to r) list1 = list1 :+ p(i)
+    //make a list of points after the split segment
+    for (i <- (r + 1) to p.length - 2) list2 = list2 :+ p(i)
+    //return the two lists
+    (list2, list1)
   }
   
   //evaluates a guideline and a (poly)line returns the polyline, trimmed by the line.
   //TODO: allow trimming of lines that intersect the guide multiple times
   def trim(guide : Geometry2D, trimLine : Geometry2D, p : Vector2D) : List[Vector2D] = {
-    val g = guide.vertices
+
+    val g : Seq[Vector2D] = guide.vertices
     val t : Seq[Vector2D] = trimLine.vertices
     var trimV = List[Vector2D]()
-    //make a line segment of the guide line. //TODO: allow polylines to be guide objects
-    val gLine = Line2D(g(0),g(1))
+    val intSegments : List[Int] = getIntersectSegmentNumber(guide,trimLine) //find segment numbers for intersections
+    //store return values from getIntersectSegmentNumber
+    val guideSegmentNr = intSegments(0)
+    val trimSegmentNr = intSegments(1)
+    val guideSegment = Line2D(g(guideSegmentNr),g(guideSegmentNr+1))
+    val trimSegment = Line2D(t(trimSegmentNr),t(trimSegmentNr+1))   
+    val int = guideSegment.intersections(trimSegment)   //do the intersection!
+    if (!int.isEmpty) {
+      //find out which part of the trimline needs to be kept, by calling the getSubSegment function
+      //println("A: "+(t(trimSegmentNr)))
+      //println("B: "+(t(trimSegmentNr + 1)))
 
-    for (i <- 0 to t.length - 2) {
-      val l1 = Line2D(t(i),t(i+1)) //create a line segment to evaluate
-      //exclude intersections that happen in the extension of the guide segment
-      val isIntersecting : Boolean = IntersectEval(t(i),t(i+1),g(0),g(1))
-      //if the guide and the segment intersects, get the intersection.
-      val int = {
-        if(isIntersecting == true) l1.intersections(gLine)
-        else Seq()
+      val getSegment = (getSubSegment(t(trimSegmentNr),t(trimSegmentNr+1),int.head,p))
+      val twoLists = splitPolyline(t.toList,int.head)//the trimline split into two lists
+      //println("inthead: "+int.head)
+      //println("getSegment: "+getSegment)
+      if(getSegment == 1) { //if the trim point is set before the trimline, keep the first segments.
+        trimV = (twoLists._1 :+ t.last).reverse :+ int.head
+        println("S1 "+trimV)
       }
-      println(int.isEmpty)
-      if(int.isEmpty == false) {
-        val getSegment = (getSubSegment(t(i),t(i+1),int.head,p))
-        val twoLists = splitPolyline(t.toList,int.head)//the trimline split into two lists
-        if(getSegment == 1) {
-          trimV = (twoLists._1 :+ t.last).reverse :+ int.head
-          println("S1 "+trimV)
-        }
-        else if(getSegment == 2) {
-
-          trimV = twoLists._2 :+ int.head
-          println("S2 "+trimV)
-        } else trimV = trimLine.vertices.toList
-      }
-    }
-    trimV
+      else if(getSegment == 2) { //if the trim point is set after the trimline, keep the last segments.
+        trimV = twoLists._2 :+ int.head
+        println("S2 "+trimV)
+      } else trimV = trimLine.vertices.toList
+    } //else trimV = t.toList //if not intersection is found, return the original trimLine
+    trimV //return the trimmed line
   }
 
   val stateMap: StateMap = Map(
@@ -173,7 +202,7 @@ class Trim extends Module {
         End
       }
       case _ => {
-        //Track.trackEnabled = false
+        Track.trackEnabled = false
         if (Drawing.selection.isDefined && Drawing.selection.get.size == 1) {
           trimGuide = Some(Drawing.selection.head.shapes.head._2)
           Siigna.display("Select shapes to trim")
