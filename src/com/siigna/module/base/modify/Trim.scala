@@ -18,13 +18,10 @@ import util.geom.Geometry2D
 class Trim extends Module {
 
   var nearestShape : Option[Shape] = None
-
   var selection = List[Vector2D]()
   var shapes : List[Shape] = List()
-
   var trimGuide : Option[Shape] = None
   var trimShapes : Iterable[Shape] = List()
-
   var selectionBoxStart : Option[Vector2D] = None
   var selectionBoxEnd : Option[Vector2D] = None
 
@@ -62,14 +59,10 @@ class Trim extends Module {
     val tV = t.vertices
     var gS = 0
     var tS = 0
-    if(gV.length >= 2 && tV.length > 2) {
-
+    if(gV.length >= 2 && tV.length >= 2) {
       for (i <- 0 to tV.length - 2) {
         for(j <- 0 to gV.length - 2) {
           if(IntersectEval(tV(i),tV(i+1),gV(j),gV(j+1)) == true){
-            println("i: "+i)
-            println("j: "+j)
-
             gS = j
             tS = i
           } 
@@ -79,15 +72,13 @@ class Trim extends Module {
     List(gS, tS)
   }  
 
-  /* getSubSegment: 
-  
+  /* getSubSegment:
         *----
         | -> second subsegment
         * (d)
        (p)
         | -> first subsegment
      ---*
-   
    evaluate if a point (p) lies on the first or second sub segment of a line (p1,p2) 
    -which has been divided by a point (d). 
    Returns 0 if the point is on the first subsegment.
@@ -116,7 +107,6 @@ class Trim extends Module {
     intersects
   }
 
-
   //a function that splits a shape into two lists by a point
   def splitPolyline(p : List[Vector2D], splitPoint : Vector2D) : (List[Vector2D], List[Vector2D]) = {
     var list1 = List[Vector2D]()
@@ -125,18 +115,14 @@ class Trim extends Module {
     //evaluate on which segment the splitpoint lies -unless the length is two, in which case it is not a polyline
     if(p.length >= 2) for(i <- 0 to (p.length - 2)) if(IsOnSegment(p(i),p(i+1),splitPoint) == true) r = i
 
-    //make a list of points up until the split segment
-    for (i <- 0 to r) list1 = list1 :+ p(i)
-    //make a list of points after the split segment
-    for (i <- (r + 1) to p.length - 2) list2 = list2 :+ p(i)
-    //return the two lists
-    (list2, list1)
+    for (i <- 0 to r) list1 = list1 :+ p(i) //make a list of points up until the split segment
+    for (i <- (r + 1) to p.length - 2) list2 = list2 :+ p(i) //make a list of points after the split segment
+    (list2, list1)  //return the two lists
   }
   
   //evaluates a guideline and a (poly)line returns the polyline, trimmed by the line.
   //TODO: allow trimming of lines that intersect the guide multiple times
   def trim(guide : Geometry2D, trimLine : Geometry2D, p : Vector2D) : List[Vector2D] = {
-
     val g : Seq[Vector2D] = guide.vertices
     val t : Seq[Vector2D] = trimLine.vertices
     var trimV = List[Vector2D]()
@@ -148,28 +134,20 @@ class Trim extends Module {
     val trimSegment = Line2D(t(trimSegmentNr),t(trimSegmentNr+1))   
     val int = guideSegment.intersections(trimSegment)   //do the intersection!
     if (!int.isEmpty) {
-      //find out which part of the trimline needs to be kept, by calling the getSubSegment function
-      //println("A: "+(t(trimSegmentNr)))
-      //println("B: "+(t(trimSegmentNr + 1)))
-
       val getSegment = (getSubSegment(t(trimSegmentNr),t(trimSegmentNr+1),int.head,p))
       val twoLists = splitPolyline(t.toList,int.head)//the trimline split into two lists
-      //println("inthead: "+int.head)
-      //println("getSegment: "+getSegment)
+
       if(getSegment == 1) { //if the trim point is set before the trimline, keep the first segments.
         trimV = (twoLists._1 :+ t.last).reverse :+ int.head
-        println("S1 "+trimV)
       }
       else if(getSegment == 2) { //if the trim point is set after the trimline, keep the last segments.
         trimV = twoLists._2 :+ int.head
-        println("S2 "+trimV)
       } else trimV = trimLine.vertices.toList
     } //else trimV = t.toList //if not intersection is found, return the original trimLine
     trimV //return the trimmed line
   }
 
   val stateMap: StateMap = Map(
-
     'Start -> {
       //exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
@@ -183,7 +161,7 @@ class Trim extends Module {
           if (Drawing(m).size > 0) {
             val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
             nearestShape = if (nearest._2.distanceTo(m) < Siigna.selectionDistance) Some(nearest._2) else None
-
+            if(nearestShape.isDefined) Drawing.select(nearest._1)
             val trimShapes = nearestShape.get.geometry
             val guideShape = trimGuide.get.geometry
 
@@ -191,15 +169,15 @@ class Trim extends Module {
             Delete(nearest._1)
             val l = trim(guideShape, trimShapes, v)
             Create(PolylineShape(l))
-            End
-
+            nearestShape = None //reset var
+            Start('Input,"com.siigna.module.base.create",1) //look for more trim points
           } else {
-            println("got no shape. trying again.")
             Start('Input,"com.siigna.module.base.create",1)
           } //if the point is not set next to a shape, goto selection and try again
-        }
+        } else {
         Track.trackEnabled = true
         End
+        }
       }
       case _ => {
         Track.trackEnabled = false
