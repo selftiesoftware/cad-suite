@@ -121,6 +121,7 @@ class AngleGizmo extends Module {
       }  
 
       case MouseMove(p, _, _) :: tail => {
+        Siigna.navigation = false // Make sure the rest of the program doesn't move
         //get the current radial - but only if the angle is not set yet.
         if (point1.isDefined && !anglePointIsSet) {
 
@@ -159,6 +160,7 @@ class AngleGizmo extends Module {
       }
 
       case KeyDown(key,modifier) :: tail => {
+        Siigna.navigation = false // Make sure the rest of the program doesn't move
         drawGuide = false
         var guide: Option[DoubleGuide] = None
         //A DoubleGuide for a line is sent to InputOneValue, to draw a guide for the segment being drawn:
@@ -180,8 +182,11 @@ class AngleGizmo extends Module {
         drawGizmo = false
         drawGuide = true
         backFromOneValue = true
+        Siigna.navigation = true
+
         } else {
-        End(MouseDown(lengthVector(d),MouseButtonLeft,ModifierKeys(false,false,false)))
+          Siigna.navigation = true
+          End(MouseDown(lengthVector(d),MouseButtonLeft,ModifierKeys(false,false,false)))
         }
       }
 
