@@ -349,8 +349,7 @@ class Input extends Module {
  * 13 = Double                        Key (one value)
  *      Vector2D                      MouseDown. Guide is drawn.
  * 14 = String                        Key input, text
- * 151 = Special guide                InputOneValue only: Interprets input as angle, and draws angle gizmo. Returns double from inputOneValue. Returns nothing from input.
- * 152 = Special guide                InputOneValue only: Interprets input as length, and draws guide. Returns double from inputOneValue. Returns nothing from input.
+ * 15 = Special guide                 InputOneValue only: Interprets input as angle or length, and draws guide in InputOneValue. Returns double from inputOneValue. Returns nothing from input.
  * 16 = Vector2D                      Key input, one-coordinate, offset from existing point when on a track guide
  * 17 = Double                        Key - InputOneValue
  *      End                           All other inputs sends End

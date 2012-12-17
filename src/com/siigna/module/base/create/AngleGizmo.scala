@@ -21,7 +21,7 @@ import scala.Predef._
 class AngleGizmo extends Module {
 
   //variables:
-  private var currentSnap : Option[AngleSnap] = None
+  var currentSnap : Option[AngleSnap] = None
   var anglePointIsSet = false    // a flag telling if the desired angle is set
   var ctrl = false    //a flag to disregard the timer if CTRL is pressed
   private var degrees : Option[Double] = None   //The degree of the angle-guide, given in degrees where 0 is North clockwise.
@@ -32,6 +32,7 @@ class AngleGizmo extends Module {
   val gizmoShapes = List[Shape]()
   val gizmoTime = 300   //time to press and hold the mouse button before the gizmo mode is activated
   private var drawGizmo = true
+  private var drawGuide = true
 
   private var inputType : Option[Int] = None
 
@@ -53,7 +54,7 @@ class AngleGizmo extends Module {
   //private var startTime : Option[Long] = None
 
   //a function to add a typed distance to a line, after the Angle Gizmo has redined a radial.
-  private def lengthVector(length : Double) : Vector2D = {
+  def lengthVector(length : Double) : Vector2D = {
     //a vector that equals the length of the typed distance, rotated by the current radial snap setting.
     var rotatedVector = Vector2D(math.sin(currentSnap.get.degree * math.Pi/180), math.cos(currentSnap.get.degree * math.Pi/180)) * length
     //and transformed by the center point of the offset from the Angle snap gizmo.
@@ -157,17 +158,14 @@ class AngleGizmo extends Module {
       }
 
       case KeyDown(key,modifier) :: tail => {
-        var OneValueInputType = 151
-        if (anglePointIsSet == true) {
-          val OneValueInputType: Int = 152
+        drawGuide = false
+        var guide: Option[DoubleGuide] = None
+        if (anglePointIsSet == false) {
+          guide = Some(DoubleGuide((d: Double) => Traversable(LineShape(point1.get, point1.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * 100))),15))
+        } else {
+          guide = Some(DoubleGuide((d: Double) => Traversable(LineShape(point1.get, lengthVector (d))),15))
         }
-        if (!sendPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", PointGuide(pointGuide.get,OneValueInputType))
-        else if (!sendDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", DoubleGuide(doubleGuide.get,OneValueInputType))
-        else if (!sendPointPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", PointPointGuide(point1.get,pointGuide.get,OneValueInputType))
-        else if (!sendPointDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", PointDoubleGuide(point1.get,doubleGuide.get,OneValueInputType))
-        else if (!sendPointPointDoubleGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", PointPointDoubleGuide(point1.get,point2.get,doubleGuide.get,OneValueInputType))
-        else if (!sendPointPointPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create", PointPointPointGuide(point1.get,point2.get,pointGuide.get,OneValueInputType))
-        else Start('InputOneValue,"com.siigna.module.base.create",inputType)
+        Start('InputOneValue,"com.siigna.module.base.create", guide.get)
       }
 
       case End(d : Double) :: tail => {
@@ -177,6 +175,8 @@ class AngleGizmo extends Module {
         anglePointIsSet = true
         eventParser.snapTo(currentSnap.get)
         degrees = Some(d)
+        drawGizmo = false
+        drawGuide = true
         } else {
         End(MouseDown(lengthVector(d),MouseButtonLeft,ModifierKeys(false,false,false)))
         }
@@ -194,10 +194,12 @@ class AngleGizmo extends Module {
     //get the point Guide from the calling module:
 
     //if (point1.isDefined && (startTime.isDefined && System.currentTimeMillis() - startTime.get > gizmoTime)) {
-    if (point1.isDefined && anglePointIsSet == false) {
+    if (point1.isDefined && anglePointIsSet == false  && drawGizmo == true) {
 
-      if (!pointGuide.isEmpty) {
+      if (!pointGuide.isEmpty && drawGuide == true) {
         pointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+      } else if (!pointGuide.isEmpty && drawGuide == false) {
+        pointGuide.foreach(_(point1.get).foreach(s => g.draw(s.transform(t))))
       }
 
       var m = mousePosition.transform(View.deviceTransformation)
@@ -242,8 +244,10 @@ class AngleGizmo extends Module {
         g draw TextShape((roundSnap(degrees.get)).toString, Vector2D(point1.get.x, point1.get.y + 240).transform(transformation.rotate(roundSnap(-degrees.get), point1.get)), 12, Attributes("Color" -> "#333333".color, "TextAlignment" -> Vector2D(0.5,0.5)))
       }
     } else if (point1.isDefined && anglePointIsSet == true) {
-      if (!pointGuide.isEmpty) {
+      if (!pointGuide.isEmpty && drawGuide == true) {
         pointGuide.foreach(_(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t))))
+      } else if (!pointGuide.isEmpty && drawGuide == false) {
+        pointGuide.foreach(_(point1.get).foreach(s => g.draw(s.transform(t))))
       }
     }
   }
