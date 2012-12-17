@@ -82,8 +82,8 @@ class Trim extends Module {
     println("ANGLE: "+angle)
     //if the mouse is north of the shape, offset should extend upwards
     if(angle > 0 && angle < 90) {
-      if(my > ly)false
-      else true
+      if(my > ly) true
+      else false
     }
     //if the mouse is south of the shape, offset should extend downwards
     else {
@@ -92,6 +92,7 @@ class Trim extends Module {
     }
   }
   //a function that splits a shape into two lists by a point
+  //TODO: find a way to unify results regardless of polyline drawing order
   def splitPolyline(p : List[Vector2D], splitPoint : Vector2D) : (List[Vector2D], List[Vector2D]) = {
     var list1 = List[Vector2D]()
     var list2 = List[Vector2D]()
@@ -105,10 +106,23 @@ class Trim extends Module {
       }
     }
     //make a list of points up until the split segment
-    for (i <- 0 to r) list2 = list2 :+ p(i)
+    for (i <- 0 to r) list1 = list1 :+ p(i)
     //make a list of points after the split segment
-    for (i <- r to p.length - 2) list1 = list1 :+ p(i)
-    (list1, list2)
+    for (i <- r to p.length - 2) list2 = list2 :+ p(i)
+    
+    val drawOrder : Boolean = {
+      if(list1.head.y > splitPoint.y)false
+      else true
+    }
+    if(drawOrder == true) {
+       println("split draworder, RIGHT")
+      (list1, list2)
+    }
+    else {
+      println("split draworder, LEFT")
+      (list2, list1)
+    }
+
   }
 
   //evaluates a guideline and a (poly)line returns the polyline, trimmed by the line.
@@ -134,6 +148,7 @@ class Trim extends Module {
       val trimmedLines = if(!int.isEmpty) splitPolyline(t.toList,int.head) else (List[Vector2D](), List[Vector2D]())
 
       if(!int.isEmpty && trimSide(gLine, p) == false) {
+        //TODO: the segments are not set correctly here...
         println("LEFT: "+trimmedLines._2)
         trimV = trimmedLines._2 //add the points before the trim
         trimV = trimV :+ int.head  //add the new intersection point instead of the second point
@@ -143,7 +158,6 @@ class Trim extends Module {
         trimV = trimV :+ int.head  //add the new intersection point instead of the second point
       }
     }
-    println("returning, trimV: "+trimV)
     trimV
   }
 
@@ -169,7 +183,6 @@ class Trim extends Module {
           //do the trimming:
           Delete(nearest._1)
           val l = trim(guideShape, trimShapes, v)
-          println("trim result: "+l)
           Create(PolylineShape(l))
           End
 
