@@ -60,74 +60,49 @@ class Trim extends Module {
     val d1 = ComputeDirection(pt3, pt4, pt1)
     val d2 = ComputeDirection(pt3, pt4, pt2)
     val d3 = ComputeDirection(pt1, pt2, pt3)
-    val d4 = ComputeDirection(pt1, pt2, pt4)    
+    val d4 = ComputeDirection(pt1, pt2, pt4)
     var intersects = false
 
     if(((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) intersects = true
     if((d1 == 0 && IsOnSegment(pt3, pt4, pt1)) || (d2 == 0 && IsOnSegment(pt3, pt4, pt2)) || (d3 == 0 && IsOnSegment(pt1, pt2, pt3)) || (d4 == 0 && IsOnSegment(pt1, pt2, pt4))) intersects = true
-  intersects
+    intersects
   }
 
-
-  //calculate on which side of a given line segment the trim should be.
-  def trimSide (l: Line2D, m : Vector2D) : Boolean = {
-    val s = LineShape(l.p1,l.p2)
-    val angleRaw = ((s.p2-s.p1).angle * -1) + 450
-    //reformat the angles to lie between 0 and 180
-    val angle1 = if(angleRaw > 360) angleRaw - 360 else angleRaw
-    val angle = if(angle1 > 180) angle1 - 180 else angle1 //
-    val linePt = s.geometry.closestPoint(m)//get a point on the line to evaluate against
-    val ly = linePt.y
-    val my = m.y
-    println("ANGLE: "+angle)
-    //if the mouse is north of the shape, offset should extend upwards
-    if(angle > 0 && angle < 90) {
-      if(my > ly) true
-      else false
-    }
-    //if the mouse is south of the shape, offset should extend downwards
-    else {
-      if(my < ly) false
-      else true
-    }
-  }
   //a function that splits a shape into two lists by a point
   def splitPolyline(p : List[Vector2D], splitPoint : Vector2D) : (List[Vector2D], List[Vector2D]) = {
-    var newP = p //reverse the list if the drawing order requires it.
     var list1 = List[Vector2D]()
     var list2 = List[Vector2D]()
-    //evaluate on which segment the splitpoint lies
     var r = 0
-    if(p.length >= 2) {
-      for(i <- 0 to (p.length - 2)) {
-        if(IsOnSegment(p(i),p(i+1),splitPoint) == true) {
-          r = i
-          //check the drawing order: 
-          if(p(i).y < splitPoint.y) newP = p.reverse
-          //reverse the list list p is neccesary
-        }
-      }
-    }
+    //evaluate on which segment the splitpoint lies
+    if(p.length >= 2) for(i <- 0 to (p.length - 2)) if(IsOnSegment(p(i),p(i+1),splitPoint) == true) r = i
+
     //make a list of points up until the split segment
-    for (i <- 0 to r) list1 = list1 :+ newP(i)
+    for (i <- 0 to r) list1 = list1 :+ p(i)
     //make a list of points after the split segment
-    for (i <- r to p.length - 2) list2 = list2 :+ newP(i)
-    
-    val drawOrder : Boolean = {
-      if(list1.head.y > splitPoint.y)false
-      else true
-    }
-    if(drawOrder == true) {
-       println("split draworder, RIGHT")
-      (list1, list2)
-    }
-    else {
-      println("split draworder, LEFT")
-      (list2, list1)
-    }
-
+    for (i <- (r + 1) to p.length - 2) list2 = list2 :+ p(i)
+    //return the two lists  
+    (list2, list1)
   }
-
+  /*
+        *----
+        | -> second subsegment
+        * (d)
+       (p)
+        | -> first subsegment
+     ---*
+   
+   evaluate if a point (p) lies on the first or second sub segment of a line (p1,p2) 
+   -which has been divided by a point (d). 
+   Returns 0 if the point is on the first subsegment.
+   Returns 1 if the point is not on any of the segments
+   Returns 2 if the point is on the first subsegment.
+  */
+  def getSubSegment (p1: Vector2D, p2 : Vector2D, d : Vector2D, p : Vector2D) : Int = {
+    if(IsOnSegment(p1,d,p)) 1
+    else if(IsOnSegment(p2,d,p)) 2
+    else 0
+  }
+  
   //evaluates a guideline and a (poly)line returns the polyline, trimmed by the line.
   //TODO: allow trimming of lines that intersect the guide multiple times
   def trim(guide : Geometry2D, trimLine : Geometry2D, p : Vector2D) : List[Vector2D] = {
@@ -146,19 +121,19 @@ class Trim extends Module {
         if(isIntersecting == true) l1.intersections(gLine)
         else Seq()
       }
-      //test on what side of the intersection the trimming should take place
-      //split the (poly)line at the trim segment
-      val trimmedLines = if(!int.isEmpty) splitPolyline(t.toList,int.head) else (List[Vector2D](), List[Vector2D]())
+      println(int.isEmpty)
+      if(int.isEmpty == false) {
+        val getSegment = (getSubSegment(t(i),t(i+1),int.head,p))
+        val twoLists = splitPolyline(t.toList,int.head)//the trimline split into two lists
+        if(getSegment == 1) {
+          trimV = (twoLists._1 :+ t.last).reverse :+ int.head
+          println("S1 "+trimV)
+        }
+        else if(getSegment == 2) {
 
-      if(!int.isEmpty && trimSide(gLine, p) == false) {
-        //TODO: the segments are not set correctly here...
-        println("LEFT: "+trimmedLines._2)
-        trimV = trimmedLines._2 //add the points before the trim
-        trimV = trimV :+ int.head  //add the new intersection point instead of the second point
-      } else if (!int.isEmpty && trimSide (gLine, p) == true){
-        println("RIGHT: "+trimmedLines._1)
-        trimV = trimmedLines._1.reverse.take(trimmedLines._2.length - 1) //add the points after the trim
-        trimV = trimV :+ int.head  //add the new intersection point instead of the second point
+          trimV = twoLists._2 :+ int.head
+          println("S2 "+trimV)
+        }
       }
     }
     trimV
@@ -166,48 +141,48 @@ class Trim extends Module {
 
   val stateMap: StateMap = Map(
 
-  'Start -> {
-    //exit strategy
-    case KeyDown(Key.Esc, _) :: tail => End
-    case MouseDown(p, MouseButtonRight, _) :: tail => End
+    'Start -> {
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
 
-    //if selection returns a point, evaluate if there areany shapes to trim at that point:
-    case End(v : Vector2D) :: tail => {
-      if(trimGuide.isDefined ) {
-        val m = mousePosition.transform(View.deviceTransformation)
-        //find the shape closest to the mouse:
-        if (Drawing(m).size > 0) {
-          val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-          nearestShape = if (nearest._2.distanceTo(m) < Siigna.selectionDistance) Some(nearest._2) else None
+      //if selection returns a point, evaluate if there areany shapes to trim at that point:
+      case End(v : Vector2D) :: tail => {
+        if(trimGuide.isDefined ) {
+          val m = mousePosition.transform(View.deviceTransformation)
+          //find the shape closest to the mouse:
+          if (Drawing(m).size > 0) {
+            val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+            nearestShape = if (nearest._2.distanceTo(m) < Siigna.selectionDistance) Some(nearest._2) else None
 
-          val trimShapes = nearestShape.get.geometry
-          val guideShape = trimGuide.get.geometry
+            val trimShapes = nearestShape.get.geometry
+            val guideShape = trimGuide.get.geometry
 
-          //do the trimming:
-          Delete(nearest._1)
-          val l = trim(guideShape, trimShapes, v)
-          Create(PolylineShape(l))
-          End
+            //do the trimming:
+            Delete(nearest._1)
+            val l = trim(guideShape, trimShapes, v)
+            Create(PolylineShape(l))
+            End
+
+          } else {
+            println("got no shape. trying again.")
+            Start('Input,"com.siigna.module.base.create",1)
+          } //if the point is not set next to a shape, goto selection and try again
+        }
+        Track.trackEnabled = true
+        End
+      }
+      case _ => {
+        //Track.trackEnabled = false
+        if (Drawing.selection.isDefined && Drawing.selection.get.size == 1) {
+          trimGuide = Some(Drawing.selection.head.shapes.head._2)
+          Siigna.display("Select shapes to trim")
+          Start('Input,"com.siigna.module.base.create",1)
 
         } else {
-          println("got no shape. trying again.")
+          Siigna.display("Select an object to trim objects by")
           Start('Input,"com.siigna.module.base.create",1)
-        } //if the point is not set next to a shape, goto selection and try again
+        }
       }
-      Track.trackEnabled = true
-      End
-    }
-    case _ => {
-      Track.trackEnabled = false
-      if (Drawing.selection.isDefined && Drawing.selection.get.size == 1) {
-        trimGuide = Some(Drawing.selection.head.shapes.head._2)
-        Siigna.display("Select shapes to trim")
-        Start('Input,"com.siigna.module.base.create",1)
-
-      } else {
-        Siigna.display("Select an object to trim objects by")
-        Start('Input,"com.siigna.module.base.create",1)
-      }
-    }
-  })
+    })
 }
