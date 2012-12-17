@@ -133,7 +133,7 @@ class Trim extends Module {
 
           trimV = twoLists._2 :+ int.head
           println("S2 "+trimV)
-        }
+        } else trimV = trimLine.vertices.toList
       }
     }
     trimV
