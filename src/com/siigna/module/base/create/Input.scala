@@ -89,7 +89,7 @@ class Input extends Module {
       case MouseDown(p,button,modifier)::tail => {
         if (button==MouseButtonLeft) {
           if (inputType == Some(1) || inputType == Some (11) || inputType == Some (12) || inputType == Some (13) 
-            || inputType == Some (15) || inputType == Some (111) || inputType == Some (112) || inputType == Some(1031)) {
+            || inputType == Some (111) || inputType == Some (112) || inputType == Some(1031)) {
             End(p.transform(View.deviceTransformation))
           } else if (inputType == Some(2) || inputType == Some(4) || inputType == Some(6) | inputType == Some(8))  {
             point1 = Some(p)
@@ -270,7 +270,7 @@ class Input extends Module {
             else Start('InputTwoValues,"com.siigna.module.base.create")
         } else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) 
                   || inputType == Some(7) || inputType == Some(8) || inputType == Some(10) || inputType == Some(12) 
-                  || inputType == Some(13) || inputType == Some(15) || inputType == Some(16) || inputType == Some(17)
+                  || inputType == Some(13) || inputType == Some(16) || inputType == Some(17)
                   || inputType == Some(103)    || inputType == Some(111) || inputType == Some(112) || inputType == Some(1031)) {
             if (guide == true) guide = false
             if (!sendPointGuide.isEmpty) Start('InputOneValue,"com.siigna.module.base.create",sendPointGuide.get)
@@ -349,7 +349,6 @@ class Input extends Module {
  * 13 = Double                        Key (one value)
  *      Vector2D                      MouseDown. Guide is drawn.
  * 14 = String                        Key input, text
- * 15 = Special guide                 InputOneValue only: Interprets input as angle or length, and draws guide in InputOneValue. Returns double from inputOneValue. Returns nothing from input.
  * 16 = Vector2D                      Key input, one-coordinate, offset from existing point when on a track guide
  * 17 = Double                        Key - InputOneValue
  *      End                           All other inputs sends End
