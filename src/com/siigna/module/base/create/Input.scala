@@ -184,7 +184,7 @@ class Input extends Module {
 
       // Check for PointPointGuide - retrieve both the guide and its reference point, if it is defined.
       case Start(_ ,g : PointPointGuide) :: tail => {
-        println("pointpointGuide in input")
+        //println("pointpointGuide in input")
         pointPointGuide = Some(g.pointGuide)
         inputType = Some(g.inputType)
         sendPointPointGuide = Some(g)

@@ -92,8 +92,8 @@ class Trim extends Module {
     }
   }
   //a function that splits a shape into two lists by a point
-  //TODO: find a way to unify results regardless of polyline drawing order
   def splitPolyline(p : List[Vector2D], splitPoint : Vector2D) : (List[Vector2D], List[Vector2D]) = {
+    var newP = p //reverse the list if the drawing order requires it.
     var list1 = List[Vector2D]()
     var list2 = List[Vector2D]()
     //evaluate on which segment the splitpoint lies
@@ -102,13 +102,16 @@ class Trim extends Module {
       for(i <- 0 to (p.length - 2)) {
         if(IsOnSegment(p(i),p(i+1),splitPoint) == true) {
           r = i
+          //check the drawing order: 
+          if(p(i).y < splitPoint.y) newP = p.reverse
+          //reverse the list list p is neccesary
         }
       }
     }
     //make a list of points up until the split segment
-    for (i <- 0 to r) list1 = list1 :+ p(i)
+    for (i <- 0 to r) list1 = list1 :+ newP(i)
     //make a list of points after the split segment
-    for (i <- r to p.length - 2) list2 = list2 :+ p(i)
+    for (i <- r to p.length - 2) list2 = list2 :+ newP(i)
     
     val drawOrder : Boolean = {
       if(list1.head.y > splitPoint.y)false
