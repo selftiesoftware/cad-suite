@@ -43,7 +43,6 @@ class InputOneValue extends Module {
           coordinateValue += code.toChar
           doubleGuide = Some(g.doubleGuide)
           inputType = Some(g.inputType)
-
           Siigna display coordinateValue
         }
       }
@@ -142,14 +141,22 @@ class InputOneValue extends Module {
 
   override def paint(g : Graphics, t: TransformationMatrix) {
     //if points are in the process of being typed, then draw the shape dynamically on the basis of what coords are given.
+    var input: Option[Double] = None 
+    val usefulDoubleAsInput: Boolean =
+      // Space, - (minus), . (point) or -. (minus, then point):
+      //If the input string ony contains one of these, there is no try to parse the string to a to double, and no guide to be drawn
+      if (coordinateValue.length > 0 && coordinateValue != " " && coordinateValue != "-" && coordinateValue != "." && coordinateValue != "-.") {
+        input = Some(java.lang.Double.parseDouble(coordinateValue))       
+        true
+      } else
+        false
 
-    if(doubleGuide.isDefined && coordinateValue.length > 0 && coordinateValue != " " && coordinateValue != "-" && coordinateValue != "." && coordinateValue != "-."){
-      val x = java.lang.Double.parseDouble(coordinateValue)
-      if (x != 0) doubleGuide.foreach(_(x).foreach(s => g.draw(s.transform(t))))
-    }
-    if((inputType == Some(111) || inputType == Some(112)) && pointGuide.isDefined && coordinateValue.length > 0 && coordinateValue != " " && coordinateValue != "-" && coordinateValue != "." && coordinateValue != "-."){
-      val x = java.lang.Double.parseDouble(coordinateValue)
-      if (x != 0) pointGuide.foreach(_(Track.getPointFromDistance(x).get).foreach(s => g.draw(s.transform(t))))
+    if((inputType == Some(111) || inputType == Some(112)) && usefulDoubleAsInput == true){
+      //For these input types: Draw pointguide on the base of point obtained from the distance to the tracked point: 
+      if (input.get != 0) pointGuide.foreach(_(Track.getPointFromDistance(input.get).get).foreach(s => g.draw(s.transform(t))))
+      //For other input types, which have a double guide, draw the guides on the basis of the double guide:
+    } else if(doubleGuide.isDefined && usefulDoubleAsInput == true){
+      if (input.get != 0) doubleGuide.foreach(_(input.get).foreach(s => g.draw(s.transform(t))))
     }
   }
 }
