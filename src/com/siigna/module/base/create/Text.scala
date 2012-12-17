@@ -45,7 +45,8 @@ class Text extends Module {
 
       case End(p : Vector2D) :: tail => {
         position = Some(p)
-        val guide: TextGuide = TextGuide((s: String) => Traversable(TextShape(s + " ", p,  scale * (Siigna.paperScale + 1))),9)
+        val guide: TextGuide = TextGuide((s: String) => Traversable(TextShape(s + " ", p,  scale * (Siigna.paperScale + 1))),14)
+        Siigna.display("type text")
         Start('Input,"com.siigna.module.base.create", guide)
       }
 
