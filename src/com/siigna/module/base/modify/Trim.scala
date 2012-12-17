@@ -14,16 +14,18 @@ package com.siigna.module.base.modify
 
 import com.siigna._
 import util.geom.Geometry2D
+import java.awt.Color
 
 class Trim extends Module {
 
   var nearestShape : Option[Shape] = None
   var selection = List[Vector2D]()
   var shapes : List[Shape] = List()
-  var trimGuide : Option[Shape] = None
-  var trimShapes : Iterable[Shape] = List()
   var selectionBoxStart : Option[Vector2D] = None
   var selectionBoxEnd : Option[Vector2D] = None
+  var trimGuide : Option[Shape] = None
+  var trimShapes : Iterable[Shape] = List()
+  var trimID : Option[Int] = None
 
   def IsOnSegment(pt1 : Vector2D, pt2 : Vector2D, pt3 : Vector2D) = {
     val xi = pt1.x
@@ -155,13 +157,14 @@ class Trim extends Module {
 
       //if selection returns a point, evaluate if there areany shapes to trim at that point:
       case End(v : Vector2D) :: tail => {
+        if(trimID.isDefined) Drawing.select(trimID.get) //keep the trimline selected for better visual reference
+
         if(trimGuide.isDefined ) {
           val m = mousePosition.transform(View.deviceTransformation)
           //find the shape closest to the mouse:
           if (Drawing(m).size > 0) {
             val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
             nearestShape = if (nearest._2.distanceTo(m) < Siigna.selectionDistance) Some(nearest._2) else None
-            if(nearestShape.isDefined) Drawing.select(nearest._1)
             val trimShapes = nearestShape.get.geometry
             val guideShape = trimGuide.get.geometry
 
@@ -183,6 +186,7 @@ class Trim extends Module {
         Track.trackEnabled = false
         if (Drawing.selection.isDefined && Drawing.selection.get.size == 1) {
           trimGuide = Some(Drawing.selection.head.shapes.head._2)
+          trimID = Some(Drawing.selection.head.shapes.head._1)
           Siigna.display("Select shapes to trim")
           Start('Input,"com.siigna.module.base.create",1)
 
@@ -192,4 +196,7 @@ class Trim extends Module {
         }
       }
     })
+  override def paint(g : Graphics, t : TransformationMatrix) {
+    if(trimGuide.isDefined) g draw (trimGuide.get.addAttributes("Color" -> new Color(0.95f, 0.15f, 0.80f, 1.00f))).transform (t)
+  }
 }
