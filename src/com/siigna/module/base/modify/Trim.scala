@@ -152,7 +152,10 @@ class Trim extends Module {
   val stateMap: StateMap = Map(
     'Start -> {
       //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
+      case KeyDown(Key.Esc, _) :: tail => {
+        Drawing.deselect()
+        End
+      }
       case MouseDown(p, MouseButtonRight, _) :: tail => End
 
       //if selection returns a point, evaluate if there areany shapes to trim at that point:
@@ -191,8 +194,8 @@ class Trim extends Module {
           Start('Input,"com.siigna.module.base.create",1)
 
         } else {
-          Siigna.display("Select an object to trim objects by")
-          Start('Input,"com.siigna.module.base.create",1)
+          //Siigna.display("Select an object to trim objects by")
+          End
         }
       }
     })
