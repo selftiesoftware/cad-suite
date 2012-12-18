@@ -26,8 +26,9 @@ class inputFeedback {
 
   var backgroundColor = new Color(0f, 0f, 0f, 0.1f)
   var category: Option[String] = None
-  private var color = new Color(0, 0, 0, 255);
   var command: Option[String] = None
+  var getPrevious = false
+  var previous = ""
 
   def paintFrame(graphics : Graphics, width : Int, height : Int, color : Color = backgroundColor) {
     val center = View.center
@@ -39,32 +40,51 @@ class inputFeedback {
   //a function to parse input chars and provide a textShape with visual aid showing possible commands / tools
   def inputFeedback(s: String) = {
     var suggestions = List[String]()
+    
     s match {
       //MENUS
       case "c" => {
-        category = Some("create")
-        suggestions = List ("A - arc", "C - circle", "D - linear dimension","E - explode","L - line","P - polyline","O - offset","r - rectangle", "t - text")
-
+        if (category == Some("create")) command = Some("circle")
+        else {
+          category = Some("create")
+          suggestions = List ("A - arc", "C - circle", "D - linear dimension","E - explode","L - line","P - polyline","O - offset","R - rectangle", "T - text")
+        }
       }
       case "h" => {
         category = Some("helpers")
+        suggestions = List ("D - distance", "S - snap on/off", "T - track on/off")
+
       }
       case "m" => {
-        category = Some("modify")
+        if (category == Some("modify")) command = Some("move")
+        else {
+          category = Some("modify")
+          suggestions = List ("M - move", "S - scale", "T - trim")
+        }
       }
       case "p" => {
-        if (category == Some("create")) {
-          command = Some("polyline")
-        } else category = Some("properties")
+        if (category == Some("create"))  command = Some("polyline")
+          else {
+          category = Some("properties")
+          suggestions = List ("C - colors", "S - stroke")
+        }
       }
 
-      //COMMANDS
+      //COMMANDS  //TODO: tie these to the module names in moduleInit?
       case "a" => if (category == Some("create")) command = Some("arc")
+      case "d" => if (category == Some("create")) command = Some("linear dimension")
       case "e" => if (category == Some("create")) command = Some("explode")
       case "l" => if (category == Some("create")) command = Some("line")
       case "o" => if (category == Some("create")) command = Some("offset")
       case "r" => if (category == Some("create")) command = Some("rectangle")
-      case "t" => if (category == Some("modify")) command = Some("trim")
+      case "t" => if (category == Some("create")) command = Some("text")
+
+      case "GETPREVIOUS" => {
+        println("A")
+        getPrevious = true
+      }
+      case "EMPTY" => category == None
+      //case "t" => if (category == Some("modify")) command = Some("trim")
 
     }
     //if one shortcut is typed, display the category
@@ -72,16 +92,23 @@ class inputFeedback {
     //if two letters are typed, display both the category and the command.
     else if (category.isDefined && command.isDefined) {
       Siigna display (category.get + " " + command.get)
+      previous = (category.get + " " + command.get)
+      category = None
       command = None
     }
+    else if (getPrevious == true) {
+      Siigna display previous
+      getPrevious = false
+    } //display the previous command
     else None//display ("type shortcut for tools by category: C, H, M, or P")
     suggestions //return the suggested tools
   }
+  //TODO: draw background fill
   def paintSuggestions(s : List[String]) : List[TextShape] = {
     var list = List[TextShape]()
       for (i <- 0 to s.size -1) {
         // Define the text shape, draw the frame and draw the text
-        val text = TextShape(s(i), (View.center - Vector2D(0,-20 - (20 * i+1))), 10)
+        val text = TextShape(s(i), (View.center - Vector2D(0,-16 - (16 * i+1))), 9)
         list = list :+ text
     }
     list

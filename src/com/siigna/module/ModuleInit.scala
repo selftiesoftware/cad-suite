@@ -145,7 +145,7 @@ class ModuleInit extends Module {
 
       //shortcuts
 
-      //CREATE
+      //create
       case KeyDown('a', _) :: KeyUp('c', _) :: tail => shortcutProcess("a", 'Arc, "create")
       case KeyDown('c', _) :: KeyUp('c', _) :: tail => shortcutProcess("c", 'Circle, "create")
       case KeyDown('d', _) :: KeyUp('c', _) :: tail => shortcutProcess("d", 'Lineardim, "create")
@@ -156,43 +156,20 @@ class ModuleInit extends Module {
       case KeyDown('r', _) :: KeyUp('c', _) :: tail => shortcutProcess("r", 'Rectangle, "create")
       case KeyDown('t', _) :: KeyUp('c', _) :: tail => shortcutProcess("t", 'Text, "create")
 
-      //HELPERS
-      case KeyDown('d', _) :: KeyUp('h', _) :: tail => {
-        Start('Distance, "com.siigna.module.base.helpers")
-      }
-      case KeyDown('s', _) :: KeyUp('h', _) :: tail => {
-        Start('SnapToggle, "com.siigna.module.base.helpers")
-      }
-      case KeyDown('t', _) :: KeyUp('h', _) :: tail => {
-        Start('TrackToggle, "com.siigna.module.base.helpers")
-      }
+      //helpers
+      case KeyDown('d', _) :: KeyUp('h', _) :: tail => shortcutProcess("d", 'Distance, "helpers")
+      case KeyDown('s', _) :: KeyUp('h', _) :: tail => shortcutProcess("s", 'SnapToggle, "helpers")
+      case KeyDown('t', _) :: KeyUp('h', _) :: tail => shortcutProcess("t", 'trackToggle, "helpers")
 
       //MODIFY
-      case KeyDown('m', _) :: KeyUp('m', _) :: tail => {
-        shortcut = "m"
-        lastModule = Some(Module('Move,"com.siigna.module.base.modify"))
-        Start('Move, "com.siigna.module.base.modify")
-      }
-      case KeyDown('r', _) :: KeyUp('m', _) :: tail => {
-        Start('Rotate, "com.siigna.module.base.modify")
-      }
-      case KeyDown('s', _) :: KeyUp('m', _) :: tail => {
-        Start('Scale, "com.siigna.module.base.modify")
-      }
-      case KeyDown('t', _) :: KeyUp('m', _) :: tail => {
-        shortcut = "t"
-        lastModule = Some(Module('Trim,"com.siigna.module.base.modify"))
-        Start('Trim, "com.siigna.module.base.modify")
-      }
+      case KeyDown('m', _) :: KeyUp('m', _) :: tail => shortcutProcess("m", 'Move, "modify")
+      case KeyDown('r', _) :: KeyUp('m', _) :: tail => shortcutProcess("r", 'Rotate, "modify")
+      case KeyDown('s', _) :: KeyUp('m', _) :: tail => shortcutProcess("s", 'Scale, "modify")
+      case KeyDown('t', _) :: KeyUp('m', _) :: tail => shortcutProcess("t", 'Trim, "modify")
 
       //PROPERTIES
-      case KeyDown('c', _) :: KeyUp('p', _) :: tail => {
-        Start('Colors, "com.siigna.module.base.properties")
-      }
-      case KeyDown('s', _) :: KeyUp('p', _) :: tail => {
-        Start('Stroke, "com.siigna.module.base.properties")
-      }
-
+      case KeyDown('c', _) :: KeyUp('p', _) :: tail => shortcutProcess("c", 'Colors, "properties")
+      case KeyDown('s', _) :: KeyUp('p', _) :: tail => shortcutProcess("s", 'Stroke, "properties")
 
       case KeyDown('a', Control) :: tail => Drawing.selectAll()
       case KeyDown('z', Control) :: tail => Drawing.undo()
@@ -200,7 +177,8 @@ class ModuleInit extends Module {
 
       // Forward to the last initiated module
       case KeyDown(Key.Space, _) :: tail => if (lastModule.isDefined) {
-        textFeedback.inputFeedback(shortcut)
+        textFeedback.inputFeedback("EMPTY")//clear any active tooltips
+        textFeedback.inputFeedback("GETPREVIOUS") //send a command to inputFeedback to display the last module name
         Start(lastModule.get.copy)
       }
 
@@ -214,7 +192,15 @@ class ModuleInit extends Module {
       }
       case KeyDown('h', _) :: tail => {
         shortcut = "h"
-        textFeedback.inputFeedback(shortcut)
+        toolSuggestions = textFeedback.inputFeedback(shortcut)
+      }
+      case KeyDown('m', _) :: tail => {
+        shortcut = "m"
+        toolSuggestions = textFeedback.inputFeedback(shortcut)
+      }
+      case KeyDown('p', _) :: tail => {
+        shortcut = "p"
+        toolSuggestions = textFeedback.inputFeedback(shortcut)
       }
 
       case _ =>
@@ -225,7 +211,6 @@ class ModuleInit extends Module {
     //draw tool shourcut suggestions
     if(!shortcut.isEmpty) {
       val s = textFeedback.paintSuggestions(toolSuggestions)
-      
       for (i <- 0 to s.size -1) {
         g draw s(i)
       }  
