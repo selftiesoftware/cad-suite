@@ -43,7 +43,6 @@ class inputFeedback {
       //MENUS
       case "c" => {
         category = Some("create")
-        println("CCCCC")
         suggestions = List ("A - arc", "C - circle", "D - linear dimension","E - explode","L - line","P - polyline","O - offset","r - rectangle", "t - text")
 
       }
