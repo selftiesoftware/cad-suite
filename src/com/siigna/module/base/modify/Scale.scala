@@ -63,7 +63,7 @@ class Scale extends Module {
             //2: A point to "grab" for the scaling (Vector2D) is needed.
             val shapeGuide = DoubleGuide((s : Double) => {
               //Define a scaling matrix:
-              val t : TransformationMatrix = TransformationMatrix().scale(s)
+              val t : TransformationMatrix = TransformationMatrix().scale(s,startPoint.get)
               // Return the shape, transformed
               Drawing.selection.get.apply(t)
             },1031) //1031: Input type: Double by keyboard, or Vector2D by leftclick.
