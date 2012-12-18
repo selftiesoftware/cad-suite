@@ -14,10 +14,8 @@ package com.siigna.module
 import base.Menu
 import base.radialmenu.category.StartCategory
 import com.siigna._
-import app.model.shape.{FullSelector, ShapeSelector}
-import java.awt.Color
-import com.siigna.module.base.{paperHeader, inputFeedback}
-import java.util.{Timer,TimerTask}
+import app.model.shape.FullSelector
+import com.siigna.module.base.paperHeader
 
 /**
  * An init module for the cad-suite.
@@ -33,7 +31,6 @@ class ModuleInit extends Module {
   var shortcut = ""
   //draw feedback when typing shortcuts
   val textFeedback = new inputFeedback
-  val timer = new Timer()
 
   //Check if there is a useable selection:
   // TODO: Make a more elegant way to check for usable selection - in mainline?
@@ -145,6 +142,7 @@ class ModuleInit extends Module {
       }
       case KeyDown('l', _) :: KeyUp('c', _) :: tail => {
         shortcut = "l"
+        textFeedback.suggestion(shortcut)
         lastModule = Some(Module('Line,"com.siigna.module.base.create"))
         Start('Line, "com.siigna.module.base.create")
       }
@@ -153,6 +151,7 @@ class ModuleInit extends Module {
       }
       case KeyDown('p', _) :: KeyUp('c', _) :: tail => {
         shortcut = "p"
+        textFeedback.suggestion(shortcut)
         lastModule = Some(Module('Polyline,"com.siigna.module.base.create"))
         Start('Polyline, "com.siigna.module.base.create")
       }
@@ -207,7 +206,10 @@ class ModuleInit extends Module {
       case KeyDown('y', Control) :: tail => Drawing.redo()
 
       // Forward to the last initiated module
-      case KeyDown(Key.Space, _) :: tail => if (lastModule.isDefined) Start(lastModule.get.copy)
+      case KeyDown(Key.Space, _) :: tail => if (lastModule.isDefined) {
+        textFeedback.suggestion(shortcut)
+        Start(lastModule.get.copy)
+      }
 
       // Release all selections
       case KeyDown(Key.Esc, _) :: tail => Drawing.deselect()
@@ -215,6 +217,7 @@ class ModuleInit extends Module {
       //MENU SHORTCUTS
       case KeyDown('c', _) :: tail => {
         shortcut = "c"
+        textFeedback.suggestion(shortcut)
       }
 
       case _ =>
@@ -222,9 +225,6 @@ class ModuleInit extends Module {
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
 
-    if(shortcut.size != 0) {
-      textFeedback.suggestion(shortcut)
-    }
     //construct header elements
     val headerShapes = new paperHeader
     val scale = headerShapes.scale
