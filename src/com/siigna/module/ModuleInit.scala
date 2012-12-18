@@ -25,12 +25,22 @@ class ModuleInit extends Module {
 
   protected var lastModule : Option[ModuleInstance] = None
 
-  //The nearest shape to the current mouse position.
-  var nearestShape : Option[(Int, Shape)] = None
-
+  var nearestShape : Option[(Int, Shape)] = None   //The nearest shape to the current mouse position.
+  var toolSuggestions = List[String]() //a list of possible tools in a given category. activated by shortcuts
   var shortcut = ""
   //draw feedback when typing shortcuts
   val textFeedback = new inputFeedback
+
+  //start module and process graphic feedback when a tool shortcut is received
+  //input : shortcut, module name, module category
+  def shortcutProcess(s : String, m : Symbol, c : String) = {
+    val modText = ("com.siigna.module.base."+c).toString
+    shortcut = s
+    toolSuggestions = List[String]() //reset tool suggestions
+    textFeedback.inputFeedback(shortcut)//display feedback telling the module is active
+    lastModule = Some(Module(m, modText)) //enable module recall with space
+    Start(m, modText) //start the module
+  }
 
   //Check if there is a useable selection:
   // TODO: Make a more elegant way to check for usable selection - in mainline?
@@ -79,10 +89,15 @@ class ModuleInit extends Module {
       }
 
       //Rightclick starts menu:
-      case MouseDown(_, MouseButtonRight, _) :: tail => Start('Menu, "com.siigna.module.base")
+      case MouseDown(_, MouseButtonRight, _) :: tail => {
+        toolSuggestions = List[String]() //reset tool suggestions
+        Start('Menu, "com.siigna.module.base")
+      }
 
       //double click anywhere on a shape selects the full shape.
       case  MouseDown(p2, button, modifier) :: MouseUp(p1 ,MouseButtonLeft , _) :: tail => {
+        toolSuggestions = List[String]() //reset tool suggestions
+
         if (p1 == p2){
           Start('Selection, "com.siigna.module.base", MouseDouble(p2,button,modifier))
         } }
@@ -91,6 +106,8 @@ class ModuleInit extends Module {
       // 1: Starts select, to select shape part at cursor, if nothing is selected,
       // TODO: or if the click was away from the selection:
       case MouseDown(p, MouseButtonLeft, modifier) :: tail => {
+        toolSuggestions = List[String]() //reset tool suggestions
+
         //Check if there is a useable selection:
         Start('Selection, "com.siigna.module.base", MouseDown(p, MouseButtonLeft, modifier))
       }
@@ -101,6 +118,7 @@ class ModuleInit extends Module {
       // TODO: Change it, so it is if something is not close to the selection - now it if the click
       // is close to any shape in the drawing
       case MouseDrag(p2, button2, modifier2) :: MouseDown(p, button, modifier) :: tail => {
+        toolSuggestions = List[String]() //reset tool suggestions
         if (usableSelectionExists == true) {
           val m = p.transform(View.deviceTransformation)
           if (Drawing(m).size > 0) {
@@ -128,40 +146,15 @@ class ModuleInit extends Module {
       //shortcuts
 
       //CREATE
-      case KeyDown('a', _) :: KeyUp('c', _) :: tail => {
-        Start('Arc, "com.siigna.module.base.create")
-      }
-      case KeyDown('c', _) :: KeyUp('c', _) :: tail => {
-        Start('Circle, "com.siigna.module.base.create")
-      }
-      case KeyDown('d', _) :: KeyUp('c', _) :: tail => {
-        Start('Lineardim, "com.siigna.module.base.create")
-      }
-      case KeyDown('e', _) :: KeyUp('c', _) :: tail => {
-        Start('Explode, "com.siigna.module.base.create")
-      }
-      case KeyDown('l', _) :: KeyUp('c', _) :: tail => {
-        shortcut = "l"
-        textFeedback.suggestion(shortcut)
-        lastModule = Some(Module('Line,"com.siigna.module.base.create"))
-        Start('Line, "com.siigna.module.base.create")
-      }
-      case KeyDown('o', _) :: KeyUp('c', _) :: tail => {
-        Start('Offset, "com.siigna.module.base.create")
-      }
-      case KeyDown('p', _) :: KeyUp('c', _) :: tail => {
-        shortcut = "p"
-        textFeedback.suggestion(shortcut)
-        lastModule = Some(Module('Polyline,"com.siigna.module.base.create"))
-        Start('Polyline, "com.siigna.module.base.create")
-      }
-      case KeyDown('r', _) :: KeyUp('c', _) :: tail => {
-        Start('Rectangle, "com.siigna.module.base.create")
-      }
-      case KeyDown('t', _) :: KeyUp('c', _) :: tail => {
-        Start('Text, "com.siigna.module.base.create")
-      }
-
+      case KeyDown('a', _) :: KeyUp('c', _) :: tail => shortcutProcess("a", 'Arc, "create")
+      case KeyDown('c', _) :: KeyUp('c', _) :: tail => shortcutProcess("c", 'Circle, "create")
+      case KeyDown('d', _) :: KeyUp('c', _) :: tail => shortcutProcess("d", 'Lineardim, "create")
+      case KeyDown('e', _) :: KeyUp('c', _) :: tail => shortcutProcess("e", 'Explode, "create")
+      case KeyDown('l', _) :: KeyUp('c', _) :: tail => shortcutProcess("l", 'Line, "create")
+      case KeyDown('o', _) :: KeyUp('c', _) :: tail => shortcutProcess("o", 'Offset, "create")
+      case KeyDown('p', _) :: KeyUp('c', _) :: tail => shortcutProcess("p", 'Polyline, "create")
+      case KeyDown('r', _) :: KeyUp('c', _) :: tail => shortcutProcess("r", 'Rectangle, "create")
+      case KeyDown('t', _) :: KeyUp('c', _) :: tail => shortcutProcess("t", 'Text, "create")
 
       //HELPERS
       case KeyDown('d', _) :: KeyUp('h', _) :: tail => {
@@ -207,7 +200,7 @@ class ModuleInit extends Module {
 
       // Forward to the last initiated module
       case KeyDown(Key.Space, _) :: tail => if (lastModule.isDefined) {
-        textFeedback.suggestion(shortcut)
+        textFeedback.inputFeedback(shortcut)
         Start(lastModule.get.copy)
       }
 
@@ -217,7 +210,11 @@ class ModuleInit extends Module {
       //MENU SHORTCUTS
       case KeyDown('c', _) :: tail => {
         shortcut = "c"
-        textFeedback.suggestion(shortcut)
+        toolSuggestions = textFeedback.inputFeedback(shortcut)
+      }
+      case KeyDown('h', _) :: tail => {
+        shortcut = "h"
+        textFeedback.inputFeedback(shortcut)
       }
 
       case _ =>
@@ -225,6 +222,14 @@ class ModuleInit extends Module {
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
 
+    //draw tool shourcut suggestions
+    if(!shortcut.isEmpty) {
+      val s = textFeedback.paintSuggestions(toolSuggestions)
+      
+      for (i <- 0 to s.size -1) {
+        g draw s(i)
+      }  
+    }
     //construct header elements
     val headerShapes = new paperHeader
     val scale = headerShapes.scale
