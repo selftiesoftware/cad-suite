@@ -111,7 +111,7 @@ class Polyline extends Module {
         End
       }
       case x => {
-        Start('Input,"com.siigna.module.base.create",1)
+        Start('Input,"com.siigna.module.base.create",111)
       }
     })
 
