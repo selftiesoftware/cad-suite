@@ -244,7 +244,11 @@ class Input extends Module {
           //if SHIFT is pressed, forward to the Angle Gizmo -
           //but only if there is a reference point: Either point1, or a tracked point:
         } else if(key == Key.shift && (inputType == Some(1) || inputType == Some(111) || inputType == Some(112))
-                          && (!point1.isEmpty || Track.isTracking == true)) {
+                          && (!point1.isEmpty || (Track.isTracking == true && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Track.trackDistance))) {
+          println(Track.pointOne.get)
+          println(mousePosition.transform(View.deviceTransformation))
+          println(Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)))
+          println(Track.trackDistance)
           //Start angle gizmo, and send the the active guide.
           //The gizmo draws guide, so input should not.
           if (guide == true) guide = false
@@ -258,7 +262,8 @@ class Input extends Module {
 
           //If it is other keys, the input is interpreted by the input-modules.
           //Any existing guides are forwarded.
-        } else if(inputType == Some(1) || inputType == Some(2) || inputType == Some(102) || inputType == Some(1020) 
+        } else if (key == Key.shift) { //Do nothing if shift is pressed, but there is no point to start the angleGizmo from
+        } else if(inputType == Some(1) || inputType == Some(2) || inputType == Some(102) || inputType == Some(1020)
                   || inputType == Some(1021)
                   || ((inputType == Some(16) || inputType == Some(111) || inputType == Some(112)) && Track.isTracking == false)) {
             if (guide == true) guide = false
