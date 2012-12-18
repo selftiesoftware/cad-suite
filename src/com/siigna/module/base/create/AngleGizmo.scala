@@ -115,10 +115,14 @@ class AngleGizmo extends Module {
         point2 = Some(g.point2)
       }
 
-      //If there is no guide, only the input type needs to be retrieved
-      case Start(_,inp: Int) :: tail => {
-        inputType = Some(inp)
-      }  
+
+      //If there is no guide
+      case Start(_,x) :: tail => {
+        //TODO: Make line to the start-point of a new shape dashed instead of solid
+        if (Track.isTracking == true) point1 = Track.pointOne
+        val guide: PointGuide = PointGuide((p: Vector2D) => Traversable(LineShape(point1.get, p)),1)
+        pointGuide = Some(guide.pointGuide)
+      }
 
       case MouseMove(p, _, _) :: tail => {
         Siigna.navigation = false // Make sure the rest of the program doesn't move
@@ -194,7 +198,7 @@ class AngleGizmo extends Module {
       //  Goto('End, false)
       //}
 
-      case x=> println(x)
+      case x=> println("AG: " + x)
     }
   )
   override def paint(g : Graphics, t : TransformationMatrix) {

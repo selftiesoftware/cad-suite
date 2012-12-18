@@ -237,13 +237,14 @@ class Input extends Module {
       //TODO: add if statement: if a track-guide is active, forward to a InputLength module instead...
 
       case KeyDown(key,modifier) :: tail => {
-
         //If the input is backspace with no modifiers, this key is returned to the asking module:
         if (key == Key.backspace && modifier == ModifierKeys(false,false,false)) {
           (End(KeyDown(key,modifier)))
 
-          //if SHIFT is pressed, forward to the Angle Gizmo - 
-        } else if(key == Key.shift && (inputType == Some(1) || inputType == Some(111) || inputType == Some(112))) {
+          //if SHIFT is pressed, forward to the Angle Gizmo -
+          //but only if there is a reference point: Either point1, or a tracked point:
+        } else if(key == Key.shift && (inputType == Some(1) || inputType == Some(111) || inputType == Some(112))
+                          && (!point1.isEmpty || Track.isTracking == true)) {
           //Start angle gizmo, and send the the active guide.
           //The gizmo draws guide, so input should not.
           if (guide == true) guide = false
