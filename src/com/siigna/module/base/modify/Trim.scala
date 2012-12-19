@@ -18,6 +18,7 @@ import java.awt.Color
 
 class Trim extends Module {
 
+  var attr = Attributes()
   var nearestShape : Option[Shape] = None
   var selection = List[Vector2D]()
   var shapes : List[Shape] = List()
@@ -174,7 +175,7 @@ class Trim extends Module {
             //do the trimming:
             Delete(nearest._1)
             val l = trim(guideShape, trimShapes, v)
-            Create(PolylineShape(l))
+            Create(PolylineShape(l).addAttributes(attr))
             nearestShape = None //reset var
             Start('Input,"com.siigna.module.base.create",1) //look for more trim points
           } else {
@@ -188,6 +189,7 @@ class Trim extends Module {
       case _ => {
         Track.trackEnabled = false
         if (Drawing.selection.isDefined && Drawing.selection.get.size == 1) {
+          attr = Drawing.selection.head.shapes.head._2.attributes
           trimGuide = Some(Drawing.selection.head.shapes.head._2)
           trimID = Some(Drawing.selection.head.shapes.head._1)
           Siigna.display("Select shapes to trim")
