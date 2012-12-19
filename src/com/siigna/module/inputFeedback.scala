@@ -80,7 +80,6 @@ class inputFeedback {
       case "t" => if (category == Some("create")) command = Some("text")
 
       case "GETPREVIOUS" => {
-        println("A")
         getPrevious = true
       }
       case "EMPTY" => category == None
@@ -106,10 +105,10 @@ class inputFeedback {
   //TODO: draw background fill
   def paintSuggestions(s : List[String]) : List[TextShape] = {
     var list = List[TextShape]()
-      for (i <- 0 to s.size -1) {
-        // Define the text shape, draw the frame and draw the text
-        val text = TextShape(s(i), (View.center - Vector2D(0,-16 - (16 * i+1))), 9)
-        list = list :+ text
+    for (i <- 0 to s.size -1) {
+      // Define the text shape, draw the frame and draw the text
+      val text = TextShape(s(i), (View.center - Vector2D(0,-16 - (16 * i+1))), 9)
+      list = list :+ text
     }
     list
   }
