@@ -245,10 +245,6 @@ class Input extends Module {
           //but only if there is a reference point: Either point1, or a tracked point:
         } else if(key == Key.shift && (inputType == Some(1) || inputType == Some(111) || inputType == Some(112))
                           && (!point1.isEmpty || (Track.isTracking == true && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Track.trackDistance))) {
-          println(Track.pointOne.get)
-          println(mousePosition.transform(View.deviceTransformation))
-          println(Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)))
-          println(Track.trackDistance)
           //Start angle gizmo, and send the the active guide.
           //The gizmo draws guide, so input should not.
           if (guide == true) guide = false
