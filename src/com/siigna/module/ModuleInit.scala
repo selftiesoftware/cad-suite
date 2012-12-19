@@ -25,7 +25,6 @@ class ModuleInit extends Module {
 
   protected var lastModule : Option[ModuleInstance] = None
 
-  var displayOpeningTip = true
   var nearestShape : Option[(Int, Shape)] = None   //The nearest shape to the current mouse position.
   var toolSuggestions = List[String]() //a list of possible tools in a given category. activated by shortcuts
   var shortcut = ""
@@ -74,6 +73,10 @@ class ModuleInit extends Module {
               //If the bitset is larger than 0, something useful is selected...
               usableSelectionExists = true
             }
+            case app.model.shape.TextShape.Selector(x) => {
+              //If the bitset is larger than 0, something useful is selected...
+              usableSelectionExists = true
+            }
             case _ =>
           }
         })
@@ -91,7 +94,6 @@ class ModuleInit extends Module {
 
       //Rightclick starts menu:
       case MouseDown(_, MouseButtonRight, _) :: tail => {
-        displayOpeningTip = false //hide the opening tooltip
         toolSuggestions = List[String]() //reset tool suggestions
         Start('Menu, "com.siigna.module.base")
       }
@@ -108,7 +110,6 @@ class ModuleInit extends Module {
       // 1: Starts select, to select shape part at cursor, if nothing is selected,
       // TODO: or if the click was away from the selection:
       case MouseDown(p, MouseButtonLeft, modifier) :: tail => {
-        displayOpeningTip = false //hide the opening tooltip
         toolSuggestions = List[String]() //reset tool suggestions
 
         //Check if there is a useable selection:
@@ -186,9 +187,7 @@ class ModuleInit extends Module {
       }
 
       // Release all selections
-      case KeyDown(Key.Esc, _) :: tail =>
-        textFeedback.inputFeedback("EMPTY")//clear any active tooltips
-        Drawing.deselect()
+      case KeyDown(Key.Esc, _) :: tail => Drawing.deselect()
 
       //MENU SHORTCUTS
       case KeyDown('c', _) :: tail => {
@@ -212,10 +211,6 @@ class ModuleInit extends Module {
     }
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
-    //draw a tooltip first time siigna cad-suite is loaded
-    if(displayOpeningTip == true){
-      g draw TextShape("To get drawing tools: Right click or type C.", (View.center + Vector2D(-160,-140)), 10)
-    }
     //draw tool shourcut suggestions
     if(!shortcut.isEmpty) {
       val s = textFeedback.paintSuggestions(toolSuggestions)

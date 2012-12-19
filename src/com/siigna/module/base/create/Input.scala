@@ -237,13 +237,14 @@ class Input extends Module {
       //TODO: add if statement: if a track-guide is active, forward to a InputLength module instead...
 
       case KeyDown(key,modifier) :: tail => {
-
         //If the input is backspace with no modifiers, this key is returned to the asking module:
         if (key == Key.backspace && modifier == ModifierKeys(false,false,false)) {
           (End(KeyDown(key,modifier)))
 
-          //if SHIFT is pressed, forward to the Angle Gizmo - 
-        } else if(key == Key.shift && (inputType == Some(1) || inputType == Some(111) || inputType == Some(112))) {
+          //if SHIFT is pressed, forward to the Angle Gizmo -
+          //but only if there is a reference point: Either point1, or a tracked point:
+        } else if(key == Key.shift && (inputType == Some(1) || inputType == Some(111) || inputType == Some(112))
+                          && (!point1.isEmpty || (Track.isTracking == true && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Track.trackDistance))) {
           //Start angle gizmo, and send the the active guide.
           //The gizmo draws guide, so input should not.
           if (guide == true) guide = false
@@ -257,7 +258,8 @@ class Input extends Module {
 
           //If it is other keys, the input is interpreted by the input-modules.
           //Any existing guides are forwarded.
-        } else if(inputType == Some(1) || inputType == Some(2) || inputType == Some(102) || inputType == Some(1020) 
+        } else if (key == Key.shift) { //Do nothing if shift is pressed, but there is no point to start the angleGizmo from
+        } else if(inputType == Some(1) || inputType == Some(2) || inputType == Some(102) || inputType == Some(1020)
                   || inputType == Some(1021)
                   || ((inputType == Some(16) || inputType == Some(111) || inputType == Some(112)) && Track.isTracking == false)) {
             if (guide == true) guide = false
@@ -349,6 +351,7 @@ class Input extends Module {
  * 13 = Double                        Key (one value)
  *      Vector2D                      MouseDown. Guide is drawn.
  * 14 = String                        Key input, text
+ * 15 = Nothing                       Returns nothing from Input module. Can for example be used when calling inputOne or two value modules from other modules than input.
  * 16 = Vector2D                      Key input, one-coordinate, offset from existing point when on a track guide
  * 17 = Double                        Key - InputOneValue
  *      End                           All other inputs sends End
