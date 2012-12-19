@@ -39,6 +39,7 @@ class Input extends Module {
   var sendPointGuide : Option[PointGuide] = None
   var sendDoubleGuide : Option[DoubleGuide] = None
   var sendPointPointGuide : Option[PointPointGuide] = None
+  var sendPointPointGuideMessage : Option[PointPointGuideMessage] = None
   var sendPointDoubleGuide : Option[PointDoubleGuide] = None
   var sendPointPointDoubleGuide : Option[PointPointDoubleGuide] = None
   var sendPointPointPointGuide : Option[PointPointPointGuide] = None
@@ -194,6 +195,17 @@ class Input extends Module {
 
       }
 
+      // Check for PointPointGuide - retrieve both the guide and its reference point, if it is defined.
+      case Start(_ ,g : PointPointGuideMessage) :: tail => {
+        pointPointGuide = Some(g.pointGuide)
+        inputType = Some(g.inputType)
+        sendPointPointGuideMessage = Some(g)
+        point1 = Some(g.point1)
+        eventParser.snapTo(() => g.pointGuide(mousePosition))
+        //eventParser.trackTo(() => g.pointGuide(mousePosition))
+
+      }
+
       // Check for PointDoubleGuide - retrieve both the guide and its reference point, if it is defined.
       case Start(_ ,g : PointDoubleGuide) :: tail => {
         pointDoubleGuide = Some(g.doubleGuide)
@@ -244,7 +256,7 @@ class Input extends Module {
           //if SHIFT is pressed, forward to the Angle Gizmo -
           //but only if there is a reference point: Either point1, or a tracked point:
         } else if(key == Key.shift && (inputType == Some(1) || inputType == Some(111) || inputType == Some(112))
-                          && (!point1.isEmpty || (Track.isTracking == true && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Track.trackDistance))) {
+                          && (!point1.isEmpty || (Track.isTracking == true && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Siigna.selectionDistance))) {
           //Start angle gizmo, and send the the active guide.
           //The gizmo draws guide, so input should not.
           if (guide == true) guide = false
@@ -384,6 +396,9 @@ case class DoubleGuide(doubleGuide : Double => Traversable[Shape] , inputType : 
 //A point and a point guide - a vector2D delivered along a basic point guide,
 // for use when the guide needs to relate to a fixed point
 case class PointPointGuide(point1 : Vector2D , pointGuide : Vector2D => Traversable[Shape] , inputType : Int)
+
+case class PointPointGuideMessage(point1 : Vector2D , pointGuide : Vector2D => Traversable[Shape] , m : Unit , inputType : Int)
+
 
 //A point and a double guide - a vector2D delivered along a basic double guide,
 // for use when the guide needs to relate to a fixed point

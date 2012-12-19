@@ -159,6 +159,7 @@ class AngleGizmo extends Module {
           eventParser.snapTo(currentSnap.get)
           drawGizmo = false
         } else if (anglePointIsSet) {
+          Siigna.navigation = true
           End(MouseDown(p.transform(View.deviceTransformation),button,modifier))
         }
       }
@@ -186,7 +187,6 @@ class AngleGizmo extends Module {
         drawGizmo = false
         drawGuide = true
         backFromOneValue = true
-        Siigna.navigation = true
 
         } else {
           Siigna.navigation = true
