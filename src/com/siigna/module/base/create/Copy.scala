@@ -71,6 +71,7 @@ class Copy extends Module {
       case _ => {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         val l = new ModuleInit
+
         if (l.usableSelectionExists) {
           if(multiActive == true) {
             Create(shapes.get.apply(transformation.get))

@@ -14,7 +14,7 @@ package com.siigna.module.base.create
 import com.siigna._
 
 class Offset extends Module {
-
+  var attr = Attributes()
   var done = false
   //a function to offset a line segment
   def calcOffset(s : LineShape, dist : Double) : LineShape = {
@@ -98,7 +98,7 @@ class Offset extends Module {
     def result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
     result
     knots = knots :+ newLines.reverse.head.p2 //add the last vertex
-    Array(PolylineShape(knots))//create a polylineShape from the offset knots:
+    Array(PolylineShape(knots).addAttributes(attr))//create a polylineShape from the offset knots:
   },1)//,1: MouseDown or typed length
 
   //Select shapes
@@ -116,7 +116,7 @@ class Offset extends Module {
       result
       knots = knots :+ newLines.reverse.head.p2 //add the last vertex
       done = true
-      Create(PolylineShape(knots))//create a polylineShape from the offset knots:
+      Create(PolylineShape(knots).addAttributes(attr))//create a polylineShape from the offset knots:
       End
     }
     case MouseUp(_, MouseButtonRight, _) :: tail => End
@@ -131,6 +131,7 @@ class Offset extends Module {
         End
       }
       else if (Drawing.selection.isDefined && Drawing.selection.get.size == 1 ){
+        attr = Drawing.selection.head.shapes.head._2.attributes
         Siigna display "click to set the offset distance"
         Start('Input,"com.siigna.module.base.create", guide)
       }
