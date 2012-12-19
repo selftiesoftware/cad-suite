@@ -31,7 +31,7 @@ class Colors extends Module {
   //colors, inspired by crayola crayons: http://en.wikipedia.org/wiki/List_of_Crayola_crayon_colors
   lazy val black       = new Color(0.00f, 0.00f, 0.00f, transp)
   lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, transp)
-  lazy val dimgrey     = new Color(0.40f, 0.40f, 0.40f, transp)
+  lazy val dimgrey     = new Color(0.40f, 0.40f, 0.40f, transp) //does not work
   lazy val grey        = new Color(0.60f, 0.60f, 0.60f, transp)
   lazy val darkGrey    = new Color(0.75f, 0.75f, 0.75f, transp)
   lazy val lightGrey   = new Color(0.90f, 0.90f, 0.90f, transp)
@@ -117,10 +117,12 @@ class Colors extends Module {
         else if (angle == 105) activeColor = Some(lightGrey)
         else if (angle == 120) activeColor = Some(darkGrey)
         else if (angle == 135) activeColor = Some(grey)
-        else if (angle == 140) activeColor = Some(dimgrey)
+        else if (angle == 150) activeColor = Some(dimgrey)
         else if (angle == 165) activeColor = Some(anthracite)
 
-        if(activeColor.isDefined) Siigna("activeColor") = activeColor
+        if(activeColor.isDefined) {
+          Siigna("activeColor") = activeColor.get
+        }
 
         if(!Drawing.isEmpty) {
           Drawing.selection.foreach(s => s.addAttributes("Color" -> activeColor.get ))

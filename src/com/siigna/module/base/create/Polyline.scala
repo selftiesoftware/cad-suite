@@ -16,11 +16,8 @@ import app.Siigna
 
 class Polyline extends Module {
 
-  println(Siigna.color("activeColor"))
-  println(Siigna.double("activeLineWidth"))
-
-  var color = Siigna.color("activeColor")
-  val lineWidth = Siigna.double("activeLineWidth")
+  var color = Siigna("activeColor")
+  val lineWidth = Siigna("activeLineWidth")
   var startPoint: Option[Vector2D] = None
   private var points   = List[Vector2D]()
 
@@ -74,7 +71,6 @@ class Polyline extends Module {
 
       //If point module returns a key-pres at the event when it ends:
       case End(k : KeyDown) :: tail => {
-        println("Key in polyline: " + k)
         // If the key is backspace without modification (shift etc), the last bit of line is deleted:
         if (k == KeyDown(Key.Backspace,ModifierKeys(false,false,false))) {
           if (points.length > 1) {

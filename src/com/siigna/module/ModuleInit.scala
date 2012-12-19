@@ -73,6 +73,10 @@ class ModuleInit extends Module {
               //If the bitset is larger than 0, something useful is selected...
               usableSelectionExists = true
             }
+            case app.model.shape.TextShape.Selector(x) => {
+              //If the bitset is larger than 0, something useful is selected...
+              usableSelectionExists = true
+            }
             case _ =>
           }
         })
@@ -207,7 +211,6 @@ class ModuleInit extends Module {
     }
   )
   override def paint(g : Graphics, t : TransformationMatrix) {
-
     //draw tool shourcut suggestions
     if(!shortcut.isEmpty) {
       val s = textFeedback.paintSuggestions(toolSuggestions)

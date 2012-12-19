@@ -20,8 +20,8 @@ import java.awt.Color
  */
 class Line extends Module {
 
-  var color = Siigna.color("activeColor")
-  val lineWidth = Siigna.double("activeLineWidth")
+  var color = Siigna("activeColor")
+  val stroke = Siigna("activeLineWidth")
   var startPoint: Option[Vector2D] = None
   val stateMap: StateMap = Map(
 
@@ -31,23 +31,13 @@ class Line extends Module {
           startPoint = Some(v)
 
           val guide = PointPointGuide(startPoint.get,(v : Vector2D) => {
-            Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth))
+            Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
           },112)
           Start('Input,"com.siigna.module.base.create", guide)
         } else {
 
-          val lShape = LineShape(startPoint.get,v).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth)
-
-          def setAttribute[T : Manifest](name:String, shape:Shape) = {
-            Siigna.get(name) match {
-              case s : Some[T] => shape.addAttribute(name, s.get)
-              case None => shape// Option isn't set. Do nothing
-            }
-          }
-
-          val line = setAttribute[Color]("Color",
-            setAttribute[Double]("LineWeight", lShape)
-          )
+          val line = LineShape(startPoint.get,v).addAttributes("Color" -> color , "StrokeWidth" -> stroke)
+          println("stroke" + stroke)
           Create(line)
           End
         }
@@ -59,7 +49,7 @@ class Line extends Module {
           Start('Input,"com.siigna.module.base.create",111)
         } else {
         val guide = PointPointGuide(startPoint.get, (v : Vector2D) => {
-          Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth))
+          Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
         },112)//1 : Input type = InputTwoValues
         Start('Input,"com.siigna.module.base.create", guide)
       }}
@@ -70,7 +60,7 @@ class Line extends Module {
             Start('Input,"com.siigna.module.base.create",111)
           } else {
             val guide = PointPointGuide(startPoint.get,(v : Vector2D) => {
-              Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth))
+              Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
             },112)
             Start('Input,"com.siigna.module.base.create", guide)
           }
