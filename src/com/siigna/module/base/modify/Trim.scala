@@ -25,8 +25,10 @@ class Trim extends Module {
   var selectionBoxStart : Option[Vector2D] = None
   var selectionBoxEnd : Option[Vector2D] = None
   var trimGuide : Option[Shape] = None
+  var trimGuide2 : Option[Shape] = None
   var trimShapes : Iterable[Shape] = List()
   var trimID : Option[Int] = None
+  var trimID2 : Option[Int] = None
 
   def IsOnSegment(pt1 : Vector2D, pt2 : Vector2D, pt3 : Vector2D) = {
     val xi = pt1.x
@@ -161,27 +163,60 @@ class Trim extends Module {
 
       //if selection returns a point, evaluate if there areany shapes to trim at that point:
       case End(v : Vector2D) :: tail => {
-        if(trimID.isDefined) Drawing.select(trimID.get) //keep the trimline selected for better visual reference
+        if(trimID.isDefined && !trimID2.isDefined) Drawing.select(trimID.get) //keep the trimline selected for better visual reference
+        if(trimID.isDefined && trimID2.isDefined) Drawing.select(Traversable(trimID.get,trimID2.get)) //keep the trimline selected for better visual reference
 
-        if(trimGuide.isDefined ) {
+        if(trimGuide.isDefined && !trimGuide2.isDefined) {
           val m = mousePosition.transform(View.deviceTransformation)
           //find the shape closest to the mouse:
           if (Drawing(m).size > 0) {
             val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
             nearestShape = if (nearest._2.distanceTo(m) < Siigna.selectionDistance) Some(nearest._2) else None
-            val trimShapes = nearestShape.get.geometry
+            attr = nearestShape.get.attributes
+
+            val trimShape = nearestShape.get.geometry
             val guideShape = trimGuide.get.geometry
 
             //do the trimming:
             Delete(nearest._1)
-            val l = trim(guideShape, trimShapes, v)
+            val l = trim(guideShape, trimShape, v)
             Create(PolylineShape(l).addAttributes(attr))
             nearestShape = None //reset var
             Start('Input,"com.siigna.module.base.create",1) //look for more trim points
           } else {
             Start('Input,"com.siigna.module.base.create",1)
           } //if the point is not set next to a shape, goto selection and try again
-        } else {
+        }
+        //if two trim guides have been selected, trim the shape with both.
+
+        else if(trimGuide.isDefined && trimGuide2.isDefined) {
+          val m = mousePosition.transform(View.deviceTransformation)
+          //find the shape closest to the mouse:
+          if (Drawing(m).size > 0) {
+            val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
+            nearestShape = if (nearest._2.distanceTo(m) < Siigna.selectionDistance) Some(nearest._2) else None
+            attr = nearestShape.get.attributes
+
+            val trimShape = nearestShape.get.geometry
+
+            val guideShape1 = trimGuide.get.geometry
+            val guideShape2 = trimGuide2.get.geometry
+
+            //do the trimming:
+            val l1 = trim(guideShape1, trimShape, v)
+            val l2 = trim(guideShape2, trimShape, v)
+            Delete(nearest._1)
+
+            Create(PolylineShape(l1).addAttributes(attr))
+            Create(PolylineShape(l2).addAttributes(attr))
+
+            nearestShape = None //reset var
+            Start('Input,"com.siigna.module.base.create",1) //look for more trim points
+          } else {
+            Start('Input,"com.siigna.module.base.create",1)
+          } //if the point is not set next to a shape, goto selection and try again
+        }
+        else {
         Track.trackEnabled = true
         End
         }
@@ -189,14 +224,21 @@ class Trim extends Module {
       case _ => {
         Track.trackEnabled = false
         if (Drawing.selection.isDefined && Drawing.selection.get.size == 1) {
-          attr = Drawing.selection.head.shapes.head._2.attributes
           trimGuide = Some(Drawing.selection.head.shapes.head._2)
           trimID = Some(Drawing.selection.head.shapes.head._1)
           Siigna.display("Select shapes to trim")
           Start('Input,"com.siigna.module.base.create",1)
+        }
+        else if(Drawing.selection.isDefined && Drawing.selection.get.size == 2) {
+          trimGuide = Some(Drawing.selection.head.shapes.head._2)
+          trimID = Some(Drawing.selection.head.shapes.head._1)
+          trimGuide2 = Some(Drawing.selection.last.shapes.last._2)
+          trimID2 = Some(Drawing.selection.last.shapes.last._1)
 
-        } else {
-          //Siigna.display("Select an object to trim objects by")
+          Siigna.display("Select shapes to trim")
+          Start('Input,"com.siigna.module.base.create",1)
+        }
+        else {  //Siigna.display("Select an object to trim objects by")
           End
         }
       }
