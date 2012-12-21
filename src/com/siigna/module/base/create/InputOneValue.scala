@@ -157,6 +157,8 @@ class InputOneValue extends Module {
       //For other input types, which have a double guide, draw the guides on the basis of the double guide:
     } else if(doubleGuide.isDefined && usefulDoubleAsInput == true){
       if (input.get != 0) doubleGuide.foreach(_(input.get).foreach(s => g.draw(s.transform(t))))
+    } else if (inputType == Some(131)) {
+      pointGuide.foreach(_(Vector2D(input.get,12345.6789)).foreach(s => g.draw(s.transform(t))))
     }
   }
 }

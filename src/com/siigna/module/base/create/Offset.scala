@@ -79,6 +79,31 @@ class Offset extends Module {
       else  - nearestDist
       n
     }
+    val distance : Double = calcNearest
+    //run the offset function to offset shapes with the distance set in calcNearest
+    for (i <- 0 to v.length-2) l = l :+ calcOffset(LineShape(v(i), v(i+1)),distance)
+    l//return the list
+  }
+
+  def offsetLines(s : Shape, m : Double) = {
+    var l = List[LineShape]()
+    var v = s.geometry.vertices
+    //iterate through the shapes to find the shape closest to the mouse
+    def calcNearest : Double = {
+      var nearestDist : Double = LineShape(v(0), v(1)).distanceTo(mousePosition)
+      var closestSegment : Option[LineShape] = Some(LineShape(v(0), v(1)))
+      for (i <- 0 to v.length -2) {
+        var currentSegment = LineShape(v(i), v(i+1))
+        if (currentSegment.distanceTo(mousePosition) < nearestDist) {
+          closestSegment = Some(currentSegment)
+          nearestDist = currentSegment.distanceTo(mousePosition)
+        }
+      }
+      //check on which side of the original the offset should take place
+      val n = if(closestSegment.isDefined && offsetSide(closestSegment.get, mousePosition) == true) m
+      else  - m
+      n
+    }
 
     val distance : Double = calcNearest
     //run the offset function to offset shapes with the distance set in calcNearest
@@ -89,8 +114,13 @@ class Offset extends Module {
   //a guide to get Point to draw the shape(s) dynamically
   val guide: PointGuide = PointGuide((v : Vector2D) => {
     val shape = Drawing.selection.head.shapes.head._2
-    val m = mousePosition.transform(View.deviceTransformation)
-    val newLines = offsetLines(shape, m) //offset the lines by the current mouseposition
+    //HACK - to be able to use the point guide to dynamicaly draw key-entered offset distance:
+    var newLines = List[LineShape]()
+    if (v.y == 12345.6789) {
+      newLines = offsetLines(shape, v.x) //offset the lines by the current double
+    } else {
+      newLines = offsetLines(shape, v) //offset the lines by the current mouseposition
+    }
     var knots = List[Vector2D]()
 
     knots = knots :+ newLines.head.p1 //add the first point to the list
@@ -99,7 +129,7 @@ class Offset extends Module {
     result
     knots = knots :+ newLines.reverse.head.p2 //add the last vertex
     Array(PolylineShape(knots).addAttributes(attr))//create a polylineShape from the offset knots:
-  },1)//,1: MouseDown or typed length
+  },131)// 131: MouseDown or typed length - special guide in InputOneValue
 
   //Select shapes
   val stateMap: StateMap = Map(
@@ -119,6 +149,22 @@ class Offset extends Module {
       Create(PolylineShape(knots).addAttributes(attr))//create a polylineShape from the offset knots:
       End
     }
+
+    case End(d : Double) :: tail => {
+      val shape = Drawing.selection.head.shapes.head._2
+      val newLines = offsetLines(shape, d) //offset the lines by the returned double
+      var knots = List[Vector2D]()
+
+      knots = knots :+ newLines.head.p1 //add the first point to the list
+
+      def result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
+      result
+      knots = knots :+ newLines.reverse.head.p2 //add the last vertex
+      done = true
+      Create(PolylineShape(knots).addAttributes(attr))//create a polylineShape from the offset knots:
+      End
+    }
+
     case MouseUp(_, MouseButtonRight, _) :: tail => End
 
     //exit strategy
