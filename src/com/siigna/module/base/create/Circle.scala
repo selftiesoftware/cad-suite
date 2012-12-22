@@ -35,10 +35,11 @@ class Circle extends Module {
           //If a point is entered, it is the centre:
           case End(p : Vector2D) :: tail => {
             center = Some(p)
-            //Send point guide, and ask for one-coordinate input: Radius
-            Start('Input, "com.siigna.module.base.create",
-              PointDoubleGuide(p, (r: Double) => Traversable(CircleShape(p, math.abs(r))),3)
-            )
+            //Send guides, and ask for one-coordinate input: Radius - from point by click, or by key-entry.
+            val doubleGuide = DoubleGuide((r: Double) => Traversable(CircleShape(p, math.abs(r))))
+            val vector2DGuide = Vector2DGuide((p: Vector2D) => Traversable(CircleShape(center.get, math.sqrt(( (center.get.x-p.x) * (center.get.x-p.x)) + ( (center.get.y-p.y) * (center.get.y-p.y)) ))))
+            val inputRequest = InputRequest(Some(vector2DGuide),Some(doubleGuide),None,None,None,None,center,None,None,Some(3))
+            Start('Input, "com.siigna.module.base.create",inputRequest)
           }
 
           case End(r : Double) :: tail => {

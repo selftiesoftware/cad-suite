@@ -112,7 +112,7 @@ class Offset extends Module {
   }
 
   //a guide to get Point to draw the shape(s) dynamically
-  val guide: PointGuide = PointGuide((v : Vector2D) => {
+  val vector2DGuide: Vector2DGuide = Vector2DGuide((v : Vector2D) => {
     val shape = Drawing.selection.head.shapes.head._2
     //HACK - to be able to use the point guide to dynamicaly draw key-entered offset distance:
     var newLines = List[LineShape]()
@@ -129,7 +129,7 @@ class Offset extends Module {
     result
     knots = knots :+ newLines.reverse.head.p2 //add the last vertex
     Array(PolylineShape(knots).addAttributes(attr))//create a polylineShape from the offset knots:
-  },131)// 131: MouseDown or typed length - special guide in InputOneValue
+  })
 
   //Select shapes
   val stateMap: StateMap = Map(
@@ -179,9 +179,10 @@ class Offset extends Module {
       else if (Drawing.selection.isDefined && Drawing.selection.get.size == 1 ){
         attr = Drawing.selection.head.shapes.head._2.attributes
         Siigna display "click to set the offset distance"
-        Start('Input,"com.siigna.module.base.create", guide)
-      }
-      else if (done == true) End
+        val inputRequest = InputRequest(Some(vector2DGuide), None, None, None, None, None, None, None, None, Some(131))
+        // 131: MouseDown or typed length - special guide in InputOneValue
+        Start('Input,"com.siigna.module.base.create",inputRequest)
+      } else if (done == true) End
       else {
         Siigna display "please select one shape to offset"
         Drawing.deselect()

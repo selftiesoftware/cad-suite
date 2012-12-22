@@ -23,24 +23,25 @@ class Move extends Module {
 
   val stateMap: StateMap = Map(
     'Start -> {
-
       //If the move module starts with a point, it knows where to start...
       case Start(_,p: Vector2D) :: tail => {
         //set the startpoint for the move operation (if not already set)
         startPoint = Some(p.transform(View.deviceTransformation))
         //definition of a shape guide that is used to send the selected shapes to the 'Point module
         // where they are drawn dynamically
-        val shapeGuide = PointPointGuide(p, (v : Vector2D) => {
+        val vector2DGuide = Vector2DGuide((v: Vector2D) => {
           val t : TransformationMatrix = if (startPoint.isDefined) {
             TransformationMatrix(v - startPoint.get, 1)
             // If no startPoint has been defined - create an empty matrix
           } else TransformationMatrix()
           // Return the shape, transformed
           Drawing.selection.get.apply(t)
-        },9) //9 : Input type = KeyUp as input metod,
+        })
+        val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(p),None,None,Some(9))
+        Start('Input, "com.siigna.module.base.create",inputRequest)
+        //9 : Input type = KeyUp as input metod,
         //so the coordinates will be returned on key up
         //forward to the Input module with the shape guide.
-        Start('Input,"com.siigna.module.base.create", shapeGuide)
       }
 
       case End(MouseUp(p,_,_)) :: tail => {
@@ -62,12 +63,13 @@ class Move extends Module {
       case End(MouseDown(p,_,_)) :: tail => {
         if (startPoint.isEmpty) {
           startPoint = Some(p)
-          val shapeGuide = PointPointGuide(p, (v : Vector2D) => {
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
             val t : TransformationMatrix = TransformationMatrix(v - startPoint.get, 1)
             // Return the shape, transformed
             Drawing.selection.get.apply(t)
-          },112)
-          Start('Input,"com.siigna.module.base.create", shapeGuide)
+          })
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(p),None,None,Some(12))
+          Start('Input, "com.siigna.module.base.create",inputRequest)
         } else {
           endPoint = Some(p.transform(View.deviceTransformation))
           transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
@@ -97,15 +99,15 @@ class Move extends Module {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         val l = new ModuleInit
         if (l.usableSelectionExists) {
-          //val p = Vector2D(0,0)
-          val shapeGuide = PointGuide((v : Vector2D) => {
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
             val t : TransformationMatrix = TransformationMatrix(v, 1)
             // Return the shape, transformed
             Drawing.selection.get.apply(t)
-          },1020)
+          })
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(120))
           //Input type 1020: coordinates, mouse-drag-distance, or key-input (twoPoint or onePoint + guide),
           // do not draw guide in input until left mouse button is clicked (draw if dragging, do not draw if selecting start point)
-          Start('Input, "com.siigna.module.base.create", shapeGuide)
+          Start('Input, "com.siigna.module.base.create",inputRequest)
         } else {
           Siigna display "nothing selected"
          End

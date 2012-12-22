@@ -29,22 +29,15 @@ class Polyline extends Module {
         if (startPoint.isEmpty){
           //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
           startPoint = Some(v)
-
-          val guide = PointPointGuide(v, (v : Vector2D) => {
-            (Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
-          },112)//1 : Input type = InputTwoValues
-
-          Start('Input,"com.siigna.module.base.create", guide)
+          val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+          val inputRequest = InputRequest(Some(guide),None,None,None,None,None,startPoint,None,None,Some(112))        
+          Start('Input,"com.siigna.module.base.create", inputRequest)
         } else {
           //If the start point is set, the first segment is made and points should be added.
           points :+ v
-          //val guide : Guide = Guide((v : Vector2D) => {
-          //  Array(PolylineShape(points :+ v))
-          //})
-          val guide = PointPointGuide(v, (v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
-          },112)//1 : Input type = InputTwoValues
-          Start('Input,"com.siigna.module.base.create", guide)
+          val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+          val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
+          Start('Input,"com.siigna.module.base.create", inputRequest)
         }
       }
 
@@ -54,18 +47,13 @@ class Polyline extends Module {
         if (points.length == 1){
           //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
           startPoint = Some(points.last)
-
-          val guide = PointPointGuide(startPoint.get, (v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
-          },112)//1 : Input type = InputTwoValues
-
-          Start('Input,"com.siigna.module.base.create", guide)
+          val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+          val inputRequest = InputRequest(Some(guide),None,None,None,None,None,startPoint,None,None,Some(112))
+          Start('Input,"com.siigna.module.base.create", inputRequest)
         } else {
-
-          val guide = PointPointGuide(points.last, (v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
-          },112)//1 : Input type = InputTwoValues
-          Start('Input,"com.siigna.module.base.create", guide)
+          val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+          val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
+          Start('Input,"com.siigna.module.base.create", inputRequest)
         }
       }
 
@@ -79,10 +67,10 @@ class Polyline extends Module {
           }
           //And if there is a start point, a new guide is returned
           if (startPoint.isDefined) {
-            val guide : PointPointGuide = PointPointGuide(points.last, (v : Vector2D) => {
-              Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
-            },112) //1 : Input type = InputTwoValues
-            Start('Input,"com.siigna.module.base.create", guide)
+
+            val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+            val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
+            Start('Input,"com.siigna.module.base.create", inputRequest)
           } else {
             //If not, point is started without guide.
             Start('Input,"com.siigna.module.base.create")

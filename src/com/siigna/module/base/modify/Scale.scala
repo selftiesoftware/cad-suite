@@ -35,16 +35,17 @@ class Scale extends Module {
           //Next step is to either receive a dragged vector to define the factor to scale with,
           //or a double, which will be the factor,
           //or an other point, which then will be the basis for defining the factor
-          val shapeGuide = PointGuide((v : Vector2D) => {
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
             val scaleFactor = ((v-p).length/100 + 0.25)
             //Define a scaling matrix:
             val t : TransformationMatrix = TransformationMatrix().scale(scaleFactor,p)
             // Return the shape, transformed
             Drawing.selection.get.apply(t)
-          },9) //9: Input type: Coordinates at mouseUp
+          })
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(9))
+          //9: Input type: Coordinates at mouseUp
           //if the base point for scaling is set, goto point with a shape guide
-          Start('Input,"com.siigna.module.base.create", shapeGuide)
-
+          Start('Input, "com.siigna.module.base.create",inputRequest)
         } else if(p != startPoint.get && firstPointEntered == false) {
           //If there is a start, but no endpoint, and a new point is recieved (from mouseUp),
           //If it the coords are the same as mouse up, it is the startpoint,
@@ -61,28 +62,30 @@ class Scale extends Module {
             //The base point for scale has been set. Now either:
             //1: A scaling factor (Double),
             //2: A point to "grab" for the scaling (Vector2D) is needed.
-            val shapeGuide = DoubleGuide((s : Double) => {
+            //val shapeGuide = DoubleGuide((s : Double) => {
               //Define a scaling matrix:
-              val t : TransformationMatrix = TransformationMatrix().scale(s,startPoint.get)
+              //val t : TransformationMatrix = TransformationMatrix().scale(s,startPoint.get)
               // Return the shape, transformed
-              Drawing.selection.get.apply(t)
-            },1031) //1031: Input type: Double by keyboard, or Vector2D by leftclick.
-            Start('Input,"com.siigna.module.base.create", shapeGuide)
+              //Drawing.selection.get.apply(t)
+            //},1031) //1031: Input type: Double by keyboard, or Vector2D by leftclick.
+            //Start('Input,"com.siigna.module.base.create", shapeGuide)
           } else if (firstPointEntered == true && middlePoint.isEmpty) {
             Siigna display "set endpoint for scaling, or type desired length to point out"
             middlePoint = Some(p)
             //If a second point is received, the next can be:
             //1: A double, to define the desired new length of something, or
             //2: A point, where the user wants to "leave" the last point
-            val shapeGuide = PointGuide((v : Vector2D) => {
+            val vector2DGuide = Vector2DGuide((v: Vector2D) => {
               val scaleFactor = (((v - startPoint.get).length)/(middlePoint.get - startPoint.get).length)
               //Define a scaling matrix:
               val t : TransformationMatrix = TransformationMatrix().scale(scaleFactor,startPoint.get)
               // Return the shape, transformed
               Drawing.selection.get.apply(t)
-            },1031) //1031: Input type: Double by keyboard, or Vector2D by leftclick.
+            })
+            val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(1031))
+            //1031: Input type: Double by keyboard, or Vector2D by leftclick.
             //if the base point for scaling is set, goto point with a shape guide
-            Start('Input,"com.siigna.module.base.create", shapeGuide)
+            Start('Input, "com.siigna.module.base.create",inputRequest)
           } else if (!middlePoint.isEmpty && requestedLength.isEmpty) {
             //If a third point is recieved, and there is not any requested length set, the scaling is finished:
             val scaleFactor = (((p - startPoint.get).length)/(middlePoint.get - startPoint.get).length)
@@ -144,10 +147,9 @@ class Scale extends Module {
           //A lineGuide helps...
           requestedLength = Some(l)
           Siigna display ("click on the point, that you want to be " + l + " away")
-          val guide = PointGuide((v : Vector2D) => {
-            (Array(LineShape(middlePoint.get, v)))
-          },11)//1 : Input type = InputTwoValues
-          Start('Input,"com.siigna.module.base.create", guide)
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => (Traversable(LineShape(middlePoint.get, v))))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(11))
+          Start('Input, "com.siigna.module.base.create",inputRequest)
         }
 
       }

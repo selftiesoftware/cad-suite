@@ -116,10 +116,9 @@ class Lineardim extends Module {
       case End(p : Vector2D) :: tail => {
         points = points :+ p
         if (points.length == 1) {
-          val guide: PointGuide = PointGuide((v : Vector2D) => {
-            (Array(LineShape(p, v)))
-          },1)
-          Start('Input,"com.siigna.module.base.create", guide)
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(LineShape(p, v)))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(1))
+          Start('Input, "com.siigna.module.base.create",inputRequest)
         } else if (points.length == 2) {
           val line = points(1) - points(0)
           val point = points(0) - p
@@ -129,10 +128,10 @@ class Lineardim extends Module {
           else
             offsetSide = true
           Siigna display "click on the side away from the pointers"
-          val guide: PointGuide = PointGuide((v : Vector2D) => {
-            (Array(LineShape(points(0), points(1))))
-          },11) //Input 11: Vector2D, only by mouseDown
-          Start('Input,"com.siigna.module.base.create", guide)
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(LineShape(points(0), points(1))))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(11))
+          //Input 11: Vector2D, only by mouseDown
+          Start('Input, "com.siigna.module.base.create",inputRequest)
         } else if (points.length == 3) {
           //Finalise
           val line = points(1) - points(0)

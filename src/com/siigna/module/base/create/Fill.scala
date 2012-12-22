@@ -36,8 +36,7 @@ class Fill extends Module {
         if (startPoint.isEmpty){
           //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
           startPoint = Some(v)
-
-          val guide = PointPointGuide(v, (v : Vector2D) => {
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
             //(Array(PolylineShape(startPoint.get, v)))
             if(!points.isEmpty) {
               val closedPolyline = points.reverse :+ v
@@ -48,19 +47,18 @@ class Fill extends Module {
               else Array(PolylineShape((areaGuide)).setAttributes("raster" -> anthracite, "StrokeWidth" -> 0.0))
             }
             else Array(PolylineShape(Vector2D(0,0),Vector2D(0,0)))
-          },1)//1 : Input type = InputTwoValues
-
-          Start('Input,"com.siigna.module.base.create", guide)
+          })
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points(0)),None,None,Some(1))
+          Start('Input, "com.siigna.module.base.create",inputRequest)
         } else {
           //If the start point is set, the first segment is made and points should be added.
           points :+ v
           //val guide : Guide = Guide((v : Vector2D) => {
           //  Array(PolylineShape(points :+ v))
           //})
-          val guide = PointPointGuide(v, (v : Vector2D) => {
-            (Array(PolylineShape(points :+ v)))
-          },1)//1 : Input type = InputTwoValues
-          Start('Input,"com.siigna.module.base.create", guide)
+          val vector2DGuide = Vector2DGuide((p: Vector2D) => Traversable(PolylineShape(points :+ v)))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(v),None,None,Some(1))
+          Start('Input, "com.siigna.module.base.create",inputRequest)
         }
       }
 
@@ -70,18 +68,13 @@ class Fill extends Module {
         if (points.length == 1){
           //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
           startPoint = Some(points.last)
-
-          val guide = PointPointGuide(startPoint.get, (v : Vector2D) => {
-            (Array(PolylineShape(startPoint.get, v)))
-          },1)//1 : Input type = InputTwoValues
-
-          Start('Input,"com.siigna.module.base.create", guide)
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(startPoint.get, v)))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(1))
+          Start('Input, "com.siigna.module.base.create",inputRequest)
         } else {
-
-          val guide = PointPointGuide(points.last, (v : Vector2D) => {
-            (Array(PolylineShape(points :+ v)))
-          },1)//1 : Input type = InputTwoValues
-          Start('Input,"com.siigna.module.base.create", guide)
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(points :+ v)))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points.last),None,None,Some(1))
+          Start('Input, "com.siigna.module.base.create",inputRequest)
         }
       }
 
@@ -94,12 +87,11 @@ class Fill extends Module {
           }
           //And if there is a start point, a new guide is returned
           if (startPoint.isDefined) {
-            val guide : PointPointGuide = PointPointGuide(points.last, (v : Vector2D) => {
-              Array(PolylineShape(points :+ v))
-            },1) //1 : Input type = InputTwoValues
-            Start('Input,"com.siigna.module.base.create", guide)
+            val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(points :+ v)))
+            val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points.last),None,None,Some(1))
+            Start('Input, "com.siigna.module.base.create",inputRequest)
           } else {
-            //If not, point is started without guide.
+            //If not, input is started without guide.
             Start('Input,"com.siigna.module.base.create")
           }
         }}

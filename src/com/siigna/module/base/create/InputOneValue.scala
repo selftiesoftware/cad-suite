@@ -25,70 +25,45 @@ class InputOneValue extends Module {
 
   var relativeX : Double = 0.0
 
-  var doubleGuide : Option[Double => Traversable[Shape]] = None
-  var pointGuide : Option[Vector2D => Traversable[Shape]] = None
-  var startPoint : Option[Vector2D] = None
+  var inputRequest: Option[InputRequest] = None
+  var vector2DGuide: Option[Vector2DGuide] = None
+  var doubleGuide: Option[DoubleGuide] = None
+  var textGuide: Option[TextGuide] = None
+  var vector2DMessageGuide: Option[Vector2DMessageGuide] = None
+  var doubleMessageGuide: Option[DoubleMessageGuide] = None
+  var textMessageGuide: Option[TextMessageGuide] = None
+  var referencePoint1: Option[Vector2D] = None
+  var referencePoint2: Option[Vector2D] = None
+  var referenceDouble: Option[Double] = None
   var inputType: Option[Int] = None
+
+  var startPoint : Option[Vector2D] = None
 
   val stateMap: StateMap = Map(
 
     'Start -> {
 
-      case Start(_ ,g: DoubleGuide) :: KeyDown(code, _) :: tail => {
+      case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
         //Ends if enter was pressed...
         if (code == Key.enter) {
           End(0.0)
-        //Othervise it starts:
+          //Othervise it starts:
         } else if (code.toChar.isDigit || code.toChar.toString == "-" || code.toChar.toString == ".") {
           coordinateValue += code.toChar
-          doubleGuide = Some(g.doubleGuide)
-          inputType = Some(g.inputType)
+          inputRequest = Some(i)
+          if (!i.vector2DGuide.isEmpty) vector2DGuide = i.vector2DGuide
+          if (!i.doubleGuide.isEmpty) doubleGuide = i.doubleGuide
+          if (!i.textGuide.isEmpty) textGuide = i.textGuide
+          if (!i.vector2DMessageGuide.isEmpty) vector2DMessageGuide = i.vector2DMessageGuide
+          if (!i.doubleMessageGuide.isEmpty) doubleMessageGuide = i.doubleMessageGuide
+          if (!i.textMessageGuide.isEmpty) textMessageGuide = i.textMessageGuide
+          if (!i.referencePoint1.isEmpty) referencePoint1 = i.referencePoint1
+          if (!i.referencePoint2.isEmpty) referencePoint2 = i.referencePoint2
+          if (!i.referenceDouble.isEmpty) referenceDouble = i.referenceDouble
+          if (!i.inputType.isEmpty) inputType = i.inputType
           Siigna display coordinateValue
         }
       }
-
-      case Start(_ ,g: PointDoubleGuide) :: KeyDown(code, _) :: tail => {
-        doubleGuide = Some(g.doubleGuide)
-        inputType = Some(g.inputType)
-        startPoint = Some(g.point1)
-        //save the already typed key:
-        if (code.toChar.isDigit) coordinateValue += code.toChar
-        if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
-        if (code.toChar.toString == "." && coordinateValue.length() == 0) coordinateValue += code.toChar
-        Siigna display coordinateValue
-      }
-
-      case Start(_ ,g: PointPointDoubleGuide) :: KeyDown(code, _) :: tail => {
-        doubleGuide = Some(g.doubleGuide)
-        inputType = Some(g.inputType)
-        //save the already typed key:
-        if (code.toChar.isDigit) coordinateValue += code.toChar
-        if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
-        if (code.toChar.toString == "." && coordinateValue.length() == 0) coordinateValue += code.toChar
-        Siigna display coordinateValue
-      }
-
-      case Start(_ ,g: PointGuide) :: KeyDown(code, _) :: tail => {
-        pointGuide = Some(g.pointGuide)
-        inputType = Some(g.inputType)
-        //save the already typed key:
-        if (code.toChar.isDigit) coordinateValue += code.toChar
-        if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
-        if (code.toChar.toString == "." && coordinateValue.length() == 0) coordinateValue += code.toChar
-        Siigna display coordinateValue
-      }
-
-      case Start(_ ,g: PointPointGuide) :: KeyDown(code, _) :: tail => {
-        startPoint = Some(g.point1)
-        pointGuide = Some(g.pointGuide)
-        inputType = Some(g.inputType)
-        //save the already typed key:
-        if (code.toChar.isDigit) coordinateValue += code.toChar
-        if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
-        if (code.toChar.toString == "." && coordinateValue.length() == 0) coordinateValue += code.toChar
-        Siigna display coordinateValue
-      }
-
 
       //Read numbers and minus, "," and enter as first entry if no guide is provided:
       case Start(_,_) :: KeyDown(code, _) :: tail => {
@@ -153,12 +128,12 @@ class InputOneValue extends Module {
 
     if((inputType == Some(111) || inputType == Some(112)) && usefulDoubleAsInput == true){
       //For these input types: Draw pointguide on the base of point obtained from the distance to the tracked point: 
-      if (input.get != 0) pointGuide.foreach(_(Track.getPointFromDistance(input.get).get).foreach(s => g.draw(s.transform(t))))
+      if (input.get != 0) vector2DGuide.get.vector2DGuide(Track.getPointFromDistance(input.get).get).foreach(s => g.draw(s.transform(t)))
       //For other input types, which have a double guide, draw the guides on the basis of the double guide:
     } else if(doubleGuide.isDefined && usefulDoubleAsInput == true){
-      if (input.get != 0) doubleGuide.foreach(_(input.get).foreach(s => g.draw(s.transform(t))))
+      if (input.get != 0) doubleGuide.get.doubleGuide(input.get).foreach(s => g.draw(s.transform(t)))
     } else if (inputType == Some(131)) {
-      pointGuide.foreach(_(Vector2D(input.get,12345.6789)).foreach(s => g.draw(s.transform(t))))
+      vector2DGuide.get.vector2DGuide(Vector2D(input.get,12345.6789)).foreach(s => g.draw(s.transform(t)))
     }
   }
 }
