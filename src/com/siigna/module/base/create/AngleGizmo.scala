@@ -140,11 +140,12 @@ class AngleGizmo extends Module {
         var guide: Option[DoubleGuide] = None
         //A DoubleGuide for a line is sent to InputOneValue, to draw a guide for the segment being drawn:
         if (anglePointIsSet == false) {
-          guide = Some(DoubleGuide((d: Double) => Traversable(LineShape(referencePoint1.get, referencePoint1.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * 150)))))
+          doubleGuide = Some(DoubleGuide((d: Double) => Traversable(LineShape(referencePoint1.get, referencePoint1.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * 150)))))
         } else {
-          guide = Some(DoubleGuide((d: Double) => Traversable(LineShape(referencePoint1.get, lengthVector (d)))))
+          doubleGuide = Some(DoubleGuide((d: Double) => Traversable(LineShape(referencePoint1.get, lengthVector (d)))))
         }
-        Start('InputOneValue,"com.siigna.module.base.create", guide.get)
+        val inputRequest = InputRequest(None,doubleGuide,None,None,None,None,None,None,None,None)
+        Start('InputOneValue,"com.siigna.module.base.create", inputRequest)
       }
 
       case End(d : Double) :: tail => {
@@ -236,7 +237,7 @@ class AngleGizmo extends Module {
         vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
         //If there is key-input, only draw the fixed part of the shape - the last part being created is drawn by InputOneValue
       } else if (!vector2DGuide.isEmpty && drawGuide == false) {
-        vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
+        vector2DGuide.get.vector2DGuide(referencePoint1.get).foreach(s => g.draw(s.transform(t)))
       }
     }
   }
