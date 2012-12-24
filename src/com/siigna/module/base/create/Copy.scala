@@ -41,8 +41,9 @@ class Copy extends Module {
           transformation = Some(TransformationMatrix((p - startPoint.get), 1))
           Siigna display "type number of copies or click for one"
           multiActive = true
-          val doubleGuide = DoubleGuide((r: Double) => Traversable(CircleShape(p, math.abs(r))))
-          val inputRequest = InputRequest(None,Some(doubleGuide),None,None,None,None,startPoint,None,None,Some(17))
+          val doubleGuide = DoubleGuide((r: Double) => shapes.get.apply(transformation.get))
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => shapes.get.apply(transformation.get))
+          val inputRequest = InputRequest(Some(vector2DGuide),Some(doubleGuide),None,None,None,None,startPoint,None,None,Some(17))
           Start('Input, "com.siigna.module.base.create", inputRequest)
         }
       }
