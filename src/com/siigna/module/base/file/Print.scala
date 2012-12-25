@@ -26,6 +26,7 @@ import com.siigna._
 class Print extends Module {
 
   val margin = Siigna.double("printMargin").getOrElse(13.0)
+  // TODO This can be null
   val pageFormat = printerJob.defaultPage
   val paper = new Paper()
   val printerJob = PrinterJob.getPrinterJob

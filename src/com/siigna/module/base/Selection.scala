@@ -59,6 +59,7 @@ class Selection extends Module {
       // If a shape-part is hit, it is selected:
       case Start(_ ,message : MouseDown) :: tail => {
         val m = mousePosition.transform(View.deviceTransformation)
+
         //find the shape closest to the mouse:
         if (Drawing(m).size > 0) {
           val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
