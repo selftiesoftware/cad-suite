@@ -19,6 +19,7 @@ import module.ModuleInit
 class Move extends Module {
   var endPoint : Option[Vector2D] = None
   var startPoint : Option[Vector2D] = None
+
   var transformation : Option[TransformationMatrix] = None
 
   val stateMap: StateMap = Map(
@@ -37,52 +38,44 @@ class Move extends Module {
           // Return the shape, transformed
           Drawing.selection.get.apply(t)
         })
-        val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(p),None,None,Some(9))
+        val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(9))
         Start('Input, "com.siigna.module.base.create",inputRequest)
         //9 : Input type = KeyUp as input metod,
         //so the coordinates will be returned on key up
         //forward to the Input module with the shape guide.
       }
 
-      case End(MouseUp(p,_,_)) :: tail => {
-        //If start point is defined, it is where the move should end:
-        if (!startPoint.isEmpty) {
-          endPoint = Some(p)
-          transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
-        //If start point is not defined, then p is the vector, that defines the move:
-        } else {
-          transformation = Some(TransformationMatrix(p, 1))
-        }
-        Drawing.selection.get.transform(transformation.get)
-        Drawing.deselect()
-        End
-      }
-
-      //If point returns mouse down, then this is where move starts, or ends, 
-      // depending on whether there is a start point yet...
-      case End(MouseDown(p,_,_)) :: tail => {
+      //Vector2D received (from input, could be from mouse up (when input type 9 has been requested),
+      // or mouse down (from the other input types used in this module):
+      case End(v: Vector2D) :: tail => {
         if (startPoint.isEmpty) {
-          startPoint = Some(p)
+          //The first clicked point can be:
+          // a): The point where a drag-move starts, or
+          // b): The point, where the user "picks up" the selection that should be moved.
+          // That depends on whether the mouse is released at the same, or a different point.
+          // So, the input-request is only for a mouse-up (input type 9)
+          startPoint = Some(v)
           val vector2DGuide = Vector2DGuide((v: Vector2D) => {
             val t : TransformationMatrix = TransformationMatrix(v - startPoint.get, 1)
             // Return the shape, transformed
             Drawing.selection.get.apply(t)
           })
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(p),None,None,Some(12))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(9))
           Start('Input, "com.siigna.module.base.create",inputRequest)
-        } else {
-          endPoint = Some(p.transform(View.deviceTransformation))
-          transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
-          Drawing.selection.get.transform(transformation.get)
-          Drawing.deselect()
-          End
-        }
-      }  
-
-      //If point returns point, then this is where the move should end...
-      case End(p: Vector2D) :: tail => {
-        if (!startPoint.isEmpty) {
-          transformation = Some(TransformationMatrix((p - startPoint.get), 1))
+        } else if (!startPoint.isEmpty && v == startPoint.get) {
+          //If the received point, when there is a start point, is the same as the start point, it is the start-point for the move
+          //(since mouse-up happened on the same spot as mouse-down). Send an input-request for an end-point:
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
+            val t : TransformationMatrix = TransformationMatrix(v - startPoint.get, 1)
+            // Return the shape, transformed
+            Drawing.selection.get.apply(t)
+          })
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(112))
+          Start('Input, "com.siigna.module.base.create",inputRequest)
+        } else if (!startPoint.isEmpty) {
+          //If the received point, when there is a start point, is NOT the same as the start point, it is the end-point for the move
+          //(since mouse-up, or mouse down, happened on a different spot than the start point). Do the move:
+          transformation = Some(TransformationMatrix((v - startPoint.get), 1))
           Drawing.selection.get.transform(transformation.get)
           Drawing.deselect()
           End
@@ -94,20 +87,12 @@ class Move extends Module {
       case MouseDown(p, MouseButtonRight, _) :: tail => End
       case End :: tail => End
 
-      //on first entry, go to point to get the start point for the move operations.
+      //on first entry, send input request to input to get the start point for the move operations.
       case _ => {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         val l = new ModuleInit
         if (l.usableSelectionExists) {
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
-            val t : TransformationMatrix = TransformationMatrix(v, 1)
-            // Return the shape, transformed
-            Drawing.selection.get.apply(t)
-          })
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(120))
-          //Input type 1020: coordinates, mouse-drag-distance, or key-input (twoPoint or onePoint + guide),
-          // do not draw guide in input until left mouse button is clicked (draw if dragging, do not draw if selecting start point)
-          Start('Input, "com.siigna.module.base.create",inputRequest)
+          Start('Input, "com.siigna.module.base.create",111)
         } else {
           Siigna display "nothing selected"
          End
