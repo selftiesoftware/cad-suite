@@ -266,7 +266,7 @@ class Input extends Module {
  *      End                           All other inputs sends End
  *
  * 111 = Vector2D                  x  Point at mouseDown, or point by key(absolute - twoValues) or point guided by trackguide (input One value) if a track guide is active.
- * 112 = Vector2D                  x  Point at MouseDown, or (point by key added to referencePoint1) or point guided by trackguide (input One value) if a track guide is active.
+ * 112 = Vector2D                  x  Point at MouseDown, or vector2D by key added to referencePoint1 or point guided by trackguide (input One value) if a track guide is active.
  *
  * 102 = mouseDown, with Vector2D     MouseDown (sent after mouseUp received)
  *       mouseUp, with Vector2D       coordinates from mouseDown to mouseUp, Key (absolute - handled by the InputTwoValues module)
