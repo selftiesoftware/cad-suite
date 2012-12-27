@@ -32,11 +32,9 @@ class Distance extends Module {
       case End(v : Vector2D) :: tail => {
         if (!startPoint.isDefined){
           startPoint = Some(v)
-
-          val guide = PointPointGuide(v, (v : Vector2D) => {
-            (Array(LineShape(startPoint.get, v)))
-          },1)//1 : Input type = InputTwoValues
-          Start('Input,"com.siigna.module.base.create", guide)
+          val vector2DGuide = Vector2DGuide((p: Vector2D) => Traversable(LineShape(startPoint.get, v)))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(1))
+          Start('Input, "com.siigna.module.base.create",inputRequest)
 
         } else if (startPoint.isDefined) {
           var length : Int = ((startPoint.get - v).length).toInt

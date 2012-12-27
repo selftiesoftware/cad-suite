@@ -32,24 +32,19 @@ class Copy extends Module {
           shapes = Some(Drawing.selection.get)
           startPoint = Some(p)
           Siigna display "set destination"
-
-          val shapeGuide = PointPointGuide(p, (v : Vector2D) => {
-            val t : TransformationMatrix = if (startPoint.isDefined) {
-              TransformationMatrix(v - startPoint.get, 1)
-
-            } else TransformationMatrix() // If no startPoint has been defined - create an empty matrix
-
-            Drawing.selection.get.apply(t)// Return the shape, transformed
-          },1 )//1 : Input type = InputTwoValues
-          Start('Input,"com.siigna.module.base.create", shapeGuide)
+          val vector2DGuide = Vector2DGuide((v : Vector2D) => Drawing.selection.get.apply(TransformationMatrix(v - startPoint.get, 1)))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(1))
+          Start('Input, "com.siigna.module.base.create", inputRequest)
         }
         else if(startPoint.isDefined){
           endPoint = Some(p)
           transformation = Some(TransformationMatrix((p - startPoint.get), 1))
           Siigna display "type number of copies or click for one"
           multiActive = true
-          Start('Input, "com.siigna.module.base.create",
-            DoubleGuide(v => shapes.get.apply(transformation.get),17))
+          val doubleGuide = DoubleGuide((r: Double) => shapes.get.apply(transformation.get))
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => shapes.get.apply(transformation.get))
+          val inputRequest = InputRequest(Some(vector2DGuide),Some(doubleGuide),None,None,None,None,startPoint,None,None,Some(17))
+          Start('Input, "com.siigna.module.base.create", inputRequest)
         }
       }
 

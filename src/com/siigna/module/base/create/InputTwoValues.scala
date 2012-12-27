@@ -75,9 +75,18 @@ class InputTwoValues extends Module {
     else " "
   }
 
-  var receivedPointPointGuide: Option[PointPointGuide] = None
-  var receivedPointGuide: Option[PointGuide] = None
-  var pointGuide : Option[Vector2D => Traversable[Shape]] = None
+  var inputRequest: Option[InputRequest] = None
+  var vector2DGuide: Option[Vector2DGuide] = None
+  var doubleGuide: Option[DoubleGuide] = None
+  var textGuide: Option[TextGuide] = None
+  var vector2DMessageGuide: Option[Vector2DMessageGuide] = None
+  var doubleMessageGuide: Option[DoubleMessageGuide] = None
+  var textMessageGuide: Option[TextMessageGuide] = None
+  var referencePoint1: Option[Vector2D] = None
+  var referencePoint2: Option[Vector2D] = None
+  var referenceDouble: Option[Double] = None
+  var inputType: Option[Int] = None
+
   var startPoint : Option[Vector2D] = None
 
   var relativeX : Double = 0.0
@@ -100,27 +109,19 @@ class InputTwoValues extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
-
       //Read numbers and minus, "," and enter as first entry, after drawing of guide, if a guide is provided:
-      case Start(_ ,g: PointPointGuide) :: KeyDown(code, _) :: tail => {
-        pointGuide = Some(g.pointGuide)
-        startPoint = Some(g.point1)
-        receivedPointPointGuide = Some(g)
-        //save the already typed key:
-        if (code.toChar.isDigit) coordinateValue += code.toChar
-        if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
-        //if a comma or enter is the first thing entered, it is interpreted as zero:
-        if ((code.toChar.toString == "," || code == Key.enter) && coordinateValue.length() == 0) {
-          coordinateX = Some(0.0)
-        }
-        Siigna display message(coordinateValue, coordinateX, coordinateY)
-      }
-
-      //Read numbers and minus, "," and enter as first entry, after drawing of guide, if a pointGuide is provided:
-      case Start(_ ,g: PointGuide) :: KeyDown(code, _) :: tail => {
-        pointGuide = Some(g.pointGuide)
-        startPoint = Some(Vector2D(0,0))
-        receivedPointGuide = Some(g)
+      case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
+        inputRequest = Some(i)
+        if (!i.vector2DGuide.isEmpty) vector2DGuide = i.vector2DGuide
+        if (!i.doubleGuide.isEmpty) doubleGuide = i.doubleGuide
+        if (!i.textGuide.isEmpty) textGuide = i.textGuide
+        if (!i.vector2DMessageGuide.isEmpty) vector2DMessageGuide = i.vector2DMessageGuide
+        if (!i.doubleMessageGuide.isEmpty) doubleMessageGuide = i.doubleMessageGuide
+        if (!i.textMessageGuide.isEmpty) textMessageGuide = i.textMessageGuide
+        if (!i.referencePoint1.isEmpty) referencePoint1 = i.referencePoint1
+        if (!i.referencePoint2.isEmpty) referencePoint2 = i.referencePoint2
+        if (!i.referenceDouble.isEmpty) referenceDouble = i.referenceDouble
+        if (!i.inputType.isEmpty) inputType = i.inputType
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
         if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
@@ -210,11 +211,11 @@ class InputTwoValues extends Module {
   override def paint(g : Graphics, t: TransformationMatrix) {
     //if points are in the process of being typed, then draw the shape dynamically on the basis of what coords are given.
 
-    if(pointGuide.isDefined && startPoint.isDefined){
-      relativeX = startPoint.get.x + x
-      relativeY = startPoint.get.y + y
+    if(!vector2DGuide.isEmpty && !referencePoint1.isEmpty){
+      relativeX = referencePoint1.get.x + x
+      relativeY = referencePoint1.get.y + y
 
-      pointGuide.foreach(_(Vector2D(startPoint.get.x + x,startPoint.get.y + y)).foreach(s => g.draw(s.transform(t))))
+      vector2DGuide.get.vector2DGuide(Vector2D(referencePoint1.get.x + x,referencePoint1.get.y + y)).foreach(s => g.draw(s.transform(t)))
     }
   }
 

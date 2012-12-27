@@ -29,15 +29,13 @@ class Line extends Module {
       case End(v : Vector2D) :: tail => {
         if (startPoint.isEmpty){
           startPoint = Some(v)
-
-          val guide = PointPointGuide(startPoint.get,(v : Vector2D) => {
+          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
             Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
-          },112)
-          Start('Input,"com.siigna.module.base.create", guide)
+          })
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(112))
+          Start('Input,"com.siigna.module.base.create", inputRequest)
         } else {
-
           val line = LineShape(startPoint.get,v).addAttributes("Color" -> color , "StrokeWidth" -> stroke)
-          println("stroke" + stroke)
           Create(line)
           End
         }
@@ -48,10 +46,11 @@ class Line extends Module {
         if (startPoint.isEmpty) {
           Start('Input,"com.siigna.module.base.create",111)
         } else {
-        val guide = PointPointGuide(startPoint.get, (v : Vector2D) => {
-          Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
-        },112)//1 : Input type = InputTwoValues
-        Start('Input,"com.siigna.module.base.create", guide)
+          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
+            Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
+          })
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(112))
+        Start('Input,"com.siigna.module.base.create", inputRequest)
       }}
       case End(k : KeyDown) :: tail => {
         // If the key is backspace without modification (shift etc), the last point is deleted, if there is any
@@ -59,10 +58,11 @@ class Line extends Module {
           if (startPoint.isEmpty) {
             Start('Input,"com.siigna.module.base.create",111)
           } else {
-            val guide = PointPointGuide(startPoint.get,(v : Vector2D) => {
+            val vector2DGuide = Vector2DGuide((v : Vector2D) => {
               Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
-            },112)
-            Start('Input,"com.siigna.module.base.create", guide)
+            })
+            val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(112))
+            Start('Input,"com.siigna.module.base.create", inputRequest)
           }
         }
       }

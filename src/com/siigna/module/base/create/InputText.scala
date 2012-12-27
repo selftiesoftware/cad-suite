@@ -23,17 +23,42 @@ class InputText extends Module {
 
   private var text : String = ""  //input string
 
-
-  var textGuide : Option[String => Traversable[Shape]] = None
+  var inputRequest: Option[InputRequest] = None
+  var vector2DGuide: Option[Vector2DGuide] = None
+  var doubleGuide: Option[DoubleGuide] = None
+  var textGuide: Option[TextGuide] = None
+  var vector2DMessageGuide: Option[Vector2DMessageGuide] = None
+  var doubleMessageGuide: Option[DoubleMessageGuide] = None
+  var textMessageGuide: Option[TextMessageGuide] = None
+  var referencePoint1: Option[Vector2D] = None
+  var referencePoint2: Option[Vector2D] = None
+  var referenceDouble: Option[Double] = None
   var inputType: Option[Int] = None
+
 
   val stateMap: StateMap = Map(
 
     'Start -> {
 
+      case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
+        inputRequest = Some(i)
+        if (!i.vector2DGuide.isEmpty) vector2DGuide = i.vector2DGuide
+        if (!i.doubleGuide.isEmpty) doubleGuide = i.doubleGuide
+        if (!i.textGuide.isEmpty) textGuide = i.textGuide
+        if (!i.vector2DMessageGuide.isEmpty) vector2DMessageGuide = i.vector2DMessageGuide
+        if (!i.doubleMessageGuide.isEmpty) doubleMessageGuide = i.doubleMessageGuide
+        if (!i.textMessageGuide.isEmpty) textMessageGuide = i.textMessageGuide
+        if (!i.referencePoint1.isEmpty) referencePoint1 = i.referencePoint1
+        if (!i.referencePoint2.isEmpty) referencePoint2 = i.referencePoint2
+        if (!i.referenceDouble.isEmpty) referenceDouble = i.referenceDouble
+        if (!i.inputType.isEmpty) inputType = i.inputType
+        //save the already typed key:
+        if (code.toChar.isValidChar) text += code.toChar
+      }
+
       case Start(_ ,g: TextGuide) :: KeyDown(code, _) :: tail => {
-        textGuide = Some(g.textGuide)
-        inputType = Some(g.inputType)
+        //textGuide = Some(g.textGuide)
+        //inputType = Some(g.inputType)
         //save the already typed key:
         if (code.toChar.isValidChar) text += code.toChar
       }
@@ -75,7 +100,7 @@ class InputText extends Module {
     //if text the process of being typed, then draw the textshape dynamically.
 
     if(textGuide.isDefined && text.length > 0){
-      textGuide.foreach(_(text).foreach(s => g.draw(s.transform(t))))
+      textGuide.get.textGuide(text).foreach(s => g.draw(s.transform(t)))
     }
   }
 }

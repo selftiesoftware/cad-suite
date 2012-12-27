@@ -33,14 +33,14 @@ case object StartCategory extends MenuCategory{
 
     //drawing tools in the default menu:
     //EventENE -> MenuModule(Module('SnapToggle,"com.siigna.module.base.helpers"), MenuIcons.snap),
-    EventENE -> MenuModule(Module('Print,"com.siigna.module.base.file"), MenuIcons.print),
     EventNNE -> MenuModule(Module('Polyline,"com.siigna.module.base.create"), MenuIcons.polyline),
     EventNNW -> MenuModule(Module('Copy,"com.siigna.module.base.create"), MenuIcons.copy),
     EventWNW -> MenuModule(Module('Stroke,"com.siigna.module.base.properties"), MenuIcons.weight),
     EventWSW -> MenuModule(Module('Colors,"com.siigna.module.base.properties"), MenuIcons.colorWheel),
     EventSSW -> MenuModule(Module('Rotate,"com.siigna.module.base.modify"), MenuIcons.rotate),
     EventSSE -> MenuModule(Module('Move,"com.siigna.module.base.modify"), MenuIcons.move),
-    EventESE -> MenuModule(Module('TrackToggle,"com.siigna.module.base.helpers"), MenuIcons.guides)
+    EventESE -> MenuModule(Module('TrackToggle,"com.siigna.module.base.helpers"), MenuIcons.guides),
+    EventENE -> MenuModule(Module('SnapToggle,"com.siigna.module.base.helpers"), MenuIcons.snap)
   )
 
   val color = MenuIcons.fileColor

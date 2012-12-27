@@ -25,12 +25,9 @@ class Rectangle extends Module {
         //use the first point
         if (points.length == 0){
           points = points :+ v
-
-          val guide = PointPointGuide(points(0),(v : Vector2D) => {
-            Array(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth))
-          },112) //1 : Input type = InputTwoValues
-
-          Start('Input,"com.siigna.module.base.create", guide)
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth)))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points(0)),None,None,Some(112))
+          Start('Input, "com.siigna.module.base.create",inputRequest)
           }
         //use second point
         else if (points.length == 1) {
@@ -42,14 +39,14 @@ class Rectangle extends Module {
       }
 
       case End("no point returned") :: tail => {
-          if (points.length == 0) {
-            Start('Point,"com.siigna.module.base.create",111)
-          } else {
-            val guide = PointPointGuide(points(0),(v : Vector2D) => {
-              Array(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth))
-            },112)//1 : Input type = InputTwoValues
-            Start('Input,"com.siigna.module.base.create", guide)
-          } }
+        if (points.length == 0) {
+          Start('Point,"com.siigna.module.base.create",111)
+        } else {
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth)))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points(0)),None,None,Some(112))
+          Start('Input, "com.siigna.module.base.create",inputRequest)
+        }
+      }
 
       //If End with no point: End module without drawing anything.
       case End :: tail => End
@@ -58,11 +55,11 @@ class Rectangle extends Module {
         if (points.length == 0) {
           Start('Input,"com.siigna.module.base.create",111)
         } else {
-          val guide = PointPointGuide(points(0),(v : Vector2D) => {
-            Array(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth))
-          },112)
-          Start('Input,"com.siigna.module.base.create", guide)
-        } }
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth)))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points(0)),None,None,Some(112))
+          Start('Input, "com.siigna.module.base.create",inputRequest)
+        } 
+      }
     }
   )
 }

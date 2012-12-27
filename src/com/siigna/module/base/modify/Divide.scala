@@ -60,7 +60,7 @@ class Divide extends Module {
               Create(CircleShape(divisionPoint, radius))
             }
           }
-          case PolylineShape (_ ,_ ,_) => {
+          case p : PolylineShape => {
             Siigna display "not implemented yet"
             'End
           }

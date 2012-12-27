@@ -68,29 +68,26 @@ class Area extends Module {
 
   val stateMap: StateMap = Map(
     'Start -> {
-      case End(v : Vector2D) :: tail => {
+      case End(p : Vector2D) :: tail => {
         //if the point module returns with END and a point, a new point is received.
-        points = points :+ v
+        points = points :+ p
         if (startPoint.isEmpty){
           //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
-          startPoint = Some(v)
-
-          val guide = PointPointGuide(v, (v : Vector2D) => {
-            (Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
-          },112)//1 : Input type = InputTwoValues
-
-          Start('Input,"com.siigna.module.base.create", guide)
+          startPoint = Some(p)
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(p),None,None,Some(112))
+          Start('Input, "com.siigna.module.base.create",inputRequest)
         } else {
           //If the start point is set, the first segment is made and points should be added.
-          points :+ v
-          val guide : PointPointGuideMessage = PointPointGuideMessage(points.last, (v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
-          },(Siigna.display("Area: "+units(area(((points.reverse :+ v).reverse) :+ v)))),112) //1 : Input type = InputTwoValues
+          points :+ p
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+          val vector2DMessageGuide = Vector2DMessageGuide((v: Vector2D) => Siigna.display("Area: "+units(area(((points.reverse :+ v).reverse) :+ v))))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,Some(vector2DMessageGuide),None,None,Some(points.last),None,None,Some(112))
+          Start('Input, "com.siigna.module.base.create",inputRequest)
           //Start('Input,"com.siigna.module.base.create")
           //val guide = PointPointGuide(v, (v : Vector2D) => {
           //  Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
           //},112)//1 : Input type = InputTwoValues
-          Start('Input,"com.siigna.module.base.create", guide)
         }
       }
 
@@ -100,18 +97,14 @@ class Area extends Module {
         if (points.length == 1){
           //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
           startPoint = Some(points.last)
-
-          val guide = PointPointGuide(startPoint.get, (v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
-          },112)//1 : Input type = InputTwoValues
-
-          Start('Input,"com.siigna.module.base.create", guide)
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(112))
+          Start('Input, "com.siigna.module.base.create",inputRequest)
         } else {
-
-          val guide = PointPointGuide(points.last, (v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
-          },112)//1 : Input type = InputTwoValues
-          Start('Input,"com.siigna.module.base.create", guide)
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+          val vector2DMessageGuide = Vector2DMessageGuide((v: Vector2D) => Siigna.display("Area: "+units(area(((points.reverse :+ v).reverse) :+ v))))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,Some(vector2DMessageGuide),None,None,Some(points.last),None,None,Some(112))
+          Start('Input, "com.siigna.module.base.create",inputRequest)
         }
       }
 
@@ -124,10 +117,9 @@ class Area extends Module {
           }
           //And if there is a start point, a new guide is returned
           if (startPoint.isDefined) {
-            val guide : PointPointGuide = PointPointGuide(points.last, (v : Vector2D) => {
-              Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
-            },112) //1 : Input type = InputTwoValues
-            Start('Input,"com.siigna.module.base.create", guide)
+            val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+            val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points.last),None,None,Some(112))
+            Start('Input, "com.siigna.module.base.create",inputRequest)
           } else {
             //If not, point is started without guide.
             Start('Input,"com.siigna.module.base.create")
