@@ -21,6 +21,7 @@ import java.nio.file.OpenOption
 class Input extends Module {
 
   //VARS declaration:
+  private var guide : Boolean = true
   var inputRequest: Option[InputRequest] = None
   var vector2DGuide: Option[Vector2DGuide] = None
   var doubleGuide: Option[DoubleGuide] = None
@@ -33,14 +34,8 @@ class Input extends Module {
   var referenceDouble: Option[Double] = None
   var inputType: Option[Int] = None
 
-  private var guide : Boolean = true
-
-  var snapAngle : Option[Double] = None
-
   val stateMap: StateMap = Map(
-
     'Start -> {
-
       //Check for input request:
       case Start(_ , i: InputRequest) :: tail => {
         inputRequest = Some(i)
@@ -230,6 +225,7 @@ class Input extends Module {
       if (!vector2DGuide.isEmpty) vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
     }
 
+    //Draw any Vector2DMessageGuides:
     if (!vector2DMessageGuide.isEmpty) {
       vector2DMessageGuide.get.vector2DMessageGuide(mousePosition)
     }

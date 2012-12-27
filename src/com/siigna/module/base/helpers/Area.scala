@@ -102,7 +102,8 @@ class Area extends Module {
           Start('Input, "com.siigna.module.base.create",inputRequest)
         } else {
           val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points.last),None,None,Some(112))
+          val vector2DMessageGuide = Vector2DMessageGuide((v: Vector2D) => Siigna.display("Area: "+units(area(((points.reverse :+ v).reverse) :+ v))))
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,Some(vector2DMessageGuide),None,None,Some(points.last),None,None,Some(112))
           Start('Input, "com.siigna.module.base.create",inputRequest)
         }
       }
