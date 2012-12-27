@@ -95,10 +95,10 @@ class Stroke extends Module {
 
         if (activeAngle == 180) {activeLine = Some(line0)}
         else if (activeAngle == 210) {activeLine = Some(line30)}
-        else if (activeAngle == 24) {activeLine = Some(line60)}
+        else if (activeAngle == 240) {activeLine = Some(line60)}
         else if (activeAngle == 270) {activeLine = Some(line90)}
-        else if (activeAngle == 300) {activeLine = Some(line120)}
-        else if (activeAngle == 330) {activeLine = Some(line150)}
+        else if (activeAngle == -60) {activeLine = Some(line120)}
+        else if (activeAngle == -30) {activeLine = Some(line150)}
         else if (activeAngle ==   0) {activeLine = Some(line180)}
         else if (activeAngle ==  30) {activeLine = Some(line210)}
         else if (activeAngle ==  60) {activeLine = Some(line240)}
