@@ -14,8 +14,8 @@ package com.siigna.module.base.create
 import com.siigna._
 
 class Offset extends Module {
-  var attr = Attributes()
-  var done = false
+  private var attr = Attributes()
+  private var done = false
   //a function to offset a line segment
   def calcOffset(s : LineShape, dist : Double) : LineShape = {
     val lT = s.transform(TransformationMatrix(-s.p1,1)) //move the segment to 0,0
@@ -95,7 +95,7 @@ class Offset extends Module {
 
     knots = knots :+ newLines.head.p1 //add the first point to the list
 
-    def result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
+    val result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
     result
     knots = knots :+ newLines.reverse.head.p2 //add the last vertex
     Array(PolylineShape(knots).addAttributes(attr))//create a polylineShape from the offset knots:
@@ -112,7 +112,7 @@ class Offset extends Module {
 
       knots = knots :+ newLines.head.p1 //add the first point to the list
 
-      def result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
+      val result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
       result
       knots = knots :+ newLines.reverse.head.p2 //add the last vertex
       done = true

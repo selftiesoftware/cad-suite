@@ -58,6 +58,7 @@ class Selection extends Module {
       //if ModuleInit forwards to selection with a left mouse click
       // If a shape-part is hit, it is selected:
       case Start(_ ,message : MouseDown) :: tail => {
+        println("BBB")
         val m = mousePosition.transform(View.deviceTransformation)
         //find the shape closest to the mouse:
         if (Drawing(m).size > 0) {
@@ -106,7 +107,7 @@ class Selection extends Module {
       }
 
       case MouseMove(_,_,_) :: tail =>
-      case f => { println("Selection recieved unknown inout: " + f)}
+      case f => { println("Selection recieved an unknown input: " + f)}
 
     },
 

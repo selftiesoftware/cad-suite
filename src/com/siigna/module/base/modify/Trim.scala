@@ -18,17 +18,18 @@ import java.awt.Color
 
 class Trim extends Module {
 
-  var attr = Attributes()
-  var nearestShape : Option[Shape] = None
-  var selection = List[Vector2D]()
-  var shapes : List[Shape] = List()
-  var selectionBoxStart : Option[Vector2D] = None
-  var selectionBoxEnd : Option[Vector2D] = None
-  var trimGuide : Option[Shape] = None
-  var trimGuide2 : Option[Shape] = None
-  var trimShapes : Iterable[Shape] = List()
-  var trimID : Option[Int] = None
-  var trimID2 : Option[Int] = None
+  private var attr = Attributes()
+  private var done = false
+  private var nearestShape : Option[Shape] = None
+  private var selection = List[Vector2D]()
+  private var shapes : List[Shape] = List()
+  private var selectionBoxStart : Option[Vector2D] = None
+  private var selectionBoxEnd : Option[Vector2D] = None
+  private var trimGuide : Option[Shape] = None
+  private var trimGuide2 : Option[Shape] = None
+  private var trimShapes : Iterable[Shape] = List()
+  private var trimID : Option[Int] = None
+  private var trimID2 : Option[Int] = None
 
   def IsOnSegment(pt1 : Vector2D, pt2 : Vector2D, pt3 : Vector2D) = {
     val xi = pt1.x
@@ -181,6 +182,7 @@ class Trim extends Module {
             Delete(nearest._1)
             val l = trim(guideShape, trimShape, v)
             Create(PolylineShape(l).addAttributes(attr))
+            done = true
             nearestShape = None //reset var
             Start('Input,"com.siigna.module.base.create",1) //look for more trim points
           } else {
@@ -210,6 +212,7 @@ class Trim extends Module {
             Create(PolylineShape(l1).addAttributes(attr))
             Create(PolylineShape(l2).addAttributes(attr))
 
+            done = true
             nearestShape = None //reset var
             Start('Input,"com.siigna.module.base.create",1) //look for more trim points
           } else {
@@ -223,27 +226,31 @@ class Trim extends Module {
       }
       case _ => {
         Track.trackEnabled = false
-        if (Drawing.selection.isDefined && Drawing.selection.get.size == 1) {
+        if (Drawing.selection.isDefined && Drawing.selection.get.size == 1 && done == false) {
           trimGuide = Some(Drawing.selection.head.shapes.head._2)
           trimID = Some(Drawing.selection.head.shapes.head._1)
           Siigna.display("Select shapes to trim")
           Start('Input,"com.siigna.module.base.create",1)
         }
-        else if(Drawing.selection.isDefined && Drawing.selection.get.size == 2) {
+        else if(Drawing.selection.isDefined && Drawing.selection.get.size == 2  && done == false) {
           trimGuide = Some(Drawing.selection.head.shapes.head._2)
           trimID = Some(Drawing.selection.head.shapes.head._1)
           trimGuide2 = Some(Drawing.selection.last.shapes.last._2)
           trimID2 = Some(Drawing.selection.last.shapes.last._1)
-
           Siigna.display("Select shapes to trim")
           Start('Input,"com.siigna.module.base.create",1)
         }
-        else {  //Siigna.display("Select an object to trim objects by")
+        else{  //Siigna.display("Select an object to trim objects by")
+          Track.trackEnabled = true
           End
         }
       }
     })
   override def paint(g : Graphics, t : TransformationMatrix) {
-    if(trimGuide.isDefined) g draw (trimGuide.get.addAttributes("Color" -> new Color(0.95f, 0.15f, 0.80f, 1.00f))).transform (t)
+    if(trimGuide.isDefined && trimGuide2.isDefined) {
+      g draw (trimGuide.get.addAttributes("Color" -> new Color(0.95f, 0.15f, 0.80f, 1.50f))).transform (t)
+      g draw (trimGuide2.get.addAttributes("Color" -> new Color(0.95f, 0.15f, 0.80f, 1.50f))).transform (t)
+
+    }
   }
 }

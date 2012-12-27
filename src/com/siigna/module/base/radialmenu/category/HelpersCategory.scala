@@ -20,6 +20,7 @@ case object HelpersCategory extends MenuCategory {
 
     EventSSW -> MenuModule(Module('Area,"com.siigna.module.base.helpers"), MenuIcons.area),
     EventSSE -> MenuModule(Module('Distance,"com.siigna.module.base.helpers"), MenuIcons.distance)
+
   )
 
   val color = MenuIcons.helpersColor

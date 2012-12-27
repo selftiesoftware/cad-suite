@@ -17,7 +17,8 @@ import com.siigna._
 case object ModifyCategory extends MenuCategory{
   val graph = Map[MenuEvent,MenuElement](
     EventNNW -> MenuModule(Module('Scale,"com.siigna.module.base.modify"), MenuIcons.scale),
-    EventNNE -> MenuModule(Module('Trim,"com.siigna.module.base.modify"), MenuIcons.trim)
+    EventNNE -> MenuModule(Module('Trim,"com.siigna.module.base.modify"), MenuIcons.trim),
+    EventENE -> MenuModule(Module('Connect,"com.siigna.module.base.modify"), MenuIcons.connect)
 
   )
 
