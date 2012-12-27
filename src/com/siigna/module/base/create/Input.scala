@@ -22,6 +22,7 @@ class Input extends Module {
 
   //VARS declaration:
   private var drawGuide : Boolean = true
+  private var turnGuideOn : Boolean = false
   var inputRequest: Option[InputRequest] = None
   var vector2DGuide: Option[Vector2DGuide] = None
   var doubleGuide: Option[DoubleGuide] = None
@@ -73,11 +74,12 @@ class Input extends Module {
           End(p.transform(View.deviceTransformation).x)
         } else if (inputType == Some(7)) {
           End(p.transform(View.deviceTransformation).y)
-        } else if (inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021)
+        } else if (inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021) || inputType == Some(1022)
           || inputType == Some(103))  {
-          //The mouseDown is saved as referencePoint1, if it does not already exist
-          //If there is a mouseUp later, on the same point, the point is returned as a mouseDown (happens in mouseUp-part)
+          //The mouseDown is saved as referencePoint1, if it does not already exist, for later processing - after mouse-up is recieved
           if (referencePoint1.isEmpty) referencePoint1 = Some(p)
+          //If guide should be drawn after the first mouse-down:
+          if (inputType == Some(1020) || inputType == Some(1022)) turnGuideOn = true
         } else if (inputType == Some(17)) {
           End
         } else {
@@ -114,7 +116,7 @@ class Input extends Module {
           End(MouseUp(Vector2D((p - referencePoint1.get).x,-(p - referencePoint1.get).y),MouseButtonLeft,ModifierKeys(false,false,false)))
         } else if (inputType.get == 9) {
           End(p.transform(View.deviceTransformation))
-        } else if (inputType.get == 102 || inputType == Some(1020) || inputType == Some(1021)) {
+        } else if (inputType.get == 102 || inputType == Some(1020) || inputType == Some(1021) || inputType == Some(1022)) {
           //If mouseUp occurs on the same point as mouseDown, the point is returned as a mouseDown event.
           //If mouseUp occurs on a different point, coordinates from mouseDown to up is returned as a mouseUp event.
           if (!referencePoint1.isEmpty) {
@@ -164,7 +166,8 @@ class Input extends Module {
         } else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6)
           || inputType == Some(7) || inputType == Some(8) || inputType == Some(10) || inputType == Some(12)
           || inputType == Some(13) || inputType == Some(131) || inputType == Some(16) || inputType == Some(17)
-          || inputType == Some(103)    || inputType == Some(111) || inputType == Some(112) || inputType == Some(1031)) {
+          || inputType == Some(103)    || inputType == Some(111) || inputType == Some(112) || inputType == Some(1031)
+          || inputType == Some(1022)) {
           if (drawGuide == true) drawGuide = false
           if (!inputRequest.isEmpty) Start('InputOneValue,"com.siigna.module.base.create",inputRequest.get)
           else Start('InputOneValue,"com.siigna.module.base.create")
@@ -180,7 +183,7 @@ class Input extends Module {
       //Vector2D: (Standard: The received Vector2D is returned, un-transformed)
       case End(p : Vector2D) :: tail => {
         if (drawGuide == false) drawGuide = true
-        if (inputType == Some(102) || inputType == Some(1020)) {
+        if (inputType == Some(102) || inputType == Some(1020) || inputType == Some(1022)) {
           End(MouseUp(p,MouseButtonLeft,ModifierKeys(false,false,false)))
         } else if (inputType == Some(1021)) {
           End(MouseDown(p,MouseButtonLeft,ModifierKeys(false,false,false)))
@@ -220,8 +223,7 @@ class Input extends Module {
 
   //Paint guides:
   override def paint(g : Graphics, t : TransformationMatrix) {
-    if (inputType == Some(12)) drawGuide = false
-    if (inputType == Some(1020)) drawGuide = false
+    if ((inputType == Some(12)  || inputType == Some(1020) || inputType == Some(1022)) && turnGuideOn == false) drawGuide = false
 
     //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
     if ( drawGuide == true) {
@@ -252,7 +254,7 @@ class Input extends Module {
  * 11 = Vector2D                      Left mouse click only
  * 12 = Double                        Key (one value)
  *      Vector2D                      MouseDown
- *      Special guide:                Do not draw guide
+ *      Special guide:                Do not draw Vector2DGuide
  * 13 = Double                        Key (one value)
  *      Vector2D                      MouseDown. Guide is drawn.
  * 131 =Double                        Key (one value)
@@ -267,18 +269,21 @@ class Input extends Module {
  * 111 = Vector2D                  x  Point at mouseDown, or point by key(absolute - twoValues) or point guided by trackguide (input One value) if a track guide is active.
  * 112 = Vector2D                  x  Point at MouseDown, or vector2D by key added to referencePoint1 or point guided by trackguide (input One value) if a track guide is active.
  *
- * 102 = mouseDown, with Vector2D     MouseDown (sent after mouseUp received)
- *       mouseUp, with Vector2D       coordinates from mouseDown to mouseUp, Key (absolute - handled by the InputTwoValues module)
+ * 102 =  mouseDown, with Vector2D    MouseDown (sent after mouseUp received)
+ *        mouseUp, with Vector2D      coordinates from mouseDown to mouseUp, Key (absolute - handled by the InputTwoValues module)
  * 1020 = mouseDown, with Vector2D    MouseDown (sent after mouseUp received)
  *        mouseUp, with Vector2D      coordinates from mouseDown to mouseUp, Key (absolute - handled by the InputTwoValues module)
  *        Special guide:              Do not draw guide in input until left mouse button is clicked.
- * 1021 = mouseDown, with Vector2D    MouseDown (sent after mouseUp received), Key (absolute - handled by the InputTwoValues module)
- *       mouseUp, with Vector2D       coordinates from mouseDown to mouseUp
- * 103 = Double                       Length of vector from mouseDown to mouseUp, or key-input
- *       mouseDown, with Vector2D     mouseDown (sent after mouseUp received)
+ * 1021 = mouseDown, with Vector2D    MouseDown (sent after mouseUp received)
+ *        mouseUp, with Vector2D      coordinates from mouseDown to mouseUp, Key (absolute - handled by the InputTwoValues module)
+ * 1022 = mouseDown, with Vector2D    MouseDown (sent after mouseUp received)
+ *        mouseUp, with Vector2D      coordinates from mouseDown to mouseUp
+ *        Double                      Key input
+ *        Special guide:              Do not draw guide in input until left mouse button is clicked.
+ * 103 =  Double                      Length of vector from mouseDown to mouseUp, or key-input
+ *        mouseDown, with Vector2D    mouseDown (sent after mouseUp received)
  * 1031 = Double                      key-input
  *        Vector2D                    Point at mouseDown
-
  * 
  * 
  */
