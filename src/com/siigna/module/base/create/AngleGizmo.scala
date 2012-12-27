@@ -82,16 +82,17 @@ class AngleGizmo extends Module {
         if (!i.referencePoint2.isEmpty) referencePoint2 = i.referencePoint2
         if (!i.referenceDouble.isEmpty) referenceDouble = i.referenceDouble
         if (!i.inputType.isEmpty) inputType = i.inputType
+        if (referencePoint1.isEmpty && Track.isTracking == true) {
+          referencePoint1 = Track.pointOne
+          vector2DGuide = Some(Vector2DGuide((v: Vector2D) => Traversable(LineShape(referencePoint1.get, v))))
+        }
       }
-
-        //eventParser.snapTo(() => g.pointGuide(mousePosition))
 
       //If there is no guide
       case Start(_,x) :: tail => {
         //TODO: Make line to the start-point of a new shape dashed instead of solid
         if (Track.isTracking == true) referencePoint1 = Track.pointOne
-        val guide: Vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(LineShape(referencePoint1.get, v)))
-        vector2DGuide = Some(guide)
+        vector2DGuide = Some(Vector2DGuide((v: Vector2D) => Traversable(LineShape(referencePoint1.get, v))))
       }
 
       case MouseMove(p, _, _) :: tail => {
@@ -137,7 +138,6 @@ class AngleGizmo extends Module {
       case KeyDown(key,modifier) :: tail => {
         Siigna.navigation = false // Make sure the rest of the program doesn't move
         drawGuide = false
-        var guide: Option[DoubleGuide] = None
         //A DoubleGuide for a line is sent to InputOneValue, to draw a guide for the segment being drawn:
         if (anglePointIsSet == false) {
           doubleGuide = Some(DoubleGuide((d: Double) => Traversable(LineShape(referencePoint1.get, referencePoint1.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * 150)))))

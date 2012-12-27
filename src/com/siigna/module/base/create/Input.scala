@@ -21,7 +21,7 @@ import java.nio.file.OpenOption
 class Input extends Module {
 
   //VARS declaration:
-  private var guide : Boolean = true
+  private var drawGuide : Boolean = true
   var inputRequest: Option[InputRequest] = None
   var vector2DGuide: Option[Vector2DGuide] = None
   var doubleGuide: Option[DoubleGuide] = None
@@ -149,7 +149,7 @@ class Input extends Module {
           && (!referencePoint1.isEmpty || (Track.isTracking == true && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Siigna.selectionDistance))) {
           //If it is an input type with activated angleGizmo: Start angleGizmo, and send the the input request.
           //The gizmo draws guide, so input should not.
-          if (guide == true) guide = false
+          if (drawGuide == true) drawGuide = false
           if (!vector2DGuide.isEmpty) Start('AngleGizmo,"com.siigna.module.base.create",inputRequest.get)
           else Start('AngleGizmo,"com.siigna.module.base.create")
         //Do nothing if shift is pressed and the angleGizmo shouldn't start:
@@ -158,18 +158,18 @@ class Input extends Module {
         } else if(inputType == Some(1) || inputType == Some(2) || inputType == Some(102) || inputType == Some(1020)
           || inputType == Some(1021)
           || ((inputType == Some(16) || inputType == Some(111) || inputType == Some(112)) && Track.isTracking == false)) {
-          if (guide == true) guide = false
+          if (drawGuide == true) drawGuide = false
           if (!inputRequest.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create",inputRequest.get)
           else Start('InputTwoValues,"com.siigna.module.base.create")
         } else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6)
           || inputType == Some(7) || inputType == Some(8) || inputType == Some(10) || inputType == Some(12)
           || inputType == Some(13) || inputType == Some(131) || inputType == Some(16) || inputType == Some(17)
           || inputType == Some(103)    || inputType == Some(111) || inputType == Some(112) || inputType == Some(1031)) {
-          if (guide == true) guide = false
+          if (drawGuide == true) drawGuide = false
           if (!inputRequest.isEmpty) Start('InputOneValue,"com.siigna.module.base.create",inputRequest.get)
           else Start('InputOneValue,"com.siigna.module.base.create")
         } else if(inputType == Some(14) ) {
-          if (guide == true) guide = false
+          if (drawGuide == true) drawGuide = false
           if (!inputRequest.isEmpty) Start('InputText,"com.siigna.module.base.create",inputRequest.get)
           else Start('InputText,"com.siigna.module.base.create")
         }
@@ -179,6 +179,7 @@ class Input extends Module {
 
       //Vector2D: (Standard: The received Vector2D is returned, un-transformed)
       case End(p : Vector2D) :: tail => {
+        if (drawGuide == false) drawGuide = true
         if (inputType == Some(102) || inputType == Some(1020)) {
           End(MouseUp(p,MouseButtonLeft,ModifierKeys(false,false,false)))
         } else if (inputType == Some(1021)) {
@@ -193,6 +194,7 @@ class Input extends Module {
       }
       //Double: (Standard: The received Double is returned)
       case End(s : Double) :: tail => {
+        if (drawGuide == false) drawGuide = true
         if ((inputType == Some(16) || inputType == Some(111)|| inputType == Some(112)) && Track.isTracking == true) {
           End(Track.getPointFromDistance(s).get)
         } else {
@@ -201,10 +203,12 @@ class Input extends Module {
       }
       //String: (Standard: The received string is returned)
       case End(s : String) :: tail => {
+        if (drawGuide == false) drawGuide = true
         End(s)
       }
       //MouseDown(AngleGizmo does that): (Standard: The Vector2D returned with the mouseDown is returned, un-transformed)
       case End(MouseDown(p,button,modifier)) :: tail => {
+        if (drawGuide == false) drawGuide = true
         End(p)
       }
 
@@ -216,12 +220,11 @@ class Input extends Module {
 
   //Paint guides:
   override def paint(g : Graphics, t : TransformationMatrix) {
-    if (inputType == Some(12)) guide = false
-    if (inputType == Some(1020)) guide = false
-      else guide = true
+    if (inputType == Some(12)) drawGuide = false
+    if (inputType == Some(1020)) drawGuide = false
 
     //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
-    if ( guide == true) {
+    if ( drawGuide == true) {
       if (!vector2DGuide.isEmpty) vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
     }
 
@@ -256,7 +259,7 @@ class Input extends Module {
  *      Vector2D                      MouseDown. Guide is drawn.
  *      Special guide:                In InputOneValue - for dynamically drawing offset of shapes.
  * 14 = String                        Key input, text
- * 15 = Nothing                       Returns nothing from Input module. Can for example be used when calling inputOne or two value modules from other modules than input.
+ * 15 = Nothing                       Returns nothing from Input module. Can be used when
  * 16 = Vector2D                      Key input, one-coordinate, offset from existing point when on a track guide
  * 17 = Double                        Key - InputOneValue
  *      End                           All other inputs sends End
