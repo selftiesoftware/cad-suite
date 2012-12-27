@@ -12,10 +12,14 @@
 package com.siigna.module.base.create
 
 import com.siigna._
+import app.model.shape.PolylineLineShape
+import collection.mutable.WrappedArray
 
 class Offset extends Module {
   private var attr = Attributes()
   private var done = false
+  private var isClosed = false
+  
   //a function to offset a line segment
   def calcOffset(s : LineShape, dist : Double) : LineShape = {
     val lT = s.transform(TransformationMatrix(-s.p1,1)) //move the segment to 0,0
@@ -40,6 +44,14 @@ class Offset extends Module {
     }
     k
   }
+  //get the start and end points for the list of points that make up an offset, closed polyline 
+  def getClosedOffsetPoint (l : List[Vector2D]) : Vector2D = {
+    val segment1 = Line2D(l(0),l(1))
+    val segment2 = Line2D(l.reverse(0),l.reverse(1))
+    val p = segment1.intersections(segment2)
+    p.head
+  }
+  
   //calculate on which side of a given line segment the offset should be.
   def offsetSide (s: LineShape, m : Vector2D) : Boolean = {
     val angleRaw = ((s.p2-s.p1).angle * -1) + 450
@@ -137,29 +149,46 @@ class Offset extends Module {
   'Start -> {
     case End(p : Vector2D) :: tail => {
       val shape = Drawing.selection.head.shapes.head._2
+      println("shape: "+shape)
+      if(shape.geometry.vertices.head == shape.geometry.vertices.last) isClosed = true
       val newLines = offsetLines(shape, p) //offset the lines by the returned point
       var knots = List[Vector2D]()
 
-      knots = knots :+ newLines.head.p1 //add the first point to the list
+      if(isClosed == false) knots = knots :+ newLines.head.p1 //add the first point to the list
 
       val result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
       result
-      knots = knots :+ newLines.reverse.head.p2 //add the last vertex
+      if(isClosed == false) knots = knots :+ newLines.reverse.head.p2 //add the last vertex
+      if(isClosed == true) {
+        var seq = Seq()
+        //knots.foreach(s => seq = seq :+ InnerPs)
+        val closedPt = getClosedOffsetPoint(knots)
+        //PolylineShape[Vector2D(104.0,84.0),WrappedArray(PolylineLineShape(Vector2D(104.0,-11.0)), PolylineLineShape(Vector2D(40.0,-65.0)), PolylineLineShape(Vector2D(-30.0,-58.0)), PolylineLineShape(Vector2D(-111.0,-8.0)), PolylineLineShape(Vector2D(-96.0,21.0)), PolylineLineShape(Vector2D(-5.0,44.0)), PolylineLineShape(Vector2D(36.0,45.0)), PolylineLineShape(Vector2D(49.0,91.0))), Attributes(Color -> java.awt.Color[r=0,g=0,b=0], StrokeWidth -> 0.2)]
+        println("seq:; "+seq)
+        val p = PolylineShape(seq)
+        Create(p)
+      }
+
       done = true
-      Create(PolylineShape(knots).addAttributes(attr))//create a polylineShape from the offset knots:
+      //Create(PolylineShape(knots).addAttributes(attr))//create a polylineShape from the offset knots:
       End
     }
 
     case End(d : Double) :: tail => {
       val shape = Drawing.selection.head.shapes.head._2
-      val newLines = offsetLines(shape, d) //offset the lines by the returned double
+      if(shape.geometry.vertices.head == shape.geometry.vertices.last) isClosed = true
+      val newLines = offsetLines(shape, d) //offset the lines by the returned point
       var knots = List[Vector2D]()
 
-      knots = knots :+ newLines.head.p1 //add the first point to the list
+      if(isClosed == false) knots = knots :+ newLines.head.p1 //add the first point to the list
 
-      def result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
+      val result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
       result
-      knots = knots :+ newLines.reverse.head.p2 //add the last vertex
+      if(isClosed == false) knots = knots :+ newLines.reverse.head.p2 //add the last vertex
+      if(isClosed == true) {
+        knots = knots :+ getClosedOffsetPoint(knots)
+        knots = knots.reverse :+ getClosedOffsetPoint(knots)
+      }
       done = true
       Create(PolylineShape(knots).addAttributes(attr))//create a polylineShape from the offset knots:
       End
