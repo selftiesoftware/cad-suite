@@ -34,7 +34,6 @@ class Input extends Module {
   var inputType: Option[Int] = None
 
   private var guide : Boolean = true
-  private var guideKeepGuideOff: Boolean = true
 
   var snapAngle : Option[Double] = None
 
@@ -56,94 +55,52 @@ class Input extends Module {
         if (!i.referenceDouble.isEmpty) referenceDouble = i.referenceDouble
         if (!i.inputType.isEmpty) inputType = i.inputType
       }
-
-      //If there is no guide, only the input type needs to be retrieved
+      //If there is no input request, only the input type needs to be retrieved
       case Start(_,inp: Int) :: tail => {
         inputType = Some(inp)
       }
 
+      //Input from mouse-actions:
 
-      //if InputTwoValue returns a vector, return it to the calling module:
-      case End(p : Vector2D) :: tail => {
-        if (inputType == Some(1) || inputType == Some(2) || inputType == Some(111) ) {
-          End(p)
-        } else if (inputType == Some(102) || inputType == Some(1020)) {
-          End(MouseUp(p,MouseButtonLeft,ModifierKeys(false,false,false)))
-        } else if (inputType == Some(1021)) {
-          End(MouseDown(p,MouseButtonLeft,ModifierKeys(false,false,false)))
-        } else if (inputType == Some(112) && !referencePoint1.isEmpty) {
-          End(referencePoint1.get + p)
+      //Left mouse button down (Standard: the clicked point is returned, transformed to view):
+      case MouseDown(p,MouseButtonLeft,modifier)::tail => {
+        if (inputType == Some(2) || inputType == Some(4) || inputType == Some(6) | inputType == Some(8))  {
+          referencePoint1 = Some(p)
+        } else if (inputType == Some(3))  {
+          //Type is distance from start point, returned as double
+          val startPointX = referencePoint1.get.x
+          val startPointY = referencePoint1.get.y
+          val distanceFromStartToMouse: Double = math.sqrt(( (startPointX-mousePosition.transform(View.deviceTransformation).x) * (startPointX-mousePosition.transform(View.deviceTransformation).x)) + ( (startPointY-mousePosition.transform(View.deviceTransformation).y) * (startPointY-mousePosition.transform(View.deviceTransformation).y)) )
+          if (distanceFromStartToMouse != 0) {
+            End(distanceFromStartToMouse)
+          }
+        } else if (inputType == Some(5))  {
+          End(p.transform(View.deviceTransformation).x)
+        } else if (inputType == Some(7)) {
+          End(p.transform(View.deviceTransformation).y)
+        } else if (inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021)
+          || inputType == Some(103))  {
+          //The mouseDown is saved as referencePoint1, if it does not already exist
+          //If there is a mouseUp later, on the same point, the point is returned as a mouseDown (happens in mouseUp-part)
+          if (referencePoint1.isEmpty) referencePoint1 = Some(p)
         } else if (inputType == Some(17)) {
           End
-        }
-      }
-      //if a single value is returned from InputOneValue or InputAngle, return it to the calling module:
-      case End(s : Double) :: tail => {
-        if (inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6)
-          || inputType == Some(7) || inputType == Some(8) || inputType == Some(9) || inputType == Some(10)
-          || inputType == Some(12) || inputType == Some(13) || inputType == Some(131)
-          || inputType == Some(17) || inputType == Some(103) || inputType == Some(1031)) {
-          End(s)
-        } else if ((inputType == Some(16) || inputType == Some(111)|| inputType == Some(112)) && Track.isTracking == true) {
-          End(Track.getPointFromDistance(s).get)
-        }
-      }
-
-      //if a string is returned, return it to the calling module:
-      case End(s : String) :: tail => {
-        End(s)
-      }
-
-      //If a mouseDown is returned (angle gizmo does that)  
-      case End(MouseDown(p,button,modifier)) :: tail => {
-        End(p)
-      }
-        
-      //If left mouse button is clicked: End and return mouse-position-point.
-      case MouseDown(p,button,modifier)::tail => {
-        if (button==MouseButtonLeft) {
-          if (inputType == Some(1) || inputType == Some (11) || inputType == Some (12) || inputType == Some (13)
-            || inputType == Some(131) || inputType == Some (111) || inputType == Some (112) || inputType == Some(1031)) {
-            End(p.transform(View.deviceTransformation))
-          } else if (inputType == Some(2) || inputType == Some(4) || inputType == Some(6) | inputType == Some(8))  {
-            referencePoint1 = Some(p)
-            //Start painting, if it has been turned off
-            if (guideKeepGuideOff == true) guideKeepGuideOff = false
-          } else if (inputType == Some(3))  {
-            //Type is distance from start point, returned as double
-            val startPointX = referencePoint1.get.x
-            val startPointY = referencePoint1.get.y
-            val distanceFromStartToMouse: Double = math.sqrt(( (startPointX-mousePosition.transform(View.deviceTransformation).x) * (startPointX-mousePosition.transform(View.deviceTransformation).x)) + ( (startPointY-mousePosition.transform(View.deviceTransformation).y) * (startPointY-mousePosition.transform(View.deviceTransformation).y)) )
-            if (distanceFromStartToMouse != 0) {
-              End(distanceFromStartToMouse)
-            }
-          } else if (inputType == Some(5))  {
-            End(p.transform(View.deviceTransformation).x)
-          } else if (inputType == Some(7)) {
-            End(p.transform(View.deviceTransformation).y)
-          } else if (inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021) 
-            || inputType == Some(103))  {
-            //The mouseDown is saved as point1, if it does not already exist
-            //If there is a mouseUp later, on the same point, the point is returned as a mouseDown (happens in mouseUp-part)
-            if (referencePoint1.isEmpty) referencePoint1 = Some(p)
-            //Start drawing the guide - necessary if it will be dragged.
-            if (guideKeepGuideOff == true) guideKeepGuideOff = false
-          } else if (inputType == Some(17)) {
-            End
-          }
-        //Right mouse button:
         } else {
-          if (inputType == Some(17)) {
-            End
-          } else { 
-            // In all other cases, where it is not left mouse button, the mouseDown is returned
-          End(MouseDown(p.transform(View.deviceTransformation),button,modifier))
-          }
+          //Standard: the clicked point is returned, transformed to view
+          End(p.transform(View.deviceTransformation))
         }
       }
-
-      //If mouse up is received,
-      case MouseUp(p,button,modifier)::tail => {
+      //Right mouse button down (Standard: the mouseDown action is returned)
+      case MouseDown(p,MouseButtonRight,modifier)::tail => {
+        if (inputType == Some(17)) {
+          End
+        } else {
+          //Standard: the mouseDown action is returned
+          End(MouseDown(p.transform(View.deviceTransformation),MouseButtonRight,modifier))
+        }
+      }
+      //Left mouse button up: (Standard: Nothing happens)
+      case MouseUp(p,MouseButtonLeft,modifier)::tail => {
         if (inputType.get == 2) {
           End(Vector2D((p - referencePoint1.get).x,-(p - referencePoint1.get).y))
         } else if (inputType.get == 4) {
@@ -167,80 +124,120 @@ class Input extends Module {
           //If mouseUp occurs on a different point, coordinates from mouseDown to up is returned as a mouseUp event.
           if (!referencePoint1.isEmpty) {
             if (p == referencePoint1.get)
-              End(MouseDown(p.transform(View.deviceTransformation),button,modifier))
-            else  End(MouseUp(Vector2D((p - referencePoint1.get).x,-(p - referencePoint1.get).y),button,modifier))
+              End(MouseDown(p.transform(View.deviceTransformation),MouseButtonLeft,modifier))
+            else  End(MouseUp(Vector2D((p - referencePoint1.get).x,-(p - referencePoint1.get).y),MouseButtonLeft,modifier))
           }
         } else if (inputType.get == 103) {
           if (!referencePoint1.isEmpty) {
             if (p == referencePoint1.get)
-              End(MouseDown(p.transform(View.deviceTransformation),button,modifier))
+              End(MouseDown(p.transform(View.deviceTransformation),MouseButtonLeft,modifier))
             //If it is a new point, a drag has occurred, and the length of that drag is returned
             else  End(Vector2D((p - referencePoint1.get).x,-(p - referencePoint1.get).y).length)
           }
         }
       }
 
-      // Exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
+      //Input from keyboard:
 
-      //TODO: add if statement: if a track-guide is active, forward to a InputLength module instead...
-
+      //Most key-inputs are not handled directly in Input, but sorted and forwarded to key-input modules.
+      //Some are, however - eg. escape and backspace.
       case KeyDown(key,modifier) :: tail => {
-        //If the input is backspace with no modifiers, this key is returned to the asking module:
+        //ESCAPE: Ends input-module
+        if (key == Key.escape) End
+        //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event:
         if (key == Key.backspace && modifier == ModifierKeys(false,false,false)) {
           (End(KeyDown(key,modifier)))
-
-          //if SHIFT is pressed, forward to the Angle Gizmo -
-          //but only if there is a reference point: Either point1, or a tracked point:
+        //SHIFT: (Standard: Nothing happens)
+        //If it is an input type with activated angleGizmo, forward to the Angle Gizmo -
+        //but only if there is a reference point: Either point1, or a tracked point:
         } else if(key == Key.shift && (inputType == Some(1) || inputType == Some(111) || inputType == Some(112))
-                          && (!referencePoint1.isEmpty || (Track.isTracking == true && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Siigna.selectionDistance))) {
-          //Start angle gizmo, and send the the active guide.
+          && (!referencePoint1.isEmpty || (Track.isTracking == true && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Siigna.selectionDistance))) {
+          //If it is an input type with activated angleGizmo: Start angleGizmo, and send the the input request.
           //The gizmo draws guide, so input should not.
           if (guide == true) guide = false
           if (!vector2DGuide.isEmpty) Start('AngleGizmo,"com.siigna.module.base.create",inputRequest.get)
           else Start('AngleGizmo,"com.siigna.module.base.create")
-
-          //If it is other keys, the input is interpreted by the input-modules.
-          //Any existing guides are forwarded.
-        } else if (key == Key.shift) { //Do nothing if shift is pressed, but there is no point to start the angleGizmo from
+        //Do nothing if shift is pressed and the angleGizmo shouldn't start:
+        } else if (key == Key.shift) {
+        //OTHER KEYS: The inputRequest is forwarded to the input-modules for interpretation according to input-type:
         } else if(inputType == Some(1) || inputType == Some(2) || inputType == Some(102) || inputType == Some(1020)
-                  || inputType == Some(1021)
-                  || ((inputType == Some(16) || inputType == Some(111) || inputType == Some(112)) && Track.isTracking == false)) {
-            if (guide == true) guide = false
-            if (!inputRequest.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create",inputRequest.get)
-            else Start('InputTwoValues,"com.siigna.module.base.create")
-        } else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) 
-                  || inputType == Some(7) || inputType == Some(8) || inputType == Some(10) || inputType == Some(12) 
-                  || inputType == Some(13) || inputType == Some(131) || inputType == Some(16) || inputType == Some(17)
-                  || inputType == Some(103)    || inputType == Some(111) || inputType == Some(112) || inputType == Some(1031)) {
-            if (guide == true) guide = false
-            if (!inputRequest.isEmpty) Start('InputOneValue,"com.siigna.module.base.create",inputRequest.get)
-            else Start('InputOneValue,"com.siigna.module.base.create")
+          || inputType == Some(1021)
+          || ((inputType == Some(16) || inputType == Some(111) || inputType == Some(112)) && Track.isTracking == false)) {
+          if (guide == true) guide = false
+          if (!inputRequest.isEmpty) Start('InputTwoValues,"com.siigna.module.base.create",inputRequest.get)
+          else Start('InputTwoValues,"com.siigna.module.base.create")
+        } else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6)
+          || inputType == Some(7) || inputType == Some(8) || inputType == Some(10) || inputType == Some(12)
+          || inputType == Some(13) || inputType == Some(131) || inputType == Some(16) || inputType == Some(17)
+          || inputType == Some(103)    || inputType == Some(111) || inputType == Some(112) || inputType == Some(1031)) {
+          if (guide == true) guide = false
+          if (!inputRequest.isEmpty) Start('InputOneValue,"com.siigna.module.base.create",inputRequest.get)
+          else Start('InputOneValue,"com.siigna.module.base.create")
         } else if(inputType == Some(14) ) {
-            if (guide == true) guide = false
-            if (!inputRequest.isEmpty) Start('InputText,"com.siigna.module.base.create",inputRequest.get)
-            else Start('InputText,"com.siigna.module.base.create")
+          if (guide == true) guide = false
+          if (!inputRequest.isEmpty) Start('InputText,"com.siigna.module.base.create",inputRequest.get)
+          else Start('InputText,"com.siigna.module.base.create")
         }
       }
+
+      //Input received from other modules (eg. Input OneValue, InputTwoValues, InputText, AngleGizmo):
+
+      //Vector2D: (Standard: The received Vector2D is returned, un-transformed)
+      case End(p : Vector2D) :: tail => {
+        if (inputType == Some(102) || inputType == Some(1020)) {
+          End(MouseUp(p,MouseButtonLeft,ModifierKeys(false,false,false)))
+        } else if (inputType == Some(1021)) {
+          End(MouseDown(p,MouseButtonLeft,ModifierKeys(false,false,false)))
+        } else if (inputType == Some(112) && !referencePoint1.isEmpty) {
+          End(referencePoint1.get + p)
+        } else if (inputType == Some(17)) {
+          End
+        } else {
+          End(p)
+        }
+      }
+      //Double: (Standard: The received Double is returned)
+      case End(s : Double) :: tail => {
+        if ((inputType == Some(16) || inputType == Some(111)|| inputType == Some(112)) && Track.isTracking == true) {
+          End(Track.getPointFromDistance(s).get)
+        } else {
+          End(s)
+        }
+      }
+      //String: (Standard: The received string is returned)
+      case End(s : String) :: tail => {
+        End(s)
+      }
+      //MouseDown(AngleGizmo does that): (Standard: The Vector2D returned with the mouseDown is returned, un-transformed)
+      case End(MouseDown(p,button,modifier)) :: tail => {
+        End(p)
+      }
+
+      //Any other input: Standard: Nothing happens
       case _ => {
       }
     }
   )
+
+  //Paint guides:
   override def paint(g : Graphics, t : TransformationMatrix) {
     if (inputType == Some(12)) guide = false
-    if (inputType == Some(1020)) {
-      if (guideKeepGuideOff == true) guide = false
+    if (inputType == Some(1020)) guide = false
       else guide = true
-    }
+
     //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
     if ( guide == true) {
       if (!vector2DGuide.isEmpty) vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
     }
+
+    if (!vector2DMessageGuide.isEmpty) {
+      vector2DMessageGuide.get.vector2DMessageGuide(mousePosition)
+    }
   }
 }
 
-/**
- * inputType (Int) lets the modules tell, what return they accept:
+/** InputType descriptions:
+ *
  * Returned            AngleGizmo     Input method:
  * variable type      (x: Activated)  How the returned variable is produced:
  * 1 = Vector2D                    x  MouseDown, Key (absolute - handled by the InputTwoValues module)
