@@ -50,19 +50,20 @@ class InputOneValue extends Module {
           //Othervise it starts:
         } else if (code.toChar.isDigit || code.toChar.toString == "-" || code.toChar.toString == ".") {
           coordinateValue += code.toChar
-          inputRequest = Some(i)
-          if (!i.vector2DGuide.isEmpty) vector2DGuide = i.vector2DGuide
-          if (!i.doubleGuide.isEmpty) doubleGuide = i.doubleGuide
-          if (!i.textGuide.isEmpty) textGuide = i.textGuide
-          if (!i.vector2DMessageGuide.isEmpty) vector2DMessageGuide = i.vector2DMessageGuide
-          if (!i.doubleMessageGuide.isEmpty) doubleMessageGuide = i.doubleMessageGuide
-          if (!i.textMessageGuide.isEmpty) textMessageGuide = i.textMessageGuide
-          if (!i.referencePoint1.isEmpty) referencePoint1 = i.referencePoint1
-          if (!i.referencePoint2.isEmpty) referencePoint2 = i.referencePoint2
-          if (!i.referenceDouble.isEmpty) referenceDouble = i.referenceDouble
-          if (!i.inputType.isEmpty) inputType = i.inputType
           Siigna display coordinateValue
         }
+        inputRequest = Some(i)
+        if (!i.vector2DGuide.isEmpty) vector2DGuide = i.vector2DGuide
+        if (!i.doubleGuide.isEmpty) doubleGuide = i.doubleGuide
+        if (!i.textGuide.isEmpty) textGuide = i.textGuide
+        if (!i.vector2DMessageGuide.isEmpty) vector2DMessageGuide = i.vector2DMessageGuide
+        if (!i.doubleMessageGuide.isEmpty) doubleMessageGuide = i.doubleMessageGuide
+        if (!i.textMessageGuide.isEmpty) textMessageGuide = i.textMessageGuide
+        if (!i.referencePoint1.isEmpty) referencePoint1 = i.referencePoint1
+        if (!i.referencePoint2.isEmpty) referencePoint2 = i.referencePoint2
+        if (!i.referenceDouble.isEmpty) referenceDouble = i.referenceDouble
+        if (!i.inputType.isEmpty) inputType = i.inputType
+        println(i)
       }
 
       //Read numbers and minus, "," and enter as first entry if no guide is provided:
@@ -121,17 +122,18 @@ class InputOneValue extends Module {
       // Space, - (minus), . (point) or -. (minus, then point):
       //If the input string ony contains one of these, there is no try to parse the string to a to double, and no guide to be drawn
       if (coordinateValue.length > 0 && coordinateValue != " " && coordinateValue != "-" && coordinateValue != "." && coordinateValue != "-.") {
-        input = Some(java.lang.Double.parseDouble(coordinateValue))       
+        input = Some(java.lang.Double.parseDouble(coordinateValue))   
         true
       } else
         false
-
     if((inputType == Some(111) || inputType == Some(112)) && usefulDoubleAsInput == true){
       //For these input types: Draw pointguide on the base of point obtained from the distance to the tracked point: 
       if (input.get != 0) vector2DGuide.get.vector2DGuide(Track.getPointFromDistance(input.get).get).foreach(s => g.draw(s.transform(t)))
       //For other input types, which have a double guide, draw the guides on the basis of the double guide:
     } else if(doubleGuide.isDefined && usefulDoubleAsInput == true){
       if (input.get != 0) doubleGuide.get.doubleGuide(input.get).foreach(s => g.draw(s.transform(t)))
+    } else if(!doubleGuide.isEmpty && !referenceDouble.isEmpty){
+      doubleGuide.get.doubleGuide(referenceDouble.get).foreach(s => g.draw(s.transform(t)))
     } else if (inputType == Some(131)) {
       vector2DGuide.get.vector2DGuide(Vector2D(input.get,12345.6789)).foreach(s => g.draw(s.transform(t)))
     }

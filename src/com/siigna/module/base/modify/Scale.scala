@@ -88,18 +88,28 @@ class Scale extends Module {
           Start('Input, "com.siigna.module.base.create",inputRequest)
         } else if (firstPointEntered == true && !endPoint.isEmpty && endPoint.get == p) {
           //STEP 4a: A point is returned (from mouse up). If it is the same as the point in step 3, it is
-          //the end-point, and the user should enter the desired distance between the two points to finish the scale:
-          Siigna display "type the distance between the reference points"
+          //the end-point, and the user should:
+          // 1) enter the desired distance between the two points to finish the scale, or
+          // 2) Leftclick to set scale factor:
+          Siigna display "type the distance between the reference points, or move mousa and click to scale"
           val doubleGuide = DoubleGuide((s : Double) => {
             //Define a scaling matrix:
             val t : TransformationMatrix = TransformationMatrix().scale((s/(startPoint.get.distanceTo(endPoint.get))),startPoint.get)
             // Return the shape, transformed
             Drawing.selection.get.apply(t)
           })
-          val inputRequest = InputRequest(None,Some(doubleGuide),None,None,None,None,None,None,None,Some(10))
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
+            val scaleFactor = (startPoint.get.distanceTo(v)/startPoint.get.distanceTo(endPoint.get))
+            //Define a scaling matrix:
+            val t : TransformationMatrix = TransformationMatrix().scale(scaleFactor,startPoint.get)
+            // Return the shape, transformed
+            Drawing.selection.get.apply(t)
+          })
+          val inputRequest = InputRequest(Some(vector2DGuide),Some(doubleGuide),None,None,None,None,None,None,None,Some(13))
           Start('Input,"com.siigna.module.base.create", inputRequest)
         } else if (firstPointEntered == true && !endPoint.isEmpty && endPoint.get != p) {
-          //Step 4b: A drag has occured (the point from mouse up is not the same as from mouse down). Do the scaling:
+          //Step 4b: A drag has occured (the point from mouse up is not the same as from mouse down).
+          // or the mouse has been clicked after the end point has been set, defining a scale factor. Do the scaling:
           val scaleFactor = (startPoint.get.distanceTo(p)/startPoint.get.distanceTo(endPoint.get))
           transformation =  Some(TransformationMatrix().scale(scaleFactor,startPoint.get))
           Drawing.selection.get.transform(transformation.get)
