@@ -35,6 +35,7 @@ class AngleGizmo extends Module {
   private var drawGuide = true
   private var backFromOneValue = false
 
+
   var inputRequest: Option[InputRequest] = None
   var vector2DGuide: Option[Vector2DGuide] = None
   var doubleGuide: Option[DoubleGuide] = None
@@ -124,6 +125,7 @@ class AngleGizmo extends Module {
         //return the angle
         if (referencePoint1.isDefined && degrees.isDefined && anglePointIsSet == false) {
           //send the active snap angle
+          backFromOneValue = true
           val point = referencePoint1.get
           val d = degrees.get
           anglePointIsSet = true
@@ -138,6 +140,7 @@ class AngleGizmo extends Module {
 
       case KeyDown(key,modifier) :: tail => {
         if (backFromOneValue == true) backFromOneValue = false
+
         Siigna.navigation = false // Make sure the rest of the program doesn't move
         drawGuide = false
         //A DoubleGuide for a line is sent to InputOneValue, to draw a guide for the segment being drawn:
@@ -181,7 +184,6 @@ class AngleGizmo extends Module {
     //if (referencePoint1.isDefined && (startTime.isDefined && System.currentTimeMillis() - startTime.get > gizmoTime)) {
     if (referencePoint1.isDefined && anglePointIsSet == false  && drawGizmo == true) {
 
-
       var m = mousePosition.transform(View.deviceTransformation)
 
       //modify the TransformationMatrix to preserve AngleGizmo scaling.
@@ -220,12 +222,15 @@ class AngleGizmo extends Module {
       (0 to 360 by 1).foreach(radian => g draw getLine(200, 220, 1).transform(transformation.rotate(radian, referencePoint1.get)))
 
       //Mouse position snapped to current angle-interval:
-      val distance: Double = referencePoint1.get.distanceTo(mousePosition.transform(View.deviceTransformation))
-      val angleSnappedMousePosition: Vector2D = referencePoint1.get + Vector2D(math.sin(degrees.get.toRadians)*distance,math.cos(degrees.get.toRadians)*distance)
+      var angleSnappedMousePosition: Option[Vector2D] = None
+      if(!degrees.isEmpty) {
+        val distance: Double = referencePoint1.get.distanceTo(mousePosition.transform(View.deviceTransformation))
+        angleSnappedMousePosition = Some(referencePoint1.get + Vector2D(math.sin(degrees.get.toRadians),math.cos(degrees.get.toRadians))*distance)
+      } else angleSnappedMousePosition = Some(mousePosition.transform(View.deviceTransformation))
       
       //If there is no ongoing key-input, draw the whole guide:
       if (!vector2DGuide.isEmpty && drawGuide == true) {
-        vector2DGuide.get.vector2DGuide(angleSnappedMousePosition).foreach(s => g.draw(s.transform(t)))
+        vector2DGuide.get.vector2DGuide(angleSnappedMousePosition.get).foreach(s => g.draw(s.transform(t)))
         //If there is key-input, only draw the fixed part of the shape - the last part being created is drawn by InputOneValue:
       } else if (!vector2DGuide.isEmpty && drawGuide == false) {
         vector2DGuide.get.vector2DGuide(referencePoint1.get).foreach(s => g.draw(s.transform(t)))
@@ -238,7 +243,7 @@ class AngleGizmo extends Module {
         //If the it is just after the angle was set, dont use the mouse position to draw the guide,
         //as it is not on the correct radian. Use point based on lengthVector instead, until the mouse is moved:
       if (!vector2DGuide.isEmpty && drawGuide == true && backFromOneValue == true) {
-        vector2DGuide.get.vector2DGuide(lengthVector(150)).foreach(s => g.draw(s.transform(t)))
+        vector2DGuide.get.vector2DGuide(lengthVector(referencePoint1.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).foreach(s => g.draw(s.transform(t)))
       } else if (!vector2DGuide.isEmpty && drawGuide == true) {
         vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
         //If there is key-input, only draw the fixed part of the shape - the last part being created is drawn by InputOneValue
