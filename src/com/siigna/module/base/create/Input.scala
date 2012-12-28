@@ -139,8 +139,9 @@ class Input extends Module {
       //Most key-inputs are not handled directly in Input, but sorted and forwarded to key-input modules.
       //Some are, however - eg. escape and backspace.
       case KeyDown(key,modifier) :: tail => {
-        //ESCAPE: Ends input-module
-        if (key == Key.escape) End
+        //ESCAPE: Is returned to the asking module as a key-down event:
+          End(KeyDown(key,modifier))
+        }
         //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event:
         if (key == Key.backspace && modifier == ModifierKeys(false,false,false)) {
           (End(KeyDown(key,modifier)))
