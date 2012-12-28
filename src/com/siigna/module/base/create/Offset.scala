@@ -32,28 +32,34 @@ class Offset extends Module {
     offsetGeom
   }
   //a function to generate a PolylineShape from the result of the offsetLines function
-  def generateOffsetLine(p: Vector2D) : PolylineShape = {
+  def generateOffsetLine(s: Any) : PolylineShape = {
     val shape = Drawing.selection.head.shapes.head._2
     if(shape.geometry.vertices.head == shape.geometry.vertices.last) isClosed = true
-    val newLines = offsetLines(shape, p) //offset the lines by the returned point
-    var knots = List[Vector2D]()
-    knots = knots :+ newLines.head.p1 //add the first point to the list
-
-
-    def result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the knots list
-    result
-
-    knots = knots :+ newLines.reverse.head.p2 //add the last point to the list
-
-    //if the polyline is closed, calculate the offset of the closing point and add it to the start and end of the list
-    if(isClosed == true) {
-      val closedPt = getClosedOffsetPoint(newLines)
-      knots = knots.tail.take(knots.size - 2) //remove the first and last element
-      knots = knots :+ closedPt //prepend the closed offset point to the list
-      knots = knots.reverse :+ closedPt //append the closed offset point to the list
-      knots = knots.reverse
+    
+    var newLines: Option[List[LineShape]] = None 
+    
+    s match {
+      case v: Vector2D => newLines = Some(offsetLines(shape, v))  //offset the lines by the returned point
+      case d: Double => newLines = Some(offsetLines(shape, d))    //offset the lines by the returned point
+      case _ =>
     }
-    PolylineShape(knots)
+        var knots = List[Vector2D]()
+        knots = knots :+ newLines.get.head.p1 //add the first point to the list
+
+        def result = getKnots(newLines.get).foreach(s => knots = knots :+ s) //add the intersections to the knots list
+        result
+
+        knots = knots :+ newLines.get.reverse.head.p2 //add the last point to the list
+
+        //if the polyline is closed, calculate the offset of the closing point and add it to the start and end of the list
+        if(isClosed == true) {
+          val closedPt = getClosedOffsetPoint(newLines.get)
+          knots = knots.tail.take(knots.size - 2) //remove the first and last element
+          knots = knots :+ closedPt //prepend the closed offset point to the list
+          knots = knots.reverse :+ closedPt //append the closed offset point to the list
+          knots = knots.reverse
+        }
+        PolylineShape(knots)
   }
 
   //returns the intersecting points of a series of line segments.
@@ -156,7 +162,10 @@ class Offset extends Module {
     l//return the list
   }
 
-  //a guide to get Point to draw the shape(s) dynamically
+  //guides to get Point to draw the shape(s) dynamically
+  val doubleGuide: DoubleGuide = DoubleGuide((s : Double) => {
+    Array(generateOffsetLine(s).addAttributes(attr))//run a function to generate the offset shape dynamically
+  })
   val vector2DGuide: Vector2DGuide = Vector2DGuide((v : Vector2D) => {
     Array(generateOffsetLine(v).addAttributes(attr))//run a function to generate the offset shape dynamically
   })
@@ -174,7 +183,7 @@ class Offset extends Module {
     case End(d : Double) :: tail => {
 
       done = true
-      //Create(generateOffsetLine(d).addAttributes(attr))//create a polylineShape from the offset knots:
+      Create(generateOffsetLine(d).addAttributes(attr))//create a polylineShape from the offset knots:
       End
     }
 
@@ -183,6 +192,8 @@ class Offset extends Module {
     //exit strategy
     case KeyDown(Key.Esc, _) :: tail => End
     case MouseDown(p, MouseButtonRight, _) :: tail => End
+    case End(KeyDown(Key.Esc, _)) :: tail => End
+    case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
 
     case _ => {
       if (!Drawing.selection.isDefined && done == false) {
@@ -192,7 +203,7 @@ class Offset extends Module {
       else if (Drawing.selection.isDefined && Drawing.selection.get.size == 1 ){
         attr = Drawing.selection.head.shapes.head._2.attributes
         Siigna display "click to set the offset distance"
-        val inputRequest = InputRequest(Some(vector2DGuide), None, None, None, None, None, None, None, None, Some(131))
+        val inputRequest = InputRequest(Some(vector2DGuide), Some(doubleGuide), None, None, None, None, None, None, None, Some(131))
         // 131: MouseDown or typed length - special guide in InputOneValue
         Start('Input,"com.siigna.module.base.create",inputRequest)
       } else if (done == true) End
