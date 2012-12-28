@@ -282,7 +282,12 @@ class Input extends Module {
  * 1031 = Double                      key-input
  *        Vector2D                    Point at mouseDown
  * 
- * 
+ *
+ * General functioning of:
+ *   Right button: Depends on the way it is natural for the module to function - priorotised uses:
+ *     -Finish the modules' work (eg. polyline)
+ *     -Exit the module (eg. line)
+ *
  */
 
 //The guides:

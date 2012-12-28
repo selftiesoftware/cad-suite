@@ -26,6 +26,12 @@ class Line extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
+      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => {
+        End
+      }
+
+      case End(KeyDown(Key.escape,modifier)) :: tail => End
+
       case End(v : Vector2D) :: tail => {
         if (startPoint.isEmpty){
           startPoint = Some(v)
@@ -66,6 +72,9 @@ class Line extends Module {
           }
         }
       }
+
+
+
       case _ => Start('Input,"com.siigna.module.base.create",111)
     }
   )

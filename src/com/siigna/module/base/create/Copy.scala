@@ -64,9 +64,9 @@ class Copy extends Module {
         if (multiActive == true) {
           transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
           Create(shapes.get.apply(transformation.get))
-        }
-        val moduleInstance: ModuleInstance = Module('Menu,"com.siigna.module.base")
-        End(moduleInstance)
+          val moduleInstance: ModuleInstance = Module('Menu,"com.siigna.module.base")
+          End(moduleInstance)
+        } else End
       }
 
       case End(KeyDown(key,modifier)) :: tail => {
