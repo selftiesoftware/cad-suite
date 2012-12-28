@@ -57,16 +57,24 @@ class Offset extends Module {
     val angleRaw = ((s.p2-s.p1).angle * -1) + 450
     val angle = if(angleRaw > 360) angleRaw - 360 else angleRaw
     val linePt = s.geometry.closestPoint(m)
+    val lx = linePt.x
+    val mx = m.x
     val ly = linePt.y
     val my = m.y
-    //if the mouse is north of the shape, offset should extend upwards
-    if(angle > 0 && angle < 180) {
+
+    //the mouse point projected perpendicularily on the the line is used to evaluate offset side.
+    //if the mouse y is north of the shape, offset should extend upwards. This eval does not work on vertical lines
+    //in these cases the x values are evaluated.
+
+    if(angle > 0 && angle <= 180) {
       if(my > ly) false
+      else if (my == ly && mx > lx) false //evaluate x values instead when lines are vertical
       else true
     }
     //if the mouse is south of the shape, offset should extend downwards
     else {
       if(my < ly) false
+      else if (my == ly && mx < lx) false //evaluate x values instead when lines are vertical
       else true
     }
   }
@@ -87,6 +95,7 @@ class Offset extends Module {
         }
       }
       //check on which side of the original the offset should take place
+      println("offsetside: " +offsetSide(closestSegment.get, m))
       val n = if(closestSegment.isDefined && offsetSide(closestSegment.get, m) == true) nearestDist
       else  - nearestDist
       n
@@ -154,23 +163,25 @@ class Offset extends Module {
       val newLines = offsetLines(shape, p) //offset the lines by the returned point
       var knots = List[Vector2D]()
 
-      if(isClosed == false) knots = knots :+ newLines.head.p1 //add the first point to the list
+      //if(isClosed == false)
+      knots = knots :+ newLines.head.p1 //add the first point to the list
 
       val result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
       result
-      if(isClosed == false) knots = knots :+ newLines.reverse.head.p2 //add the last vertex
-      if(isClosed == true) {
-        var seq = Seq()
+      //if(isClosed == false)
+        knots = knots :+ newLines.reverse.head.p2 //add the last vertex
+      //if(isClosed == true) {
+      //  var seq = Seq()
         //knots.foreach(s => seq = seq :+ InnerPs)
-        val closedPt = getClosedOffsetPoint(knots)
+      //  val closedPt = getClosedOffsetPoint(knots)
         //PolylineShape[Vector2D(104.0,84.0),WrappedArray(PolylineLineShape(Vector2D(104.0,-11.0)), PolylineLineShape(Vector2D(40.0,-65.0)), PolylineLineShape(Vector2D(-30.0,-58.0)), PolylineLineShape(Vector2D(-111.0,-8.0)), PolylineLineShape(Vector2D(-96.0,21.0)), PolylineLineShape(Vector2D(-5.0,44.0)), PolylineLineShape(Vector2D(36.0,45.0)), PolylineLineShape(Vector2D(49.0,91.0))), Attributes(Color -> java.awt.Color[r=0,g=0,b=0], StrokeWidth -> 0.2)]
-        println("seq:; "+seq)
-        val p = PolylineShape(seq)
-        Create(p)
-      }
+      //  println("seq:; "+seq)
+      //  val p = PolylineShape(seq)
+      //  Create(p)
+      //}
 
       done = true
-      //Create(PolylineShape(knots).addAttributes(attr))//create a polylineShape from the offset knots:
+      Create(PolylineShape(knots).addAttributes(attr))//create a polylineShape from the offset knots:
       End
     }
 
@@ -180,15 +191,17 @@ class Offset extends Module {
       val newLines = offsetLines(shape, d) //offset the lines by the returned point
       var knots = List[Vector2D]()
 
-      if(isClosed == false) knots = knots :+ newLines.head.p1 //add the first point to the list
+      //if(isClosed == false)
+      knots = knots :+ newLines.head.p1 //add the first point to the list
 
       val result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
       result
-      if(isClosed == false) knots = knots :+ newLines.reverse.head.p2 //add the last vertex
-      if(isClosed == true) {
-        knots = knots :+ getClosedOffsetPoint(knots)
-        knots = knots.reverse :+ getClosedOffsetPoint(knots)
-      }
+      //if(isClosed == false)
+      knots = knots :+ newLines.reverse.head.p2 //add the last vertex
+      //if(isClosed == true) {
+      //  knots = knots :+ getClosedOffsetPoint(knots)
+      //  knots = knots.reverse :+ getClosedOffsetPoint(knots)
+      //}
       done = true
       Create(PolylineShape(knots).addAttributes(attr))//create a polylineShape from the offset knots:
       End
