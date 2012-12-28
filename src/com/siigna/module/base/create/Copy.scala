@@ -59,6 +59,28 @@ class Copy extends Module {
         }
         End
       }
+
+      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => {
+        if (multiActive == true) {
+          transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
+          Create(shapes.get.apply(transformation.get))
+        }
+        val moduleInstance: ModuleInstance = Module('Menu,"com.siigna.module.base")
+        End(moduleInstance)
+      }
+
+      case End(KeyDown(key,modifier)) :: tail => {
+        if (key == Key.escape) {
+          println("jhgyu")
+          if (multiActive == true) {
+            transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
+            Create(shapes.get.apply(transformation.get))
+          }
+          End('Menu, "com.siigna.module.base")
+        }
+      }
+
+
       //exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
       case MouseDown(p, MouseButtonRight, _) :: tail => End

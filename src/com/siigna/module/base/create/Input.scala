@@ -89,12 +89,8 @@ class Input extends Module {
       }
       //Right mouse button down (Standard: the mouseDown action is returned)
       case MouseDown(p,MouseButtonRight,modifier)::tail => {
-        if (inputType == Some(17)) {
-          End
-        } else {
-          //Standard: the mouseDown action is returned
-          End(MouseDown(p.transform(View.deviceTransformation),MouseButtonRight,modifier))
-        }
+        //Standard: the mouseDown action is returned
+        End(MouseDown(p.transform(View.deviceTransformation),MouseButtonRight,modifier))
       }
       //Left mouse button up: (Standard: Nothing happens)
       case MouseUp(p,MouseButtonLeft,modifier)::tail => {
@@ -265,7 +261,7 @@ class Input extends Module {
  * 15 = Nothing                       Returns nothing from Input module. Can be used when
  * 16 = Vector2D                      Key input, one-coordinate, offset from existing point when on a track guide
  * 17 = Double                        Key - InputOneValue
- *      End                           All other inputs sends End
+ *      End                           All other inputs sends End (except escape and right-click, who send their standard (End(action)))
  *
  * 111 = Vector2D                  x  Point at mouseDown, or point by key(absolute - twoValues) or point guided by trackguide (input One value) if a track guide is active.
  * 112 = Vector2D                  x  Point at MouseDown, or vector2D by key added to referencePoint1 or point guided by trackguide (input One value) if a track guide is active.
