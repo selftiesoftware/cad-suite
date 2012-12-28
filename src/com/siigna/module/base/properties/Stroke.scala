@@ -42,7 +42,7 @@ class Stroke extends Module {
   var startPoint : Vector2D = View.center
 
   //PROPERTIES OF TEXT DESCRIPTIONS
-  var boundingRectangle : Option[Rectangle2D] = None
+  var boundingRectangle : Option[SimpleRectangle2D] = None
   var text     = ""
   var scale    = 8
   var attributes = Attributes( "TextSize" -> 10)

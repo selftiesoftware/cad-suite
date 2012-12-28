@@ -43,7 +43,7 @@ val eventHandler = new EventHandler(stateMap, stateMachine)
       //A function that passes a rectangleShape to the point module to be drawn dynamically
       //from the first point to the mouse position
       val getRectGuide : Vector2D => PolylineShape = (v : Vector2D) => {
-        PolylineShape(Rectangle2D(points.head, v))
+        PolylineShape(SimpleRectangle2D(points.head, v))
       }
 
       events match {
@@ -62,10 +62,10 @@ val eventHandler = new EventHandler(stateMap, stateMachine)
     }),
     'ParamTest -> ((events : List[Event]) => {
       if (points.length == 2) {
-        Create(PolylineShape(Rectangle2D(points(0), points(1))))
+        Create(PolylineShape(SimpleSimpleRectangle2D(points(0), points(1))))
         for(i <- 0 to 100) {
           var dynamicCorner = points(1) + Vector2D(i,i)
-          rectangle = Some(PolylineShape(Rectangle2D(points(0), dynamicCorner)))
+          rectangle = Some(PolylineShape(SimpleRectangle2D(points(0), dynamicCorner)))
           Thread.sleep(10)
         }
       Goto('End)
