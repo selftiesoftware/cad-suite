@@ -164,6 +164,7 @@ class Trim extends Module {
 
       //if the input module returns an ESC or right mouse down, end the module. -And reenable Track.
       case End(KeyDown(Key.escape,modifier)) :: tail => {
+        println("BBB")
         Track.trackEnabled = true
         End
       }
