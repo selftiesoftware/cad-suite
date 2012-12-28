@@ -30,6 +30,24 @@ class Fill extends Module {
 
   val stateMap: StateMap = Map(
     'Start -> {
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End(KeyDown(Key.Esc, _)) :: tail => End
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
+
+        var plShape = PolylineShape(points)
+        def setAttribute[T : Manifest](name:String, shape:Shape) = {
+          Siigna.get(name) match {
+            case s : Some[T] => shape.addAttribute(name, s.get)
+            case None => shape// Option isn't set. Do nothing
+          }
+        }
+        val polyLine = setAttribute[Color]("Color",setAttribute[Double]("LineWeight", plShape))
+        Create(polyLine)
+        End
+      }
+
       case End(v : Vector2D) :: tail => {
         //if the point module returns with END and a point, a new point is received.
         points = points :+ v
@@ -95,20 +113,6 @@ class Fill extends Module {
             Start('Input,"com.siigna.module.base.create")
           }
         }}
-
-      case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
-
-        var plShape = PolylineShape(points)
-        def setAttribute[T : Manifest](name:String, shape:Shape) = {
-          Siigna.get(name) match {
-            case s : Some[T] => shape.addAttribute(name, s.get)
-            case None => shape// Option isn't set. Do nothing
-          }
-        }
-        val polyLine = setAttribute[Color]("Color",setAttribute[Double]("LineWeight", plShape))
-        Create(polyLine)
-        End
-      }
 
       case End :: tail => {
         //If there are two or more points in the polyline, it can be saved to the Siigna universe.

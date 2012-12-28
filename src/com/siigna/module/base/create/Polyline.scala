@@ -23,6 +23,16 @@ class Polyline extends Module {
 
   val stateMap: StateMap = Map(
     'Start -> {
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End(KeyDown(Key.Esc, _)) :: tail => End
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
+        val polyline = PolylineShape(points).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)
+        Create(polyline)
+        End
+      }
+
       case End(v : Vector2D) :: tail => {
         //if the point module returns with END and a point, a new point is received.
         points = points :+ v
@@ -76,12 +86,6 @@ class Polyline extends Module {
             Start('Input,"com.siigna.module.base.create")
           }
         }}
-
-      case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
-        val polyline = PolylineShape(points).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)
-        Create(polyline)
-        End
-      }
 
       case End :: tail => {
         //If there are two or more points in the polyline, it can be saved to the Siigna universe.
