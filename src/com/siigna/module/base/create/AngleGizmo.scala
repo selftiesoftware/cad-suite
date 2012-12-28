@@ -180,13 +180,7 @@ class AngleGizmo extends Module {
 
     //if (referencePoint1.isDefined && (startTime.isDefined && System.currentTimeMillis() - startTime.get > gizmoTime)) {
     if (referencePoint1.isDefined && anglePointIsSet == false  && drawGizmo == true) {
-      //If there is no ongoing key-input, draw the whole guide:
-      if (!vector2DGuide.isEmpty && drawGuide == true) {
-        vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
-        //If there is key-input, only draw the fixed part of the shape - the last part being created is drawn by InputOneValue:
-      } else if (!vector2DGuide.isEmpty && drawGuide == false) {
-        vector2DGuide.get.vector2DGuide(referencePoint1.get).foreach(s => g.draw(s.transform(t)))
-      }
+
 
       var m = mousePosition.transform(View.deviceTransformation)
 
@@ -224,6 +218,14 @@ class AngleGizmo extends Module {
       (0 to 360 by 10).foreach(radian => g draw getLine(100, 170, 10).transform(transformation.rotate(radian, referencePoint1.get)))
       (0 to 360 by 5).foreach(radian => g draw getLine(170, 200, 5).transform(transformation.rotate(radian, referencePoint1.get)))
       (0 to 360 by 1).foreach(radian => g draw getLine(200, 220, 1).transform(transformation.rotate(radian, referencePoint1.get)))
+
+      //If there is no ongoing key-input, draw the whole guide:
+      if (!vector2DGuide.isEmpty && drawGuide == true) {
+        vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
+        //If there is key-input, only draw the fixed part of the shape - the last part being created is drawn by InputOneValue:
+      } else if (!vector2DGuide.isEmpty && drawGuide == false) {
+        vector2DGuide.get.vector2DGuide(referencePoint1.get).foreach(s => g.draw(s.transform(t)))
+      }
 
       //If anglePointSet is true, the angle has been set, and length is the only thing left.
       // There is no need to display the angle. Draw the guide:
