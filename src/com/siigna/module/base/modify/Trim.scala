@@ -21,13 +21,8 @@ class Trim extends Module {
   private var attr = Attributes()
   private var done = false
   private var nearestShape : Option[Shape] = None
-  private var selection = List[Vector2D]()
-  private var shapes : List[Shape] = List()
-  private var selectionBoxStart : Option[Vector2D] = None
-  private var selectionBoxEnd : Option[Vector2D] = None
   private var trimGuide : Option[Shape] = None
   private var trimGuide2 : Option[Shape] = None
-  private var trimShapes : Iterable[Shape] = List()
   private var trimID : Option[Int] = None
   private var trimID2 : Option[Int] = None
 
@@ -165,16 +160,12 @@ class Trim extends Module {
 
       //if the input module returns an ESC, end the module. -And reenable Track.
       case End(MouseDown(_ , MouseButtonRight, _)) :: tail => {
-        println("input ended with esc")
         Track.trackEnabled = true
         End
       }
 
       //if selection returns a point, evaluate if there are any shapes to trim at that point:
       case End(v : Vector2D) :: tail => {
-        if(trimID.isDefined && !trimID2.isDefined) Drawing.select(trimID.get) //keep the trimline selected for better visual reference
-        if(trimID.isDefined && trimID2.isDefined) Drawing.select(Traversable(trimID.get,trimID2.get)) //keep the trimline selected for better visual reference
-
         if(trimGuide.isDefined && !trimGuide2.isDefined) {
           val m = mousePosition.transform(View.deviceTransformation)
           //find the shape closest to the mouse:
@@ -192,11 +183,9 @@ class Trim extends Module {
             Create(PolylineShape(l).addAttributes(attr))
             done = true
             nearestShape = None //reset var
-            println("look for trimpoints")
 
             Start('Input,"com.siigna.module.base.create",1) //look for more trim points
           } else {
-            println("look for selection")
 
             Start('Input,"com.siigna.module.base.create",1)
           } //if the point is not set next to a shape, goto selection and try again
@@ -259,9 +248,12 @@ class Trim extends Module {
       }
     })
   override def paint(g : Graphics, t : TransformationMatrix) {
-    if(trimGuide.isDefined && trimGuide2.isDefined) {
-      g draw (trimGuide.get.addAttributes("Color" -> new Color(0.95f, 0.15f, 0.80f, 1.50f))).transform (t)
-      g draw (trimGuide2.get.addAttributes("Color" -> new Color(0.95f, 0.15f, 0.80f, 1.50f))).transform (t)
+    if(trimGuide.isDefined && !trimGuide2.isDefined) {
+      g draw (trimGuide.get.addAttributes("StrokeWidth" -> 1.5, "Color" -> new Color(0.95f, 0.15f, 0.80f, 1.00f))).transform (t)
+    }
+    else if(trimGuide.isDefined && trimGuide2.isDefined) {
+      g draw (trimGuide.get.addAttributes("StrokeWidth" -> 1.5, "Color" -> new Color(0.95f, 0.15f, 0.80f, 1.00f))).transform (t)
+      g draw (trimGuide2.get.addAttributes("StrokeWidth" -> 1.5, "Color" -> new Color(0.95f, 0.15f, 0.80f, 1.00f))).transform (t)
 
     }
   }
