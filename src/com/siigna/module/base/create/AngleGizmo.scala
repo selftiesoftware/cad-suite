@@ -149,7 +149,8 @@ class AngleGizmo extends Module {
         } else {
           doubleGuide = Some(DoubleGuide((d: Double) => Traversable(LineShape(referencePoint1.get, lengthVector (d)))))
         }
-        val inputRequest = InputRequest(None,doubleGuide,None,None,None,None,None,None,None,None)
+        val referenceDouble = referencePoint1.get.distanceTo(mousePosition.transform(View.deviceTransformation))
+        val inputRequest = InputRequest(None,doubleGuide,None,None,None,None,None,None,Some(referenceDouble),Some(15))
         Start('InputOneValue,"com.siigna.module.base.create", inputRequest)
       }
 
