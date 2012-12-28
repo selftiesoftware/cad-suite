@@ -37,19 +37,20 @@ class Offset extends Module {
     if(shape.geometry.vertices.head == shape.geometry.vertices.last) isClosed = true
     val newLines = offsetLines(shape, p) //offset the lines by the returned point
     var knots = List[Vector2D]()
+    knots = knots :+ newLines.head.p1 //add the first point to the list
 
-    if(isClosed == false)knots = knots :+ newLines.head.p1 //add the first point to the list
 
-    def result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
+    def result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the knots list
     result
-    //if the shape is not closed, offset the start- and endpoint normally.
-    if(isClosed == false)  knots = knots :+ newLines.reverse.head.p2 //add the last point to the list
+
+    knots = knots :+ newLines.reverse.head.p2 //add the last point to the list
 
     //if the polyline is closed, calculate the offset of the closing point and add it to the start and end of the list
     if(isClosed == true) {
-      val closedPt = getClosedOffsetPoint(knots)
-      knots = knots :+ closedPt //prepend the point to the list
-      knots = knots.reverse :+ closedPt //append the point to the list
+      val closedPt = getClosedOffsetPoint(newLines)
+      knots = knots.tail.take(knots.size - 2) //remove the first and last element
+      knots = knots :+ closedPt //prepend the closed offset point to the list
+      knots = knots.reverse :+ closedPt //append the closed offset point to the list
       knots = knots.reverse
     }
     PolylineShape(knots)
@@ -69,9 +70,9 @@ class Offset extends Module {
     k
   }
   //get the start and end points for the list of points that make up an offset, closed polyline 
-  def getClosedOffsetPoint (l : List[Vector2D]) : Vector2D = {
-    val segment1 = Line2D(l(0),l(1))
-    val segment2 = Line2D(l.reverse(0),l.reverse(1))
+  def getClosedOffsetPoint (l : List[LineShape]) : Vector2D = {
+    val segment1 = Line2D(l(0).p1,l(0).p2)
+    val segment2 = Line2D(l.reverse(0).p1,l.reverse(0).p2)
     val p = segment1.intersections(segment2)
     p.head
   }
