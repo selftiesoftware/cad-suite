@@ -29,7 +29,8 @@ class Arc extends Module {
     'Start -> {
       case events => {
         events match {
-          case MouseDown(_, MouseButtonRight, _) :: tail => 'End
+          case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => End
+          case End(KeyDown(Key.escape,modifier)) :: tail => End
           case End(p : Vector2D) :: tail => {
             //If no start point is set, the recieved point becomes the start point,
             //and a line guide is returned (between the start and end point)

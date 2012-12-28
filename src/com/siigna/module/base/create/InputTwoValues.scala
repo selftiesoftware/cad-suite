@@ -109,6 +109,8 @@ class InputTwoValues extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => End
+
       //Read numbers and minus, "," and enter as first entry, after drawing of guide, if a guide is provided:
       case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
         inputRequest = Some(i)
@@ -191,7 +193,9 @@ class InputTwoValues extends Module {
       
     }
     //if point returns a keyDown - that is not previously intercepted
-    case KeyDown(code, _) :: tail => {
+    case KeyDown(code, modifier) :: tail => {
+      if (code == Key.escape)
+        End(KeyDown(code,modifier))
       //get the input from the keyboard if it is numbers, (-) or (.)
       val char = code.toChar
       if (char.isDigit)

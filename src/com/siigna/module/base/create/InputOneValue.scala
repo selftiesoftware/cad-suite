@@ -43,6 +43,8 @@ class InputOneValue extends Module {
 
     'Start -> {
 
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => End
+
       case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
         //Ends if enter was pressed...
         if (code == Key.enter) {
@@ -94,8 +96,10 @@ class InputOneValue extends Module {
       }
 
       //if point returns a keyDown - that is not previously intercepted
-      case KeyDown(code, _) :: tail => {
+      case KeyDown(code, modifier) :: tail => {
         //get the input from the keyboard if it is numbers, (-) or (.)
+        if (code == Key.escape)
+          End(KeyDown(code,modifier))
         val char = code.toChar
         if (char.isDigit)
           coordinateValue += char

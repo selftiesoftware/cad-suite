@@ -42,7 +42,8 @@ class Text extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
-
+      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => End
+      case End(KeyDown(Key.escape,modifier)) :: tail => End
       case End(p : Vector2D) :: tail => {
         position = Some(p)
         val textGuide: TextGuide = TextGuide((s: String) => Traversable(TextShape(s + " ", p,  scale * (Siigna.paperScale + 1))))
