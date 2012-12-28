@@ -156,7 +156,7 @@ class Trim extends Module {
   val stateMap: StateMap = Map(
     'Start -> {
       //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => {
+      case KeyDown(Key.escape, _) :: tail => {
         Track.trackEnabled = true
         Drawing.deselect()
         End
@@ -164,7 +164,8 @@ class Trim extends Module {
       case MouseDown(p, MouseButtonRight, _) :: tail => End
 
       //if the input module returns an ESC, end the module. -And reenable Track.
-      case End(KeyDown(Key.Esc, _)) :: tail => {
+      case End(MouseDown(_ , MouseButtonRight, _)) :: tail => {
+        println("input ended with esc")
         Track.trackEnabled = true
         End
       }
