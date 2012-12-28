@@ -138,8 +138,6 @@ class InputOneValue extends Module {
       if (input.get != 0) doubleGuide.get.doubleGuide(input.get).foreach(s => g.draw(s.transform(t)))
     } else if(!doubleGuide.isEmpty && !referenceDouble.isEmpty){
       doubleGuide.get.doubleGuide(referenceDouble.get).foreach(s => g.draw(s.transform(t)))
-    } else if (inputType == Some(131)) {
-      vector2DGuide.get.vector2DGuide(Vector2D(input.get,12345.6789)).foreach(s => g.draw(s.transform(t)))
     }
   }
 }

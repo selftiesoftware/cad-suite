@@ -203,8 +203,8 @@ class Offset extends Module {
       else if (Drawing.selection.isDefined && Drawing.selection.get.size == 1 ){
         attr = Drawing.selection.head.shapes.head._2.attributes
         Siigna display "click to set the offset distance"
-        val inputRequest = InputRequest(Some(vector2DGuide), Some(doubleGuide), None, None, None, None, None, None, None, Some(131))
-        // 131: MouseDown or typed length - special guide in InputOneValue
+        val inputRequest = InputRequest(Some(vector2DGuide), Some(doubleGuide), None, None, None, None, None, None, None, Some(13))
+        // 13: MouseDown or typed length
         Start('Input,"com.siigna.module.base.create",inputRequest)
       } else if (done == true) End
       else {
