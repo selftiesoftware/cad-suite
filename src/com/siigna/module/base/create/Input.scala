@@ -206,11 +206,15 @@ class Input extends Module {
         if (drawGuide == false) drawGuide = true
         End(s)
       }
-      //MouseDown(AngleGizmo does that): (Standard: The Vector2D returned with the mouseDown is returned, un-transformed)
-      case End(MouseDown(p,button,modifier)) :: tail => {
+      //MouseDown, left button(AngleGizmo does that): (Standard: The Vector2D returned with the mouseDown is returned, un-transformed)
+      case End(MouseDown(p,MouseButtonLeft,modifier)) :: tail => {
         if (drawGuide == false) drawGuide = true
         End(p)
       }
+      //MouseDown, right button: (Standard: The mouse action is returned)
+      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => End(MouseDown(p,MouseButtonRight,modifier))
+      //Escape:
+      case End(KeyDown(Key.escape,modifier)) :: tail => End(KeyDown(Key.escape,modifier))
 
       //Any other input: Standard: Nothing happens
       case _ => {

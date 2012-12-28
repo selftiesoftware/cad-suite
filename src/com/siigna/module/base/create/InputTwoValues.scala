@@ -109,7 +109,7 @@ class InputTwoValues extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
-      case MouseDown(p,MouseButtonRight,modifier) :: tail => End
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => End(MouseDown(p,MouseButtonRight,modifier))
 
       //Read numbers and minus, "," and enter as first entry, after drawing of guide, if a guide is provided:
       case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {

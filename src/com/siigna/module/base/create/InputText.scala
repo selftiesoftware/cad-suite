@@ -39,7 +39,7 @@ class InputText extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
-      case MouseDown(p,MouseButtonRight,modifier) :: tail => End
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => End(MouseDown(p,MouseButtonRight,modifier))
 
       case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
         inputRequest = Some(i)

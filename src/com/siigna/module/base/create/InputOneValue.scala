@@ -43,7 +43,7 @@ class InputOneValue extends Module {
 
     'Start -> {
 
-      case MouseDown(p,MouseButtonRight,modifier) :: tail => End
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => End(MouseDown(p,MouseButtonRight,modifier))
 
       case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
         //Ends if enter was pressed...
