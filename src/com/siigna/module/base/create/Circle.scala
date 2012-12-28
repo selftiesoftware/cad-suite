@@ -30,7 +30,8 @@ class Circle extends Module {
     'Start -> {
       case events => {
         events match {
-          case MouseDown(_, MouseButtonRight, _) :: tail => 'End
+          case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => End
+          case End(KeyDown(Key.escape,modifier)) :: tail => End
 
           //If a point is entered, it is the centre:
           case End(p : Vector2D) :: tail => {
