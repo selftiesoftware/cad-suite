@@ -27,6 +27,12 @@ class SampleProperties extends Module{
 
   def stateMap : StateMap = Map(
     'Start -> {
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End(KeyDown(Key.Esc, _)) :: tail => End
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
+
       case _ => {
         Siigna display ("select an object to sample from")
 
@@ -40,6 +46,12 @@ class SampleProperties extends Module{
       }
     },
     'UpdateShapes -> {
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End(KeyDown(Key.Esc, _)) :: tail => End
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
+
       case _ => {
         Siigna display ("select objects to update")
         if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) 'End
@@ -47,6 +59,12 @@ class SampleProperties extends Module{
       }
     },
     'End -> {
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End(KeyDown(Key.Esc, _)) :: tail => End
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
+
       case _ => {
         if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
           Drawing.selection.get.setAttributes(attributes)

@@ -92,6 +92,11 @@ class Colors extends Module {
       }
     },
     'Interaction -> {
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End(KeyDown(Key.Esc, _)) :: tail => End
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
 
       case MouseDown(p, MouseButtonLeft, _) :: tail => {
 

@@ -68,6 +68,18 @@ class Area extends Module {
 
   val stateMap: StateMap = Map(
     'Start -> {
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End(KeyDown(Key.Esc, _)) :: tail => End
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
+        if (points.length > 2) {
+          Siigna.display("Area: "+units(area(points :+ points(0))))
+          Create(TextShape(units(area(points :+ points(0))),Vector2D(0,0),3 * Siigna.paperScale))
+        }
+        End
+      }
+
       case End(p : Vector2D) :: tail => {
         //if the point module returns with END and a point, a new point is received.
         points = points :+ p
@@ -125,14 +137,6 @@ class Area extends Module {
             Start('Input,"com.siigna.module.base.create")
           }
         }
-      }
-
-      case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
-        if (points.length > 2) {
-          Siigna.display("Area: "+units(area(points :+ points(0))))
-          Create(TextShape(units(area(points :+ points(0))),Vector2D(0,0),3 * Siigna.paperScale))
-        }
-        End
       }
 
       case End :: tail => {

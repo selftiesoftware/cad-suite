@@ -136,10 +136,9 @@ class Input extends Module {
       //Some are, however - eg. escape and backspace.
       case KeyDown(key,modifier) :: tail => {
         //ESCAPE: Is returned to the asking module as a key-down event:
-        if (key == Key.escape)
-          End(KeyDown(key,modifier))
+        if (key == Key.escape) End(KeyDown(key,modifier))
         //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event:
-        if (key == Key.backspace && modifier == ModifierKeys(false,false,false)) {
+        else if (key == Key.backspace && modifier == ModifierKeys(false,false,false)) {
           (End(KeyDown(key,modifier)))
         //SHIFT: (Standard: Nothing happens)
         //If it is an input type with activated angleGizmo, forward to the Angle Gizmo -
@@ -162,7 +161,7 @@ class Input extends Module {
           else Start('InputTwoValues,"com.siigna.module.base.create")
         } else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6)
           || inputType == Some(7) || inputType == Some(8) || inputType == Some(10) || inputType == Some(12)
-          || inputType == Some(13) || inputType == Some(131) || inputType == Some(16) || inputType == Some(17)
+          || inputType == Some(13) || inputType == Some(16) || inputType == Some(17)
           || inputType == Some(103)    || inputType == Some(111) || inputType == Some(112) || inputType == Some(1031)
           || inputType == Some(1022)) {
           if (drawGuide == true) drawGuide = false
@@ -258,9 +257,6 @@ class Input extends Module {
  *      Special guide:                Do not draw Vector2DGuide
  * 13 = Double                        Key (one value)
  *      Vector2D                      MouseDown. Guide is drawn.
- * 131 =Double                        Key (one value)
- *      Vector2D                      MouseDown. Guide is drawn.
- *      Special guide:                In InputOneValue - for dynamically drawing offset of shapes.
  * 14 = String                        Key input, text
  * 15 = Nothing                       Returns nothing from Input module. Can be used when
  * 16 = Vector2D                      Key input, one-coordinate, offset from existing point when on a track guide

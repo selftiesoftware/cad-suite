@@ -28,6 +28,12 @@ class Rotate extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End(KeyDown(Key.Esc, _)) :: tail => End
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
+
       case End(p : Vector2D) :: tail => {
         if(!centerPoint.isDefined) {
           centerPoint = Some(p)
@@ -90,9 +96,7 @@ class Rotate extends Module {
         End
       }
 
-      //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
-      case MouseDown(p, MouseButtonRight, _) :: tail => End
+
       case _ => {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         val l = new ModuleInit

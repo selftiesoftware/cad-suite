@@ -84,7 +84,7 @@ class AngleGizmo extends Module {
         if (!i.referencePoint2.isEmpty) referencePoint2 = i.referencePoint2
         if (!i.referenceDouble.isEmpty) referenceDouble = i.referenceDouble
         if (!i.inputType.isEmpty) inputType = i.inputType
-        if (referencePoint1.isEmpty && Track.isTracking == true) {
+        if (vector2DGuide.isEmpty && referencePoint1.isEmpty && Track.isTracking == true) {
           referencePoint1 = Track.pointOne
           vector2DGuide = Some(Vector2DGuide((v: Vector2D) => Traversable(LineShape(referencePoint1.get, v))))
         }
@@ -94,7 +94,7 @@ class AngleGizmo extends Module {
       case Start(_,x) :: tail => {
         //TODO: Make line to the start-point of a new shape dashed instead of solid
         if (Track.isTracking == true) referencePoint1 = Track.pointOne
-        vector2DGuide = Some(Vector2DGuide((v: Vector2D) => Traversable(LineShape(referencePoint1.get, v))))
+        vector2DGuide = Some(Vector2DGuide((v: Vector2D) => Traversable(LineShape(referencePoint1.get, v).addAttribute(cyan))))
       }
 
       case MouseMove(p, _, _) :: tail => {
@@ -147,9 +147,9 @@ class AngleGizmo extends Module {
         drawGuide = false
         //A DoubleGuide for a line is sent to InputOneValue, to draw a guide for the segment being drawn:
         if (anglePointIsSet == false) {
-          doubleGuide = Some(DoubleGuide((d: Double) => Traversable(LineShape(referencePoint1.get, referencePoint1.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * 150)))))
+          doubleGuide = Some(DoubleGuide((d: Double) => Traversable(LineShape(referencePoint1.get, referencePoint1.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * referencePoint1.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).addAttribute(cyan))))
         } else {
-          doubleGuide = Some(DoubleGuide((d: Double) => Traversable(LineShape(referencePoint1.get, lengthVector (d)).addAttribute(cyan))))
+          doubleGuide = Some(DoubleGuide((d: Double) => vector2DGuide.get.vector2DGuide(lengthVector(d))))
         }
         val referenceDouble = referencePoint1.get.distanceTo(mousePosition.transform(View.deviceTransformation))
         val inputRequest = InputRequest(None,doubleGuide,None,None,None,None,None,None,Some(referenceDouble),Some(15))
@@ -234,7 +234,7 @@ class AngleGizmo extends Module {
       //If there is no ongoing key-input, draw the whole guide:
       if (!vector2DGuide.isEmpty && drawGuide == true) {
         //ny farve
-        //vector2DGuide.get.vector2DGuide(angleSnappedMousePosition.get).foreach(s => g.draw(s.transform(t)))
+        vector2DGuide.get.vector2DGuide(angleSnappedMousePosition.get).foreach(s => g.draw(s.transform(t)))
         //If there is key-input, only draw the fixed part of the shape - the last part being created is drawn by InputOneValue:
       } else if (!vector2DGuide.isEmpty && drawGuide == false) {
         //vector2DGuide.get.vector2DGuide(referencePoint1.get).foreach(s => g.draw(s.transform(t)))
@@ -248,7 +248,7 @@ class AngleGizmo extends Module {
         //as it is not on the correct radian. Use point based on lengthVector instead, until the mouse is moved:
       if (!vector2DGuide.isEmpty && drawGuide == true && backFromOneValue == true) {
         //ny farve
-        //vector2DGuide.get.vector2DGuide(lengthVector(referencePoint1.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).foreach(s => g.draw(s.transform(t)))
+        vector2DGuide.get.vector2DGuide(lengthVector(referencePoint1.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).foreach(s => g.draw(s.transform(t)))
       } else if (!vector2DGuide.isEmpty && drawGuide == true) {
         //ny farve her:
         vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
