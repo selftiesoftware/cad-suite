@@ -157,12 +157,19 @@ class Trim extends Module {
     'Start -> {
       //exit strategy
       case KeyDown(Key.Esc, _) :: tail => {
+        Track.trackEnabled = true
         Drawing.deselect()
         End
       }
       case MouseDown(p, MouseButtonRight, _) :: tail => End
 
-      //if selection returns a point, evaluate if there areany shapes to trim at that point:
+      //if the input module returns an ESC, end the module. -And reenable Track.
+      case End(KeyDown(Key.Esc, _)) :: tail => {
+        Track.trackEnabled = true
+        End
+      }
+
+      //if selection returns a point, evaluate if there are any shapes to trim at that point:
       case End(v : Vector2D) :: tail => {
         if(trimID.isDefined && !trimID2.isDefined) Drawing.select(trimID.get) //keep the trimline selected for better visual reference
         if(trimID.isDefined && trimID2.isDefined) Drawing.select(Traversable(trimID.get,trimID2.get)) //keep the trimline selected for better visual reference
@@ -184,13 +191,16 @@ class Trim extends Module {
             Create(PolylineShape(l).addAttributes(attr))
             done = true
             nearestShape = None //reset var
+            println("look for trimpoints")
+
             Start('Input,"com.siigna.module.base.create",1) //look for more trim points
           } else {
+            println("look for selection")
+
             Start('Input,"com.siigna.module.base.create",1)
           } //if the point is not set next to a shape, goto selection and try again
         }
         //if two trim guides have been selected, trim the shape with both.
-
         else if(trimGuide.isDefined && trimGuide2.isDefined) {
           val m = mousePosition.transform(View.deviceTransformation)
           //find the shape closest to the mouse:
@@ -225,6 +235,7 @@ class Trim extends Module {
         }
       }
       case _ => {
+        println("in case _")
         Track.trackEnabled = false
         if (Drawing.selection.isDefined && Drawing.selection.get.size == 1 && done == false) {
           trimGuide = Some(Drawing.selection.head.shapes.head._2)

@@ -95,7 +95,6 @@ class Offset extends Module {
         }
       }
       //check on which side of the original the offset should take place
-      println("offsetside: " +offsetSide(closestSegment.get, m))
       val n = if(closestSegment.isDefined && offsetSide(closestSegment.get, m) == true) nearestDist
       else  - nearestDist
       n
@@ -158,7 +157,6 @@ class Offset extends Module {
   'Start -> {
     case End(p : Vector2D) :: tail => {
       val shape = Drawing.selection.head.shapes.head._2
-      println("shape: "+shape)
       if(shape.geometry.vertices.head == shape.geometry.vertices.last) isClosed = true
       val newLines = offsetLines(shape, p) //offset the lines by the returned point
       var knots = List[Vector2D]()
