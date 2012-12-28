@@ -13,6 +13,7 @@ package com.siigna.module.base.create
 
 import com.siigna._
 import scala.Predef._
+import java.awt.Color
 
 /**
  * An object that handles the angle-gizmo.
@@ -24,6 +25,7 @@ class AngleGizmo extends Module {
   var currentSnap : Option[AngleSnap] = None
   var anglePointIsSet = false    // a flag telling if the desired angle is set
   var ctrl = false    //a flag to disregard the timer if CTRL is pressed
+  private val cyan = "Color" -> new Color(0.10f, 0.95f, 0.95f, 1.00f)
   private var degrees : Option[Double] = None   //The degree of the angle-guide, given in degrees where 0 is North clockwise.
   var guideLength = 0
   var gizmoMode = 45
@@ -147,7 +149,7 @@ class AngleGizmo extends Module {
         if (anglePointIsSet == false) {
           doubleGuide = Some(DoubleGuide((d: Double) => Traversable(LineShape(referencePoint1.get, referencePoint1.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * 150)))))
         } else {
-          doubleGuide = Some(DoubleGuide((d: Double) => Traversable(LineShape(referencePoint1.get, lengthVector (d)))))
+          doubleGuide = Some(DoubleGuide((d: Double) => Traversable(LineShape(referencePoint1.get, lengthVector (d)).addAttribute(cyan))))
         }
         val referenceDouble = referencePoint1.get.distanceTo(mousePosition.transform(View.deviceTransformation))
         val inputRequest = InputRequest(None,doubleGuide,None,None,None,None,None,None,Some(referenceDouble),Some(15))
@@ -231,10 +233,11 @@ class AngleGizmo extends Module {
       
       //If there is no ongoing key-input, draw the whole guide:
       if (!vector2DGuide.isEmpty && drawGuide == true) {
-        vector2DGuide.get.vector2DGuide(angleSnappedMousePosition.get).foreach(s => g.draw(s.transform(t)))
+        //ny farve
+        //vector2DGuide.get.vector2DGuide(angleSnappedMousePosition.get).foreach(s => g.draw(s.transform(t)))
         //If there is key-input, only draw the fixed part of the shape - the last part being created is drawn by InputOneValue:
       } else if (!vector2DGuide.isEmpty && drawGuide == false) {
-        vector2DGuide.get.vector2DGuide(referencePoint1.get).foreach(s => g.draw(s.transform(t)))
+        //vector2DGuide.get.vector2DGuide(referencePoint1.get).foreach(s => g.draw(s.transform(t)))
       }
 
       //If anglePointSet is true, the angle has been set, and length is the only thing left.
@@ -244,8 +247,10 @@ class AngleGizmo extends Module {
         //If the it is just after the angle was set, dont use the mouse position to draw the guide,
         //as it is not on the correct radian. Use point based on lengthVector instead, until the mouse is moved:
       if (!vector2DGuide.isEmpty && drawGuide == true && backFromOneValue == true) {
-        vector2DGuide.get.vector2DGuide(lengthVector(referencePoint1.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).foreach(s => g.draw(s.transform(t)))
+        //ny farve
+        //vector2DGuide.get.vector2DGuide(lengthVector(referencePoint1.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).foreach(s => g.draw(s.transform(t)))
       } else if (!vector2DGuide.isEmpty && drawGuide == true) {
+        //ny farve her:
         vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
         //If there is key-input, only draw the fixed part of the shape - the last part being created is drawn by InputOneValue
       } else if (!vector2DGuide.isEmpty && drawGuide == false) {

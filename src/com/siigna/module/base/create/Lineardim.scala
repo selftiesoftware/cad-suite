@@ -113,6 +113,10 @@ class Lineardim extends Module {
   def stateMap = Map(
 
     'Start -> {
+      //exit mechanisms
+      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => End
+      case End(KeyDown(Key.escape,modifier)) :: tail => End
+
       case End(p : Vector2D) :: tail => {
         points = points :+ p
         if (points.length == 1) {
