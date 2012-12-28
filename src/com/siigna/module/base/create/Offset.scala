@@ -31,6 +31,30 @@ class Offset extends Module {
     val offsetGeom = s.transform(TransformationMatrix(offsetDirection,1))//offset with the current distance
     offsetGeom
   }
+  //a function to generate a PolylineShape from the result of the offsetLines function
+  def generateOffsetLine(p: Vector2D) : PolylineShape = {
+    val shape = Drawing.selection.head.shapes.head._2
+    if(shape.geometry.vertices.head == shape.geometry.vertices.last) isClosed = true
+    val newLines = offsetLines(shape, p) //offset the lines by the returned point
+    var knots = List[Vector2D]()
+
+    if(isClosed == false)knots = knots :+ newLines.head.p1 //add the first point to the list
+
+    def result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
+    result
+    //if the shape is not closed, offset the start- and endpoint normally.
+    if(isClosed == false)  knots = knots :+ newLines.reverse.head.p2 //add the last point to the list
+
+    //if the polyline is closed, calculate the offset of the closing point and add it to the start and end of the list
+    if(isClosed == true) {
+      val closedPt = getClosedOffsetPoint(knots)
+      knots = knots :+ closedPt //prepend the point to the list
+      knots = knots.reverse :+ closedPt //append the point to the list
+      knots = knots.reverse
+    }
+    PolylineShape(knots)
+  }
+
   //returns the intersecting points of a series of line segments.
   def getKnots(l : List[LineShape]) = {
     var k =  List[Vector2D]()
@@ -80,7 +104,7 @@ class Offset extends Module {
   }
 
   //calculates the distance to offset shapes by, then calls the offset function to returns offset shapes as a list
-  def offsetLines(s : Shape, m : Vector2D) = {
+  def offsetLines(s : Shape, m : Vector2D) : List[LineShape] = {
     var l = List[LineShape]()
     var v = s.geometry.vertices
     //iterate through the shapes to find the shape closest to the mouse
@@ -133,22 +157,7 @@ class Offset extends Module {
 
   //a guide to get Point to draw the shape(s) dynamically
   val vector2DGuide: Vector2DGuide = Vector2DGuide((v : Vector2D) => {
-    val shape = Drawing.selection.head.shapes.head._2
-    //HACK - to be able to use the point guide to dynamicaly draw key-entered offset distance:
-    var newLines = List[LineShape]()
-    if (v.y == 12345.6789) {
-      newLines = offsetLines(shape, v.x) //offset the lines by the current double
-    } else {
-      newLines = offsetLines(shape, v) //offset the lines by the current mouseposition
-    }
-    var knots = List[Vector2D]()
-
-    knots = knots :+ newLines.head.p1 //add the first point to the list
-
-    val result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
-    result
-    knots = knots :+ newLines.reverse.head.p2 //add the last vertex
-    Array(PolylineShape(knots).addAttributes(attr))//create a polylineShape from the offset knots:
+    Array(generateOffsetLine(v).addAttributes(attr))//run a function to generate the offset shape dynamically
   })
 
   //Select shapes
@@ -156,52 +165,15 @@ class Offset extends Module {
 
   'Start -> {
     case End(p : Vector2D) :: tail => {
-      val shape = Drawing.selection.head.shapes.head._2
-      if(shape.geometry.vertices.head == shape.geometry.vertices.last) isClosed = true
-      val newLines = offsetLines(shape, p) //offset the lines by the returned point
-      var knots = List[Vector2D]()
-
-      //if(isClosed == false)
-      knots = knots :+ newLines.head.p1 //add the first point to the list
-
-      val result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
-      result
-      //if(isClosed == false)
-        knots = knots :+ newLines.reverse.head.p2 //add the last vertex
-      //if(isClosed == true) {
-      //  var seq = Seq()
-        //knots.foreach(s => seq = seq :+ InnerPs)
-      //  val closedPt = getClosedOffsetPoint(knots)
-        //PolylineShape[Vector2D(104.0,84.0),WrappedArray(PolylineLineShape(Vector2D(104.0,-11.0)), PolylineLineShape(Vector2D(40.0,-65.0)), PolylineLineShape(Vector2D(-30.0,-58.0)), PolylineLineShape(Vector2D(-111.0,-8.0)), PolylineLineShape(Vector2D(-96.0,21.0)), PolylineLineShape(Vector2D(-5.0,44.0)), PolylineLineShape(Vector2D(36.0,45.0)), PolylineLineShape(Vector2D(49.0,91.0))), Attributes(Color -> java.awt.Color[r=0,g=0,b=0], StrokeWidth -> 0.2)]
-      //  println("seq:; "+seq)
-      //  val p = PolylineShape(seq)
-      //  Create(p)
-      //}
-
       done = true
-      Create(PolylineShape(knots).addAttributes(attr))//create a polylineShape from the offset knots:
+      Create(generateOffsetLine(p).addAttributes(attr))//create a polylineShape from the offset knots:
       End
     }
 
     case End(d : Double) :: tail => {
-      val shape = Drawing.selection.head.shapes.head._2
-      if(shape.geometry.vertices.head == shape.geometry.vertices.last) isClosed = true
-      val newLines = offsetLines(shape, d) //offset the lines by the returned point
-      var knots = List[Vector2D]()
 
-      //if(isClosed == false)
-      knots = knots :+ newLines.head.p1 //add the first point to the list
-
-      val result = getKnots(newLines).foreach(s => knots = knots :+ s) //add the intersections to the konts list
-      result
-      //if(isClosed == false)
-      knots = knots :+ newLines.reverse.head.p2 //add the last vertex
-      //if(isClosed == true) {
-      //  knots = knots :+ getClosedOffsetPoint(knots)
-      //  knots = knots.reverse :+ getClosedOffsetPoint(knots)
-      //}
       done = true
-      Create(PolylineShape(knots).addAttributes(attr))//create a polylineShape from the offset knots:
+      //Create(generateOffsetLine(d).addAttributes(attr))//create a polylineShape from the offset knots:
       End
     }
 
