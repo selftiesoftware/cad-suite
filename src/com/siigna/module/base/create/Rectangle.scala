@@ -21,6 +21,10 @@ class Rectangle extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
+      //exit mechanisms
+      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => End
+      case End(KeyDown(Key.escape,modifier)) :: tail => End
+
       case End(v : Vector2D) :: tail => {
         //use the first point
         if (points.length == 0){

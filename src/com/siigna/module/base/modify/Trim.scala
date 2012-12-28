@@ -156,9 +156,17 @@ class Trim extends Module {
         Drawing.deselect()
         End
       }
-      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => {
+        Track.trackEnabled = true
+        Drawing.deselect()
+        End
+      }
 
-      //if the input module returns an ESC, end the module. -And reenable Track.
+      //if the input module returns an ESC or right mouse down, end the module. -And reenable Track.
+      case End(KeyDown(Key.escape,modifier)) :: tail => {
+        Track.trackEnabled = true
+        End
+      }
       case End(MouseDown(_ , MouseButtonRight, _)) :: tail => {
         Track.trackEnabled = true
         End
