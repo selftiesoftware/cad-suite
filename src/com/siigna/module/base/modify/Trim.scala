@@ -165,10 +165,12 @@ class Trim extends Module {
       //if the input module returns an ESC or right mouse down, end the module. -And reenable Track.
       case End(KeyDown(Key.escape,modifier)) :: tail => {
         Track.trackEnabled = true
+        Drawing.deselect()
         End
       }
       case End(MouseDown(_ , MouseButtonRight, _)) :: tail => {
         Track.trackEnabled = true
+        Drawing.deselect()
         End
       }
 
