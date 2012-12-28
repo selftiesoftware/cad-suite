@@ -136,10 +136,9 @@ class Input extends Module {
       //Some are, however - eg. escape and backspace.
       case KeyDown(key,modifier) :: tail => {
         //ESCAPE: Is returned to the asking module as a key-down event:
-        if (key == Key.escape)
-          End(KeyDown(key,modifier))
+        if (key == Key.escape) End(KeyDown(key,modifier))
         //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event:
-        if (key == Key.backspace && modifier == ModifierKeys(false,false,false)) {
+        else if (key == Key.backspace && modifier == ModifierKeys(false,false,false)) {
           (End(KeyDown(key,modifier)))
         //SHIFT: (Standard: Nothing happens)
         //If it is an input type with activated angleGizmo, forward to the Angle Gizmo -
