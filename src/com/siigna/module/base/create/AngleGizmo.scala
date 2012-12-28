@@ -34,7 +34,6 @@ class AngleGizmo extends Module {
   private var drawGizmo = true
   private var drawGuide = true
   private var backFromOneValue = false
-  private var oldMousePosition: Option[Vector2D] = None
 
   var inputRequest: Option[InputRequest] = None
   var vector2DGuide: Option[Vector2DGuide] = None
@@ -96,6 +95,8 @@ class AngleGizmo extends Module {
       }
 
       case MouseMove(p, _, _) :: tail => {
+        if (backFromOneValue == true) backFromOneValue = false
+
         Siigna.navigation = false // Make sure the rest of the program doesn't move
         //get the current radial - but only if the angle is not set yet.
         if (referencePoint1.isDefined && !anglePointIsSet) {
@@ -136,6 +137,7 @@ class AngleGizmo extends Module {
       }
 
       case KeyDown(key,modifier) :: tail => {
+        if (backFromOneValue == true) backFromOneValue = false
         Siigna.navigation = false // Make sure the rest of the program doesn't move
         drawGuide = false
         //A DoubleGuide for a line is sent to InputOneValue, to draw a guide for the segment being drawn:
@@ -231,8 +233,6 @@ class AngleGizmo extends Module {
         //as it is not on the correct radian. Use point based on lengthVector instead, until the mouse is moved:
       if (!vector2DGuide.isEmpty && drawGuide == true && backFromOneValue == true) {
         vector2DGuide.get.vector2DGuide(lengthVector(150)).foreach(s => g.draw(s.transform(t)))
-        if (oldMousePosition.isEmpty) oldMousePosition = Some(mousePosition)
-        if (mousePosition != oldMousePosition.get) backFromOneValue = false
       } else if (!vector2DGuide.isEmpty && drawGuide == true) {
         vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
         //If there is key-input, only draw the fixed part of the shape - the last part being created is drawn by InputOneValue
