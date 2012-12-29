@@ -24,6 +24,16 @@ class Arc extends Module {
   var startPoint : Option[Vector2D] = None
   var endPoint : Option[Vector2D] = None
 
+  def middlePointForDoubleGuide (d: Double) : Vector2D  = {
+    val nv: Vector2D = Vector2D(-(endPoint.get.y - startPoint.get.y)/2,(endPoint.get.x - startPoint.get.x)/2)
+    val v: Vector2D = Vector2D((endPoint.get.x - startPoint.get.x)/2,(endPoint.get.y - startPoint.get.y)/2)
+    val l: Double = nv.length
+    println("NV længde:" + l)
+    val sv: Vector2D = startPoint.get + v + ((nv/l)*d)
+    sv
+  }
+  val doubleGuide = DoubleGuide((d : Double) => Traversable(ArcShape(startPoint.get,middlePointForDoubleGuide(d),endPoint.get)))
+
   def stateMap = Map(
     //StartCategory: Defines a start point for the arc and forwards to 'SetEndPoint
     'Start -> {
@@ -47,7 +57,7 @@ class Arc extends Module {
             } else if ((endPoint.isEmpty) && (startPoint.get != p)) {
               endPoint = Some(p)
               val vector2DGuide = Vector2DGuide((v : Vector2D) => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
-              val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(1))
+              val inputRequest = InputRequest(Some(vector2DGuide),Some(doubleGuide),None,None,None,None,startPoint,None,None,Some(13))
               Start('Input, "com.siigna.module.base.create", inputRequest)
             //If the end point is set, but the recieved point is the same as the start point,
             //the recieved point is ignored, and a line guide (between point 1 and 2) is returned again.
@@ -77,10 +87,27 @@ class Arc extends Module {
             //the recieved point is ignored and an arc guide returned again.
               println ("The three points are in-line, or the third point is the same as one of the two first in arc module.")
               val vector2DGuide = Vector2DGuide((v : Vector2D) => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
-              val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(1))
+              val inputRequest = InputRequest(Some(vector2DGuide),Some(doubleGuide),None,None,None,None,startPoint,None,None,Some(13))
               Start('Input, "com.siigna.module.base.create", inputRequest)
             }
           }
+
+          //If a double2Double  is returned, it is the third point, that has been entered qua a radius. Create the shape:
+          case End(d : Double) :: tail => {
+            val arc = ArcShape(startPoint.get,middlePointForDoubleGuide(d),endPoint.get)
+            def setAttribute[T : Manifest](name:String, shape:Shape) = {
+              Siigna.get(name) match {
+                case s : Some[T] => shape.addAttribute(name, s.get)
+                case None => shape// Option isn't set. Do nothing
+              }
+            }
+            Create(setAttribute[Color]("Color",
+              setAttribute[Double]("LineWeight", arc)
+            ))
+            End
+
+          }
+  
 
           //If point module returns a key-pres at the event when it ends:
           case End(k : KeyDown) :: tail => {
