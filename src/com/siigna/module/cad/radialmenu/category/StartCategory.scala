@@ -14,6 +14,7 @@ package com.siigna.module.cad.radialmenu.category
 import com.siigna._
 import module.base.Menu
 import module.base.radialmenu._
+import module.base.radialmenu.category.FileCategory
 import module.base.radialmenu.MenuCategory
 import module.base.radialmenu.MenuModule
 import module.base.radialmenu.MenuIcons

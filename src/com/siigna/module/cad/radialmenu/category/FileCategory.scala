@@ -18,6 +18,7 @@ import com.siigna.util.geom.Vector2D
 import com.siigna.app.model.shape.TextShape
 import com.siigna.module.base.radialmenu.MenuModule
 import com.siigna._
+import module.cad.radialmenu.category.StartCategory
 
 case object FileCategory extends MenuCategory{
 
