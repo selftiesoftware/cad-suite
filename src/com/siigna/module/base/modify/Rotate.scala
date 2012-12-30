@@ -43,7 +43,8 @@ class Rotate extends Module {
               TransformationMatrix( ).rotate(-a, centerPoint.get)
             Drawing.selection.get.apply(t)
           })
-          val inputRequest = InputRequest(None,Some(doubleGuide),None,None,None,None,None,None,None,Some(12))
+
+          val inputRequest = InputRequest(None,Some(doubleGuide),None,None,None,None,centerPoint,None,None,Some(120))
           Start('Input,"com.siigna.module.base.create", inputRequest)
         }
 
@@ -82,6 +83,7 @@ class Rotate extends Module {
           End
         }
       }
+
       //if Point returns a typed angle:
       case End(a : Double) :: tail => {
         println("GOT TYPED ANGLE: "+a)
