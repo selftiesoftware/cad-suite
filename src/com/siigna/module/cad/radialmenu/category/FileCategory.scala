@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.cad.radialmenu.category
+package com.siigna.module.base.radialmenu.category
 
 import com.siigna.module.base.radialmenu._
 
