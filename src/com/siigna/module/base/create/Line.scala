@@ -32,7 +32,6 @@ class Line extends Module {
       case End(v : Vector2D) :: tail => {
         if (startPoint.isEmpty){
           startPoint = Some(v)
-
           val vector2DGuide = Vector2DGuide((v : Vector2D) => {
             Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
           })
@@ -70,10 +69,7 @@ class Line extends Module {
           }
         }
       }
-
-
-
-      case _ => Start('Input,"com.siigna.module.base.create",111)
+    case _ => Start('Input,"com.siigna.module.base.create",111)
     }
   )
 }
