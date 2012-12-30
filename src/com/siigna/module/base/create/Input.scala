@@ -252,9 +252,11 @@ class Input extends Module {
 
 /** InputType descriptions:
  *
+ *                     Track-offset by key:
+ *                     (T: Activated)
  * Returned            AngleGizmo     Input method:
- * variable type      (x: Activated)  How the returned variable is produced:
- * 1 = Vector2D                    x  MouseDown, Key (absolute - handled by the InputTwoValues module)
+ * variable type      (A: Activated)  How the returned variable is produced:
+ * 1 = Vector2D                    A  MouseDown, Key (absolute - handled by the InputTwoValues module)
  * 2 = Vector2D                       Coordinates from mouseDown to mouseUp, or Key (absolute - handled by the InputTwoValues module)
  * 3 = Double                         Distance from given start point to point given by mouseDown, or Key (handled by the InputOneValues module)
  * 4 = Double                         Distance from mouse down to mouse up, or Key (handled by the InputOneValues module)
@@ -272,12 +274,12 @@ class Input extends Module {
  *      Vector2D                      MouseDown. Guide is drawn.
  * 14 = String                        Key input, text
  * 15 = Nothing                       Returns nothing from Input module. Can be used when
- * 16 = Vector2D                      Key input, one-coordinate, offset from existing point when on a track guide
+ * 16 = Vector2D                   T  Key input, one-coordinate, offset from existing point when on a track guide
  * 17 = Double                        Key - InputOneValue
  *      End                           All other inputs sends End (except escape and right-click, who send their standard (End(action)))
  *
- * 111 = Vector2D                  x  Point at mouseDown, or point by key(absolute - twoValues) or point guided by trackguide (input One value) if a track guide is active.
- * 112 = Vector2D                  x  Point at MouseDown, or vector2D by key added to referencePoint1 or point guided by trackguide (input One value) if a track guide is active.
+ * 111 = Vector2D                 T,A Point at mouseDown, or point by key(absolute - twoValues) or point guided by trackguide (input One value) if a track guide is active.
+ * 112 = Vector2D                 T,A Point at MouseDown, or vector2D by key added to referencePoint1 or point guided by trackguide (input One value) if a track guide is active.
  *
  * 102 =  mouseDown, with Vector2D    MouseDown (sent after mouseUp received)
  *        mouseUp, with Vector2D      coordinates from mouseDown to mouseUp, Key (absolute - handled by the InputTwoValues module)
