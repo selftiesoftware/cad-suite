@@ -23,11 +23,12 @@ case object FileCategory extends MenuCategory{
 
   val graph = Map[MenuEvent,MenuElement](
 
-    EventNNE -> MenuModule(Module('SetTitle,"com.siigna.module.base.file"), Iterable(TextShape("title", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))))),
+    EventNNE -> MenuModule(Module('Export,"com.siigna.module.porter"), Iterable(TextShape("export", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))))),
+    EventNNW -> MenuModule(Module('Import,"com.siigna.module.porter"), Iterable(TextShape("import", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
 
-    EventSSE -> MenuModule(Module('Print,"com.siigna.module.base.file"), MenuIcons.print),
-    EventESE -> MenuModule(Module('Export,"com.siigna.module.io"), MenuIcons.exportDXF),
-    EventENE -> MenuModule(Module('Import,"com.siigna.module.io"), MenuIcons.importDXF)
+    //EventSSE -> MenuModule(Module('Print,"com.siigna.module.base.file"), MenuIcons.print),
+    //EventESE -> MenuModule(Module('Export,"com.siigna.module.io"), MenuIcons.exportDXF),
+    //EventENE -> MenuModule(Module('Import,"com.siigna.module.io"), MenuIcons.importDXF)
   )
 
   val color = MenuIcons.fileColor

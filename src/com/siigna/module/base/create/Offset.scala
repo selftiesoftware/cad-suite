@@ -197,6 +197,7 @@ class Offset extends Module {
     case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
 
     case _ => {
+      println("A")
       if (!Drawing.selection.isDefined && done == false) {
         Siigna display "select an object to offset first"
         End
