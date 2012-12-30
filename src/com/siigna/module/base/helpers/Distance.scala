@@ -29,6 +29,12 @@ class Distance extends Module {
   def stateMap: StateMap = Map(
 
     'Start -> {
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End(KeyDown(Key.Esc, _)) :: tail => End
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
+
       case End(v : Vector2D) :: tail => {
         if (!startPoint.isDefined){
           startPoint = Some(v)

@@ -34,6 +34,7 @@ class Input extends Module {
   var referencePoint2: Option[Vector2D] = None
   var referenceDouble: Option[Double] = None
   var inputType: Option[Int] = None
+  var mouseDownPoint: Option[Vector2D] = None
 
   val stateMap: StateMap = Map(
     'Start -> {
@@ -74,12 +75,12 @@ class Input extends Module {
           End(p.transform(View.deviceTransformation).x)
         } else if (inputType == Some(7)) {
           End(p.transform(View.deviceTransformation).y)
-        } else if (inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021) || inputType == Some(1022)
+        } else if (inputType == Some(102) || inputType == Some(1020) || inputType == Some(1021) || inputType == Some(120)
           || inputType == Some(103))  {
           //The mouseDown is saved as referencePoint1, if it does not already exist, for later processing - after mouse-up is recieved
-          if (referencePoint1.isEmpty) referencePoint1 = Some(p)
+          mouseDownPoint = Some(p)
           //If guide should be drawn after the first mouse-down:
-          if (inputType == Some(1020) || inputType == Some(1022)) turnGuideOn = true
+          if (inputType == Some(1020) || inputType == Some(120)) turnGuideOn = true
         } else if (inputType == Some(17)) {
           End
         } else {
@@ -112,22 +113,29 @@ class Input extends Module {
           End(MouseUp(Vector2D((p - referencePoint1.get).x,-(p - referencePoint1.get).y),MouseButtonLeft,ModifierKeys(false,false,false)))
         } else if (inputType.get == 9) {
           End(p.transform(View.deviceTransformation))
-        } else if (inputType.get == 102 || inputType == Some(1020) || inputType == Some(1021) || inputType == Some(1022)) {
+        } else if (inputType.get == 102 || inputType == Some(1020) || inputType == Some(1021)) {
           //If mouseUp occurs on the same point as mouseDown, the point is returned as a mouseDown event.
           //If mouseUp occurs on a different point, coordinates from mouseDown to up is returned as a mouseUp event.
-          if (!referencePoint1.isEmpty) {
-            if (p == referencePoint1.get)
+          if (!mouseDownPoint.isEmpty) {
+            if (p == mouseDownPoint.get)
               End(MouseDown(p.transform(View.deviceTransformation),MouseButtonLeft,modifier))
             else  End(MouseUp(Vector2D((p - referencePoint1.get).x,-(p - referencePoint1.get).y),MouseButtonLeft,modifier))
           }
         } else if (inputType.get == 103) {
-          if (!referencePoint1.isEmpty) {
-            if (p == referencePoint1.get)
+          if (!mouseDownPoint.isEmpty) {
+            if (p == mouseDownPoint.get)
               End(MouseDown(p.transform(View.deviceTransformation),MouseButtonLeft,modifier))
             //If it is a new point, a drag has occurred, and the length of that drag is returned
             else  End(Vector2D((p - referencePoint1.get).x,-(p - referencePoint1.get).y).length)
           }
-        }
+        } else if (inputType == Some(120)) {
+          if (!mouseDownPoint.isEmpty) {
+            if (p == mouseDownPoint.get)
+              End(p.transform(View.deviceTransformation))
+            else if (!referencePoint1.isEmpty)
+              End(-((p.transform(View.deviceTransformation) - referencePoint1.get).angle - (mouseDownPoint.get.transform(View.deviceTransformation) - referencePoint1.get).angle))
+            else println("ReferencePoint1 required")
+        }}
       }
 
       //Input from keyboard:
@@ -161,9 +169,9 @@ class Input extends Module {
           else Start('InputTwoValues,"com.siigna.module.base.create")
         } else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6)
           || inputType == Some(7) || inputType == Some(8) || inputType == Some(10) || inputType == Some(12)
-          || inputType == Some(13) || inputType == Some(131) || inputType == Some(16) || inputType == Some(17)
+          || inputType == Some(13) || inputType == Some(16) || inputType == Some(17)
           || inputType == Some(103)    || inputType == Some(111) || inputType == Some(112) || inputType == Some(1031)
-          || inputType == Some(1022)) {
+          || inputType == Some(120)) {
           if (drawGuide == true) drawGuide = false
           if (!inputRequest.isEmpty) Start('InputOneValue,"com.siigna.module.base.create",inputRequest.get)
           else Start('InputOneValue,"com.siigna.module.base.create")
@@ -179,7 +187,7 @@ class Input extends Module {
       //Vector2D: (Standard: The received Vector2D is returned, un-transformed)
       case End(p : Vector2D) :: tail => {
         if (drawGuide == false) drawGuide = true
-        if (inputType == Some(102) || inputType == Some(1020) || inputType == Some(1022)) {
+        if (inputType == Some(102) || inputType == Some(1020) || inputType == Some(120)) {
           End(MouseUp(p,MouseButtonLeft,ModifierKeys(false,false,false)))
         } else if (inputType == Some(1021)) {
           End(MouseDown(p,MouseButtonLeft,ModifierKeys(false,false,false)))
@@ -223,8 +231,8 @@ class Input extends Module {
 
   //Paint guides:
   override def paint(g : Graphics, t : TransformationMatrix) {
-    if ((inputType == Some(12)  || inputType == Some(1020) || inputType == Some(1022)) && turnGuideOn == false) drawGuide = false
-
+    if ((inputType == Some(12)  || inputType == Some(1020) || inputType == Some(120)) && turnGuideOn == false) drawGuide = false
+    
     //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
     if ( drawGuide == true) {
       if (!vector2DGuide.isEmpty) vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
@@ -233,6 +241,11 @@ class Input extends Module {
     //Draw any Vector2DMessageGuides:
     if (!vector2DMessageGuide.isEmpty) {
       vector2DMessageGuide.get.vector2DMessageGuide(mousePosition)
+    }
+    
+    if (!doubleGuide.isEmpty && inputType == Some(120)){
+      if (!referencePoint1.isEmpty && !mouseDownPoint.isEmpty)
+      doubleGuide.get.doubleGuide(-((mousePosition.transform(View.deviceTransformation) - referencePoint1.get).angle - (mouseDownPoint.get.transform(View.deviceTransformation) - referencePoint1.get).angle)).foreach(s => g.draw(s.transform(t)))
     }
   }
 }
@@ -257,9 +270,6 @@ class Input extends Module {
  *      Special guide:                Do not draw Vector2DGuide
  * 13 = Double                        Key (one value)
  *      Vector2D                      MouseDown. Guide is drawn.
- * 131 =Double                        Key (one value)
- *      Vector2D                      MouseDown. Guide is drawn.
- *      Special guide:                In InputOneValue - for dynamically drawing offset of shapes.
  * 14 = String                        Key input, text
  * 15 = Nothing                       Returns nothing from Input module. Can be used when
  * 16 = Vector2D                      Key input, one-coordinate, offset from existing point when on a track guide
@@ -276,10 +286,11 @@ class Input extends Module {
  *        Special guide:              Do not draw guide in input until left mouse button is clicked.
  * 1021 = mouseDown, with Vector2D    MouseDown (sent after mouseUp received)
  *        mouseUp, with Vector2D      coordinates from mouseDown to mouseUp, Key (absolute - handled by the InputTwoValues module)
- * 1022 = mouseDown, with Vector2D    MouseDown (sent after mouseUp received)
- *        mouseUp, with Vector2D      coordinates from mouseDown to mouseUp
+ * 120 =  Vector2D                    MouseDown (sent after mouseUp received)
+ *        Double                      Angle between legs og triangle between mouseDown-point, referencePoint1 and mouseUp-point.
  *        Double                      Key input
  *        Special guide:              Do not draw guide in input until left mouse button is clicked.
+ *                                    Use doubleGuide in Input module.
  * 103 =  Double                      Length of vector from mouseDown to mouseUp, or key-input
  *        mouseDown, with Vector2D    mouseDown (sent after mouseUp received)
  * 1031 = Double                      key-input

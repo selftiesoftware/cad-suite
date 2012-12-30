@@ -28,6 +28,12 @@ class Rotate extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End(KeyDown(Key.Esc, _)) :: tail => End
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
+
       case End(p : Vector2D) :: tail => {
         if(!centerPoint.isDefined) {
           centerPoint = Some(p)
@@ -37,7 +43,8 @@ class Rotate extends Module {
               TransformationMatrix( ).rotate(-a, centerPoint.get)
             Drawing.selection.get.apply(t)
           })
-          val inputRequest = InputRequest(None,Some(doubleGuide),None,None,None,None,None,None,None,Some(12))
+
+          val inputRequest = InputRequest(None,Some(doubleGuide),None,None,None,None,centerPoint,None,None,Some(120))
           Start('Input,"com.siigna.module.base.create", inputRequest)
         }
 
@@ -76,6 +83,7 @@ class Rotate extends Module {
           End
         }
       }
+
       //if Point returns a typed angle:
       case End(a : Double) :: tail => {
         println("GOT TYPED ANGLE: "+a)
@@ -90,9 +98,7 @@ class Rotate extends Module {
         End
       }
 
-      //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
-      case MouseDown(p, MouseButtonRight, _) :: tail => End
+
       case _ => {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         val l = new ModuleInit

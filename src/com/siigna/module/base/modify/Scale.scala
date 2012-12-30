@@ -28,6 +28,12 @@ class Scale extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End(KeyDown(Key.Esc, _)) :: tail => End
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
+
        case End(p : Vector2D) :: tail => {
         if(startPoint.isEmpty){
           startPoint = Some(p)
@@ -116,77 +122,6 @@ class Scale extends Module {
           Drawing.deselect()
           End
         }
-
-          /*middlePoint = Some(p)
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
-            val scaleFactor = ((v-p).length/100 + 0.25)
-            //Define a scaling matrix:
-            val t : TransformationMatrix = TransformationMatrix().scale(scaleFactor,p)
-            // Return the shape, transformed
-            Drawing.selection.get.apply(t)
-          })
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(12))
-          Start('Input,"com.siigna.module.base.create", inputRequest)
-          
-          //The next can be:
-          //1: A vector2D (from mouse up, to define the desired new length of something, or
-          //2: A point, where the user wants to "leave" the last point
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
-            val scaleFactor = (((v - startPoint.get).length)/(middlePoint.get - startPoint.get).length)
-            //Define a scaling matrix:
-            val t : TransformationMatrix = TransformationMatrix().scale(scaleFactor,startPoint.get)
-            // Return the shape, transformed
-            Drawing.selection.get.apply(t)
-          })
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(1031))
-          //1031: Input type: Double by keyboard, or Vector2D by leftclick.
-          //if the base point for scaling is set, goto point with a shape guide
-          Start('Input, "com.siigna.module.base.create",inputRequest)
-          } else if (!middlePoint.isEmpty && requestedLength.isEmpty) {
-            //If a third point is recieved, and there is not any requested length set, the scaling is finished:
-            val scaleFactor = (((p - startPoint.get).length)/(middlePoint.get - startPoint.get).length)
-            Siigna display ("scale factor: " + scaleFactor)
-            transformation =  Some(TransformationMatrix().scale(scaleFactor,startPoint.get))
-            Drawing.selection.get.transform(transformation.get)
-            Drawing.deselect()
-            End
-          } else if (!middlePoint.isEmpty && !requestedLength.isEmpty) {
-            //Then the third click defines the point,
-            //that has to have the requested distance from the middle point after the scaling:
-            val scaleFactor = (requestedLength.get/(p - middlePoint.get).length)
-            println("Scale factor: " + scaleFactor)
-            transformation =  Some(TransformationMatrix().scale(scaleFactor,startPoint.get))
-            Drawing.selection.get.transform(transformation.get)
-            Drawing.deselect()
-            End
-          }    */
-
-          /*endPoint = Some(p)
-          Siigna display "set scaling factor"
-
-          val shapeGuide = PointPointGuide(p,(v : Vector2D) => {
-            val refScale : Vector2D = startPoint.get - endPoint.get
-            val scaleFactor = ((v - startPoint.get).length/refScale.length)
-            //Define a scaling matrix:
-              val t : TransformationMatrix = TransformationMatrix(Vector2D(0,0), 1).scale(scaleFactor,startPoint.get)
-            // Return the shape, transformed
-            Drawing.selection.get.apply(t)
-          },2)//2 : Input type = InputOneValue
-
-          //if the base point for scaling is set, goto point with a shape guide
-          Start('Point,"com.siigna.module.base.create", shapeGuide)
-        }
-        else if(startPoint.isDefined && endPoint.isDefined){
-          val refScale : Vector2D = startPoint.get - endPoint.get
-          val scaleFactor = ((p - startPoint.get).length/refScale.length)
-
-          Siigna display ("scale factor: "+scaleFactor)
-
-          transformation =  Some(TransformationMatrix().scale(scaleFactor,startPoint.get))
-          Drawing.selection.get.transform(transformation.get)
-          Drawing.deselect()
-          End
-        }  */
       }
       //if a scaling factor is given:
       case End(l : Double) :: tail => {
@@ -210,9 +145,6 @@ class Scale extends Module {
         }
 
       }
-      //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
-      case MouseDown(p, MouseButtonRight, _) :: tail => End
 
       case _ => {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...

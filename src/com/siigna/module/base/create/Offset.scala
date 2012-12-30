@@ -136,23 +136,24 @@ class Offset extends Module {
     l//return the list
   }
 
-  def offsetLines(s : Shape, m : Double) = {
+  def offsetLines(s : Shape, d : Double) = {
     var l = List[LineShape]()
     var v = s.geometry.vertices
+    val m = mousePosition.transform(View.deviceTransformation)
     //iterate through the shapes to find the shape closest to the mouse
     def calcNearest : Double = {
-      var nearestDist : Double = LineShape(v(0), v(1)).distanceTo(mousePosition)
+      var nearestDist : Double = LineShape(v(0), v(1)).distanceTo(m)
       var closestSegment : Option[LineShape] = Some(LineShape(v(0), v(1)))
       for (i <- 0 to v.length -2) {
         var currentSegment = LineShape(v(i), v(i+1))
-        if (currentSegment.distanceTo(mousePosition) < nearestDist) {
+        if (currentSegment.distanceTo(m) < nearestDist) {
           closestSegment = Some(currentSegment)
-          nearestDist = currentSegment.distanceTo(mousePosition)
+          nearestDist = currentSegment.distanceTo(m)
         }
       }
       //check on which side of the original the offset should take place
-      val n = if(closestSegment.isDefined && offsetSide(closestSegment.get, mousePosition) == true) m
-      else  - m
+      val n = if(closestSegment.isDefined && offsetSide(closestSegment.get, m) == true) d
+      else  - d
       n
     }
 
@@ -203,8 +204,8 @@ class Offset extends Module {
       else if (Drawing.selection.isDefined && Drawing.selection.get.size == 1 ){
         attr = Drawing.selection.head.shapes.head._2.attributes
         Siigna display "click to set the offset distance"
-        val inputRequest = InputRequest(Some(vector2DGuide), Some(doubleGuide), None, None, None, None, None, None, None, Some(131))
-        // 131: MouseDown or typed length - special guide in InputOneValue
+        val inputRequest = InputRequest(Some(vector2DGuide), Some(doubleGuide), None, None, None, None, None, None, None, Some(13))
+        // 13: MouseDown or typed length
         Start('Input,"com.siigna.module.base.create",inputRequest)
       } else if (done == true) End
       else {

@@ -24,6 +24,12 @@ class Move extends Module {
 
   val stateMap: StateMap = Map(
     'Start -> {
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End(KeyDown(Key.Esc, _)) :: tail => End
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
+
       //If the move module starts with a point, it knows where to start...
       case Start(_,p: Vector2D) :: tail => {
         //set the startpoint for the move operation (if not already set)
@@ -82,9 +88,6 @@ class Move extends Module {
         }
       }
 
-      //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
-      case MouseDown(p, MouseButtonRight, _) :: tail => End
       case End :: tail => End
 
       //on first entry, send input request to input to get the start point for the move operations.

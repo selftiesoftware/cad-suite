@@ -21,7 +21,7 @@ import model.shape.FullSelector
  */
 class Selection extends Module {
 
-  private var box : Option[Rectangle2D] = None
+  private var box : Option[SimpleRectangle2D] = None
 
   var nearestShape : Option[(Int, Shape)] = None
 
