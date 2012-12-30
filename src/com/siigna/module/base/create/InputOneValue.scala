@@ -45,6 +45,14 @@ class InputOneValue extends Module {
 
       case MouseDown(p,MouseButtonRight,modifier) :: tail => End(MouseDown(p,MouseButtonRight,modifier))
 
+      //If left mouse is clicked, the module ends - if there is useful double input, it is returned, if not, the module just ends.
+      case MouseDown(p,MouseButtonLeft,modifier) :: tail => {
+      if (coordinateValue.length > 0 && coordinateValue != " " && coordinateValue != "-" && coordinateValue != "." && coordinateValue != "-.")
+        End(java.lang.Double.parseDouble(coordinateValue))
+      else
+        End
+      }
+
       case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
         //Ends if enter was pressed...
         if (code == Key.enter) {
@@ -65,7 +73,6 @@ class InputOneValue extends Module {
         if (!i.referencePoint2.isEmpty) referencePoint2 = i.referencePoint2
         if (!i.referenceDouble.isEmpty) referenceDouble = i.referenceDouble
         if (!i.inputType.isEmpty) inputType = i.inputType
-        println(i)
       }
 
       //Read numbers and minus, "," and enter as first entry if no guide is provided:
