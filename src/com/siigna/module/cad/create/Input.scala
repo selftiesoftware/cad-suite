@@ -41,7 +41,11 @@ class Input extends Module {
       //Check for input request:
       case Start(_ , i: InputRequest) :: tail => {
         inputRequest = Some(i)
-        if (!i.vector2DGuide.isEmpty) vector2DGuide = i.vector2DGuide
+        if (!i.vector2DGuide.isEmpty) {
+          vector2DGuide = i.vector2DGuide
+          //val snapFunction = () => vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation))
+          //eventParser.snapTo(snapFunction)
+        }
         if (!i.doubleGuide.isEmpty) doubleGuide = i.doubleGuide
         if (!i.textGuide.isEmpty) textGuide = i.textGuide
         if (!i.vector2DMessageGuide.isEmpty) vector2DMessageGuide = i.vector2DMessageGuide
