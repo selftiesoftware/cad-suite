@@ -70,7 +70,6 @@ class Copy extends Module {
 
       case End(KeyDown(key,modifier)) :: tail => {
         if (key == Key.escape) {
-          println("jhgyu")
           if (multiActive == true) {
             transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
             Create(shapes.get.apply(transformation.get))
@@ -95,7 +94,7 @@ class Copy extends Module {
           }
           else {
             Siigna display "set origin of copy"
-            Start('base,"create.Input",1)
+            Start('cad,"create.Input",1)
           }
         } else {
           Siigna display "nothing selected"
