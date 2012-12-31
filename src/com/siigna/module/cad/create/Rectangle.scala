@@ -38,6 +38,7 @@ class Rectangle extends Module {
           points = points :+ v
           //create the rectangle
           Create(PolylineShape(Rectangle2D(points(0), points(1))).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth))
+          points = List()
           End
         }
       }

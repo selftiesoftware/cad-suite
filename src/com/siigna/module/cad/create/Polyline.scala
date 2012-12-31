@@ -92,14 +92,16 @@ class Polyline extends Module {
         if (points.length > 1) {
           val polyline = PolylineShape(points).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)
           Create(polyline)
+          points = List[Vector2D]()
         }
         //The module closes - even if no polyline was drawn.
         startPoint = None
-        points = List()
+        points = List[Vector2D]()
         End
       }
       case x => {
-        println("AAA")
+        points = List[Vector2D]()
+
         Start('cad, "create.Input", 111)
       }
     }

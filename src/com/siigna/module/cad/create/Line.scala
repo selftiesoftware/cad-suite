@@ -40,6 +40,7 @@ class Line extends Module {
         } else {
           val line = LineShape(startPoint.get,v).addAttributes("Color" -> color , "StrokeWidth" -> stroke)
           Create(line)
+          startPoint = None
           End
         }
       }
