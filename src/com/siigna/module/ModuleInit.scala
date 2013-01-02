@@ -12,7 +12,7 @@
 package com.siigna.module
 
 import base.Menu
-import base.radialmenu.category.StartCategory
+import cad.radialmenu.category.StartCategory
 import com.siigna._
 import app.model.shape.FullSelector
 import com.siigna.module.base.paperHeader
@@ -23,7 +23,7 @@ import com.siigna.module.base.paperHeader
 class ModuleInit extends Module {
   Menu.startCategory = StartCategory
 
-  protected var lastModule : Option[ModuleInstance] = None
+  protected var lastModule : Option[Module] = None
 
   var nearestShape : Option[(Int, Shape)] = None   //The nearest shape to the current mouse position.
   var toolSuggestions = List[String]() //a list of possible tools in a given category. activated by shortcuts
@@ -33,13 +33,16 @@ class ModuleInit extends Module {
 
   //start module and process graphic feedback when a tool shortcut is received
   //input : shortcut, module name, module category
-  def shortcutProcess(s : String, m : Symbol, c : String) = {
-    val modText = ("com.siigna.module.base."+c).toString
+  def shortcutProcess(s : String, m : Symbol, modText : String) = {
     shortcut = s
     toolSuggestions = List[String]() //reset tool suggestions
     textFeedback.inputFeedback(shortcut)//display feedback telling the module is active
-    lastModule = Some(Module(m, modText)) //enable module recall with space
-    Start(m, modText) //start the module
+
+    // Sets the latest module and start it
+    Module(m, modText) collect { case module => {
+      lastModule = Some(module) //enable module recall with space
+      Start(module) //start the module
+    }}
   }
 
   //Check if there is a useable selection:
@@ -87,7 +90,7 @@ class ModuleInit extends Module {
   def stateMap = Map(
     'Start -> {
       // Match for modules to forward to
-      case End(module : ModuleInstance) :: tail => {
+      case End(module : Module) :: tail => {
         lastModule = Some(module) // Store it as a last module
         Start(module) // Forward
       }
@@ -95,7 +98,7 @@ class ModuleInit extends Module {
       //Rightclick starts menu:
       case MouseDown(_, MouseButtonRight, _) :: tail => {
         toolSuggestions = List[String]() //reset tool suggestions
-        Start('Menu, "com.siigna.module.base")
+        Start('base, "Menu")
       }
 
       //double click anywhere on a shape selects the full shape.
@@ -103,7 +106,7 @@ class ModuleInit extends Module {
         toolSuggestions = List[String]() //reset tool suggestions
 
         if (p1 == p2){
-          Start('Selection, "com.siigna.module.base", MouseDouble(p2,button,modifier))
+          Start('cad, "Selection", MouseDouble(p2,button,modifier))
         } }
 
       //Leftclick:
@@ -113,7 +116,7 @@ class ModuleInit extends Module {
         toolSuggestions = List[String]() //reset tool suggestions
 
         //Check if there is a useable selection:
-        Start('Selection, "com.siigna.module.base", MouseDown(p, MouseButtonLeft, modifier))
+        Start('cad, "Selection", MouseDown(p, MouseButtonLeft, modifier))
       }
 
       //Leftclick and drag starts :
@@ -128,15 +131,15 @@ class ModuleInit extends Module {
           if (Drawing(m).size > 0) {
             val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
             if (nearest._2.distanceTo(m) < Siigna.selectionDistance) {
-            Start('Move, "com.siigna.module.base.modify", p )
+            Start('cad, "modify.Move", p )
             } else {
-            Start('Selection, "com.siigna.module.base", MouseDrag(p, button, modifier))
+            Start('cad, "Selection", MouseDrag(p, button, modifier))
           }} else {
             //Necessary since Drawing(m).size is 0 when marking far away from selected shape/parts
-            Start('Selection, "com.siigna.module.base", MouseDrag(p, button, modifier))
+            Start('cad, "Selection", MouseDrag(p, button, modifier))
           }
         } else {
-          Start('Selection, "com.siigna.module.base", MouseDrag(p, button, modifier))
+          Start('cad, "Selection", MouseDrag(p, button, modifier))
         }
       }
 
@@ -183,7 +186,7 @@ class ModuleInit extends Module {
       case KeyDown(Key.Space, _) :: tail => if (lastModule.isDefined) {
         textFeedback.inputFeedback("EMPTY")//clear any active tooltips
         textFeedback.inputFeedback("GETPREVIOUS") //send a command to inputFeedback to display the last module name
-        Start(lastModule.get.copy)
+        Start(lastModule.get)
       }
 
       // Release all selections
