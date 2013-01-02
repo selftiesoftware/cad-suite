@@ -56,7 +56,6 @@ class Selection extends Module {
       //if ModuleInit forwards to selection with a left mouse click
       // If a shape-part is hit, it is selected:
       case Start(_ ,message : MouseDown) :: tail => {
-        println("BBB")
         val m = mousePosition.transform(View.deviceTransformation)
 
         //find the shape closest to the mouse:

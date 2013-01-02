@@ -28,11 +28,11 @@ class Rotate extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
-      //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
-      case MouseDown(p, MouseButtonRight, _) :: tail => End
-      case End(KeyDown(Key.Esc, _)) :: tail => End
-      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
+      //exit mechanisms
+      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => End
+      case End(KeyDown(Key.escape,modifier)) :: tail => End
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => End
+      case KeyDown(Key.escape,modifier) :: tail => End
 
       case End(p : Vector2D) :: tail => {
         if(!centerPoint.isDefined) {
@@ -86,7 +86,6 @@ class Rotate extends Module {
 
       //if Point returns a typed angle:
       case End(a : Double) :: tail => {
-        println("GOT TYPED ANGLE: "+a)
         val t : TransformationMatrix = {
           if (centerPoint.isDefined) {
             TransformationMatrix(Vector2D(0,0), 1).rotate(-a, centerPoint.get)
@@ -97,7 +96,6 @@ class Rotate extends Module {
         Drawing.deselect()
         End
       }
-
 
       case _ => {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...

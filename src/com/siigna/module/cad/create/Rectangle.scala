@@ -24,6 +24,8 @@ class Rectangle extends Module {
       //exit mechanisms
       case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => End
       case End(KeyDown(Key.escape,modifier)) :: tail => End
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => End
+      case KeyDown(Key.escape,modifier) :: tail => End
 
       case End(v : Vector2D) :: tail => {
         //use the first point
