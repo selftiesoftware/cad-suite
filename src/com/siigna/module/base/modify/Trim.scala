@@ -164,7 +164,6 @@ class Trim extends Module {
 
       //if the input module returns an ESC or right mouse down, end the module. -And reenable Track.
       case End(KeyDown(Key.escape,modifier)) :: tail => {
-        println("BBB")
         Track.trackEnabled = true
         End
       }
@@ -234,7 +233,6 @@ class Trim extends Module {
         }
       }
       case _ => {
-        println("in case _")
         Track.trackEnabled = false
         if (Drawing.selection.isDefined && Drawing.selection.get.size == 1 && done == false) {
           trimGuide = Some(Drawing.selection.head.shapes.head._2)
