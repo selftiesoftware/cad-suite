@@ -43,6 +43,9 @@ class Input extends Module {
         inputRequest = Some(i)
         if (!i.vector2DGuide.isEmpty) {
           vector2DGuide = i.vector2DGuide
+          val t = vector2DGuide.get.vector2DGuide
+          val t2 = t.apply(mousePosition)
+          eventParser.snapModel = t2
           //val snapFunction = () => vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation))
           //eventParser.snapTo(snapFunction)
         }
