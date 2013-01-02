@@ -43,9 +43,11 @@ class Input extends Module {
         inputRequest = Some(i)
         if (!i.vector2DGuide.isEmpty) {
           vector2DGuide = i.vector2DGuide
-          //val snapFunction = () => vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation))
-          //eventParser.snapTo(snapFunction)
+          val t = vector2DGuide.get.vector2DGuide
+          val snapFunction = () => vector2DGuide.get.vector2DGuide(mousePosition)
+          eventParser.snapTo(snapFunction)
         }
+
         if (!i.doubleGuide.isEmpty) doubleGuide = i.doubleGuide
         if (!i.textGuide.isEmpty) textGuide = i.textGuide
         if (!i.vector2DMessageGuide.isEmpty) vector2DMessageGuide = i.vector2DMessageGuide
@@ -139,7 +141,7 @@ class Input extends Module {
             else if (!referencePoint1.isEmpty)
               End(-((p.transform(View.deviceTransformation) - referencePoint1.get).angle - (mouseDownPoint.get.transform(View.deviceTransformation) - referencePoint1.get).angle))
             else println("ReferencePoint1 required")
-        }}
+          }}
       }
 
       //Input from keyboard:
@@ -152,9 +154,9 @@ class Input extends Module {
         //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event:
         else if (key == Key.backspace && modifier == ModifierKeys(false,false,false)) {
           (End(KeyDown(key,modifier)))
-        //SHIFT: (Standard: Nothing happens)
-        //If it is an input type with activated angleGizmo, forward to the Angle Gizmo -
-        //but only if there is a reference point: Either point1, or a tracked point:
+          //SHIFT: (Standard: Nothing happens)
+          //If it is an input type with activated angleGizmo, forward to the Angle Gizmo -
+          //but only if there is a reference point: Either point1, or a tracked point:
         } else if(key == Key.shift && (inputType == Some(1) || inputType == Some(111) || inputType == Some(112))
           && (!referencePoint1.isEmpty || (Track.isTracking == true && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Siigna.selectionDistance))) {
           //If it is an input type with activated angleGizmo: Start angleGizmo, and send the the input request.
@@ -162,9 +164,9 @@ class Input extends Module {
           if (drawGuide == true) drawGuide = false
           if (!vector2DGuide.isEmpty) Start('cad,"create.AngleGizmo",inputRequest.get)
           else Start('cad,"create.AngleGizmo")
-        //Do nothing if shift is pressed and the angleGizmo shouldn't start:
+          //Do nothing if shift is pressed and the angleGizmo shouldn't start:
         } else if (key == Key.shift) {
-        //OTHER KEYS: The inputRequest is forwarded to the input-modules for interpretation according to input-type:
+          //OTHER KEYS: The inputRequest is forwarded to the input-modules for interpretation according to input-type:
         } else if(inputType == Some(1) || inputType == Some(2) || inputType == Some(102) || inputType == Some(1020)
           || inputType == Some(1021)
           || ((inputType == Some(16) || inputType == Some(111) || inputType == Some(112)) && Track.isTracking == false)) {
@@ -236,7 +238,7 @@ class Input extends Module {
   //Paint guides:
   override def paint(g : Graphics, t : TransformationMatrix) {
     if ((inputType == Some(12)  || inputType == Some(1020) || inputType == Some(120)) && turnGuideOn == false) drawGuide = false
-    
+
     //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
     if ( drawGuide == true) {
       if (!vector2DGuide.isEmpty) vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
@@ -246,10 +248,10 @@ class Input extends Module {
     if (!vector2DMessageGuide.isEmpty) {
       vector2DMessageGuide.get.vector2DMessageGuide(mousePosition)
     }
-    
+
     if (!doubleGuide.isEmpty && inputType == Some(120)){
       if (!referencePoint1.isEmpty && !mouseDownPoint.isEmpty)
-      doubleGuide.get.doubleGuide(-((mousePosition.transform(View.deviceTransformation) - referencePoint1.get).angle - (mouseDownPoint.get.transform(View.deviceTransformation) - referencePoint1.get).angle)).foreach(s => g.draw(s.transform(t)))
+        doubleGuide.get.doubleGuide(-((mousePosition.transform(View.deviceTransformation) - referencePoint1.get).angle - (mouseDownPoint.get.transform(View.deviceTransformation) - referencePoint1.get).angle)).foreach(s => g.draw(s.transform(t)))
     }
   }
 }
@@ -301,7 +303,7 @@ class Input extends Module {
  *        mouseDown, with Vector2D    mouseDown (sent after mouseUp received)
  * 1031 = Double                      key-input
  *        Vector2D                    Point at mouseDown
- * 
+ *
  *
  * General functioning of:
  *   Right button: Depends on the way it is natural for the module to function - priorotised uses:
