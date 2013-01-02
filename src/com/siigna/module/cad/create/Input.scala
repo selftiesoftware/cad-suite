@@ -44,11 +44,10 @@ class Input extends Module {
         if (!i.vector2DGuide.isEmpty) {
           vector2DGuide = i.vector2DGuide
           val t = vector2DGuide.get.vector2DGuide
-          val t2 = t.apply(mousePosition)
-          eventParser.snapModel = t2
-          //val snapFunction = () => vector2DGuide.get.vector2DGuide(mousePosition.transform(View.deviceTransformation))
-          //eventParser.snapTo(snapFunction)
+          val snapFunction = () => vector2DGuide.get.vector2DGuide(mousePosition)
+          eventParser.snapTo(snapFunction)
         }
+
         if (!i.doubleGuide.isEmpty) doubleGuide = i.doubleGuide
         if (!i.textGuide.isEmpty) textGuide = i.textGuide
         if (!i.vector2DMessageGuide.isEmpty) vector2DMessageGuide = i.vector2DMessageGuide
