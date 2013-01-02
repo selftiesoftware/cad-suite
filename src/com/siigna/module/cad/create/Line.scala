@@ -32,7 +32,7 @@ class Line extends Module {
       case End(v : Vector2D) :: tail => {
         if (startPoint.isEmpty) {
           startPoint = Some(v)
-          eventParser.snapTo(() => List(LineShape(v, mousePosition)))
+          //eventParser.snapTo(() => List(LineShape(v, mousePosition)))
           val vector2DGuide = Vector2DGuide((v : Vector2D) => {
             Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
           })
