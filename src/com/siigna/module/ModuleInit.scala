@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012. Siigna is released under the creative common license by-nc-sa. You are free
+ * Copyright (c) 2008-2013. Siigna is released under the creative common license by-nc-sa. You are free
  * to Share — to copy, distribute and transmit the work,
  * to Remix — to adapt the work
  *
@@ -181,6 +181,7 @@ class ModuleInit extends Module {
       case KeyDown('s', _) :: KeyUp('p', _) :: tail => shortcutProcess("s", "properties.Stroke", 'cad)
 
       case KeyDown('a', Control) :: tail => Drawing.selectAll()
+      case KeyDown('c', Control) :: tail => shortcutProcess("q", "create.Copy", 'cad)
       case KeyDown('z', Control) :: tail => Drawing.undo()
       case KeyDown('y', Control) :: tail => Drawing.redo()
 

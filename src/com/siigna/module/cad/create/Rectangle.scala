@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012. Siigna is released under the creative common license by-nc-sa. You are free
+ * Copyright (c) 2008-2013. Siigna is released under the creative common license by-nc-sa. You are free
  * to Share — to copy, distribute and transmit the work,
  * to Remix — to adapt the work
  *
@@ -15,8 +15,8 @@ import com.siigna._
 import com.siigna.Siigna
 
 class Rectangle extends Module {
-  var color = Siigna.color("activeColor")
-  val lineWidth = Siigna.double("activeLineWidth")
+  var color = Siigna("activeColor")
+  val stroke = Siigna("activeLineWidth")
   var points = List[Vector2D]()
   val stateMap: StateMap = Map(
 
@@ -31,7 +31,7 @@ class Rectangle extends Module {
         //use the first point
         if (points.length == 0){
           points = points :+ v
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth)))
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> stroke)))
           val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points(0)),None,None,Some(112))
           Start('cad, "create.Input", inputRequest)
           }
@@ -39,7 +39,7 @@ class Rectangle extends Module {
         else if (points.length == 1) {
           points = points :+ v
           //create the rectangle
-          Create(PolylineShape(Rectangle2D(points(0), points(1))).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth))
+          Create(PolylineShape(Rectangle2D(points(0), points(1))).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
           points = List()
           End
         }
@@ -49,7 +49,7 @@ class Rectangle extends Module {
         if (points.length == 0) {
           Start('cad, "create.Input", 111)
         } else {
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth)))
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> stroke)))
           val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points(0)),None,None,Some(112))
           Start('cad, "create.Input", inputRequest)
         }
@@ -62,7 +62,7 @@ class Rectangle extends Module {
         if (points.length == 0) {
           Start('cad, "create.Input", 111)
         } else {
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> lineWidth)))
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> stroke)))
           val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points(0)),None,None,Some(112))
           Start('cad, "create.Input", inputRequest)
         } 

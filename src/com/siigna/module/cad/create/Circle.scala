@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012. Siigna is released under the creative common license by-nc-sa. You are free
+ * Copyright (c) 2008-2013. Siigna is released under the creative common license by-nc-sa. You are free
  * to Share — to copy, distribute and transmit the work,
  * to Remix — to adapt the work
  *
@@ -11,8 +11,6 @@
 
 package com.siigna.module.cad.create
 
-/* 2012 (C) Copyright by Siigna, all rights reserved. */
-
 import com.siigna._
 import app.Siigna
 import java.awt.Color
@@ -20,10 +18,10 @@ import java.awt.Color
 class Circle extends Module {
 
   val c = CircleShape(Vector2D(0, 0), 50)
-
-  var r = TransformationMatrix()
-
   var center : Option[Vector2D] = None
+  var color = Siigna("activeColor")
+  var r = TransformationMatrix()
+  val stroke = Siigna("activeLineWidth")
 
   def stateMap = Map(
     //StartCategory: Defines a centerpoint for the circle and forwards to 'SetRadius
@@ -37,23 +35,16 @@ class Circle extends Module {
           case End(p : Vector2D) :: tail => {
             center = Some(p)
             //Send guides, and ask for one-coordinate input: Radius - from point by click, or by key-entry.
-            val doubleGuide = DoubleGuide((r: Double) => Traversable(CircleShape(p, math.abs(r))))
-            val vector2DGuide = Vector2DGuide((p: Vector2D) => Traversable(CircleShape(center.get, math.sqrt(( (center.get.x-p.x) * (center.get.x-p.x)) + ( (center.get.y-p.y) * (center.get.y-p.y)) ))))
+            val doubleGuide = DoubleGuide((r: Double) => Traversable(CircleShape(p, math.abs(r)).addAttributes("Color" -> color , "StrokeWidth" -> stroke)))
+            val vector2DGuide = Vector2DGuide((p: Vector2D) => Traversable(CircleShape(center.get, math.sqrt(( (center.get.x-p.x) * (center.get.x-p.x)) + ( (center.get.y-p.y) * (center.get.y-p.y)) )).addAttributes("Color" -> color , "StrokeWidth" -> stroke)))
             val inputRequest = InputRequest(Some(vector2DGuide),Some(doubleGuide),None,None,None,None,center,None,None,Some(3))
             Start('cad, "create.Input", inputRequest)
           }
 
           case End(r : Double) :: tail => {
-            val circle = CircleShape(center.get, math.abs(r))
-            def setAttribute[T : Manifest](name:String, shape:Shape) = {
-              Siigna.get(name) match {
-                case s : Some[T] => shape.addAttribute(name, s.get)
-                case None => shape// Option isn't set. Do nothing
-              }
-            }
-            Create(setAttribute[Color]("Color",
-              setAttribute[Double]("LineWeight", circle)
-            ))
+            val circle = CircleShape(center.get, math.abs(r)).addAttributes("Color" -> color , "StrokeWidth" -> stroke)
+              Create(circle)
+
             End
           }
 
