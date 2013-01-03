@@ -22,9 +22,9 @@ case object CreateCategory extends MenuCategory{
     EventNNE -> MenuModule(Module('cad,"create.Line"), MenuIcons.line),
     EventENE -> MenuModule(Module('cad,"create.Offset"), MenuIcons.offset),
 
-    EventWNW -> MenuModule(Module('cad,"create.Text"), MenuIcons.text),
-    EventSSE -> MenuModule(Module('cad,"create.Explode"), MenuIcons.explode),
-    EventWSW -> MenuModule(Module('cad,"create.Lineardim"), MenuIcons.linearDimension)
+    //EventWNW -> MenuModule(Module('cad,"create.Text"), MenuIcons.text),
+    EventSSE -> MenuModule(Module('cad,"create.Explode"), MenuIcons.explode)
+    //EventWSW -> MenuModule(Module('cad,"create.Lineardim"), MenuIcons.linearDimension)
     //EventSSW -> MenuModule(Module('cad,"create.Fill"), MenuIcons.raster)
 
   )
