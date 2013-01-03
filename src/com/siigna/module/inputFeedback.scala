@@ -40,7 +40,8 @@ class inputFeedback {
   //a function to parse input chars and provide a textShape with visual aid showing possible commands / tools
   def inputFeedback(s: String) = {
     var suggestions = List[String]()
-    
+
+    println("S in inpFeed: "+s)
     s match {
       //MENUS
       case "c" => {
@@ -56,6 +57,7 @@ class inputFeedback {
 
       }
       case "m" => {
+        println("CAT: "+category)
         if (category == Some("modify")) command = Some("move")
         else {
           category = Some("modify")
@@ -82,9 +84,11 @@ class inputFeedback {
       case "GETPREVIOUS" => {
         getPrevious = true
       }
-      case "EMPTY" => category == None
+      case "EMPTY" => {
+        category = None
+      }
       //case "t" => if (category == Some("modify")) command = Some("trim")
-
+      case e => println("received unknown shortcut in inputFeedback: "+e)
     }
     //if one shortcut is typed, display the category
     if (category.isDefined && !command.isDefined) Siigna display (category.get)

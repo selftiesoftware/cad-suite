@@ -44,6 +44,8 @@ class ModuleInit extends Module {
     Module(m, modText) collect {
       case module => lastModule = Some(module) //enable module recall with space
     }
+    println("m:" +m)
+    println("modtext:" +modText)
     Start(m, modText)
   }
 
@@ -99,13 +101,13 @@ class ModuleInit extends Module {
 
       //Rightclick starts menu:
       case MouseDown(_, MouseButtonRight, _) :: tail => {
-        toolSuggestions = List[String]() //reset tool suggestions
+        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         Start('base, "Menu")
       }
 
       //double click anywhere on a shape selects the full shape.
       case  MouseDown(p2, button, modifier) :: MouseUp(p1 ,MouseButtonLeft , _) :: tail => {
-        toolSuggestions = List[String]() //reset tool suggestions
+        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
 
         if (p1 == p2){
           Start('cad, "Selection", MouseDouble(p2,button,modifier))
@@ -115,7 +117,7 @@ class ModuleInit extends Module {
       // 1: Starts select, to select shape part at cursor, if nothing is selected,
       // TODO: or if the click was away from the selection:
       case MouseDown(p, MouseButtonLeft, modifier) :: tail => {
-        toolSuggestions = List[String]() //reset tool suggestions
+        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
 
         //Check if there is a useable selection:
         Start('cad, "Selection", MouseDown(p, MouseButtonLeft, modifier))
@@ -127,7 +129,7 @@ class ModuleInit extends Module {
       // TODO: Change it, so it is if something is not close to the selection - now it if the click
       // is close to any shape in the drawing
       case MouseDrag(p2, button2, modifier2) :: MouseDown(p, button, modifier) :: tail => {
-        toolSuggestions = List[String]() //reset tool suggestions
+        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         if (usableSelectionExists == true) {
           val m = p.transform(View.deviceTransformation)
           if (Drawing(m).size > 0) {
@@ -147,6 +149,7 @@ class ModuleInit extends Module {
 
       // Delete
       case KeyDown(Key.Delete, _) :: tail => {
+        shortcut = ""
         if (usableSelectionExists) {
           Delete(Drawing.selection.get.self)
         }
@@ -168,7 +171,7 @@ class ModuleInit extends Module {
       //helpers
       case KeyDown('d', _) :: KeyUp('h', _) :: tail => shortcutProcess("d", "helpers.Distance", 'cad)
       case KeyDown('s', _) :: KeyUp('h', _) :: tail => shortcutProcess("s", "helpers.SnapToggle", 'cad)
-      case KeyDown('t', _) :: KeyUp('h', _) :: tail => shortcutProcess("t", "helpers.trackToggle", 'cad)
+      case KeyDown('t', _) :: KeyUp('h', _) :: tail => shortcutProcess("t", "helpers.TrackToggle", 'cad)
 
       //MODIFY
       case KeyDown('m', _) :: KeyUp('m', _) :: tail => shortcutProcess("m", "modify.Move", 'cad)
@@ -192,7 +195,11 @@ class ModuleInit extends Module {
       }
 
       // Release all selections
-      case KeyDown(Key.Esc, _) :: tail => Drawing.deselect()
+      case KeyDown(Key.Esc, _) :: tail => {
+        shortcut = ""
+        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
+        Drawing.deselect()
+      }
 
       //MENU SHORTCUTS
       case KeyDown('c', _) :: tail => {
