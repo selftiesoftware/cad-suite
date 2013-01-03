@@ -22,7 +22,6 @@ import com.siigna.module.base.paperHeader
  */
 class ModuleInit extends Module {
   Menu.startCategory = StartCategory
-
   protected var lastModule : Option[Module] = None
 
   var nearestShape : Option[(Int, Shape)] = None   //The nearest shape to the current mouse position.
@@ -31,18 +30,21 @@ class ModuleInit extends Module {
   //draw feedback when typing shortcuts
   val textFeedback = new inputFeedback
 
+  //case KeyDown('a', _) :: KeyUp('c', _) :: tail => shortcutProcess("a", "create.Arc", 'cad)
+
   //start module and process graphic feedback when a tool shortcut is received
   //input : shortcut, module name, module category
-  def shortcutProcess(s : String, m : Symbol, modText : String) = {
+  def shortcutProcess(s : String, modText : String, m : Symbol) = {
     shortcut = s
     toolSuggestions = List[String]() //reset tool suggestions
     textFeedback.inputFeedback(shortcut)//display feedback telling the module is active
+    println("S: "+s)
 
     // Sets the latest module and start it
-    Module(m, modText) collect { case module => {
-      lastModule = Some(module) //enable module recall with space
-      Start(module) //start the module
-    }}
+    Module(m, modText) collect {
+      case module => lastModule = Some(module) //enable module recall with space
+    }
+    Start(m, modText)
   }
 
   //Check if there is a useable selection:
@@ -153,30 +155,30 @@ class ModuleInit extends Module {
       //shortcuts
 
       //create
-      case KeyDown('a', _) :: KeyUp('c', _) :: tail => shortcutProcess("a", 'Arc, "create")
-      case KeyDown('c', _) :: KeyUp('c', _) :: tail => shortcutProcess("c", 'Circle, "create")
-      case KeyDown('d', _) :: KeyUp('c', _) :: tail => shortcutProcess("d", 'Lineardim, "create")
-      case KeyDown('e', _) :: KeyUp('c', _) :: tail => shortcutProcess("e", 'Explode, "create")
-      case KeyDown('l', _) :: KeyUp('c', _) :: tail => shortcutProcess("l", 'Line, "create")
-      case KeyDown('o', _) :: KeyUp('c', _) :: tail => shortcutProcess("o", 'Offset, "create")
-      case KeyDown('p', _) :: KeyUp('c', _) :: tail => shortcutProcess("p", 'Polyline, "create")
-      case KeyDown('r', _) :: KeyUp('c', _) :: tail => shortcutProcess("r", 'Rectangle, "create")
-      case KeyDown('t', _) :: KeyUp('c', _) :: tail => shortcutProcess("t", 'Text, "create")
+      case KeyDown('a', _) :: KeyUp('c', _) :: tail => shortcutProcess("a", "create.Arc", 'cad)
+      case KeyDown('c', _) :: KeyUp('c', _) :: tail => shortcutProcess("c", "create.Circle", 'cad)
+      case KeyDown('d', _) :: KeyUp('c', _) :: tail => shortcutProcess("d", "create.Lineardim", 'cad)
+      case KeyDown('e', _) :: KeyUp('c', _) :: tail => shortcutProcess("e", "create.Explode", 'cad)
+      case KeyDown('l', _) :: KeyUp('c', _) :: tail => shortcutProcess("l", "create.Line", 'cad)
+      case KeyDown('o', _) :: KeyUp('c', _) :: tail => shortcutProcess("o", "create.Offset", 'cad)
+      case KeyDown('p', _) :: KeyUp('c', _) :: tail => shortcutProcess("p", "create.Polyline", 'cad)
+      case KeyDown('r', _) :: KeyUp('c', _) :: tail => shortcutProcess("r", "create.Rectangle", 'cad)
+      case KeyDown('t', _) :: KeyUp('c', _) :: tail => shortcutProcess("t", "create.Text", 'cad)
 
       //helpers
-      case KeyDown('d', _) :: KeyUp('h', _) :: tail => shortcutProcess("d", 'Distance, "helpers")
-      case KeyDown('s', _) :: KeyUp('h', _) :: tail => shortcutProcess("s", 'SnapToggle, "helpers")
-      case KeyDown('t', _) :: KeyUp('h', _) :: tail => shortcutProcess("t", 'trackToggle, "helpers")
+      case KeyDown('d', _) :: KeyUp('h', _) :: tail => shortcutProcess("d", "helpers.Distance", 'cad)
+      case KeyDown('s', _) :: KeyUp('h', _) :: tail => shortcutProcess("s", "helpers.SnapToggle", 'cad)
+      case KeyDown('t', _) :: KeyUp('h', _) :: tail => shortcutProcess("t", "helpers.trackToggle", 'cad)
 
       //MODIFY
-      case KeyDown('m', _) :: KeyUp('m', _) :: tail => shortcutProcess("m", 'Move, "modify")
-      case KeyDown('r', _) :: KeyUp('m', _) :: tail => shortcutProcess("r", 'Rotate, "modify")
-      case KeyDown('s', _) :: KeyUp('m', _) :: tail => shortcutProcess("s", 'Scale, "modify")
-      case KeyDown('t', _) :: KeyUp('m', _) :: tail => shortcutProcess("t", 'Trim, "modify")
+      case KeyDown('m', _) :: KeyUp('m', _) :: tail => shortcutProcess("m", "modify.Move", 'cad)
+      case KeyDown('r', _) :: KeyUp('m', _) :: tail => shortcutProcess("r", "modify.Rotate", 'cad)
+      case KeyDown('s', _) :: KeyUp('m', _) :: tail => shortcutProcess("s", "modify.Scale", 'cad)
+      case KeyDown('t', _) :: KeyUp('m', _) :: tail => shortcutProcess("t", "modify.Trim", 'cad)
 
       //PROPERTIES
-      case KeyDown('c', _) :: KeyUp('p', _) :: tail => shortcutProcess("c", 'Colors, "properties")
-      case KeyDown('s', _) :: KeyUp('p', _) :: tail => shortcutProcess("s", 'Stroke, "properties")
+      case KeyDown('c', _) :: KeyUp('p', _) :: tail => shortcutProcess("c", "properties.Colors", 'cad)
+      case KeyDown('s', _) :: KeyUp('p', _) :: tail => shortcutProcess("s", "properties.Stroke", 'cad)
 
       case KeyDown('a', Control) :: tail => Drawing.selectAll()
       case KeyDown('z', Control) :: tail => Drawing.undo()
