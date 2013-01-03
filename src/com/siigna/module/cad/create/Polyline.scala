@@ -43,6 +43,7 @@ class Polyline extends Module {
           val inputRequest = InputRequest(Some(guide),None,None,None,None,None,startPoint,None,None,Some(112))
           Start('cad, "create.Input", inputRequest)
         } else {
+
           //If the start point is set, the first segment is made and points should be added.
           points :+ v
           val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
