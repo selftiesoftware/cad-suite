@@ -38,14 +38,11 @@ class ModuleInit extends Module {
     shortcut = s
     toolSuggestions = List[String]() //reset tool suggestions
     textFeedback.inputFeedback(shortcut)//display feedback telling the module is active
-    println("S: "+s)
 
     // Sets the latest module and start it
     Module(m, modText) collect {
       case module => lastModule = Some(module) //enable module recall with space
     }
-    println("m:" +m)
-    println("modtext:" +modText)
     Start(m, modText)
   }
 

@@ -41,7 +41,6 @@ class inputFeedback {
   def inputFeedback(s: String) = {
     var suggestions = List[String]()
 
-    println("S in inpFeed: "+s)
     s match {
       //MENUS
       case "c" => {
@@ -57,7 +56,6 @@ class inputFeedback {
 
       }
       case "m" => {
-        println("CAT: "+category)
         if (category == Some("modify")) command = Some("move")
         else {
           category = Some("modify")
