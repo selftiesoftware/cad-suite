@@ -16,14 +16,19 @@ import com.siigna._
 
 case object CreateCategory extends MenuCategory{
   val graph = Map[MenuEvent,MenuElement](
-    EventN -> GeometryCategory,
+    //EventN -> GeometryCategory,
 
-    EventNNW -> MenuModule(Module('cad,"create.Rectangle"), MenuIcons.rectangle),
-    EventNNE -> MenuModule(Module('cad,"create.Line"), MenuIcons.line),
+    EventNNW -> MenuModule(Module('cad,"create.Copy"), MenuIcons.copy),
+    EventNNE -> MenuModule(Module('cad,"create.Polyline"), MenuIcons.polyline),
+
+    EventWNW -> MenuModule(Module('cad,"create.Rectangle"), MenuIcons.rectangle),
+    EventWSW -> MenuModule(Module('cad,"create.Line"), MenuIcons.line),
+
     EventENE -> MenuModule(Module('cad,"create.Offset"), MenuIcons.offset),
+    EventESE -> MenuModule(Module('cad,"create.Explode"), MenuIcons.explode),
 
-    //EventWNW -> MenuModule(Module('cad,"create.Text"), MenuIcons.text),
-    EventSSE -> MenuModule(Module('cad,"create.Explode"), MenuIcons.explode)
+    EventSSE -> MenuModule(Module('cad,"create.Text"), MenuIcons.text),
+    EventSSW -> MenuModule(Module('cad,"create.circle"), MenuIcons.circle)
     //EventWSW -> MenuModule(Module('cad,"create.Lineardim"), MenuIcons.linearDimension)
     //EventSSW -> MenuModule(Module('cad,"create.Fill"), MenuIcons.raster)
 

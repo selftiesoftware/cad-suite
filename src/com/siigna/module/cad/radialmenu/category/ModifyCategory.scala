@@ -16,7 +16,9 @@ import com.siigna._
 
 case object ModifyCategory extends MenuCategory{
   val graph = Map[MenuEvent,MenuElement](
-    EventNNW -> MenuModule(Module('cad,"modify.Scale"), MenuIcons.scale)
+    EventSSE -> MenuModule(Module('cad,"modify.Move"), MenuIcons.move),
+    EventSSW -> MenuModule(Module('cad,"modify.Rotate"), MenuIcons.rotate),
+    EventWSW -> MenuModule(Module('cad,"modify.Scale"), MenuIcons.scale)
     //EventNNE -> MenuModule(Module('cad,"modify.Trim"), MenuIcons.trim)
     //EventENE -> MenuModule(Module('cad,"modify.Connect"), MenuIcons.connect)
 

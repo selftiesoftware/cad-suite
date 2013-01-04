@@ -17,7 +17,8 @@ import com.siigna._
 
 case object PropertiesCategory extends MenuCategory{
   val graph = Map[MenuEvent,MenuElement](
-    //EventNNE -> MenuModule(Module('cad,"properties.SampleProperties"), MenuIcons.sampleProperties)
+    EventWSW -> MenuModule(Module('cad,"properties.Color"), MenuIcons.colorWheel),
+    EventWNW -> MenuModule(Module('cad,"properties.Stroke"), MenuIcons.weight)
   )
 
   val color = MenuIcons.propertiesColor
