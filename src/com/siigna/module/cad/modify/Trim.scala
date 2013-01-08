@@ -55,23 +55,24 @@ class Trim extends Module {
 
   //getIntersections. Returns the segment number (Int) of the intersection for the respective input shapes: 
   //the trimguide, and the trimshapes, respectively
-  def getIntersectSegmentNumber(g : Geometry2D, t : Geometry2D) : List[Int] = {
+  def getIntersectSegmentNumber(g : Geometry2D, t : Geometry2D) : (List[Int],List[Int]) = {
     val gV = g.vertices
     val tV = t.vertices
-    var gS = 0
-    var tS = 0
+    var gS = List[Int]()
+    var tS = List[Int]()
     if(gV.length >= 2 && tV.length >= 2) {
       for (i <- 0 to tV.length - 2) {
         for(j <- 0 to gV.length - 2) {
           if(IntersectEval(tV(i),tV(i+1),gV(j),gV(j+1)) == true){
-            gS = j
-            tS = i
-          } 
+
+            gS = gS :+ j
+            tS = tS :+ i
+          }
         }
       }
     }
-    List(gS, tS)
-  }  
+    (gS, tS)
+  }
 
   /* getSubSegment:
         *----
@@ -120,51 +121,93 @@ class Trim extends Module {
     for (i <- (r + 1) to p.length - 2) list2 = list2 :+ p(i) //make a list of points after the split segment
     (list2, list1)  //return the two lists
   }
-  
+
   //evaluates a guideline and a (poly)line returns the polyline, trimmed by the line.
   //TODO: allow trimming of lines that intersect the guide multiple times
-  def trim(guide : Geometry2D, trimLine : Geometry2D, p : Vector2D) : List[Vector2D] = {
+  def trim(guide : Geometry2D, trimLine : Geometry2D, p : Vector2D) : (List[Vector2D], List[Vector2D]) = {
+    var trimV1 = List[Vector2D]()
+    var trimV2 = List[Vector2D]()
     val g : Seq[Vector2D] = guide.vertices
     val t : Seq[Vector2D] = trimLine.vertices
-    var trimV = List[Vector2D]()
-    val intSegments : List[Int] = getIntersectSegmentNumber(guide,trimLine) //find segment numbers for intersections
-    //store return values from getIntersectSegmentNumber
-    val guideSegmentNr = intSegments(0)
-    val trimSegmentNr = intSegments(1)
-    val guideSegment = Line2D(g(guideSegmentNr),g(guideSegmentNr+1))
-    val trimSegment = Line2D(t(trimSegmentNr),t(trimSegmentNr+1))   
-    val int = guideSegment.intersections(trimSegment)   //do the intersection!
-    println(int.size)
-    if (!int.isEmpty) {
-      val getSegment = (getSubSegment(t(trimSegmentNr),t(trimSegmentNr+1),int.head,p))
-      val twoLists = splitPolyline(t.toList,int.head)//the trimline split into two lists
+    val intSegment = getIntersectSegmentNumber(guide,trimLine) //find segment numbers for intersections
+    val intSegment1 : List[Int] = getIntersectSegmentNumber(guide,trimLine)._1 //find segment numbers for intersections
+    val intSegment2 : List[Int] = getIntersectSegmentNumber(guide,trimLine)._2 //find segment numbers for intersections
+
+    //store return values for the first intersection;
+    val guideSegmentNr1 = intSegment1(0)
+    val guideSegmentNr2 = intSegment1(1)
+    val trimSegmentNr1 = intSegment2(0)
+    val trimSegmentNr2 = intSegment2(1)
+
+    println("guideSegmentNr1: "+guideSegmentNr1)
+    println("guideSegmentNr2: "+guideSegmentNr2)
+    println("trimSegmentNr1: "+trimSegmentNr1)
+    println("trimSegmentNr2: "+trimSegmentNr2)
+
+    val guideSegment1 = Line2D(g(guideSegmentNr1),g(guideSegmentNr1+1))
+    val guideSegment2 = Line2D(g(guideSegmentNr2),g(guideSegmentNr2+1))
+    val trimSegment1 = Line2D(t(trimSegmentNr1),t(trimSegmentNr1+1))
+    val trimSegment2 = Line2D(t(trimSegmentNr2),t(trimSegmentNr2+1))
+    var int1 = guideSegment1.intersections(trimSegment1)   //do the intersection!
+    var int2 = guideSegment2.intersections(trimSegment2)   //do the intersection!
+
+
+    //one or first intersection - get the trimline
+    if (!int1.isEmpty) {
+      val getSegment = (getSubSegment(t(trimSegmentNr1),t(trimSegmentNr1+1),int1.head,p))
+      val twoLists = splitPolyline(t.toList,int1.head)//the trimline split into two lists
 
       if(getSegment == 1) { //if the trim point is set before the trimline, keep the first segments.
-        trimV = (twoLists._1 :+ t.last).reverse :+ int.head
+        trimV1 = (twoLists._1 :+ t.last).reverse :+ int1.head
       }
       else if(getSegment == 2) { //if the trim point is set after the trimline, keep the last segments.
-        trimV = twoLists._2 :+ int.head
-      } else trimV = trimLine.vertices.toList
-    } //else trimV = t.toList //if not intersection is found, return the original trimLine
-    trimV //return the trimmed line
+        trimV1 = twoLists._2 :+ int1.head
+      } else trimV1 = trimLine.vertices.toList
+    }
+    //if two intersections between the trimline and guideline are found, get the second trimline:
+    if (!int2.isEmpty) {
+      val getSegment = (getSubSegment(t(trimSegmentNr2),t(trimSegmentNr2+1),int2.last,p))
+      val twoLists = splitPolyline(t.toList,int2.head)//the trimline split into two lists
+
+      if(getSegment == 1) { //if the trim point is set before the trimline, keep the first segments.
+        trimV2 = (twoLists._1 :+ t.last).reverse :+ int2.head
+      }
+      else if(getSegment == 2) { //if the trim point is set after the trimline, keep the last segments.
+        trimV2 = twoLists._2 :+ int2.head
+      } else trimV2 = trimLine.vertices.toList
+    }
+    //else trimV = t.toList //if not intersection is found, return the original trimLine
+    (trimV1, trimV2) //return the trimmed line
   }
-  val exit = {
-    Track.trackEnabled = true
-    Drawing.deselect()
-    End
-  }
-  
+
   val stateMap: StateMap = Map(
     'Start -> {
       //exit strategy
-      case KeyDown(Key.escape, _) :: tail => exit
-      case MouseDown(p, MouseButtonRight, _) :: tail => exit    
-      case End(KeyDown(Key.escape,modifier)) :: tail => exit
-      case End(MouseDown(_ , MouseButtonRight, _)) :: tail => exit
+      case KeyDown(Key.escape, _) :: tail => {
+        Track.trackEnabled = true
+        Drawing.deselect()
+        End
+      }
+      case MouseDown(p, MouseButtonRight, _) :: tail => {
+        Track.trackEnabled = true
+        Drawing.deselect()
+        End
+      }
 
-      //if input returns a point, evaluate if there are any shapes to trim at that point:
-      case End(v : Vector2D) :: tail => {       
-        //if only one guide is set
+      //if the input module returns an ESC or right mouse down, end the module. -And reenable Track.
+      case End(KeyDown(Key.escape,modifier)) :: tail => {
+        Track.trackEnabled = true
+        Drawing.deselect()
+        End
+      }
+      case End(MouseDown(_ , MouseButtonRight, _)) :: tail => {
+        Track.trackEnabled = true
+        Drawing.deselect()
+        End
+      }
+
+      //if selection returns a point, evaluate if there are any shapes to trim at that point:
+      case End(v : Vector2D) :: tail => {
         if(trimGuide.isDefined && !trimGuide2.isDefined) {
           val m = mousePosition.transform(View.deviceTransformation)
           //find the shape closest to the mouse:
@@ -178,11 +221,18 @@ class Trim extends Module {
 
             //do the trimming:
             Delete(nearest._1)
-            val l = trim(guideShape, trimShape, v)
-            Create(PolylineShape(l).addAttributes(attr))
-            done = true
-            nearestShape = None //reset var
+            val lists = trim(guideShape, trimShape, v)
 
+            //create the first trimmed line
+            Create(PolylineShape(lists._1).addAttributes(attr))
+
+            //if two trimline are to be made (trimV2 is defined), create the second line
+            if(!lists._2.isEmpty) {
+              Create(PolylineShape(lists._2).addAttributes(attr))
+            }
+
+            nearestShape = None //reset var
+            done = true
             Start('cad, "create.Input", 1) //look for more trim points
           } else {
 
@@ -204,12 +254,26 @@ class Trim extends Module {
             val guideShape2 = trimGuide2.get.geometry
 
             //do the trimming:
-            val l1 = trim(guideShape1, trimShape, v)
-            val l2 = trim(guideShape2, trimShape, v)
+            val lists1 = trim(guideShape1, trimShape, v)
+            val lists2 = trim(guideShape2, trimShape, v)
             Delete(nearest._1)
 
-            Create(PolylineShape(l1).addAttributes(attr))
-            Create(PolylineShape(l2).addAttributes(attr))
+            //create the first trimmed line
+            Create(PolylineShape(lists1._1).addAttributes(attr))
+
+            //if two trimline are to be made (trimV2 is defined), create the second line
+            if(!lists1._2.isEmpty) {
+              Create(PolylineShape(lists1._2).addAttributes(attr))
+            }
+
+            //create the second trimmed line
+            Create(PolylineShape(lists2._1).addAttributes(attr))
+
+            //if two trimline are to be made (trimV2 is defined), create the second line
+            if(!lists2._2.isEmpty) {
+              Create(PolylineShape(lists2._2).addAttributes(attr))
+            }
+
 
             done = true
             nearestShape = None //reset var
@@ -219,8 +283,8 @@ class Trim extends Module {
           } //if the point is not set next to a shape, goto selection and try again
         }
         else {
-        Track.trackEnabled = true
-        End
+          Track.trackEnabled = true
+          End
         }
       }
       case _ => {

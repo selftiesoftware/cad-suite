@@ -28,8 +28,10 @@ class Polyline extends Module {
       case MouseDown(p, MouseButtonRight, _) :: tail => End
       case End(KeyDown(Key.Esc, _)) :: tail => End
       case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
-        val polyline = PolylineShape(points).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)
-        Create(polyline)
+        if (points.length > 1) {
+          val polyline = PolylineShape(points).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)
+          Create(polyline)
+        }
         End
       }
 
