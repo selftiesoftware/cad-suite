@@ -11,7 +11,7 @@
 
 package com.siigna.module
 
-import base.Menu
+import base.{PaperHeader, Menu}
 import cad.radialmenu.category.StartCategory
 import com.siigna._
 import app.model.shape.FullSelector
@@ -22,7 +22,7 @@ import app.model.shape.FullSelector
 class ModuleInit extends Module {
   Menu.startCategory = StartCategory
 
-  val header = com.siigna.module.base.paperHeader
+  val header = com.siigna.module.base.PaperHeader
 
   protected var lastModule : Option[Module] = None
 
@@ -225,9 +225,9 @@ class ModuleInit extends Module {
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    g draw (header.openness(t, Siigna.paperScale, Drawing.boundary)) //color to show level of openness
-    g draw (header.headerFrame(t, Siigna.paperScale, Drawing.boundary)) //frame around drawing info
-    g draw (header.scaleText(t, Siigna.paperScale, Drawing.boundary)) //frame around drawing info
+    g draw PaperHeader.openness.transform(t) //color to show level of openness
+    g draw PaperHeader.headerFrame.transform(t) //frame around drawing info
+    g draw PaperHeader.scaleText.transform(t) //frame around drawing info
 
     //draw tool shourcut suggestions
     if(!shortcut.isEmpty) {
