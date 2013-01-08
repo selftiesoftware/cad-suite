@@ -134,6 +134,7 @@ class Trim extends Module {
     val guideSegment = Line2D(g(guideSegmentNr),g(guideSegmentNr+1))
     val trimSegment = Line2D(t(trimSegmentNr),t(trimSegmentNr+1))   
     val int = guideSegment.intersections(trimSegment)   //do the intersection!
+    println(int.size)
     if (!int.isEmpty) {
       val getSegment = (getSubSegment(t(trimSegmentNr),t(trimSegmentNr+1),int.head,p))
       val twoLists = splitPolyline(t.toList,int.head)//the trimline split into two lists
@@ -147,35 +148,23 @@ class Trim extends Module {
     } //else trimV = t.toList //if not intersection is found, return the original trimLine
     trimV //return the trimmed line
   }
-
+  val exit = {
+    Track.trackEnabled = true
+    Drawing.deselect()
+    End
+  }
+  
   val stateMap: StateMap = Map(
     'Start -> {
       //exit strategy
-      case KeyDown(Key.escape, _) :: tail => {
-        Track.trackEnabled = true
-        Drawing.deselect()
-        End
-      }
-      case MouseDown(p, MouseButtonRight, _) :: tail => {
-        Track.trackEnabled = true
-        Drawing.deselect()
-        End
-      }
+      case KeyDown(Key.escape, _) :: tail => exit
+      case MouseDown(p, MouseButtonRight, _) :: tail => exit    
+      case End(KeyDown(Key.escape,modifier)) :: tail => exit
+      case End(MouseDown(_ , MouseButtonRight, _)) :: tail => exit
 
-      //if the input module returns an ESC or right mouse down, end the module. -And reenable Track.
-      case End(KeyDown(Key.escape,modifier)) :: tail => {
-        Track.trackEnabled = true
-        Drawing.deselect()
-        End
-      }
-      case End(MouseDown(_ , MouseButtonRight, _)) :: tail => {
-        Track.trackEnabled = true
-        Drawing.deselect()
-        End
-      }
-
-      //if selection returns a point, evaluate if there are any shapes to trim at that point:
-      case End(v : Vector2D) :: tail => {
+      //if input returns a point, evaluate if there are any shapes to trim at that point:
+      case End(v : Vector2D) :: tail => {       
+        //if only one guide is set
         if(trimGuide.isDefined && !trimGuide2.isDefined) {
           val m = mousePosition.transform(View.deviceTransformation)
           //find the shape closest to the mouse:
