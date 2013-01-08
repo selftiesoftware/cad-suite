@@ -220,6 +220,7 @@ class ModuleInit extends Module {
       case _ =>
     }
   )
+
   override def paint(g : Graphics, t : TransformationMatrix) {
     //draw tool shourcut suggestions
     if(!shortcut.isEmpty) {
@@ -229,15 +230,14 @@ class ModuleInit extends Module {
       }  
     }
     //construct header elements
-    val headerShapes = new paperHeader
-    val scale = headerShapes.scale
+    val scale = paperHeader.scale
     //val unitX = headerShapes.unitX(4)
 
-    g draw headerShapes.openness(t) //draw frame to indicate level of openness:
-    g draw headerShapes.horizontal(t) // Draw horizontal headerborder
-    g draw headerShapes.vertical(t) //Draw vertical headerborder
+    g draw paperHeader.openness(t) //draw frame to indicate level of openness:
+    g draw paperHeader.horizontal(t) // Draw horizontal headerborder
+    g draw paperHeader.vertical(t) //Draw vertical headerborder
     //g.draw(headerShapes.getURL.transform(transformation.translate(scale.boundary.topRight + unitX))) //g draw separator
-    g.draw(scale.transform(headerShapes.transformation(t)))   //draw paperScale
+    g.draw(scale.transform(paperHeader.transformation(t)))   //draw paperScale
 
     //draw highlighted vertices and segments that are selectable (close to the mouse)
     if (nearestShape.isDefined) {
