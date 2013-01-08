@@ -225,8 +225,10 @@ class ModuleInit extends Module {
   )
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    g draw (header.openness(t, Siigna.paperScale, Drawing.boundary))
-    
+    g draw (header.openness(t, Siigna.paperScale, Drawing.boundary)) //color to show level of openness
+    g draw (header.headerFrame(t, Siigna.paperScale, Drawing.boundary)) //frame around drawing info
+    g draw (header.scaleText(t, Siigna.paperScale, Drawing.boundary)) //frame around drawing info
+
     //draw tool shourcut suggestions
     if(!shortcut.isEmpty) {
       val s = textFeedback.paintSuggestions(toolSuggestions)
