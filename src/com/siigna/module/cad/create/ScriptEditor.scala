@@ -67,6 +67,7 @@ class ScriptEditor extends Module{
         //save script text
 
         //change the background color of the paper to communicate that Siigna is in Scripting mode
+        // TODO: This should be set through SiignaAttributes
         com.siigna.app.view.View.paperColor = bgColor
 
         events match {
@@ -97,7 +98,7 @@ class ScriptEditor extends Module{
             if(moduleOpen == false){
               moduleOpen = true
               Module('base, "base.Menu")
-              Controller ! Message(point)
+              Message(point)
             } else moduleOpen = false
           }
           //TODO: add standard mouse-text interaction. (Highlight, move, etc.)
