@@ -30,6 +30,8 @@ import module.{ModuleInit, Module}
 class Explode extends Module{
 
   var explodedPolylines : Int = 0
+  var idsForShapesToExplode: List[Int] = List()
+  var polylinesToExplode: List[PolylineShape] = List()
 
   val stateMap: StateMap = Map(
 
@@ -43,47 +45,55 @@ class Explode extends Module{
         var somethingExploded: Boolean = false
         val l = new ModuleInit
         if (l.usableSelectionExists) {
+            println("Drawing.selection.get.self: " + Drawing.selection.get.self)
             //Match on shapes in the selection to check for polylines:
             Drawing.selection.get.self.foreach((shape) => {
-            println(shape)
-            println(shape._1)
-            println(Drawing.get(shape._1).get)
-            Drawing.get(shape._1).get match {
-              case p : PolylineShape => {
-                println("Poly") 
-                //Check if some of, or the whole shape has been selected:
-                println("Selected part ow whole shape: " + Drawing.selection.get(shape._1))
-                shape._2 match {
-                  case FullSelector => {
-                    //If the whole shape has been selected, explode it!
-                    //First create all the shapes, the polyline consists off:
-                    Create(p.shapes)
-                    //Then delete the original shape;
-                    Delete(shape._1)
-                    somethingExploded = true
-                  }
-                  //If only part of the shape has been selected:
-                  case app.model.shape.PolylineShape.Selector(x) => {
-                    println("Bitset x: " + x)
-                    x.foreach((bitset) => {
-                      //Exclude the endpoints of the polyline:
-                      var usefulSplitPoints: Int = 0
-                      if (bitset != 0 && bitset != p.size) {
-                        usefulSplitPoints = usefulSplitPoints + 1
-                        println ("bitset " + bitset )
-                        //For now, the splitting only at selected points is not implemented...
+              println("Explode begins")
+              println(shape)
+              println(shape._1) 
+              println(Drawing.get(shape._1).get)
+              Drawing.get(shape._1).get match {
+                case p : PolylineShape => {
+                  //Check if some of, or the whole shape has been selected:
+                  shape._2 match {
+                    case FullSelector => {
+                      //If the whole shape has been selected, explode it!
+                      polylinesToExplode = polylinesToExplode :+ p
+                      idsForShapesToExplode = idsForShapesToExplode :+ shape._1
+                      somethingExploded = true
+                      explodedPolylines += 1
+                    }
+                    //If only part of the shape has been selected:
+                    case app.model.shape.PolylineShape.Selector(x) => {
+                      println("Bitset x: " + x)
+                      x.foreach((bitset) => {
+                        //Exclude the endpoints of the polyline:
+                        var usefulSplitPoints: Int = 0
+                        if (bitset != 0 && bitset != p.size) {
+                          usefulSplitPoints = usefulSplitPoints + 1
+                          println ("bitset " + bitset )
+                          //For now, the splitting only at selected points is not implemented...
 
 
-                      }
-                    })
+                        }
+                      })
+                    }
+                    case _ =>
                   }
-                  case _ =>
                 }
+                case _ =>
               }
-              case _ =>
-            }
-          })
+            })
           if (somethingExploded == true) {
+            println("Polylines to explode: " + polylinesToExplode)
+            polylinesToExplode.foreach((shape) => {
+              Create(shape.shapes)
+            })
+            println("Ids to delete: " + idsForShapesToExplode)
+            idsForShapesToExplode.foreach((id) => {
+              Delete(id)
+            })
+            
             Siigna display "polylines in selection exploded"
           } else {
             Siigna display "none of the selected shapes can be exploded"
