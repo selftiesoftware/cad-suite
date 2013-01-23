@@ -4,9 +4,9 @@ version := "nightly"
 
 organization := "com.siigna"
 
-scalaVersion := "2.9.2"
+scalaVersion := "2.10.0"
 
-crossScalaVersions := Seq("2.9.1", "2.9.2")
+crossScalaVersions := Seq("2.9.2", "2.10.0")
 
 scalaSource in Compile <<= (baseDirectory in Compile)(_ / "src")
 
