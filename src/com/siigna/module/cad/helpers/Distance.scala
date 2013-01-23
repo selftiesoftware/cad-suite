@@ -38,7 +38,7 @@ class Distance extends Module {
       case End(v : Vector2D) :: tail => {
         if (!startPoint.isDefined){
           startPoint = Some(v)
-          val vector2DGuide = Vector2DGuide((p: Vector2D) => Traversable(LineShape(startPoint.get, v)))
+          val vector2DGuide = Vector2DGuide((p: Vector2D) => Traversable(LineShape(startPoint.get, p)))
           val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(1))
           Start('cad, "create.Input", inputRequest)
 
