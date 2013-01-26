@@ -158,7 +158,7 @@ class Colors extends Module {
 
       g setColor color
 
-      g.g.fillPolygon(fillScreenX, fillScreenY, fillVector2Ds.size)
+      g.AWTGraphics.fillPolygon(fillScreenX, fillScreenY, fillVector2Ds.size)
     }
 
     // Draw the color icons

@@ -67,8 +67,6 @@ class ScriptEditor extends Module{
         //save script text
 
         //change the background color of the paper to communicate that Siigna is in Scripting mode
-        // TODO: This should be set through SiignaAttributes
-        com.siigna.app.view.View.paperColor = bgColor
 
         events match {
           case KeyDown(Key.Backspace, _) :: tail => {
@@ -111,7 +109,6 @@ class ScriptEditor extends Module{
     'End -> {
       case _ => {
         //reset the vars
-        com.siigna.app.view.View.paperColor = 1.00f
         text = ""
       }
     }
