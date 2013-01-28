@@ -15,7 +15,7 @@ package com.siigna.module.cad.create
 
 
 import com.siigna._
-import app.model.shape.FullSelector
+import app.model.shape.FullShapePart
 import app.model.shape.PolylineShape
 import module.{ModuleInit, Module}
 
@@ -56,7 +56,7 @@ class Explode extends Module{
                 case p : PolylineShape => {
                   //Check if some of, or the whole shape has been selected:
                   shape._2 match {
-                    case FullSelector => {
+                    case FullShapePart => {
                       //If the whole shape has been selected, explode it!
                       polylinesToExplode = polylinesToExplode :+ p
                       idsForShapesToExplode = idsForShapesToExplode :+ shape._1
@@ -64,7 +64,7 @@ class Explode extends Module{
                       explodedPolylines += 1
                     }
                     //If only part of the shape has been selected:
-                    case app.model.shape.PolylineShape.Selector(x) => {
+                    case app.model.shape.PolylineShape.Part(x) => {
                       println("Bitset x: " + x)
                       x.foreach((bitset) => {
                         //Exclude the endpoints of the polyline:

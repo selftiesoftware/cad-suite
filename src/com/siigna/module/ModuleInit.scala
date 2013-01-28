@@ -14,7 +14,7 @@ package com.siigna.module
 import base.{PaperHeader, Menu}
 import cad.radialmenu.category.StartCategory
 import com.siigna._
-import app.model.shape.FullSelector
+import app.model.shape.FullShapePart
 
 /**
  * An init module for the cad-suite.
@@ -55,31 +55,31 @@ class ModuleInit extends Module {
     if (!Drawing.selection.isEmpty) {
       //The selection could be an empty map, which is unusable - check for that:
       if (Drawing.selection.get.self.size != 0)
-      //The map could contain an EmptySelector or a Selector with
+      //The map could contain an EmptyShapePart or a Part with
       // an empty bit-set, which is unusable - check for that:
         Drawing.selection.get.self.foreach((shape) => {
           shape._2 match {
-            //A FullSelector or a selector containing a BitSet means a useable selection:
-            case FullSelector => usableSelectionExists = true
-            case app.model.shape.PolylineShape.Selector(x) => {
+            //A FullShapePart or a selector containing a BitSet means a useable selection:
+            case FullShapePart => usableSelectionExists = true
+            case app.model.shape.PolylineShape.Part(x) => {
               if (x.size >0) {
                 //If the size of the bitset is larger than 0, something useful is selected...
                 usableSelectionExists = true
               }
             }
-            case app.model.shape.LineShape.Selector(x) => {
+            case app.model.shape.LineShape.Part(x) => {
               //If the selector exists, something useful is selected...
               usableSelectionExists = true
             }
-            case app.model.shape.CircleShape.Selector(x) => {
+            case app.model.shape.CircleShape.Part(x) => {
               //If the selector exists, something useful is selected...
               usableSelectionExists = true
             }
-            case app.model.shape.GroupShape.Selector(x) => if (x.size >0) {
+            case app.model.shape.GroupShape.Part(x) => if (x.size >0) {
               //If the bitset is larger than 0, something useful is selected...
               usableSelectionExists = true
             }
-            case app.model.shape.TextShape.Selector(x) => {
+            case app.model.shape.TextShape.Part(x) => {
               //If the bitset is larger than 0, something useful is selected...
               usableSelectionExists = true
             }
