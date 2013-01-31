@@ -190,9 +190,9 @@ class ModuleInit extends Module {
 
       // Forward to the last initiated module
       case KeyDown(Key.Space, _) :: tail => if (lastModule.isDefined) {
-        //textFeedback.inputFeedback("EMPTY")//clear any active tooltips
-        //textFeedback.inputFeedback("GETPREVIOUS") //send a command to inputFeedback to display the last module name
-        //Start(lastModule.get)
+        textFeedback.inputFeedback("EMPTY")//clear any active tooltips
+        textFeedback.inputFeedback("GETPREVIOUS") //send a command to inputFeedback to display the last module name
+        Start(lastModule.get.newInstance)
       }
 
       // Release all selections
