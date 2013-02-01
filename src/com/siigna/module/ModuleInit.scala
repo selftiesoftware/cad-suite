@@ -28,6 +28,9 @@ class ModuleInit extends Module {
 
   var nearestShape : Option[(Int, Shape)] = None   //The nearest shape to the current mouse position.
   var toolSuggestions = List[String]() //a list of possible tools in a given category. activated by shortcuts
+
+  var selectionAlteration = false
+
   var shortcut = ""
   //draw feedback when typing shortcuts
   val textFeedback = new inputFeedback
@@ -201,6 +204,10 @@ class ModuleInit extends Module {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         Drawing.deselect()
       }
+      // add or subtract from selections
+      case KeyDown(Key.Shift, modifier) :: tail => Start('cad, "Selection", KeyDown(Key.Shift, modifier))
+      //End(KeyDown(Key.Shift, modifier))  // Start subtract from selection
+      case KeyUp(Key.Shift, modifier) :: tail => End(KeyUp(Key.Shift,modifier))  // Stop subtract from selection
 
       //MENU SHORTCUTS
       case KeyDown('c', _) :: tail => {
@@ -235,25 +242,6 @@ class ModuleInit extends Module {
       for (i <- 0 to s.size -1) {
         g draw s(i)
       }  
-    }
-    //construct header elements
-    //val scale = paperHeader.scale
-    //val unitX = headerShapes.unitX(4)
-
-    //g draw header.horizontal(t) // Draw horizontal headerborder
-    //g draw header.vertical(t) //Draw vertical headerborder
-    //g.draw(headerShapes.getURL.transform(transformation.translate(scale.boundary.topRight + unitX))) //g draw separator
-    //g.draw(scale.transform(paperHeader.transformation(t)))   //draw paperScale
-
-    //draw highlighted vertices and segments that are selectable (close to the mouse)
-    if (nearestShape.isDefined) {
-      val shape  = nearestShape.get._2
-      val part = shape.getPart(mousePosition)
-      val points = shape.getVertices(part)
-      points.foreach(p => g.draw(t.transform(p)))
-
-      //TODO: activate this -> implement adding attributes to parts in mainline
-      //g draw part.setAttributes("Color" -> "#22FFFF".color, "StrokeWidth" -> 1.0).transform(t)
     }
   }
 }
