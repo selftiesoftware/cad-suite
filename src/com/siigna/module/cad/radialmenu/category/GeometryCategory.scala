@@ -17,7 +17,7 @@ import com.siigna._
 case object GeometryCategory extends MenuCategory {
 
   val graph = Map[MenuEvent,MenuElement](
-    EventNNE -> MenuModule(Module('cad,"create.Circle"), MenuIcons.circle)
+    //EventNNE -> MenuModule(Module('cad,"create.Circle"), MenuIcons.circle)
     //EventNNW -> MenuModule(Module('cad,"create.Arc"), MenuIcons.arc)
   )
 

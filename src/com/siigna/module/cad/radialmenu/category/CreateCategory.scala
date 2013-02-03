@@ -28,7 +28,7 @@ case object CreateCategory extends MenuCategory{
     EventESE -> MenuModule(Module('cad,"create.Explode"), MenuIcons.explode),
 
     EventSSE -> MenuModule(Module('cad,"create.Text"), MenuIcons.text),
-    EventSSW -> MenuModule(Module('cad,"create.circle"), MenuIcons.circle)
+    EventSSW -> MenuModule(Module('cad,"create.Circle"), MenuIcons.circle)
     //EventWSW -> MenuModule(Module('cad,"create.Lineardim"), MenuIcons.linearDimension)
     //EventSSW -> MenuModule(Module('cad,"create.Fill"), MenuIcons.raster)
 
