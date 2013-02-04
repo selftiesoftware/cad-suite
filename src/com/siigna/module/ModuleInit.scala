@@ -14,7 +14,7 @@ package com.siigna.module
 import base.{PaperHeader, Menu}
 import cad.radialmenu.category.StartCategory
 import com.siigna._
-import app.model.shape.FullSelector
+import app.model.shape.FullShapePart
 
 /**
  * An init module for the cad-suite.
@@ -28,6 +28,9 @@ class ModuleInit extends Module {
 
   var nearestShape : Option[(Int, Shape)] = None   //The nearest shape to the current mouse position.
   var toolSuggestions = List[String]() //a list of possible tools in a given category. activated by shortcuts
+
+  var selectionAlteration = false
+
   var shortcut = ""
   //draw feedback when typing shortcuts
   val textFeedback = new inputFeedback
@@ -55,31 +58,31 @@ class ModuleInit extends Module {
     if (!Drawing.selection.isEmpty) {
       //The selection could be an empty map, which is unusable - check for that:
       if (Drawing.selection.get.self.size != 0)
-      //The map could contain an EmptySelector or a Selector with
+      //The map could contain an EmptyShapePart or a Part with
       // an empty bit-set, which is unusable - check for that:
         Drawing.selection.get.self.foreach((shape) => {
           shape._2 match {
-            //A FullSelector or a selector containing a BitSet means a useable selection:
-            case FullSelector => usableSelectionExists = true
-            case app.model.shape.PolylineShape.Selector(x) => {
+            //A FullShapePart or a selector containing a BitSet means a useable selection:
+            case FullShapePart => usableSelectionExists = true
+            case app.model.shape.PolylineShape.Part(x) => {
               if (x.size >0) {
                 //If the size of the bitset is larger than 0, something useful is selected...
                 usableSelectionExists = true
               }
             }
-            case app.model.shape.LineShape.Selector(x) => {
+            case app.model.shape.LineShape.Part(x) => {
               //If the selector exists, something useful is selected...
               usableSelectionExists = true
             }
-            case app.model.shape.CircleShape.Selector(x) => {
+            case app.model.shape.CircleShape.Part(x) => {
               //If the selector exists, something useful is selected...
               usableSelectionExists = true
             }
-            case app.model.shape.GroupShape.Selector(x) => if (x.size >0) {
+            case app.model.shape.GroupShape.Part(x) => if (x.size >0) {
               //If the bitset is larger than 0, something useful is selected...
               usableSelectionExists = true
             }
-            case app.model.shape.TextShape.Selector(x) => {
+            case app.model.shape.TextShape.Part(x) => {
               //If the bitset is larger than 0, something useful is selected...
               usableSelectionExists = true
             }
@@ -190,9 +193,9 @@ class ModuleInit extends Module {
 
       // Forward to the last initiated module
       case KeyDown(Key.Space, _) :: tail => if (lastModule.isDefined) {
-        //textFeedback.inputFeedback("EMPTY")//clear any active tooltips
-        //textFeedback.inputFeedback("GETPREVIOUS") //send a command to inputFeedback to display the last module name
-        //Start(lastModule.get)
+        textFeedback.inputFeedback("EMPTY")//clear any active tooltips
+        textFeedback.inputFeedback("GETPREVIOUS") //send a command to inputFeedback to display the last module name
+        Start(lastModule.get.newInstance)
       }
 
       // Release all selections
@@ -201,6 +204,10 @@ class ModuleInit extends Module {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         Drawing.deselect()
       }
+      // add or subtract from selections
+      case KeyDown(Key.Shift, modifier) :: tail => Start('cad, "Selection", KeyDown(Key.Shift, modifier))
+      //End(KeyDown(Key.Shift, modifier))  // Start subtract from selection
+      case KeyUp(Key.Shift, modifier) :: tail => End(KeyUp(Key.Shift,modifier))  // Stop subtract from selection
 
       //MENU SHORTCUTS
       case KeyDown('c', _) :: tail => {
@@ -235,25 +242,6 @@ class ModuleInit extends Module {
       for (i <- 0 to s.size -1) {
         g draw s(i)
       }  
-    }
-    //construct header elements
-    //val scale = paperHeader.scale
-    //val unitX = headerShapes.unitX(4)
-
-    //g draw header.horizontal(t) // Draw horizontal headerborder
-    //g draw header.vertical(t) //Draw vertical headerborder
-    //g.draw(headerShapes.getURL.transform(transformation.translate(scale.boundary.topRight + unitX))) //g draw separator
-    //g.draw(scale.transform(paperHeader.transformation(t)))   //draw paperScale
-
-    //draw highlighted vertices and segments that are selectable (close to the mouse)
-    if (nearestShape.isDefined) {
-      val shape  = nearestShape.get._2
-      val part = shape.getPart(mousePosition)
-      val points = shape.getVertices(part)
-      points.foreach(p => g.draw(t.transform(p)))
-
-      //TODO: activate this -> implement adding attributes to parts in mainline
-      //g draw part.setAttributes("Color" -> "#22FFFF".color, "StrokeWidth" -> 1.0).transform(t)
     }
   }
 }
