@@ -22,7 +22,7 @@ case object HelpersCategory extends MenuCategory {
 
       //EventWNW -> MenuModule(Module('cad,"helpers.Grid"), MenuIcons.grid),
 
-    //EventSSW -> MenuModule(Module('cad,"helpers.Area"), MenuIcons.area),
+    EventSSW -> MenuModule(Module('cad,"helpers.Area"), MenuIcons.area),
     EventNNE -> MenuModule(Module('cad,"helpers.Distance"), MenuIcons.distance)
 
   )

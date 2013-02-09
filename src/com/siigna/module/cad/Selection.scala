@@ -36,10 +36,17 @@ class Selection extends Module {
     }
     n
   }
-  //TODO:implement this! - needed to evaluate if a shape / partshape should be added of subtracted
-  //test if the segment or point is already selected"
-  def isSelected = {
-    println("the segment is already selected - deselect it instead")
+  //test if the segment or point is selected
+  //Return True if the segment is selected
+  //Return False if the segment is not selected
+  def isSelected(m : Vector2D) : Boolean = {
+    val clickedShp = findNearest(m)
+    if(Drawing.selection.isDefined && clickedShp.isDefined) {
+      val parts = Drawing.selection.get.shapes
+      parts.foreach(s => println("AA: "+s._1))
+      println(clickedShp.get._1)
+    }
+    false
   }
 
   /**
@@ -47,18 +54,16 @@ class Selection extends Module {
    */
   def isEnclosed : Boolean = startPoint.isDefined && startPoint.get.x <= mousePosition.transform(View.deviceTransformation).x
 
-  var isSubtracting = false
+  var hasShift = false
 
   //select or deselect part shapes
   def processPartShape(m: Vector2D) = {
-
     nearestShape = findNearest(m)   //find the shape closest to the mouse
     //if a nearest shape is defined, and SHIFT is not pressed, add the part to the selection
-    if (!nearestShape.isEmpty && isSubtracting == false) {
+    if (!nearestShape.isEmpty && hasShift == false) {
       val part = nearestShape.get._2.getPart(mousePosition.transform(View.deviceTransformation))
       Drawing.select(nearestShape.get._1, part)
-    } else if (!nearestShape.isEmpty && isSubtracting == true) {
-      println("BBB")
+    } else if (!nearestShape.isEmpty && hasShift == true && isSelected(m) == false) {
       //TODO: update this so that it deselects only a segment, not the entire model.
       Drawing.deselect()
     }
@@ -68,9 +73,9 @@ class Selection extends Module {
   def processFullShape(m: Vector2D) = {
     nearestShape = findNearest(m) //find the shape closest to the mouse
     //if a nearest shape is defined, and SHIFT is not pressed, add the part to the selection
-    if (!nearestShape.isEmpty && isSubtracting == false) {
+    if (!nearestShape.isEmpty && hasShift == false) {
       Drawing.select(nearestShape.get._1)
-    } else if (!nearestShape.isEmpty && isSubtracting == true) {
+    } else if (!nearestShape.isEmpty && hasShift == true) {
       //TODO: update this so that is deselects only the relevant shape, not all shapes.
       Drawing.deselect()
     }
@@ -84,8 +89,8 @@ class Selection extends Module {
       case KeyDown(Key.Esc, _) :: tail => End
 
       //check for SHIFT down /up events
-      case Start(_ , _) :: KeyDown(Key.Shift, _) :: tail => isSubtracting = true
-      case KeyDown(Key.Shift, _) :: tail => isSubtracting = true
+      case Start(_ , _) :: KeyDown(Key.Shift, _) :: tail => hasShift = true
+      case KeyDown(Key.Shift, _) :: tail => hasShift = true
 
       //if ModuleInit forwards to selection with a left mouse click
       // If a shape-part is hit, it is selected:

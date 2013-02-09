@@ -41,8 +41,8 @@ class Move extends Module {
             TransformationMatrix(v - startPoint.get, 1)
             // If no startPoint has been defined - create an empty matrix
           } else TransformationMatrix()
-          // Return the shape, transformed
-          Drawing.selection.get.apply(t)
+          // Return the shape, transformed      TODO: if else here is a hack to prevent none.get error if selection is empty
+          if(!Drawing.selection.isEmpty) Drawing.selection.get.apply(t) else Traversable(LineShape(Vector2D(0,0),Vector2D(10,10)))
         })
         val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(9))
         Start('cad, "create.Input", inputRequest)

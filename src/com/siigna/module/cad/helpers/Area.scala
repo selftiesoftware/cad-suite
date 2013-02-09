@@ -16,6 +16,7 @@ import com.siigna.module.Module
 import com.siigna.module.cad.create._
 
 import java.awt.Color
+import com.siigna.app.model.shape.PolylineShape.PolylineShapeClosed
 
 /**
  * A module that measures and displays an area.
@@ -42,7 +43,6 @@ class Area extends Module {
       var pointX2 = points(i+1).x
       var pointY2 = points(i+1).y
 
-      //area += (x.Items.Item(i) * y.Items.Item(i + 1) - x.Items.Item(i + 1) * y.Items.Item(i))
       area += pointX1 * pointY2 - pointX2 * pointY1
       i += 1
     }
@@ -62,7 +62,6 @@ class Area extends Module {
   val lineWidth = 4.0
   private var points   = List[Vector2D]()
   var startPoint: Option[Vector2D] = None
-  var savedArea : Double = 0
 
   val stateMap: StateMap = Map(
     'Start -> {
@@ -72,26 +71,40 @@ class Area extends Module {
       case End(KeyDown(Key.Esc, _)) :: tail => End
       case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
         if (points.length > 2) {
+          //a function to calculate the center of the area
           Siigna.display("Area: "+units(area(points :+ points(0))))
-          Create(TextShape(units(area(points :+ points(0))),Vector2D(0,0),3 * Siigna.paperScale))
+          //TODO: calculate the weighted center of the polygon and place a TextShape with the area there.
+          //Create(TextShape(units(area(points :+ points(0))),position(points) ,3 * Siigna.paperScale))
+          points = List()
         }
         End
       }
 
       case End(p : Vector2D) :: tail => {
         //if the point module returns with END and a point, a new point is received.
-        points = points :+ p
-        if (startPoint.isEmpty){
+        //points = points :+ p
+        if (points.isEmpty){
           //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
-          startPoint = Some(p)
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+          points = points :+ p
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(points(0),v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
           val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(p),None,None,Some(112))
           Start('cad, "create.Input", inputRequest)
         } else {
           //If the start point is set, the first segment is made and points should be added.
-          points :+ p
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
-          val vector2DMessageGuide = Vector2DMessageGuide((v: Vector2D) => Siigna.display("Area: "+units(area(((points.reverse :+ v).reverse) :+ v))))
+          points = points :+ p
+          //create a guide which adds the mouse position.
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
+            var closedPl = points :+ v
+            closedPl = closedPl :+ points(0)
+            Traversable(PolylineShape(closedPl).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
+          })
+          //a message which display the current area, to be send to the Input module
+          val vector2DMessageGuide = Vector2DMessageGuide((v: Vector2D) =>  {
+            var pts = points :+ v.transform(View.deviceTransformation)
+            pts = pts :+ points(0)
+            Siigna.display("Area: "+units(area(pts)))
+            pts = List()
+          })
           val inputRequest = InputRequest(Some(vector2DGuide),None,None,Some(vector2DMessageGuide),None,None,Some(points.last),None,None,Some(112))
           Start('cad, "create.Input", inputRequest)
           //Start('cad, "create.Input")
@@ -112,7 +125,12 @@ class Area extends Module {
           Start('cad, "create.Input", inputRequest)
         } else {
           val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
-          val vector2DMessageGuide = Vector2DMessageGuide((v: Vector2D) => Siigna.display("Area: "+units(area(((points.reverse :+ v).reverse) :+ v))))
+          val vector2DMessageGuide = Vector2DMessageGuide((v: Vector2D) => {
+            var pts = points :+ v.transform(View.deviceTransformation)
+            pts = pts :+ points(0)
+            Siigna.display("Area: "+units(area(pts)))
+            pts = List()
+          })
           val inputRequest = InputRequest(Some(vector2DGuide),None,None,Some(vector2DMessageGuide),None,None,Some(points.last),None,None,Some(112))
           Start('cad, "create.Input", inputRequest)
         }
