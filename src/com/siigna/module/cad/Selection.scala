@@ -44,7 +44,6 @@ class Selection extends Module {
     if(Drawing.selection.isDefined && clickedShp.isDefined) {
       val parts = Drawing.selection.get.shapes
       parts.foreach(s => println("AA: "+s._1))
-      println(clickedShp.get._1)
     }
     false
   }
@@ -94,7 +93,7 @@ class Selection extends Module {
 
       //if ModuleInit forwards to selection with a left mouse click
       // If a shape-part is hit, it is selected:
-      case Start(_ ,message : MouseDown) :: tail => {
+      case Start(_ , message : MouseDown) :: tail => {
         val m = mousePosition.transform(View.deviceTransformation)
         processPartShape(m)
         End
