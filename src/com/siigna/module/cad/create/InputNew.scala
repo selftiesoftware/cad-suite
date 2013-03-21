@@ -95,6 +95,18 @@ trait Guide {
 
 case class InputRequestNew(inputType: Int, referencePoint: Option[Vector2D], guides : Guide*)
 
+// inputType	Return	  Input method              Track-offset default	AngleGizmo default	Absolute coordinates	Relative coordinates	Reference point(s)
+// 1		      Vector2D	Left mouse down           Off	                  Off	                Yes	                  No	                  None
+// 2		      Vector2D	Left mouse down           On	                  On	                Yes	                  No	                  None
+// 3		      Vector2D	Keys                      Off	                  Off	                Yes	                  No	                  None
+// 4		      Vector2D	Keys                      On	                  On	                Yes	                  No	                  None
+// 5		      Vector2D	Keys or left mouse down   Off	                  Off	                Yes	                  No	                  None
+// 6		      Vector2D	Keys or left mouse down   On	                  On	                Yes	                  No	                  None
+// 7		      Vector2D	Keys or left mouse down   On	                  On	                No	                  Yes	                  One
+
+// 10		Double	Off	Off	N/A	N/A	None	Keys
+
+
 case class DoubleGuideNew(guide : Double => Traversable[Shape]) extends Guide
 case class Vector2DGuideNew(guide : Vector2D => Traversable[Shape]) extends Guide
 case class TextGuideNew(guide : String => Traversable[Shape]) extends Guide
