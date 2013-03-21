@@ -78,12 +78,22 @@ class InputNew extends Module {
     case _ => {
     }
   })
+
+
+  //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
+  override def paint(g : Graphics, t : TransformationMatrix) {
+
+    if ( drawGuideInInputModule == true) {
+
+      guides.foreach(_ match {
+        case Vector2DGuideNew(guide) => {
+          guide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
+        }
+        case _ => // No known guide
+      } )
+    }
+  }
 }
-
-
-
-
-
 
 trait Guide {
   def guide : _ => Traversable[Shape]
