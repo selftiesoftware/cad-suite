@@ -1,0 +1,96 @@
+package com.siigna.module.cad.create
+
+import com.siigna._
+
+/**
+ * Created by IntelliJ IDEA.
+ * User: Niels Egholm
+ * Date: 19-03-13
+ * Time: 17:09
+ * To change this template use File | Settings | File Templates.
+ */
+
+class InputNew extends Module {
+
+  //Information received from calling module
+  var inputRequest: Option[InputRequestNew] = None
+  var inputType: Option[Int] = None
+  var guides: Seq[Guide] = Seq()
+  var referencePoint: Option[Vector2D] = None
+
+  //State of behaviour of input module
+  var drawGuideInInputModule: Boolean = true
+  
+  val stateMap: StateMap = Map(
+    'Start -> {
+      case Start(_ , i: InputRequestNew) :: tail => {
+        inputRequest = Some(i)
+        inputType = Some(i.inputType)
+        guides = i.guides
+        referencePoint = i.referencePoint
+        'ReceiveUserInput
+      }
+      case _ => {
+        End
+      }
+    },
+
+  'ReceiveUserInput -> {
+    //Input from mouse-actions:
+
+    //Left mouse button down (Standard: the clicked point is returned, transformed to view):
+    case MouseDown(p,MouseButtonLeft,modifier)::tail => {
+      if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) | inputType == Some(6))  {
+        End(p.transform(View.deviceTransformation))
+      } else if (inputType == Some(7)) {
+        End((p+referencePoint.get).transform(View.deviceTransformation))
+      }
+    }
+
+    //Input from keyboard:
+
+    //Most key-inputs are not handled directly in Input, but sorted and forwarded to key-input modules.
+    //Some are, however - eg. escape and backspace.
+    case KeyDown(key,modifier) :: tail => {
+      //ESCAPE: Is returned to the asking module as a key-down event:
+      if (key == Key.escape) End(KeyDown(key,modifier))
+      //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event:
+      else if (key == Key.backspace) End(KeyDown(key,modifier))
+      //Any other keys keys, if Vector2D by keys is accepted as input:
+      else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6)) {
+        //if (drawGuideInInputModule == true) drawGuideInInputModule = false
+        Start('cad,"create.InputTwoValues",inputRequest.get)
+      }
+    }
+
+    //Input received from other modules (eg. Input OneValue, InputTwoValues, InputText, AngleGizmo):
+
+    //Vector2D: (Standard: The received Vector2D is returned, un-transformed)
+    case End(p : Vector2D) :: tail => {
+      //if (drawGuideInInputModule == false) drawGuideInInputModule = true
+      if (inputType == Some(7) && !referencePoint.isEmpty) {
+        End(referencePoint.get + p)
+      } else {
+        End(p)
+      }
+    }
+
+
+
+    case _ => {
+    }
+  })
+
+}
+
+
+trait Guide[A <: Any] { def guide : A => Traversable[Shape] }
+
+case class InputRequestNew(inputType: Int, referencePoint: Option[Vector2D], guides : Guide*)
+
+case class DoubleGuideNew(guide : Double => Traversable[Shape]) extends Guide[Double]
+case class Vector2DGuideNew(guide : Vector2D => Traversable[Shape]) extends Guide[Vector2D]
+case class TextGuideNew(guide : String => Traversable[Shape]) extends Guide[String]
+case class DoubleMessageGuideNew(guide : Double => Traversable[Shape]) extends Guide[Double]
+case class Vector2DMessageGuideNew(guide : Vector2D => Traversable[Shape]) extends Guide[Vector2D]
+case class TextMessageGuideNew(guide : String => Traversable[Shape]) extends Guide[String]
