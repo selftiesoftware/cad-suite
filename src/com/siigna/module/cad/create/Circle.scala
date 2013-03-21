@@ -52,7 +52,7 @@ class Circle extends Module {
 
           //Starts point, asks for two-value-input (center):
           case _ => {
-            Start('cad, "create.Input", 1)
+            Start('cad, "createNew.Input", InputRequestNew(6,None))
           }
         }
       }
