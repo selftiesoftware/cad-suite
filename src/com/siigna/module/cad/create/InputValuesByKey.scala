@@ -71,7 +71,7 @@ class InputValuesByKey extends Module {
   var inputRequest: Option[InputRequestNew] = None
   var inputType: Option[Int] = None
   var guides: Seq[Guide] = Seq()
-
+  var referencePoint: Option[Vector2D] = None
 
   var vector2DGuide: Option[Vector2DGuide] = None
   var doubleGuide: Option[DoubleGuide] = None
@@ -79,7 +79,7 @@ class InputValuesByKey extends Module {
   var vector2DMessageGuide: Option[Vector2DMessageGuide] = None
   var doubleMessageGuide: Option[DoubleMessageGuide] = None
   var textMessageGuide: Option[TextMessageGuide] = None
-  var referencePoint: Option[Vector2D] = None
+
   var referenceDouble: Option[Double] = None
 
   var startPoint : Option[Vector2D] = None
@@ -216,7 +216,7 @@ class InputValuesByKey extends Module {
         guide(Vector2D(referencePoint.get.x + x,referencePoint.get.y + y)).foreach(s => g.draw(s.transform(t)))
       }
       case _ => // No known guide
-      } )
+    })
   }
 
 }
