@@ -75,13 +75,14 @@ class InputNew extends Module {
       }
     }
 
-
-
     case _ => {
     }
   })
-
 }
+
+
+
+
 
 
 trait Guide {
@@ -92,6 +93,7 @@ trait Guide {
 // 1) inputType: An integer, which tells the input-module what input the asking module needs. For description of types, see below.
 // 2) referencePoint: A reference point, if it is required. If no reference point is required, write None - as it is an option[Vector2d]
 // 3) guide(s): One or more guides, used for drawing the shapes dynamically based on the user-input. Seperate guides by , if there are more than one.
+//    If there is no guide, don't write anything here.
 
 case class InputRequestNew(inputType: Int, referencePoint: Option[Vector2D], guides : Guide*)
 
