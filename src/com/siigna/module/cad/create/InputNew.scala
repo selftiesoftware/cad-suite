@@ -40,7 +40,7 @@ class InputNew extends Module {
 
     //Left mouse button down (Standard: the clicked point is returned, transformed to view):
     case MouseDown(p,MouseButtonLeft,modifier)::tail => {
-      if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) | inputType == Some(6))  {
+      if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7))  {
         End(p.transform(View.deviceTransformation))
       } else if (inputType == Some(7)) {
         End((p+referencePoint.get).transform(View.deviceTransformation))
@@ -57,7 +57,7 @@ class InputNew extends Module {
       //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event:
       else if (key == Key.backspace) End(KeyDown(key,modifier))
       //Any other keys keys, if Vector2D by keys is accepted as input:
-      else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6)) {
+      else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)) {
         //if (drawGuideInInputModule == true) drawGuideInInputModule = false
         Start('cad,"create.InputTwoValues",inputRequest.get)
       }
@@ -84,13 +84,20 @@ class InputNew extends Module {
 }
 
 
-trait Guide[A <: Any] { def guide : A => Traversable[Shape] }
+trait Guide {
+  def guide : _ => Traversable[Shape]
+}
+
+//The input request to be sent to the input module. Contains the information, the module needs to pass to the input module. Consists of:
+// 1) inputType: An integer, which tells the input-module what input the asking module needs. For description of types, see below.
+// 2) referencePoint: A reference point, if it is required. If no reference point is required, write None - as it is an option[Vector2d]
+// 3) guide(s): One or more guides, used for drawing the shapes dynamically based on the user-input. Seperate guides by , if there are more than one.
 
 case class InputRequestNew(inputType: Int, referencePoint: Option[Vector2D], guides : Guide*)
 
-case class DoubleGuideNew(guide : Double => Traversable[Shape]) extends Guide[Double]
-case class Vector2DGuideNew(guide : Vector2D => Traversable[Shape]) extends Guide[Vector2D]
-case class TextGuideNew(guide : String => Traversable[Shape]) extends Guide[String]
-case class DoubleMessageGuideNew(guide : Double => Traversable[Shape]) extends Guide[Double]
-case class Vector2DMessageGuideNew(guide : Vector2D => Traversable[Shape]) extends Guide[Vector2D]
-case class TextMessageGuideNew(guide : String => Traversable[Shape]) extends Guide[String]
+case class DoubleGuideNew(guide : Double => Traversable[Shape]) extends Guide
+case class Vector2DGuideNew(guide : Vector2D => Traversable[Shape]) extends Guide
+case class TextGuideNew(guide : String => Traversable[Shape]) extends Guide
+case class DoubleMessageGuideNew(guide : Double => Traversable[Shape]) extends Guide
+case class Vector2DMessageGuideNew(guide : Vector2D => Traversable[Shape]) extends Guide
+case class TextMessageGuideNew(guide : String => Traversable[Shape]) extends Guide

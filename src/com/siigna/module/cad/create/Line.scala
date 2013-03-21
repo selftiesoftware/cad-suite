@@ -36,7 +36,7 @@ class Line extends Module {
             Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
           })
           val inputRequest = InputRequestNew(7,startPoint,vector2DGuide)
-          Start('cad,"create.Input", inputRequest)
+          Start('cad,"create.InputNew", inputRequest)
         } else {
           val line = LineShape(startPoint.get,v).addAttributes("Color" -> color , "StrokeWidth" -> stroke)
           Create(line)
