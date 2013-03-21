@@ -59,7 +59,7 @@ class InputNew extends Module {
       //Any other keys keys, if Vector2D by keys is accepted as input:
       else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)) {
         //if (drawGuideInInputModule == true) drawGuideInInputModule = false
-        Start('cad,"create.InputTwoValues",inputRequest.get)
+        Start('cad,"create.InputValuesByKey",inputRequest.get)
       }
     }
 
