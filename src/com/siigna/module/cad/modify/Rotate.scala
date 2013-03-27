@@ -18,7 +18,6 @@ import com.siigna.module.ModuleInit
 
 class Rotate extends Module {
 
-
   private var anglePoint : Option[Vector2D] = None
   private var centerPoint : Option[Vector2D] = None
 
@@ -48,7 +47,7 @@ class Rotate extends Module {
         val l = new ModuleInit
         if (l.usableSelectionExists) {
           Siigna display "set centre point for rotation"
-          Start('cad, "create.Input", 1)
+          Start('cad, "create.InputNew", 1)
         } else {
           Siigna display "nothing selected"
           End
@@ -65,28 +64,41 @@ class Rotate extends Module {
       // If the user clicks a single point, he defined the start of the rotation
       case MouseUp(p, _, _) :: _ :: MouseDown(down, _, _) :: tail => {
         anglePoint = Some(p)
-        'CenterPoint
+        'AnglePoint
       }
+
+      // Match for input
+      case KeyDown(c, _) :: tail if (c.toChar.isDigit) => {
+        Start('cad, "create.InputOneValueByKey", )
+      }
+
+      // Match for returning double
+      case End(angle : Double) :: tail => {
+        transformation = getTransformation(centerPoint.get, angle)
+      }
+
+      // If we get anything else we quit
+      case End(_) :: tail => End
     },
 
-    'CenterPoint -> {
+    'AnglePoint -> {
       case MouseUp(p, _, _) :: tail => {
-        transformation = getTransformation(centerPoint.get, p, anglePoint.get)
+        transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
         Drawing.selection.get.apply(transformation)
         Drawing.deselect()
         End
       }
       case MouseMove(p, _, _) :: tail => {
-        transformation = getTransformation(centerPoint.get, p, anglePoint.get)
+        transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
       }
     },
 
     'DragAngle -> {
       case MouseMove(p, _, _) :: tail => {
-        transformation = getTransformation(centerPoint.get, p, anglePoint.get)
+        transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
       }
       case MouseUp(p, _, _) :: tail => {
-        transformation = getTransformation(centerPoint.get, p, anglePoint.get)
+        transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
         Drawing.selection.get.apply(transformation)
         Drawing.deselect()
         End
@@ -96,8 +108,8 @@ class Rotate extends Module {
 
   private def getAngle(p : Vector2D) = (p.transform(View.deviceTransformation) - centerPoint.get).angle
 
-  private def getTransformation(center : Vector2D, mouse : Vector2D, angle : Vector2D) =
-    TransformationMatrix().rotate(getAngle(mouse) - getAngle(angle), center)
+  private def getTransformation(center : Vector2D, angle : Double) =
+    TransformationMatrix().rotate(angle, center)
 
   override def paint(g : Graphics, t : TransformationMatrix) {
     Drawing.selection.foreach(selection => { // Rotate the selection and draw each shape in it
