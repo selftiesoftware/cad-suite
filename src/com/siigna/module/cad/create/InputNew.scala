@@ -17,9 +17,6 @@ class InputNew extends Module {
   var inputType: Option[Int] = None
   var guides: Seq[Guide] = Seq()
   var referencePoint: Option[Vector2D] = None
-
-  //State of behaviour of input module
-  var drawGuideInInputModule: Boolean = true
   
   val stateMap: StateMap = Map(
     'Start -> {
@@ -58,7 +55,6 @@ class InputNew extends Module {
       else if (key == Key.backspace) End(KeyDown(key,modifier))
       //Any other keys keys, if Vector2D by keys is accepted as input:
       else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)) {
-        //if (drawGuideInInputModule == true) drawGuideInInputModule = false
         Start('cad,"create.InputValuesByKey",inputRequest.get)
       }
     }
@@ -76,7 +72,7 @@ class InputNew extends Module {
     }
 
     case _ => {
-      println("Her")
+
     }
   })
 
@@ -84,8 +80,7 @@ class InputNew extends Module {
   //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
   override def paint(g : Graphics, t : TransformationMatrix) {
 
-    if ( drawGuideInInputModule == true) {
-
+    if (!isForwarding) {
       guides.foreach(_ match {
         case Vector2DGuideNew(guide) => {
           guide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
