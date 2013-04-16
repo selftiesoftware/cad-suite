@@ -76,6 +76,7 @@ class InputNew extends Module {
     }
 
     case _ => {
+      println("Her")
     }
   })
 
