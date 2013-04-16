@@ -42,7 +42,7 @@ class Rotate extends Module {
       case End(_) :: tail => End
 
       // If we are starting, forward to Input
-      case Start(_, _) => {
+      case Start(_, _) :: tail => {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         val l = new ModuleInit
         if (l.usableSelectionExists) {
