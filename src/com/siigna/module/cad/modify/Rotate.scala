@@ -69,7 +69,7 @@ class Rotate extends Module {
 
       // Match for input
       case KeyDown(c, _) :: tail if (c.toChar.isDigit) => {
-        Start('cad, "create.InputOneValueByKey", )
+        Start('cad, "create.InputOneValueByKey")
       }
 
       // Match for returning double
