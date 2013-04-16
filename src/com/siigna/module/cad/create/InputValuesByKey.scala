@@ -71,7 +71,7 @@ class InputValuesByKey extends Module {
   var inputRequest: Option[InputRequestNew] = None
   var inputType: Option[Int] = None
   var guides: Seq[Guide] = Seq()
-
+  var referencePoint: Option[Vector2D] = None
 
   var vector2DGuide: Option[Vector2DGuide] = None
   var doubleGuide: Option[DoubleGuide] = None
@@ -79,8 +79,7 @@ class InputValuesByKey extends Module {
   var vector2DMessageGuide: Option[Vector2DMessageGuide] = None
   var doubleMessageGuide: Option[DoubleMessageGuide] = None
   var textMessageGuide: Option[TextMessageGuide] = None
-  var referencePoint1: Option[Vector2D] = None
-  var referencePoint2: Option[Vector2D] = None
+
   var referenceDouble: Option[Double] = None
 
   var startPoint : Option[Vector2D] = None
@@ -112,6 +111,7 @@ class InputValuesByKey extends Module {
           inputRequest = Some(i)
           inputType = Some(i.inputType)
           guides = i.guides
+          referencePoint = i.referencePoint
           //save the already typed key:
           if (code.toChar.isDigit) coordinateValue += code.toChar
           if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
@@ -208,5 +208,15 @@ class InputValuesByKey extends Module {
       }
     })
 
+  //draw the guide:
+  override def paint(g : Graphics, t : TransformationMatrix) {
+
+    guides.foreach(_ match {
+      case Vector2DGuideNew(guide) => {
+        guide(Vector2D(referencePoint.get.x + x,referencePoint.get.y + y)).foreach(s => g.draw(s.transform(t)))
+      }
+      case _ => // No known guide
+    })
+  }
 
 }
