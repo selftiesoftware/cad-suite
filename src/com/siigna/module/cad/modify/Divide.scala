@@ -28,7 +28,7 @@ class Divide extends Module {
         //start 'Divide only if there is a selection)
 
         if (Drawing.selection.isDefined) {
-          shape = Drawing(Drawing.selection.get.parts.head._1)
+          shape = Drawing(Drawing.selection.parts.head._1)
           Siigna display "type number of subdivisions"
           'TextInput
         } else {

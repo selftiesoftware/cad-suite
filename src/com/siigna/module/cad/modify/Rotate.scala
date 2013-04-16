@@ -25,6 +25,8 @@ class Rotate extends Module {
   private var startVector : Option[Vector2D] = Some(Vector2D(0,0))
   var transformation : Option[TransformationMatrix] = None
 
+  def transformSelection(t : TransformationMatrix) = Drawing.selection.transform(t).shapes.values
+
   val stateMap: StateMap = Map(
 
     'Start -> {
@@ -41,7 +43,7 @@ class Rotate extends Module {
           val doubleGuide = DoubleGuide((a : Double) => {
             val t : TransformationMatrix =
               TransformationMatrix( ).rotate(-a, centerPoint.get)
-            Drawing.selection.get.apply(t)
+            transformSelection(t)
           })
 
           val inputRequest = InputRequest(None,Some(doubleGuide),None,None,None,None,centerPoint,None,None,Some(120))
@@ -55,13 +57,13 @@ class Rotate extends Module {
           Siigna display "click to finish rotation, or type a rotation angle"
           val doubleGuide = DoubleGuide((d: Double) => {
             val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
-            Drawing.selection.get.apply(t)
+            transformSelection(t)
           })
           val vector2DGuide = Vector2DGuide((v: Vector2D) => {
             //Angle of line from reference point to mouse position:
             val d : Double = (-((mousePosition.transform(View.deviceTransformation) - centerPoint.get).angle - (startVector.get - centerPoint.get).angle))
             val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
-            Drawing.selection.get.apply(t)
+            transformSelection(t)
           })
           val inputRequest = InputRequest(Some(vector2DGuide),Some(doubleGuide),None,None,None,None,None,None,None,Some(13))
           //13 : Input type = Double from keys, or Vector2D from mouseDown.
@@ -78,7 +80,7 @@ class Rotate extends Module {
             } else TransformationMatrix()
           }
           //val t = transformation.get.rotate(rotation,centerPoint.get)
-          Drawing.selection.get.transform(t)
+          Drawing.selection.transform(t)
           Drawing.deselect()
           End
         }
@@ -92,7 +94,7 @@ class Rotate extends Module {
           } else TransformationMatrix()
         }
         //val t = transformation.get.rotate(rotation,centerPoint.get)
-        Drawing.selection.get.transform(t)
+        Drawing.selection.transform(t)
         Drawing.deselect()
         End
       }
@@ -100,7 +102,7 @@ class Rotate extends Module {
       case _ => {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         val l = new ModuleInit
-        if (l.usableSelectionExists) {
+        if (Drawing.selection.isDefined) {
           Siigna display "set centre point for rotation"
           Start('cad, "create.Input", 1)
         } else {

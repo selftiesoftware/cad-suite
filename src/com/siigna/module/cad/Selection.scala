@@ -42,7 +42,7 @@ class Selection extends Module {
   def isSelected(m : Vector2D) : Boolean = {
     val clickedShp = findNearest(m)
     if(Drawing.selection.isDefined && clickedShp.isDefined) {
-      val parts = Drawing.selection.get.shapes
+      val parts = Drawing.selection.shapes
       parts.foreach(s => println("AA: "+s._1))
     }
     false

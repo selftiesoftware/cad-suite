@@ -148,8 +148,8 @@ class Trim extends Module {
     val guideSegment2 = Line2D(g(guideSegmentNr2),g(guideSegmentNr2+1))
     val trimSegment1 = Line2D(t(trimSegmentNr1),t(trimSegmentNr1+1))
     val trimSegment2 = Line2D(t(trimSegmentNr2),t(trimSegmentNr2+1))
-    var int1 = guideSegment1.intersections(trimSegment1)   //do the intersection!
-    var int2 = guideSegment2.intersections(trimSegment2)   //do the intersection!
+    val int1 = guideSegment1.intersections(trimSegment1)   //do the intersection!
+    val int2 = guideSegment2.intersections(trimSegment2)   //do the intersection!
 
 
     //one or first intersection - get the trimline
@@ -289,17 +289,17 @@ class Trim extends Module {
       }
       case _ => {
         Track.trackEnabled = false
-        if (Drawing.selection.isDefined && Drawing.selection.get.size == 1 && done == false) {
-          trimGuide = Some(Drawing.selection.head.shapes.head._2)
-          trimID = Some(Drawing.selection.head.shapes.head._1)
+        if (Drawing.selection.size == 1 && done == false) {
+          trimGuide = Some(Drawing.selection.shapes.head._2)
+          trimID = Some(Drawing.selection.shapes.head._1)
           Siigna.display("Select shapes to trim")
           Start('cad, "create.Input", 1)
         }
-        else if(Drawing.selection.isDefined && Drawing.selection.get.size == 2  && done == false) {
-          trimGuide = Some(Drawing.selection.head.shapes.head._2)
-          trimID = Some(Drawing.selection.head.shapes.head._1)
-          trimGuide2 = Some(Drawing.selection.last.shapes.last._2)
-          trimID2 = Some(Drawing.selection.last.shapes.last._1)
+        else if(Drawing.selection.size == 2  && done == false) {
+          trimGuide = Some(Drawing.selection.shapes.head._2)
+          trimID = Some(Drawing.selection.shapes.head._1)
+          trimGuide2 = Some(Drawing.selection.shapes.last._2)
+          trimID2 = Some(Drawing.selection.shapes.last._1)
           Siigna.display("Select shapes to trim")
           Start('cad, "create.Input", 1)
         }

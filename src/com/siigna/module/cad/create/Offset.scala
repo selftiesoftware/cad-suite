@@ -12,8 +12,6 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
-import app.model.shape.PolylineLineShape
-import collection.mutable.WrappedArray
 
 class Offset extends Module {
   private var attr = Attributes()
@@ -33,7 +31,7 @@ class Offset extends Module {
   }
   //a function to generate a PolylineShape from the result of the offsetLines function
   def generateOffsetLine(s: Any) : PolylineShape = {
-    val shape = Drawing.selection.head.shapes.head._2
+    val shape = Drawing.selection.shapes.head._2
     if(shape.geometry.vertices.head == shape.geometry.vertices.last) isClosed = true
     
     var newLines: Option[List[LineShape]] = None 
@@ -46,8 +44,7 @@ class Offset extends Module {
         var knots = List[Vector2D]()
         knots = knots :+ newLines.get.head.p1 //add the first point to the list
 
-        def result = getKnots(newLines.get).foreach(s => knots = knots :+ s) //add the intersections to the knots list
-        result
+        getKnots(newLines.get).foreach(s => knots = knots :+ s) //add the intersections to the knots list
 
         knots = knots :+ newLines.get.reverse.head.p2 //add the last point to the list
 
@@ -113,13 +110,13 @@ class Offset extends Module {
   //calculates the distance to offset shapes by, then calls the offset function to returns offset shapes as a list
   def offsetLines(s : Shape, m : Vector2D) : List[LineShape] = {
     var l = List[LineShape]()
-    var v = s.geometry.vertices
+    val v = s.geometry.vertices
     //iterate through the shapes to find the shape closest to the mouse
     def calcNearest : Double = {
       var nearestDist : Double = LineShape(v(0), v(1)).distanceTo(m)
       var closestSegment : Option[LineShape] = Some(LineShape(v(0), v(1)))
       for (i <- 0 to v.length -2) {
-        var currentSegment = LineShape(v(i), v(i+1))
+        val currentSegment = LineShape(v(i), v(i+1))
         if (currentSegment.distanceTo(m) < nearestDist) {
           closestSegment = Some(currentSegment)
           nearestDist = currentSegment.distanceTo(m)
@@ -138,14 +135,14 @@ class Offset extends Module {
 
   def offsetLines(s : Shape, d : Double) = {
     var l = List[LineShape]()
-    var v = s.geometry.vertices
+    val v = s.geometry.vertices
     val m = mousePosition.transform(View.deviceTransformation)
     //iterate through the shapes to find the shape closest to the mouse
     def calcNearest : Double = {
       var nearestDist : Double = LineShape(v(0), v(1)).distanceTo(m)
       var closestSegment : Option[LineShape] = Some(LineShape(v(0), v(1)))
       for (i <- 0 to v.length -2) {
-        var currentSegment = LineShape(v(i), v(i+1))
+        val currentSegment = LineShape(v(i), v(i+1))
         if (currentSegment.distanceTo(m) < nearestDist) {
           closestSegment = Some(currentSegment)
           nearestDist = currentSegment.distanceTo(m)
@@ -198,12 +195,12 @@ class Offset extends Module {
 
     case _ => {
       println("A")
-      if (!Drawing.selection.isDefined && done == false) {
+      if (Drawing.selection.isDefined && done == false) {
         Siigna display "select an object to offset first"
         End
       }
-      else if (Drawing.selection.isDefined && Drawing.selection.get.size == 1 ){
-        attr = Drawing.selection.head.shapes.head._2.attributes
+      else if (Drawing.selection.size == 1 ){
+        attr = Drawing.selection.shapes.head._2.attributes
         Siigna display "click to set the offset distance"
         val inputRequest = InputRequest(Some(vector2DGuide), Some(doubleGuide), None, None, None, None, None, None, None, Some(13))
         // 13: MouseDown or typed length

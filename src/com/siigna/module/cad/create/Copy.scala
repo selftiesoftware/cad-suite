@@ -12,36 +12,38 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
-import app.Siigna
-import module.ModuleInit
 
 class Copy extends Module {
 
   var endPoint : Option[Vector2D] = None
   var multiActive = false
   var startPoint : Option[Vector2D] = None
-  var shapes : Option[Selection] = None
-  var transformation : Option[TransformationMatrix] = None
+  var transformation = TransformationMatrix()
+
+  // The selection
+  def selection = Drawing.selection
+
+  // Transforms the selection and returns the resulting shapes
+  def transform(t : TransformationMatrix) = selection.transform(t).shapes.values
 
   val stateMap: StateMap = Map(
 
     'Start -> {
       case End(p : Vector2D) :: tail => {
-        if(!startPoint.isDefined && !Drawing.selection.get.isEmpty) {
-          shapes = Some(Drawing.selection.get)
+        if(!startPoint.isDefined && !Drawing.selection.isEmpty) {
           startPoint = Some(p)
           Siigna display "set destination"
-          val vector2DGuide = Vector2DGuide((v : Vector2D) => Drawing.selection.get.apply(TransformationMatrix(v - startPoint.get, 1)))
+          val vector2DGuide = Vector2DGuide((v : Vector2D) => transform(TransformationMatrix(v - startPoint.get, 1)))
           val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(1))
           Start('cad, "create.Input", inputRequest)
         }
         else if(startPoint.isDefined){
           endPoint = Some(p)
-          transformation = Some(TransformationMatrix((p - startPoint.get), 1))
+          transformation = TransformationMatrix((p - startPoint.get), 1)
           Siigna display "type number of copies or click for one"
           multiActive = true
-          val doubleGuide = DoubleGuide((r: Double) => shapes.get.apply(transformation.get))
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => shapes.get.apply(transformation.get))
+          val doubleGuide = DoubleGuide((r: Double) => transform(transformation))
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => transform(transformation))
           val inputRequest = InputRequest(Some(vector2DGuide),Some(doubleGuide),None,None,None,None,startPoint,None,None,Some(17))
           Start('cad, "create.Input", inputRequest)
         }
@@ -53,7 +55,7 @@ class Copy extends Module {
           if (g == 0) g = 1
           if (g < 0) g = math.abs(g)
           for (i <- 1 to g.toInt) {
-            Create(shapes.get.apply(TransformationMatrix(Vector2D((endPoint.get.x - startPoint.get.x) * i, (endPoint.get.y - startPoint.get.y) * i), 1)))
+            Create(transform(TransformationMatrix(Vector2D((endPoint.get.x - startPoint.get.x) * i, (endPoint.get.y - startPoint.get.y) * i), 1)))
           }
         }
         End
@@ -61,8 +63,8 @@ class Copy extends Module {
 
       case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => {
         if (multiActive == true) {
-          transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
-          Create(shapes.get.apply(transformation.get))
+          transformation = TransformationMatrix((endPoint.get - startPoint.get), 1)
+          Create(transform(transformation))
           val module = Module('base, "Menu")
           End(module)
         } else End
@@ -71,8 +73,8 @@ class Copy extends Module {
       case End(KeyDown(key,modifier)) :: tail => {
         if (key == Key.escape) {
           if (multiActive == true) {
-            transformation = Some(TransformationMatrix((endPoint.get - startPoint.get), 1))
-            Create(shapes.get.apply(transformation.get))
+            transformation = TransformationMatrix((endPoint.get - startPoint.get), 1)
+            Create(transform(transformation))
           }
           End('base, "Menu")
         }
@@ -84,12 +86,9 @@ class Copy extends Module {
       case MouseDown(p, MouseButtonRight, _) :: tail => End
 
       case _ => {
-        //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
-        val l = new ModuleInit
-
-        if (l.usableSelectionExists) {
+        if (Drawing.selection.isDefined) {
           if(multiActive == true) {
-            Create(shapes.get.apply(transformation.get))
+            Create(transform(transformation))
             End
           }
           else {

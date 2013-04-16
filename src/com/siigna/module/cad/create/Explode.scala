@@ -15,9 +15,7 @@ package com.siigna.module.cad.create
 
 
 import com.siigna._
-import app.model.shape.FullShapePart
-import app.model.shape.PolylineShape
-import module.{ModuleInit, Module}
+import com.siigna.app.model.selection.FullShapePart
 
 /**
  * Created by IntelliJ IDEA.
@@ -43,11 +41,10 @@ class Explode extends Module{
       case _ => {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         var somethingExploded: Boolean = false
-        val l = new ModuleInit
-        if (l.usableSelectionExists) {
-            println("Drawing.selection.get.self: " + Drawing.selection.get.self)
+        if (Drawing.selection.isDefined) {
+            println("Drawing.selection.get.self: " + Drawing.selection)
             //Match on shapes in the selection to check for polylines:
-            Drawing.selection.get.self.foreach((shape) => {
+            Drawing.selection.foreach((shape) => {
               println("Explode begins")
               println(shape)
               println(shape._1) 
@@ -106,48 +103,4 @@ class Explode extends Module{
       }
     })
 
-    /*
-    'Explode -> {
-      def explode (shape : Shape) : Seq[Shape] = {
-        try {
-          shape match {
-            case a : ArcShape => {
-              println("found LineShape - this shape cannot be exploded"+a)
-              Seq()
-            }
-            case c : CircleShape => {
-              println("found CircleShape - this shape cannot be exploded yet"+c)
-              Seq()
-            }
-            case p : PolylineShape => {
-              //println("explode polylines here: "+p)
-              explodedPolylines += 1
-
-              p.shapes
-
-            }
-            case l : LineShape => {
-              println("found LineShape - this shape cannot be exploded")
-              Seq()
-            }
-            case _ => Siigna display "Some shapes could not be exploded"
-            Seq()
-          }
-        }
-      }
-      //filter everything from the Seq that is empty.
-      //run the explode def on the rest, and save the restults to the explodeableShapes val.
-      val explodeableShapes = Drawing.selection.get.shapes.map(t => t._1 -> explode(t._2)).filter(t => !t._2.isEmpty)
-
-      if(!explodeableShapes.isEmpty) {
-        //use the IDs from the Seq to delete the original shapes
-        Delete(explodeableShapes.keys)
-        //use the shapeParts to create the exploded shapes
-        //NE// CreateCategory(explodeableShapes.values.flatten)
-      }
-
-      Siigna display "Exploded "+explodedPolylines+" polylines to lines"
-      'End
-    }
-  ) */
 }
