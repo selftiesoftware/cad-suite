@@ -15,7 +15,6 @@ package com.siigna.module.cad.create
 
 
 import com.siigna._
-import com.siigna.app.model.selection.FullShapePart
 
 /**
  * Created by IntelliJ IDEA.
@@ -44,24 +43,24 @@ class Explode extends Module{
         if (Drawing.selection.isDefined) {
             println("Drawing.selection.get.self: " + Drawing.selection)
             //Match on shapes in the selection to check for polylines:
-            Drawing.selection.foreach((shape) => {
+            Drawing.selection.foreach((t) => {
               println("Explode begins")
-              println(shape)
-              println(shape._1) 
-              println(Drawing.get(shape._1).get)
-              Drawing.get(shape._1).get match {
+              val id = t._1
+              val shape = t._2._1
+              val selector = t._2._2
+              shape match {
                 case p : PolylineShape => {
                   //Check if some of, or the whole shape has been selected:
-                  shape._2 match {
-                    case FullShapePart => {
+                  selector match {
+                    case FullShapeSelector => {
                       //If the whole shape has been selected, explode it!
                       polylinesToExplode = polylinesToExplode :+ p
-                      idsForShapesToExplode = idsForShapesToExplode :+ shape._1
+                      idsForShapesToExplode = idsForShapesToExplode :+ id
                       somethingExploded = true
                       explodedPolylines += 1
                     }
                     //If only part of the shape has been selected:
-                    case app.model.shape.PolylineShape.Part(x) => {
+                    case BitSetShapeSelector(x) => {
                       println("Bitset x: " + x)
                       x.foreach((bitset) => {
                         //Exclude the endpoints of the polyline:

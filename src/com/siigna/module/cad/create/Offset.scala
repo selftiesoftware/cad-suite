@@ -205,7 +205,7 @@ class Offset extends Module {
         val inputRequest = InputRequest(Some(vector2DGuide), Some(doubleGuide), None, None, None, None, None, None, None, Some(13))
         // 13: MouseDown or typed length
         Start('cad, "create.Input", inputRequest)
-      } else if (done == true) End
+      } else if (done) End
       else {
         Siigna display "please select one shape to offset"
         Drawing.deselect()

@@ -24,7 +24,6 @@ class Scale extends Module {
   var firstPointEntered: Boolean = false
   var transformation : TransformationMatrix = TransformationMatrix()
   var requestedLength: Option[Double] = None
-
   def transformSelection(t : TransformationMatrix) = Drawing.selection.transform(t).shapes.values
 
   val stateMap: StateMap = Map(

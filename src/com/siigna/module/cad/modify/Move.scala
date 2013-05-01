@@ -29,6 +29,8 @@ class Move extends Module {
     case _ => Nil
   })
 
+  def transformSelection(t : TransformationMatrix) = Drawing.selection.transform(t).shapes.values
+
   val stateMap: StateMap = Map(
     'Start -> {
       //exit strategy

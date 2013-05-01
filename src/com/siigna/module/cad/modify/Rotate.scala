@@ -24,7 +24,6 @@ class Rotate extends Module {
 
   private var startVector : Option[Vector2D] = Some(Vector2D(0,0))
   var transformation : Option[TransformationMatrix] = None
-
   def transformSelection(t : TransformationMatrix) = Drawing.selection.transform(t).shapes.values
 
   val stateMap: StateMap = Map(

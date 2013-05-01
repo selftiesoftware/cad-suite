@@ -59,10 +59,10 @@ class Selection extends Module {
   def processPartShape(m: Vector2D) = {
     nearestShape = findNearest(m)   //find the shape closest to the mouse
     //if a nearest shape is defined, and SHIFT is not pressed, add the part to the selection
-    if (!nearestShape.isEmpty && hasShift == false) {
-      val part = nearestShape.get._2.getPart(mousePosition.transform(View.deviceTransformation))
+    if (!nearestShape.isEmpty && hasShift) {
+      val part = nearestShape.get._2.getSelector(mousePosition.transform(View.deviceTransformation))
       Drawing.select(nearestShape.get._1, part)
-    } else if (!nearestShape.isEmpty && hasShift == true && isSelected(m) == false) {
+    } else if (!nearestShape.isEmpty && hasShift && !isSelected(m)) {
       //TODO: update this so that it deselects only a segment, not the entire model.
       Drawing.deselect()
     }
