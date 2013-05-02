@@ -11,11 +11,8 @@
 
 package com.siigna.module.cad.properties
 
-import com.siigna.app.view.Graphics
 import com.siigna._
 import java.awt.Color
-import com.siigna.module.base.Menu
-
 /**
  * a wheel to select colors for lines, surfaces and text
  */
@@ -58,7 +55,7 @@ class Colors extends Module {
   def getActiveAngle(startPoint : Vector2D, mousePosition : Vector2D) : Int = {
     var activeAngle = 0
     val radian = (mousePosition - startPoint).angle.toInt
-    var calculatedAngle = radian + 450
+    val calculatedAngle = radian + 450
     if (calculatedAngle > 360)
       activeAngle = calculatedAngle - 360
     else activeAngle = calculatedAngle
@@ -130,7 +127,7 @@ class Colors extends Module {
         }
 
         if(!Drawing.isEmpty) {
-          Drawing.selection.foreach(s => s.addAttributes("Color" -> activeColor.get ))
+          Drawing.selection.addAttribute("Color" -> activeColor.get)
           Drawing.deselect()
         }
         //clear values and reactivate navigation

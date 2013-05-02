@@ -140,8 +140,8 @@ class Connect extends Module{
         //set the first shape
         if(Drawing.selection.size == 1) {
           connectPoint1 = Some(p) //get the location of the first segment to connect.
-          shape1 = Some(Drawing.selection.head.shapes.head._2)
-          shapeID1 = Some(Drawing.selection.head.shapes.head._1)
+          shape1 = Some(Drawing.selection.shapes.head._2)
+          shapeID1 = Some(Drawing.selection.shapes.head._1)
           attr = shape1.get.attributes //get attributes of the first shape to be transferred to the second.
           Drawing.deselect()
           Start('cad, "base.Selection", MouseDown(p, MouseButtonLeft, modifier)) //look for one more shape to connect to
@@ -150,8 +150,8 @@ class Connect extends Module{
         //set the second shape and connect the two, if possible.  
         else if (Drawing.selection.size == 2) {
           connectPoint2 = Some(p) //get the location of the first segment to connect.
-          shape2 = Some(Drawing.selection.head.shapes.head._2)
-          shapeID2 = Some(Drawing.selection.head.shapes.head._1)
+          shape2 = Some(Drawing.selection.shapes.head._2)
+          shapeID2 = Some(Drawing.selection.shapes.head._1)
 
           //do the connection:
           //val l = trim(guideShape, trimShape, v)
@@ -166,8 +166,8 @@ class Connect extends Module{
         println("sel: "+Drawing.selection)
         if(Drawing.selection.size == 1) {
           //connectPoint1 = Some(v) //get the location of the first segment to connect.
-          shape1 = Some(Drawing.selection.head.shapes.head._2)
-          shapeID1 = Some(Drawing.selection.head.shapes.head._1)
+          shape1 = Some(Drawing.selection.shapes.head._2)
+          shapeID1 = Some(Drawing.selection.shapes.head._1)
           //attr = shape1.get.attributes //get attributes of the first shape to be transferred to the second.
           //Start('cad, "base.Selection") //look for one more shape to connect to
           

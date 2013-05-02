@@ -14,7 +14,6 @@ package com.siigna.module
 import base.{PaperHeader, Menu}
 import cad.radialmenu.category.StartCategory
 import com.siigna._
-import app.model.shape.FullShapePart
 
 /**
  * An init module for the cad-suite.
@@ -49,48 +48,6 @@ class ModuleInit extends Module {
       case module => lastModule = Some(module) //enable module recall with space
     }
     Start(m, modText)
-  }
-
-  //Check if there is a useable selection:
-  // TODO: Make a more elegant way to check for usable selection - in mainline?
-  def usableSelectionExists = {
-    var usableSelectionExists: Boolean = false
-    if (!Drawing.selection.isEmpty) {
-      //The selection could be an empty map, which is unusable - check for that:
-      if (Drawing.selection.get.self.size != 0)
-      //The map could contain an EmptyShapePart or a Part with
-      // an empty bit-set, which is unusable - check for that:
-        Drawing.selection.get.self.foreach((shape) => {
-          shape._2 match {
-            //A FullShapePart or a selector containing a BitSet means a useable selection:
-            case FullShapePart => usableSelectionExists = true
-            case app.model.shape.PolylineShape.Part(x) => {
-              if (x.size >0) {
-                //If the size of the bitset is larger than 0, something useful is selected...
-                usableSelectionExists = true
-              }
-            }
-            case app.model.shape.LineShape.Part(x) => {
-              //If the selector exists, something useful is selected...
-              usableSelectionExists = true
-            }
-            case app.model.shape.CircleShape.Part(x) => {
-              //If the selector exists, something useful is selected...
-              usableSelectionExists = true
-            }
-            case app.model.shape.GroupShape.Part(x) => if (x.size >0) {
-              //If the bitset is larger than 0, something useful is selected...
-              usableSelectionExists = true
-            }
-            case app.model.shape.TextShape.Part(x) => {
-              //If the bitset is larger than 0, something useful is selected...
-              usableSelectionExists = true
-            }
-            case _ =>
-          }
-        })
-    }
-    (usableSelectionExists)
   }
 
   def stateMap = Map(
@@ -133,7 +90,7 @@ class ModuleInit extends Module {
       // is close to any shape in the drawing
       case MouseDrag(p2, button2, modifier2) :: MouseDown(p, button, modifier) :: tail => {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
-        if (usableSelectionExists == true) {
+        if (Drawing.selection.isDefined) {
           val m = p.transform(View.deviceTransformation)
           if (Drawing(m).size > 0) {
             val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
@@ -153,8 +110,8 @@ class ModuleInit extends Module {
       // Delete
       case KeyDown(Key.Delete, _) :: tail => {
         shortcut = ""
-        if (usableSelectionExists) {
-          Delete(Drawing.selection.get.self)
+        if (Drawing.selection.isDefined) {
+          Delete(Drawing.selection)
         }
       }
 

@@ -22,8 +22,9 @@ class Scale extends Module {
   var startPoint : Option[Vector2D] = None
   var middlePoint: Option[Vector2D] = None 
   var firstPointEntered: Boolean = false
-  var transformation : Option[TransformationMatrix] = None
+  var transformation : TransformationMatrix = TransformationMatrix()
   var requestedLength: Option[Double] = None
+  def transformSelection(t : TransformationMatrix) = Drawing.selection.transform(t).shapes.values
 
   val stateMap: StateMap = Map(
 
@@ -47,7 +48,7 @@ class Scale extends Module {
             //Define a scaling matrix:
             val t : TransformationMatrix = TransformationMatrix().scale(scaleFactor,p)
             // Return the shape, transformed
-            Drawing.selection.get.apply(t)
+            transformSelection(t)
           })
           val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(9))
           //9: Input type: Coordinates at mouseUp
@@ -59,8 +60,8 @@ class Scale extends Module {
           //If not, it is the end of a drag, defining a scale operation, which is then done:
             val scaleFactor = ((p-startPoint.get).length/100 + 0.25)
             Siigna display ("scale factor: " + scaleFactor)
-            transformation =  Some(TransformationMatrix().scale(scaleFactor,startPoint.get))
-            Drawing.selection.get.transform(transformation.get)
+            transformation = TransformationMatrix().scale(scaleFactor,startPoint.get)
+            Drawing.selection.transform(transformation)
             Drawing.deselect()
             End
         } else if (p == startPoint.get && firstPointEntered == false) {
@@ -74,7 +75,7 @@ class Scale extends Module {
             //Define a scaling matrix:
             val t : TransformationMatrix = TransformationMatrix().scale(s,startPoint.get)
             // Return the shape, transformed
-            Drawing.selection.get.apply(t)
+            transformSelection(t)
             }
           )
           val inputRequest = InputRequest(None,Some(doubleGuide),None,None,None,None,None,None,None,Some(12))
@@ -87,7 +88,7 @@ class Scale extends Module {
             //Define a scaling matrix:
             val t : TransformationMatrix = TransformationMatrix().scale(scaleFactor,startPoint.get)
             // Return the shape, transformed
-            Drawing.selection.get.apply(t)
+            transformSelection(t)
           })
           val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(9))
           //9: Input type: Coordinates at mouseUp
@@ -102,14 +103,14 @@ class Scale extends Module {
             //Define a scaling matrix:
             val t : TransformationMatrix = TransformationMatrix().scale((s/(startPoint.get.distanceTo(endPoint.get))),startPoint.get)
             // Return the shape, transformed
-            Drawing.selection.get.apply(t)
+            transformSelection(t)
           })
           val vector2DGuide = Vector2DGuide((v: Vector2D) => {
             val scaleFactor = (startPoint.get.distanceTo(v)/startPoint.get.distanceTo(endPoint.get))
             //Define a scaling matrix:
             val t : TransformationMatrix = TransformationMatrix().scale(scaleFactor,startPoint.get)
             // Return the shape, transformed
-            Drawing.selection.get.apply(t)
+            transformSelection(t)
           })
           val inputRequest = InputRequest(Some(vector2DGuide),Some(doubleGuide),None,None,None,None,None,None,None,Some(13))
           Start('cad, "create.Input", inputRequest)
@@ -117,8 +118,8 @@ class Scale extends Module {
           //Step 4b: A drag has occured (the point from mouse up is not the same as from mouse down).
           // or the mouse has been clicked after the end point has been set, defining a scale factor. Do the scaling:
           val scaleFactor = (startPoint.get.distanceTo(p)/startPoint.get.distanceTo(endPoint.get))
-          transformation =  Some(TransformationMatrix().scale(scaleFactor,startPoint.get))
-          Drawing.selection.get.transform(transformation.get)
+          transformation =  TransformationMatrix().scale(scaleFactor,startPoint.get)
+          Drawing.selection.transform(transformation)
           Drawing.deselect()
           End
         }
@@ -128,9 +129,9 @@ class Scale extends Module {
         //if a reference length is not set, then scale the shapes by the scale factor.
         if (endPoint.isEmpty) {          
           Siigna display ("scale factor: "+l)
-          if (!startPoint.isEmpty) transformation =  Some(TransformationMatrix().scale(l,startPoint.get))
-          else transformation =  Some(TransformationMatrix().scale(l))
-          Drawing.selection.get.transform(transformation.get)
+          if (!startPoint.isEmpty) transformation = TransformationMatrix().scale(l,startPoint.get)
+          else transformation = TransformationMatrix().scale(l)
+          Drawing.selection.transform(transformation)
           Drawing.deselect()
           End
         //if a reference length is set, then point out, what should have this length:
@@ -138,8 +139,8 @@ class Scale extends Module {
           //This is the length between start and endpoints after the scale. Do the scale:          
           val scaleFactor = (l/(startPoint.get.distanceTo(endPoint.get)))
           Siigna display ("scale factor:" + scaleFactor)
-          transformation =  Some(TransformationMatrix().scale(scaleFactor,startPoint.get))
-          Drawing.selection.get.transform(transformation.get)
+          transformation = TransformationMatrix().scale(scaleFactor,startPoint.get)
+          Drawing.selection.transform(transformation)
           Drawing.deselect()
           End
         }
@@ -149,7 +150,7 @@ class Scale extends Module {
       case _ => {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         val l = new ModuleInit
-        if (l.usableSelectionExists) {
+        if (Drawing.selection.isDefined) {
           Siigna display "set fix-point for scaling, drag to scale or type a scaling factor"
           //Start input, request coordinates from mouse down, or scaling-factor from double,
           //or distance from mouseDown to mouseUp, if a drag occurs:

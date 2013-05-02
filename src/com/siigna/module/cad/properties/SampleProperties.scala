@@ -12,16 +12,16 @@
 package com.siigna.module.cad.properties
 
 import com.siigna._
+import com.siigna.app.model.selection
 
 /**
  * A module to transfer properties from one shape to a selection of shapes.
  */
-
 class SampleProperties extends Module{
 
   var attributes : Attributes = Attributes()
   //var color : Option[String] = None
-  var selected : Option[Selection] = None
+  var selected : Option[selection.Selection] = None
   var templateShape : Option[Shape] = None
   //var weight : Option[String] = None
 
@@ -36,8 +36,8 @@ class SampleProperties extends Module{
       case _ => {
         Siigna display ("select an object to sample from")
 
-        if (Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
-          templateShape = Some(Drawing.selection.get.shapes.head._2)
+        if (Drawing.selection.isDefined) {
+          templateShape = Some(Drawing.selection.shapes.head._2)
           attributes = templateShape.get.attributes
           Drawing.deselect()
           'UpdateShapes
@@ -54,7 +54,7 @@ class SampleProperties extends Module{
 
       case _ => {
         Siigna display ("select objects to update")
-        if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) 'End
+        if(Drawing.selection.isDefined) 'End
         else Module('cad, "base.Selection")
       }
     },
@@ -66,8 +66,8 @@ class SampleProperties extends Module{
       case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
 
       case _ => {
-        if(Drawing.selection.isDefined && !Drawing.selection.get.isEmpty) {
-          Drawing.selection.get.setAttributes(attributes)
+        if(Drawing.selection.isDefined) {
+          Drawing.selection.setAttributes(attributes)
           Drawing.deselect()
         }
         //clear vars

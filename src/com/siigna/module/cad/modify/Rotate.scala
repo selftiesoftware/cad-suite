@@ -12,9 +12,6 @@
 package com.siigna.module.cad.modify
 
 import com.siigna._
-import app.Siigna
-import com.siigna.module.cad.create._
-import com.siigna.module.ModuleInit
 
 class Rotate extends Module {
 
@@ -22,6 +19,7 @@ class Rotate extends Module {
   private var centerPoint : Option[Vector2D] = None
 
   private var transformation : TransformationMatrix = TransformationMatrix()
+  def transformSelection(t : TransformationMatrix) = Drawing.selection.transform(t).shapes.values
 
   val stateMap: StateMap = Map(
 
@@ -44,8 +42,7 @@ class Rotate extends Module {
       // If we are starting, forward to Input
       case Start(_, _) :: tail => {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
-        val l = new ModuleInit
-        if (l.usableSelectionExists) {
+        if (Drawing.selection.isDefined) {
           Siigna display "set centre point for rotation"
           Start('cad, "create.InputNew", 1)
         } else {
@@ -84,7 +81,7 @@ class Rotate extends Module {
     'AnglePoint -> {
       case MouseUp(p, _, _) :: tail => {
         transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
-        Drawing.selection.get.apply(transformation)
+        Drawing.selection.transform(transformation)
         Drawing.deselect()
         End
       }
@@ -99,7 +96,7 @@ class Rotate extends Module {
       }
       case MouseUp(p, _, _) :: tail => {
         transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
-        Drawing.selection.get.apply(transformation)
+        Drawing.selection.transform(transformation)
         Drawing.deselect()
         End
       }
@@ -112,11 +109,9 @@ class Rotate extends Module {
     TransformationMatrix().rotate(angle, center)
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    Drawing.selection.foreach(selection => { // Rotate the selection and draw each shape in it
-      selection.shapes.foreach( t =>
-        g.draw( t._2.transform(transformation) )
-      )
-    })
+    Drawing.selection.shapes.foreach( t =>
+      g.draw( t._2.transform(transformation) )
+    )
   }
 
 }

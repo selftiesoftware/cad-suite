@@ -110,7 +110,7 @@ class Stroke extends Module {
       if(activeLine.isDefined) Siigna("activeLineWidth") = activeLine.get
       //if a selection is defined, change lineweight of the selected shapes and deselect them.
       if(!Drawing.selection.isEmpty) {
-        Drawing.selection.foreach(s => s.addAttribute("StrokeWidth" -> activeLine.get))
+        Drawing.selection.addAttribute("StrokeWidth" -> activeLine.get)
         Drawing.deselect()
       }
 

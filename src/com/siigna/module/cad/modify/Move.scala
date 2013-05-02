@@ -14,13 +14,22 @@ package com.siigna.module.cad.modify
 import com.siigna._
 import app.Siigna
 import com.siigna.module.cad.create._
-import module.ModuleInit
 
 class Move extends Module {
-  var endPoint : Option[Vector2D] = None
+
   var startPoint : Option[Vector2D] = None
 
-  var transformation : Option[TransformationMatrix] = None
+  val vector2DGuide = Vector2DGuide((v: Vector2D) => startPoint match {
+    case Some(point) => {
+      val t : TransformationMatrix = TransformationMatrix(v - point, 1)
+      // Return the shape, transformed
+      //Drawing.selection.transform(t).shapes.values
+      Nil
+    }
+    case _ => Nil
+  })
+
+  def transformSelection(t : TransformationMatrix) = Drawing.selection.transform(t).shapes.values
 
   val stateMap: StateMap = Map(
     'Start -> {
@@ -34,72 +43,80 @@ class Move extends Module {
       case Start(_,p: Vector2D) :: tail => {
         //set the startpoint for the move operation (if not already set)
         startPoint = Some(p.transform(View.deviceTransformation))
-        //definition of a shape guide that is used to send the selected shapes to the 'Point module
-        // where they are drawn dynamically
-        val vector2DGuide = Vector2DGuide((v: Vector2D) => {
-          val t : TransformationMatrix = if (startPoint.isDefined) {
-            TransformationMatrix(v - startPoint.get, 1)
-            // If no startPoint has been defined - create an empty matrix
-          } else TransformationMatrix()
-          // Return the shape, transformed      TODO: if else here is a hack to prevent none.get error if selection is empty
-          if(!Drawing.selection.isEmpty) Drawing.selection.get.apply(t) else Traversable(LineShape(Vector2D(0,0),Vector2D(10,10)))
-        })
-        val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(9))
-        Start('cad, "create.Input", inputRequest)
-        //9 : Input type = KeyUp as input metod,
-        //so the coordinates will be returned on key up
-        //forward to the Input module with the shape guide.
-      }
-
-      //Vector2D received (from input, could be from mouse up (when input type 9 has been requested),
-      // or mouse down (from the other input types used in this module):
-      case End(v: Vector2D) :: tail => {
-        if (startPoint.isEmpty) {
-          //The first clicked point can be:
-          // a): The point where a drag-move starts, or
-          // b): The point, where the user "picks up" the selection that should be moved.
-          // That depends on whether the mouse is released at the same, or a different point.
-          // So, the input-request is only for a mouse-up (input type 9)
-          startPoint = Some(v)
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
-            val t : TransformationMatrix = TransformationMatrix(v - startPoint.get, 1)
-            // Return the shape, transformed
-            Drawing.selection.get.apply(t)
-          })
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(9))
-          Start('cad, "create.Input", inputRequest)
-        } else if (!startPoint.isEmpty && v == startPoint.get) {
-          //If the received point, when there is a start point, is the same as the start point, it is the start-point for the move
-          //(since mouse-up happened on the same spot as mouse-down). Send an input-request for an end-point:
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
-            val t : TransformationMatrix = TransformationMatrix(v - startPoint.get, 1)
-            // Return the shape, transformed
-            Drawing.selection.get.apply(t)
-          })
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(112))
-          Start('cad, "create.Input", inputRequest)
-        } else if (!startPoint.isEmpty) {
-          //If the received point, when there is a start point, is NOT the same as the start point, it is the end-point for the move
-          //(since mouse-up, or mouse down, happened on a different spot than the start point). Do the move:
-          transformation = Some(TransformationMatrix((v - startPoint.get), 1))
-          Drawing.selection.get.transform(transformation.get)
-          Drawing.deselect()
-          End
-        }
+        // Move the shapes
+        'EndPoint
       }
 
       case End :: tail => End
 
       //on first entry, send input request to input to get the start point for the move operations.
       case _ => {
-        //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
-        val l = new ModuleInit
-        if (l.usableSelectionExists) {
-          Start('cad, "create.Input", 111)
+        if (Drawing.selection.isDefined) {
+          'StartPoint
         } else {
           Siigna display "nothing selected"
-         End
+          End
         }
+      }
+    },
+
+    'StartPoint -> {
+      // If a mouse-down is received we assume the user wishes to drag
+      case MouseDown(p : Vector2D, _, _) :: tail => {
+        'Drag
+      }
+
+      //Vector2D received (from input, could be from mouse up (when input type 9 has been requested),
+      // or mouse down (from the other input types used in this module):
+      case End(v: Vector2D) :: tail => {
+        //The first clicked point can be:
+        // a): The point where a drag-move starts, or
+        // b): The point, where the user "picks up" the selection that should be moved.
+        // That depends on whether the mouse is released at the same, or a different point.
+        // So, the input-request is only for a mouse-up (input type 9)
+        startPoint = Some(v)
+        val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(9))
+
+        // Get the endpoint
+        'EndPoint
+      }
+
+        // Request an input type 111
+      case e => //Start('cad, "create.Input", 111)
+    },
+
+    'Drag -> {
+      case MouseDrag(p : Vector2D, _, _) :: MouseDown(q, _, _) :: tail => {
+        def toDrawing(p : Vector2D) = p.transform(View.deviceTransformation)
+        Drawing.selection.transform(TransformationMatrix(toDrawing(p) - toDrawing(q)))
+      }
+
+      case MouseUp(p : Vector2D, _, _) :: MouseDrag(_, _, _) :: MouseDown(q, _, _) :: tail => {
+        def toDrawing(p : Vector2D) = p.transform(View.deviceTransformation)
+        Drawing.selection.transform(TransformationMatrix(toDrawing(p) - toDrawing(q)))
+        End // We're done here
+      }
+
+      case e => println(e.head)
+    },
+
+    'EndPoint -> {
+      case End(v : Vector2D) :: tail => {
+        //If the received point, when there is a start point, is the same as the start point, it is the start-point for the move
+        //(since mouse-up happened on the same spot as mouse-down). Send an input-request for an end-point:
+        if (!startPoint.isEmpty && v == startPoint.get) {
+          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(112))
+          Start('cad, "create.Input", inputRequest)
+        }
+
+      }
+
+      case _ => {
+        val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(9))
+        Start('cad, "create.Input", inputRequest)
+        //9 : Input type = KeyUp as input metod,
+        //so the coordinates will be returned on key up
+        //forward to the Input module with the shape guide.
       }
     }
   )
