@@ -45,6 +45,11 @@ class InputNew extends Module {
     }
 
     //Input from keyboard:
+    case KeyDown(Key.shift, _) :: tail if((inputType == Some(2) || inputType == Some(4) || inputType == Some(6) || inputType == Some(7)
+      ) && !referencePoint.isEmpty || (Track.isTracking == true && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Siigna.selectionDistance)) => {
+      Start('cad,"create.AngleGizmo",inputRequest.get)
+    }
+
 
     //Most key-inputs are not handled directly in Input, but sorted and forwarded to key-input modules.
     //Some are, however - eg. escape and backspace.
