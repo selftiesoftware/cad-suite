@@ -133,11 +133,12 @@ class AngleGizmo extends Module {
         drawGuide = false
         //A DoubleGuide for a line is sent to InputOneValue, to draw a guide for the segment being drawn:
         if (!anglePointIsSet) {
-          val newGuides : Seq[Guide] = inputRequest.get.guides.:+(Vector2DGuideNew((v: Vector2D) => Traversable(LineShape(referencePoint.get, v))))
+          val newGuides : Seq[Guide] = inputRequest.get.guides.:+(DoubleGuideNew((d: Double) => Traversable(LineShape(referencePoint.get, referencePoint.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).addAttribute(cyan))))
+          inputRequest = Some(InputRequestNew(inputRequest.get.inputType, inputRequest.get.referencePoint, newGuides:_*))
+        } else {
+          val newGuides : Seq[Guide] = inputRequest.get.guides.:+(DoubleGuideNew((d: Double) => vector2DGuide.get.vector2DGuide(lengthVector(d))))
           inputRequest = Some(InputRequestNew(inputRequest.get.inputType, inputRequest.get.referencePoint, newGuides:_*))
 
-          doubleGuide = Some(DoubleGuide((d: Double) => Traversable(LineShape(referencePoint.get, referencePoint.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).addAttribute(cyan))))
-        } else {
           doubleGuide = Some(DoubleGuide((d: Double) => vector2DGuide.get.vector2DGuide(lengthVector(d))))
         }
         val referenceDouble = referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation))
