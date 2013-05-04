@@ -80,31 +80,7 @@ class ModuleInit extends Module {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
 
         //Check if there is a useable selection:
-        Start('cad, "Selection", MouseDown(p, MouseButtonLeft, modifier))
-      }
-
-      //Leftclick and drag starts :
-      // 1: Move if something is selected, and near where the drag starts, or
-      // 2: Select, if nothing is selected yet, or if something is selected, but away from the cursor
-      // TODO: Change it, so it is if something is not close to the selection - now it if the click
-      // is close to any shape in the drawing
-      case MouseDrag(p2, button2, modifier2) :: MouseDown(p, button, modifier) :: tail => {
-        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
-        if (Drawing.selection.isDefined) {
-          val m = p.transform(View.deviceTransformation)
-          if (Drawing(m).size > 0) {
-            val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-            if (nearest._2.distanceTo(m) < Siigna.selectionDistance) {
-            Start('cad, "modify.Move", p )
-            } else {
-            Start('cad, "Selection", MouseDrag(p, button, modifier))
-          }} else {
-            //Necessary since Drawing(m).size is 0 when marking far away from selected shape/parts
-            Start('cad, "Selection", MouseDrag(p, button, modifier))
-          }
-        } else {
-          Start('cad, "Selection", MouseDrag(p, button, modifier))
-        }
+        Start('cad, "Selection")
       }
 
       // Delete
