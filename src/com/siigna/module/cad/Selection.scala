@@ -15,15 +15,14 @@ import com.siigna._
 import java.awt.Color
 
 /**
- * A Module for selecting shapes.
+ * A Module for selecting shapes and shape-parts.
  */
 class Selection extends Module {
 
+  // The box, describing the area selection, if any
   private var box : Option[SimpleRectangle2D] = None
 
-  var nearestShape : Option[(Int, Shape)] = None
-
-  // The starting point of the rectangle
+  // The starting point of the box-selection
   private var startPoint : Option[Vector2D] = None
 
   /**
@@ -34,54 +33,42 @@ class Selection extends Module {
   def stateMap = Map(
   'Start -> {
 
-      //case events => println(events)
-      //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
+    //exit strategy
+    case KeyDown(Key.Esc, _) :: tail => End
 
-      //if SHIFT is pressed the selection module does not end, but listens after events.
-      //in case of a mouse down, a de-selection is made.
-
-      case MouseUp(p, _, _) :: tail => {
-        val m = mousePosition.transform(View.deviceTransformation)
-        Select(Drawing(m), m)
-        End
-      }
-
-      //if ModuleInit forwards to selection with a mouse drag
-      // 1: If a shape-part is hit, it is selected (so it will be moved)
-      // 2: If not a shape-part is hit, a drag box is initiated:
-      case (m : MouseDrag) :: tail => {
-        startPoint = Some(m.position)
-        'Box
-      }
-
-      //double click anywhere on a shape selects the full shape.
-      case Start(_,MouseDouble(p,_,_)) :: tail => {
-        val m = mousePosition.transform(View.deviceTransformation)
-        Select(Drawing(m), m)
-        End
-      }
-
-      case MouseDrag(p, button, modifier) :: tail =>  //SHIFT USED (not input from ModuleInit)
-      case MouseMove(_,_,_) :: tail =>
-      case f => { println("Selection recieved an unknown input: " + f)}
-    },
-
-    'Box -> {
-      //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
-      case MouseDown(p, MouseButtonRight, _) :: tail => End
-
-      case MouseDrag(p, _, _) :: tail => {
-        box = Some(Rectangle2D(startPoint.get, p))
-      }
-      case MouseUp(p, _, _) :: tail => {
-        Select(box.get.transform(View.deviceTransformation), isEnclosed)
-        End
-      }
-      case e => End
+    case MouseUp(p, _, _) :: tail => {
+      val m = mousePosition.transform(View.deviceTransformation)
+      Select(Drawing(m), m)
+      End
     }
-  )
+
+    case (m : MouseDrag) :: tail => {
+      startPoint = Some(m.position)
+      'Box
+    }
+
+    //double click anywhere on a shape selects the full shape.
+    case Start(_,MouseDouble(p,_,_)) :: tail => {
+      val m = mousePosition.transform(View.deviceTransformation)
+      Select(Drawing(m), m)
+      End
+    }
+  },
+
+  'Box -> {
+    //exit strategy
+    case KeyDown(Key.Esc, _) :: tail => End
+    case MouseDown(p, MouseButtonRight, _) :: tail => End
+
+    case MouseDrag(p, _, _) :: tail => {
+      box = Some(Rectangle2D(startPoint.get, p))
+    }
+    case MouseUp(p, _, _) :: tail => {
+      Select(box.get.transform(View.deviceTransformation), isEnclosed)
+      End
+    }
+    case e => End
+  })
 
   private val enclosed = "#8899CC".color
   private val focused  = "#CC8899".color

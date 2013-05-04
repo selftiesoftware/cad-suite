@@ -14,6 +14,7 @@ package com.siigna.module
 import base.{PaperHeader, Menu}
 import cad.radialmenu.category.StartCategory
 import com.siigna._
+import com.siigna.app.model.selection.EmptySelection
 
 /**
  * An init module for the cad-suite.
@@ -25,7 +26,8 @@ class ModuleInit extends Module {
 
   protected var lastModule : Option[Module] = None
 
-  var nearestShape : Option[(Int, Shape)] = None   //The nearest shape to the current mouse position.
+  var activeSelection : Selection = EmptySelection   //The nearest shape to the current mouse position.
+  var activeSelectionVertices : Traversable[Vector2D] = Set.empty
   var toolSuggestions = List[String]() //a list of possible tools in a given category. activated by shortcuts
 
   var selectionAlteration = false
@@ -89,6 +91,14 @@ class ModuleInit extends Module {
         if (Drawing.selection.isDefined) {
           Delete(Drawing.selection)
         }
+      }
+
+      // Highlight active shape(s)
+      case MouseMove(p, _, _) :: tail => {
+        val point = p.transform(View.deviceTransformation)
+        val shapes = Drawing(point)
+        activeSelection = Selection(shapes.map(t => t._1 -> (t._2 -> t._2.getSelector(point))))
+        activeSelectionVertices = activeSelection.shapes.flatMap(s => s._2.getVertices(s._2.getSelector(point)))
       }
 
       //shortcuts
@@ -164,6 +174,8 @@ class ModuleInit extends Module {
     }
   )
 
+  private val selectionAttributes = Attributes("StrokeWidth" -> 0.7, "Color" -> Siigna.color("colorSelected").getOrElse("#AAAAAA"))
+
   override def paint(g : Graphics, t : TransformationMatrix) {
     g draw PaperHeader.openness.transform(t) //color to show level of openness
     g draw PaperHeader.headerFrame.transform(t) //frame around drawing info
@@ -176,5 +188,8 @@ class ModuleInit extends Module {
         g draw s(i)
       }  
     }
+
+    activeSelection.parts.foreach(s => g draw s.setAttributes(selectionAttributes).transform(t))
+    activeSelectionVertices.foreach(v => g draw v.transform(t))
   }
 }
