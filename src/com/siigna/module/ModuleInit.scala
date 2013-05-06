@@ -12,7 +12,7 @@
 package com.siigna.module
 
 import base.{PaperHeader, Menu}
-import cad.radialmenu.category.StartCategory
+import com.siigna.module.cad.radialmenu.category.{ModifyCategory, StartCategory}
 import com.siigna._
 import com.siigna.app.model.selection.EmptySelection
 
@@ -64,7 +64,11 @@ class ModuleInit extends Module {
       //Rightclick starts menu:
       case MouseDown(_, MouseButtonRight, _) :: tail => {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
-        Start('base, "Menu")
+
+        // If any selections are defined we start in the Modify category
+        if (Drawing.selection.isDefined) {
+          Start('base, "Menu", ModifyCategory)
+        } else Start('base, "Menu")
       }
 
       //double click anywhere on a shape selects the full shape.
