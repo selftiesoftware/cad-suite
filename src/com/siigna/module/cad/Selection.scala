@@ -12,7 +12,9 @@
 package com.siigna.module.cad
 
 import com.siigna._
+import com.siigna.{Selection => SiignaSelection}
 import java.awt.Color
+import com.siigna.app.model.selection.EmptySelection
 
 /**
  * A Module for selecting shapes and shape-parts.
@@ -21,6 +23,9 @@ class Selection extends Module {
 
   // The box, describing the area selection, if any
   private var box : Option[SimpleRectangle2D] = None
+
+  // The selection from the box, if any
+  private var boxSelection : SiignaSelection = EmptySelection
 
   // The starting point of the box-selection
   private var startPoint : Option[Vector2D] = None
@@ -35,10 +40,18 @@ class Selection extends Module {
 
     //exit strategy
     case KeyDown(Key.Esc, _) :: tail => End
+    case MouseUp(_, MouseButtonRight, _) :: tail => End
 
-    case MouseUp(p, _, _) :: tail => {
+    case MouseUp(p, _, modifier) :: tail => {
       val m = mousePosition.transform(View.deviceTransformation)
+      // If shift is not pressed we should deselect everything
+      if (!modifier.shift) {
+        Drawing.deselect()
+      }
+
+      // Select the area
       Select(Drawing(m), m)
+
       End
     }
 
@@ -61,19 +74,27 @@ class Selection extends Module {
     case MouseDown(p, MouseButtonRight, _) :: tail => End
 
     case MouseDrag(p, _, _) :: tail => {
-      box = Some(Rectangle2D(startPoint.get, p))
+      val rectangle = Rectangle2D(startPoint.get, p)
+      box = Some(rectangle)
+      val transformedRectangle = rectangle.transform(View.deviceTransformation)
+      val selection = Drawing(transformedRectangle).map(t =>
+        t._1 -> (t._2 -> (if (isEnclosed) FullShapeSelector else t._2.getSelector(transformedRectangle))))
+      boxSelection = Selection(selection)
     }
     case MouseUp(p, _, _) :: tail => {
-      Select(box.get.transform(View.deviceTransformation), isEnclosed)
+      if (box.isDefined) {
+        Select(box.get.transform(View.deviceTransformation), isEnclosed)
+      }
       End
     }
     case e => End
   })
 
-  private val enclosed = "#8899CC".color
-  private val focused  = "#CC8899".color
-  private val rasterEnclosed = new Color(100, 120, 210, 30)
-  private val rasterFocused  = new Color(210, 100, 120, 30)
+  private val highlighted = "#667788".color
+  private val enclosed    = "#8899CC".color
+  private val focused     = "#CC8899".color
+  private val rasterEnclosed = new Color(100, 120, 210, 20)
+  private val rasterFocused  = new Color(210, 100, 120, 20)
 
   override def paint(g : Graphics, t : TransformationMatrix) {
 
@@ -83,5 +104,10 @@ class Selection extends Module {
       g draw p
       g draw r
     }
+
+    boxSelection.parts.foreach(p => {
+      g draw p.setAttributes("Color" -> highlighted).transform(t)
+    })
+    boxSelection.vertices.foreach(v => g draw v.transform(t))
   }
 }
