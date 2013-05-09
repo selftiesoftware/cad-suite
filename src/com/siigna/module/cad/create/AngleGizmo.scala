@@ -75,38 +75,18 @@ class AngleGizmo extends Module {
 
         //Adds a Vector2D line guide to the input request, so the line can be drawn,
         val lineGuide : Vector2DGuideNew = Vector2DGuideNew((v: Vector2D) => Traversable(LineShape(referencePoint.get, v).addAttribute(cyan)))
-        val newGuides : Seq[Guide] = inputRequest.get.guides.:+(lineGuide)
-        inputRequest = Some(InputRequestNew(inputRequest.get.inputType, inputRequest.get.referencePoint, newGuides:_*))
+        guides = inputRequest.get.guides.:+(lineGuide)
+        //val newGuides : Seq[Guide] = inputRequest.get.guides.:+(lineGuide)
+        inputRequest = Some(InputRequestNew(inputRequest.get.inputType, inputRequest.get.referencePoint, guides:_*))
+        //inputRequest = Some(InputRequestNew(inputRequest.get.inputType, inputRequest.get.referencePoint, newGuides:_*))
+        //guides = inputRequest.get.guides
 
         //If there is no vector 2d guide, create one so the angle gizmo guide can be drawn
         var lineGuideExists: Boolean = false
 
-
         if (referencePoint.isEmpty && Track.isTracking) {
-          println("RRR")
           referencePoint = Track.pointOne
-
-          //Adds a Vector2D line guide to the input request, so the line can be drawn,
-          //val lineGuide : Vector2DGuideNew = Vector2DGuideNew((v: Vector2D) => Traversable(LineShape(referencePoint.get, v).addAttribute(cyan)))
-          //val newGuides : Seq[Guide] = inputRequest.get.guides.:+(lineGuide)
-          //inputRequest = Some(InputRequestNew(inputRequest.get.inputType, inputRequest.get.referencePoint, newGuides:_*))
-
-
-          //Useful piece of code adding a new guide to the list of guides:
-          //inputRequest = Some(InputRequestNew(inputRequest.get.inputType, inputRequest.get.referencePoint, newGuides:_*))
-        } else {
-          //Check if it is a line already, in which case the guide is made into a cyan-coloured line instead:
-          println("Her")
-          guides.foreach {
-            case Vector2DGuideNew(gg) => {
-
-              println("V2G")
-            }
-            // case Vector2DGuideNew(g) => guide = Some(DoubleGuideNew((d: Double) => g(lengthVector(d))))
-            case _ =>
-          }
         }
-
         //TODO: Make line to the start-point of a new shape dashed instead of solid
       }
 
@@ -149,7 +129,6 @@ class AngleGizmo extends Module {
           eventParser.snapTo(currentSnap.get)
           drawGizmo = false
         } else if (anglePointIsSet) {
-          println("Der")
           Siigna.navigation = true
           End(MouseDown(p,button,modifier))
         }
