@@ -59,6 +59,7 @@ class InputOneValueByKey extends Module {
         inputRequest = Some(i)
         inputType = Some(i.inputType)
         guides = i.guides
+        println(guides)
         referencePoint = i.referencePoint
       }
 
@@ -132,6 +133,7 @@ class InputOneValueByKey extends Module {
       case DoubleGuideNew(guide) => {
         if (usefulDoubleAsInput == true && input.get != 0) {
           guide(input.get).foreach(s => g.draw(s.transform(t)))
+          println("ee")
         }
       }
       case _ => // No known guide
