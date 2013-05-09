@@ -73,15 +73,23 @@ class AngleGizmo extends Module {
         guides = i.guides
         referencePoint = i.referencePoint
 
+        //Adds a Vector2D line guide to the input request, so the line can be drawn,
+        val lineGuide : Vector2DGuideNew = Vector2DGuideNew((v: Vector2D) => Traversable(LineShape(referencePoint.get, v).addAttribute(cyan)))
+        val newGuides : Seq[Guide] = inputRequest.get.guides.:+(lineGuide)
+        inputRequest = Some(InputRequestNew(inputRequest.get.inputType, inputRequest.get.referencePoint, newGuides:_*))
+
+        //If there is no vector 2d guide, create one so the angle gizmo guide can be drawn
+        var lineGuideExists: Boolean = false
+
+
         if (referencePoint.isEmpty && Track.isTracking) {
+          println("RRR")
           referencePoint = Track.pointOne
 
           //Adds a Vector2D line guide to the input request, so the line can be drawn,
-
-
-          val lineGuide : Vector2DGuideNew = Vector2DGuideNew((v: Vector2D) => Traversable(LineShape(referencePoint.get, v).addAttribute(cyan)))
-          val newGuides : Seq[Guide] = inputRequest.get.guides.:+(lineGuide)
-          inputRequest = Some(InputRequestNew(inputRequest.get.inputType, inputRequest.get.referencePoint, newGuides:_*))
+          //val lineGuide : Vector2DGuideNew = Vector2DGuideNew((v: Vector2D) => Traversable(LineShape(referencePoint.get, v).addAttribute(cyan)))
+          //val newGuides : Seq[Guide] = inputRequest.get.guides.:+(lineGuide)
+          //inputRequest = Some(InputRequestNew(inputRequest.get.inputType, inputRequest.get.referencePoint, newGuides:_*))
 
 
           //Useful piece of code adding a new guide to the list of guides:
@@ -90,7 +98,7 @@ class AngleGizmo extends Module {
           //Check if it is a line already, in which case the guide is made into a cyan-coloured line instead:
           println("Her")
           guides.foreach {
-            case Vector2DGuideNew(g) => {
+            case Vector2DGuideNew(gg) => {
 
               println("V2G")
             }
@@ -143,7 +151,7 @@ class AngleGizmo extends Module {
         } else if (anglePointIsSet) {
           println("Der")
           Siigna.navigation = true
-          End(MouseDown(p.transform(View.deviceTransformation),button,modifier))
+          End(MouseDown(p,button,modifier))
         }
       }
 
@@ -188,7 +196,7 @@ class AngleGizmo extends Module {
           backFromOneValue = true
         } else {
           Siigna.navigation = true
-          End(MouseDown(lengthVector(d),MouseButtonLeft,ModifierKeys(false,false,false)))
+          End(MouseDown(lengthVector(d).transform(View.drawingTransformation),MouseButtonLeft,ModifierKeys(false,false,false)))
         }
       }
 
