@@ -17,7 +17,15 @@ class InputNew extends Module {
   var inputType: Option[Int] = None
   var guides: Seq[Guide] = Seq()
   var referencePoint: Option[Vector2D] = None
-  
+
+  def interpretMouseInput(p : Vector2D) : Option[End[Vector2D]] = {
+    if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7))  {
+      Some(End(p.transform(View.deviceTransformation)))
+    } else if (inputType == Some(7)) {
+      Some(End((p+referencePoint.get).transform(View.deviceTransformation)))
+    } else None
+  }
+
   val stateMap: StateMap = Map(
     'Start -> {
       case Start(_ , i: InputRequestNew) :: tail => {
@@ -36,13 +44,8 @@ class InputNew extends Module {
     //Input from mouse-actions:
 
     //Left mouse button down (Standard: the clicked point is returned, transformed to view):
-    case MouseDown(p,MouseButtonLeft,modifier)::tail => {
-      if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7))  {
-        End(p.transform(View.deviceTransformation))
-      } else if (inputType == Some(7)) {
-        End((p+referencePoint.get).transform(View.deviceTransformation))
-      }
-    }
+    case MouseDown(p,MouseButtonLeft,_) :: tail => interpretMouseInput(p).getOrElse(None)
+    case End(MouseDown(p, MouseButtonLeft, _)) :: tail => interpretMouseInput(p).getOrElse(None)
 
     //Input from keyboard:
     case KeyDown(Key.shift, _) :: tail if((inputType == Some(2) || inputType == Some(4) || inputType == Some(6) || inputType == Some(7)
