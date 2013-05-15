@@ -12,6 +12,7 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
+//import app.model.shape.RectangleShape
 import com.siigna.Siigna
 
 class Rectangle extends Module {
@@ -59,6 +60,9 @@ class Rectangle extends Module {
       case End :: tail => End
      //get the first point
       case _ => {
+
+        //Create(RectangleShape(Vector2D(40,40),30,30,45,Attributes()))
+
         if (points.length == 0) {
           Start('cad, "create.Input", 111)
         } else {
