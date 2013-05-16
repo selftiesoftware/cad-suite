@@ -35,6 +35,14 @@ class InputNew extends Module {
         inputType = Some(i.inputType)
         guides = i.guides
         referencePoint = i.referencePoint
+        guides.foreach(_ match {
+          case Vector2DGuideNew(guide) => {
+            val snapFunction = () => guide(mousePosition)
+            eventParser.snapTo(snapFunction)
+          }
+          case _ => // No known guide
+        } )
+
         'ReceiveUserInput
       }
       case _ => {
@@ -70,8 +78,21 @@ class InputNew extends Module {
       //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event:
       else if (key == Key.backspace) End(KeyDown(key,modifier))
       //Any other keys keys, if Vector2D by keys is accepted as input:
-      else if(inputType == Some(3) || inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)) {
+      else if(inputType == Some(3) || inputType == Some(5)
+        || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7)) && Track.isTracking == false)) {
         Start('cad,"create.InputValuesByKey",inputRequest.get)
+      }
+      //Input types where track-offset is activated: Vector2D-guides are transformed to DoubleGuides:
+      else if (inputType == Some(4) || inputType == Some(6) || inputType == Some(7)) {
+        val guidesNew = guides.collect({
+          case Vector2DGuideNew(guide) => {
+            DoubleGuideNew((d : Double) => {
+              guide(Track.getPointFromDistance(d).get)
+            })
+          }
+        })
+        val newInputRequest = InputRequestNew(7,referencePoint,guidesNew:_*)
+        Start('cad,"create.InputOneValueByKey",newInputRequest)
       }
     }
 
@@ -84,6 +105,15 @@ class InputNew extends Module {
         End(referencePoint.get + p)
       } else {
         End(p)
+      }
+    }
+
+    //Double:
+    case End(s : Double) :: tail => {
+      if (inputType == Some(4) || inputType == Some(6)|| inputType == Some(7)) {
+        End(Track.getPointFromDistance(s).get)
+      //} else {
+      //  End(s)
       }
     }
 
