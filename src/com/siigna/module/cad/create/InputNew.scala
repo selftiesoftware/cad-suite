@@ -57,6 +57,12 @@ class InputNew extends Module {
     case MouseDown(p,MouseButtonLeft,_) :: tail => interpretMouseInput(p).getOrElse(None)
     case End(MouseDown(p, MouseButtonLeft, _)) :: tail => interpretMouseInput(p).getOrElse(None)
 
+    //Left mouse button up:
+    case MouseUp(p,MouseButtonLeft,modifier)::tail => {
+      if (inputType == Some(8)) {
+        End(p.transform(View.deviceTransformation))
+    }}
+
     //Right mouse button down
     case MouseDown(p,MouseButtonRight,modifier)::tail => {
       //Standard: the mouseDown action is returned
