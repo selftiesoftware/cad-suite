@@ -20,8 +20,10 @@ class InputNew extends Module {
 
   def interpretMouseInput(p : Vector2D) : Option[End[Vector2D]] = {
     if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7))  {
+      //Absolute values returned
       Some(End(p.transform(View.deviceTransformation)))
-    } else if (inputType == Some(7)) {
+    } else if (inputType == Some(999)) {
+      //Relative values returned
       Some(End((p+referencePoint.get).transform(View.deviceTransformation)))
     } else None
   }
@@ -43,9 +45,15 @@ class InputNew extends Module {
   'ReceiveUserInput -> {
     //Input from mouse-actions:
 
-    //Left mouse button down (Standard: the clicked point is returned, transformed to view):
+    //Left mouse button down
     case MouseDown(p,MouseButtonLeft,_) :: tail => interpretMouseInput(p).getOrElse(None)
     case End(MouseDown(p, MouseButtonLeft, _)) :: tail => interpretMouseInput(p).getOrElse(None)
+
+    //Right mouse button down
+    case MouseDown(p,MouseButtonRight,modifier)::tail => {
+      //Standard: the mouseDown action is returned
+      End(MouseDown(p.transform(View.deviceTransformation),MouseButtonRight,modifier))
+    }
 
     //Input from keyboard:
     case KeyDown(Key.shift, _) :: tail if((inputType == Some(2) || inputType == Some(4) || inputType == Some(6) || inputType == Some(7)
