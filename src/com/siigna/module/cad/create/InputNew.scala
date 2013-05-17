@@ -17,9 +17,11 @@ class InputNew extends Module {
   var inputType: Option[Int] = None
   var guides: Seq[Guide] = Seq()
   var referencePoint: Option[Vector2D] = None
+  var trackDoubleRequest: Boolean = false
 
   def interpretMouseInput(p : Vector2D) : Option[End[Vector2D]] = {
-    if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7))  {
+    if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)
+      || inputType == Some(9))  {
       //Absolute values returned
       Some(End(p.transform(View.deviceTransformation)))
     } else if (inputType == Some(999)) {
@@ -70,26 +72,28 @@ class InputNew extends Module {
     }
 
     //Input from keyboard:
-    case KeyDown(Key.shift, _) :: tail if((inputType == Some(2) || inputType == Some(4) || inputType == Some(6) || inputType == Some(7)
-      ) && !referencePoint.isEmpty || (Track.isTracking == true && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Siigna.selectionDistance)) => {
-      Start('cad,"create.AngleGizmo",inputRequest.get)
+      //AngleGizmo
+    case KeyDown(Key.shift, _) :: tail => {
+      //Angle gizmo based on track point
+      if (Track.isTracking == true && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Siigna.selectionDistance) {
+        Start('cad,"create.AngleGizmo",InputRequestNew(inputType.get,Track.pointOne,guides:_*))
+      //Angle gizmo based on reference point
+      } else if (inputType == Some(7) && !referencePoint.isEmpty) {
+        Start('cad,"create.AngleGizmo",inputRequest.get)
+      }
     }
 
 
     //Most key-inputs are not handled directly in Input, but sorted and forwarded to key-input modules.
     //Some are, however - eg. escape and backspace.
     case KeyDown(key,modifier) :: tail => {
+      if (trackDoubleRequest == true) trackDoubleRequest = false
       //ESCAPE: Is returned to the asking module as a key-down event:
       if (key == Key.escape) End(KeyDown(key,modifier))
       //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event:
       else if (key == Key.backspace) End(KeyDown(key,modifier))
-      //Any other keys keys, if Vector2D by keys is accepted as input:
-      else if(inputType == Some(3) || inputType == Some(5)
-        || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7)) && Track.isTracking == false)) {
-        Start('cad,"create.InputValuesByKey",inputRequest.get)
-      }
       //Input types where track-offset is activated: Vector2D-guides are transformed to DoubleGuides:
-      else if (inputType == Some(4) || inputType == Some(6) || inputType == Some(7)) {
+      else if ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7) || inputType == Some(9)) && Track.isTracking == true) {
         val guidesNew = guides.collect({
           case Vector2DGuideNew(guide) => {
             DoubleGuideNew((d : Double) => {
@@ -98,8 +102,18 @@ class InputNew extends Module {
           }
         })
         val newInputRequest = InputRequestNew(7,referencePoint,guidesNew:_*)
+        trackDoubleRequest = true
         Start('cad,"create.InputOneValueByKey",newInputRequest)
+      // Input types accepting Vector2D by keys:
+      } else if(inputType == Some(3) || inputType == Some(5)
+        || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7)) && Track.isTracking == false)) {
+        Start('cad,"create.InputValuesByKey",inputRequest.get)
       }
+       else if (inputType == Some(9)) {
+      // Input types accepting a double as input:
+        Start('cad,"create.InputOneValueByKey",inputRequest.get)
+      }
+
     }
 
     //Input received from other modules (eg. Input OneValue, InputTwoValues, InputText, AngleGizmo):
@@ -116,10 +130,11 @@ class InputNew extends Module {
 
     //Double:
     case End(s : Double) :: tail => {
-      if (inputType == Some(4) || inputType == Some(6)|| inputType == Some(7)) {
+      if (trackDoubleRequest == true && (inputType == Some(4) || inputType == Some(6)|| inputType == Some(7) || inputType == Some(9))) {
+        trackDoubleRequest = false
         End(Track.getPointFromDistance(s).get)
-      //} else {
-      //  End(s)
+      } else if (inputType == Some(9)) {
+        End(s)
       }
     }
 
