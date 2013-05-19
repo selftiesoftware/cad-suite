@@ -35,7 +35,7 @@ class AngleGizmo extends Module {
   val gizmoTime = 300   //time to press and hold the mouse button before the gizmo mode is activated
   private var drawGizmo = true
   private var drawGuide = true
-  private var backFromOneValue = false
+  private var anglePointJustSet = false
 
 
   var inputRequest: Option[InputRequestNew] = None
@@ -92,7 +92,7 @@ class AngleGizmo extends Module {
 
 
       case MouseMove(p, _, _) :: tail => {
-        if (backFromOneValue) backFromOneValue = false
+        if (anglePointJustSet) anglePointJustSet = false
 
         Siigna.navigation = false // Make sure the rest of the program doesn't move
         //get the current radial - but only if the angle is not set yet.
@@ -121,7 +121,7 @@ class AngleGizmo extends Module {
         //return the angle
         if (referencePoint.isDefined && degrees.isDefined && !anglePointIsSet) {
           //send the active snap angle
-          backFromOneValue = true
+          anglePointJustSet = true
           val point = referencePoint.get
           val d = degrees.get
           anglePointIsSet = true
@@ -135,28 +135,39 @@ class AngleGizmo extends Module {
       }
 
       case KeyDown(key,modifier) :: tail => {
-        if (backFromOneValue) backFromOneValue = false
+        if (anglePointJustSet) anglePointJustSet = false
 
         Siigna.navigation = false // Make sure the rest of the program doesn't move
         drawGuide = false
 
         //A DoubleGuide for a line is sent to InputOneValue, to draw a guide for the segment being drawn:
-        var guide: Option[DoubleGuideNew] = None
-        if (!anglePointIsSet) {
-          //If it is the angle being set, it's just a straight line from the center of the angle Gizmo:
-          guide = Some(DoubleGuideNew((d: Double) => Traversable(LineShape(referencePoint.get, referencePoint.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).addAttribute(cyan))))
+
+        var newGuides: Seq[DoubleGuideNew] = if (!anglePointIsSet) {
+          //If it is the angle being set, first a cyan line from the centre of the angle gizmo:
+          Seq(DoubleGuideNew((d: Double) => {
+            //eventParser.snapTo(AngleSnap(referencePoint.get,d))
+
+            //Traversable(LineShape(referencePoint.get, mousePosition.transform(View.deviceTransformation)))
+            val distanceFromStart: Double = math.sqrt(( (referencePoint.get.x-mousePosition.transform(View.deviceTransformation).x) * (referencePoint.get.x-mousePosition.transform(View.deviceTransformation).x)) + ( (referencePoint.get.y-mousePosition.transform(View.deviceTransformation).y) * (referencePoint.get.y-mousePosition.transform(View.deviceTransformation).y)) )
+
+            Traversable(LineShape(referencePoint.get, referencePoint.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * distanceFromStart)).addAttribute(cyan))
+          }))
+
+          //Then a doubleguide to feed any vector2D guides:
+          /*guides.collect ({
+            case Vector2DGuideNew(g) => DoubleGuideNew((d: Double) => g(referencePoint.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation)))))
+          })  */
         } else {
           //If it is the distance, use a supplied vector2D-guide, if one is provided:
-          guides.foreach {
-            case Vector2DGuideNew(g) => guide = Some(DoubleGuideNew((d: Double) => g(lengthVector(d))))
-            case _ =>
-          }
+          guides.collect ({
+            case Vector2DGuideNew(g) => DoubleGuideNew((d: Double) => g(lengthVector(d)))
+          })
         }
         //If there is no vector2D-guide, just use a line:
-        if(!guide.isDefined) guide = Some(DoubleGuideNew((d: Double) => Traversable(LineShape(referencePoint.get, referencePoint.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).addAttribute(cyan))))
+        if(newGuides.length == 0) newGuides = Seq(DoubleGuideNew((d: Double) => Traversable(LineShape(referencePoint.get, referencePoint.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).addAttribute(cyan))))
 
         // Create the new guides and input request
-        val newGuides : Seq[Guide] = inputRequest.get.guides.:+(guide.get)
+        //val newGuides : Seq[Guide] = inputRequest.get.guides.:+guide)
         val request: InputRequestNew = InputRequestNew(inputRequest.get.inputType, inputRequest.get.referencePoint, newGuides:_*)
 
         // Forward to InputOneVAlue
@@ -172,7 +183,7 @@ class AngleGizmo extends Module {
           degrees = Some(d)
           drawGizmo = false
           drawGuide = true
-          backFromOneValue = true
+          anglePointJustSet = true
         } else {
           Siigna.navigation = true
           End(MouseDown(lengthVector(d).transform(View.drawingTransformation),MouseButtonLeft,ModifierKeys(false,false,false)))
@@ -256,7 +267,7 @@ class AngleGizmo extends Module {
       //If there is no key-input, draw the whole guide:
       //If the it is just after the angle was set, dont use the mouse position to draw the guide,
       //as it is not on the correct radian. Use point based on lengthVector instead, until the mouse is moved:
-      if (drawGuide && backFromOneValue) {
+      if (drawGuide && anglePointJustSet) {
         guides.foreach {
           case Vector2DGuideNew(guide) => guide(lengthVector(referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).foreach(s => g.draw(s.transform( t )))
           case _ =>
