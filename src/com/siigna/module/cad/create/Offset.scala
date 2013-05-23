@@ -161,10 +161,10 @@ class Offset extends Module {
   }
 
   //guides to get Point to draw the shape(s) dynamically
-  val doubleGuide: DoubleGuide = DoubleGuide((s : Double) => {
+  val doubleGuide: DoubleGuideNew = DoubleGuideNew((s : Double) => {
     Array(generateOffsetLine(s).addAttributes(attr))//run a function to generate the offset shape dynamically
   })
-  val vector2DGuide: Vector2DGuide = Vector2DGuide((v : Vector2D) => {
+  val vector2DGuide: Vector2DGuideNew = Vector2DGuideNew((v : Vector2D) => {
     Array(generateOffsetLine(v).addAttributes(attr))//run a function to generate the offset shape dynamically
   })
 
@@ -194,17 +194,19 @@ class Offset extends Module {
     case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
 
     case _ => {
-      println("A")
-      if (Drawing.selection.isDefined && done == false) {
+      if (Drawing.selection.isDefined == false && done == false) {
         Siigna display "select an object to offset first"
         End
       }
       else if (Drawing.selection.size == 1 ){
         attr = Drawing.selection.shapes.head._2.attributes
-        Siigna display "click to set the offset distance"
-        val inputRequest = InputRequest(Some(vector2DGuide), Some(doubleGuide), None, None, None, None, None, None, None, Some(13))
+        Siigna display "click to set the offset distance, or type offset distance"
+        //val inputRequest = InputRequest(Some(vector2DGuide), Some(doubleGuide), None, None, None, None, None, None, None, Some(13))
         // 13: MouseDown or typed length
-        Start('cad, "create.Input", inputRequest)
+        //Start('cad, "create.Input", inputRequest)
+
+        val inputRequest = InputRequestNew(9,None,vector2DGuide, doubleGuide)
+        Start('cad,"create.InputNew", inputRequest)
       } else if (done) End
       else {
         Siigna display "please select one shape to offset"
