@@ -49,7 +49,7 @@ class Text extends Module {
         val textGuide: TextGuideNew = TextGuideNew((s: String) => Traversable(TextShape(s + " ", p,  scale * (Siigna.paperScale + 1))))
         //val inputRequest = InputRequest(None,None,Some(textGuide),None,None,None,position,None,None,Some(14))
         //Start('cad,"create.Input", inputRequest)
-        val inputRequest = InputRequestNew(11,None,textGuide)
+        val inputRequest = InputRequestNew(12,None,textGuide)
         Siigna.display("type text")
         Start('cad,"create.InputNew", inputRequest)
       }

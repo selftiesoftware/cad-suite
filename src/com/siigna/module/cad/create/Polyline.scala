@@ -114,8 +114,8 @@ class Polyline extends Module {
             Start('cad,"create.InputNew", inputRequest)
 
           } else {
-            //If not, point is started without guide.
-            Start('cad, "create.Input")
+            //If not, input is started without guide.
+            Start('cad, "create.InputNew", InputRequestNew(6,None))
           }
         }}
 

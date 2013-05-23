@@ -118,10 +118,10 @@ class InputNew extends Module {
         || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7)) && Track.isTracking == false)) {
         Start('cad,"create.InputValuesByKey",inputRequest.get)
       }
-       else if (inputType == Some(9) || inputType == Some(10)) {
+       else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11)) {
       // Input types accepting a double as input:
         Start('cad,"create.InputOneValueByKey",inputRequest.get)
-      } else if(inputType == Some(11) ) {
+      } else if(inputType == Some(12) ) {
         println("HER")
       // Input types accepting a string as input:
         Start('cad,"create.InputText",inputRequest.get)
@@ -145,7 +145,7 @@ class InputNew extends Module {
       if (trackDoubleRequest == true && (inputType == Some(4) || inputType == Some(6)|| inputType == Some(7) || inputType == Some(9))) {
         trackDoubleRequest = false
         End(Track.getPointFromDistance(s).get)
-      } else if (inputType == Some(9) || inputType == Some(10)) {
+      } else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11)) {
         End(s)
       }
     }
@@ -186,14 +186,13 @@ trait Guide {
 
 case class InputRequestNew(inputType: Int, referencePoint: Option[Vector2D], guides : Guide*)
 
-// inputType	Return	  Input method              Track-offset default	AngleGizmo default	Absolute coordinates	Relative coordinates	Reference point(s)
-// 1		      Vector2D	Left mouse down           Off	                  Off	                Yes	                  No	                  None
-// 2		      Vector2D	Left mouse down           On	                  On	                Yes	                  No	                  None
-// 3		      Vector2D	Keys                      Off	                  Off	                Yes	                  No	                  None
-// 4		      Vector2D	Keys                      On	                  On	                Yes	                  No	                  None
-// 5		      Vector2D	Keys or left mouse down   Off	                  Off	                Yes	                  No	                  None
-// 6		      Vector2D	Keys or left mouse down   On	                  On	                Yes	                  No	                  None
-// 7		      Vector2D	Keys or left mouse down   On	                  On	                No	                  Yes	                  One
+//The most common input-types' basic features (for complete features and advanced input types, ask Niels for reference sheet :-) ):
+
+// inputType Left Mouse Down                        Keys                 Track-offset default	 Reference point(s)  AngleGizmo default
+// 6		     Vector2D, absolute                     Vector2D, absolute   On	                   None                On
+// 10		     Double, distance from reference point  Double               Off	                 One                 On
+// 11        None                                   Double               Off                   None                On
+// 12        None                                   String               Off                   None                On
 
 
 case class DoubleGuideNew(guide : Double => Traversable[Shape]) extends Guide
