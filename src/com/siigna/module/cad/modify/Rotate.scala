@@ -34,7 +34,6 @@ class Rotate extends Module {
       // Receive a starting point from Input
       case End(p : Vector2D) :: tail => {
         centerPoint = Some(p)
-        'StartPoint
       }
 
       // Quit if we get anything else from the input module
@@ -42,7 +41,6 @@ class Rotate extends Module {
 
       // If we are starting, forward to Input
       case Start(_, _) :: tail => {
-        println("ROTATE START")
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         if (Drawing.selection.isDefined) {
           Siigna display "set center point for rotation"
@@ -52,6 +50,7 @@ class Rotate extends Module {
           End
         }
       }
+      case _ => 'StartPoint
     },
 
     'StartPoint -> {
@@ -90,6 +89,8 @@ class Rotate extends Module {
 
       // If we get anything else we quit
       case End(_) :: tail => End
+
+      case _ => println("in start point with no case match")
         }}
       },
 
@@ -128,5 +129,4 @@ class Rotate extends Module {
       g.draw( t._2.transform(transformation) )
     )
   }
-
 }

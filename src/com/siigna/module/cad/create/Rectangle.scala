@@ -32,9 +32,9 @@ class Rectangle extends Module {
         //use the first point
         if (points.length == 0){
           points = points :+ v
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> stroke)))
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points(0)),None,None,Some(112))
-          Start('cad, "create.Input", inputRequest)
+          val vector2DGuide = Vector2DGuideNew((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> stroke)))
+          val inputRequest = InputRequestNew(7,Some(points(0)),vector2DGuide)
+          Start('cad,"create.InputNew", inputRequest)
           }
         //use second point
         else if (points.length == 1) {
@@ -48,11 +48,11 @@ class Rectangle extends Module {
 
       case End("no point returned") :: tail => {
         if (points.length == 0) {
-          Start('cad, "create.Input", 111)
+          Start('cad, "create.InputNew", InputRequestNew(6,None))
         } else {
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> stroke)))
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points(0)),None,None,Some(112))
-          Start('cad, "create.Input", inputRequest)
+          val vector2DGuide = Vector2DGuideNew((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> stroke)))
+          val inputRequest = InputRequestNew(7,Some(points(0)),vector2DGuide)
+          Start('cad,"create.InputNew", inputRequest)
         }
       }
 
@@ -61,15 +61,15 @@ class Rectangle extends Module {
      //get the first point
       case _ => {
 
-        //Create(RectangleShape(Vector2D(40,40),30,30,45,Attributes()))
 
+        //Create(RectangleShape(Vector2D(40,40),30,30,45,Attributes()))
         if (points.length == 0) {
-          Start('cad, "create.Input", 111)
+          Start('cad, "create.InputNew", InputRequestNew(6,None))
         } else {
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> stroke)))
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points(0)),None,None,Some(112))
-          Start('cad, "create.Input", inputRequest)
-        } 
+          val vector2DGuide = Vector2DGuideNew((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes("Color" -> color , "StrokeWidth" -> stroke)))
+          val inputRequest = InputRequestNew(7,Some(points(0)),vector2DGuide)
+          Start('cad,"create.InputNew", inputRequest)
+        }
       }
     }
   )
