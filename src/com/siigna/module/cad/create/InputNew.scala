@@ -121,8 +121,11 @@ class InputNew extends Module {
        else if (inputType == Some(9) || inputType == Some(10)) {
       // Input types accepting a double as input:
         Start('cad,"create.InputOneValueByKey",inputRequest.get)
+      } else if(inputType == Some(11) ) {
+        println("HER")
+      // Input types accepting a string as input:
+        Start('cad,"create.InputText",inputRequest.get)
       }
-
     }
 
     //Input received from other modules (eg. Input OneValue, InputTwoValues, InputText, AngleGizmo):
@@ -145,6 +148,11 @@ class InputNew extends Module {
       } else if (inputType == Some(9) || inputType == Some(10)) {
         End(s)
       }
+    }
+
+    //String:
+    case End(s : String) :: tail => {
+      End(s)
     }
 
     case _ => {
@@ -186,8 +194,6 @@ case class InputRequestNew(inputType: Int, referencePoint: Option[Vector2D], gui
 // 5		      Vector2D	Keys or left mouse down   Off	                  Off	                Yes	                  No	                  None
 // 6		      Vector2D	Keys or left mouse down   On	                  On	                Yes	                  No	                  None
 // 7		      Vector2D	Keys or left mouse down   On	                  On	                No	                  Yes	                  One
-
-// 10		Double	Off	Off	N/A	N/A	None	Keys
 
 
 case class DoubleGuideNew(guide : Double => Traversable[Shape]) extends Guide

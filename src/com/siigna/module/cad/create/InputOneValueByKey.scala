@@ -59,7 +59,6 @@ class InputOneValueByKey extends Module {
         inputRequest = Some(i)
         inputType = Some(i.inputType)
         guides = i.guides
-        println(guides)
         referencePoint = i.referencePoint
       }
 
