@@ -12,7 +12,7 @@
 package com.siigna.module.cad.modify
 
 import com.siigna._
-import module.cad.create.InputRequestNew
+import com.siigna.module.cad.create.InputRequestNew
 
 class Rotate extends Module {
 
@@ -32,17 +32,14 @@ class Rotate extends Module {
       case KeyDown(Key.escape,modifier) :: tail => End
 
       // Receive a starting point from Input
-      case End(p : Vector2D) :: tail => {
-        centerPoint = Some(p)
-        'StartPoint
-      }
+      case End(p : Vector2D) :: tail => centerPoint = Some(p)
+      case _ if centerPoint.isDefined => 'StartPoint
 
       // Quit if we get anything else from the input module
       case End(_) :: tail => End
 
       // If we are starting, forward to Input
       case Start(_, _) :: tail => {
-        println("ROTATE START")
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         if (Drawing.selection.isDefined) {
           Siigna display "set center point for rotation"
@@ -55,10 +52,6 @@ class Rotate extends Module {
     },
 
     'StartPoint -> {
-      case e => {
-        println( e)
-        e match {
-
       // If the user drags the mouse we are searching for an angle
       case MouseMove(p1, _, _) :: MouseDown(p2, _, _) :: tail if (p1.distanceTo(p2) > 0.5) => {
         anglePoint = Some(p1)
@@ -66,14 +59,13 @@ class Rotate extends Module {
       }
       // If the user clicks a single point, he defined the start of the rotation
       case MouseUp(p, _, _) :: _ :: MouseDown(_, _, _) :: tail => {
-        println("got startpoint")
         anglePoint = Some(p)
         'AnglePoint
       }
 
       // If the user clicks a single point, he defined the start of the rotation
       case MouseUp(p, _, _) :: MouseDown(_, _, _) :: tail => {
-        println("got startpoint")
+        println("got startpoint", "hej", eventParser.events)
         anglePoint = Some(p)
         'AnglePoint
       }
@@ -90,8 +82,7 @@ class Rotate extends Module {
 
       // If we get anything else we quit
       case End(_) :: tail => End
-        }}
-      },
+    },
 
     'AnglePoint -> {
       case MouseUp(p, _, _) :: tail => {
