@@ -71,13 +71,8 @@ class ModuleInit extends Module {
         } else Start('base, "Menu")
       }
 
-      //double click anywhere on a shape selects the full shape.
-      case  MouseDown(p2, button, modifier) :: MouseUp(p1 ,MouseButtonLeft , _) :: tail => {
-        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
-
-        if (p1 == p2){
-          Start('cad, "Selection", MouseDouble(p2,button,modifier))
-        } }
+      // Make sure we do not return to the selection immediately after it ended
+      case End :: MouseDown(_, _, _) :: tail =>
 
       //Leftclick:
       // 1: Starts select, to select shape part at cursor, if nothing is selected,
@@ -102,7 +97,7 @@ class ModuleInit extends Module {
         val point = p.transform(View.deviceTransformation)
         val shapes = Drawing(point)
         activeSelection = Selection(shapes.map(t => t._1 -> (t._2 -> t._2.getSelector(point))))
-        activeSelectionVertices = activeSelection.shapes.flatMap(s => s._2.getVertices(s._2.getSelector(point)))
+        activeSelectionVertices = activeSelection.parts.flatMap(s => s.getVertices(s.getSelector(point)))
       }
 
       //shortcuts
@@ -151,10 +146,6 @@ class ModuleInit extends Module {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         Drawing.deselect()
       }
-      // add or subtract from selections
-      case KeyDown(Key.Shift, modifier) :: tail => Start('cad, "Selection", KeyDown(Key.Shift, modifier))
-      //End(KeyDown(Key.Shift, modifier))  // Start subtract from selection
-      case KeyUp(Key.Shift, modifier) :: tail => End(KeyUp(Key.Shift,modifier))  // Stop subtract from selection
 
       //MENU SHORTCUTS
       case KeyDown('c', _) :: tail => {

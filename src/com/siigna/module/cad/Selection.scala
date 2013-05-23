@@ -25,7 +25,7 @@ class Selection extends Module {
   private var box : Option[SimpleRectangle2D] = None
 
   // The selection from the box, if any
-  private var boxSelection : SiignaSelection = EmptySelection
+  private var activeSelection : SiignaSelection = EmptySelection
 
   // The starting point of the box-selection
   private var startPoint : Option[Vector2D] = None
@@ -50,7 +50,7 @@ class Selection extends Module {
       }
 
       // Select the area
-      Select(Drawing(m), m)
+      SelectToggle(m)
 
       End
     }
@@ -61,11 +61,19 @@ class Selection extends Module {
     }
 
     //double click anywhere on a shape selects the full shape.
-    case Start(_,MouseDouble(p,_,_)) :: tail => {
+    case Start :: MouseUp(_, _, _) :: MouseDown(_, _, _) :: MouseUp(_, _, _) :: tail => {
       val m = mousePosition.transform(View.deviceTransformation)
       Select(Drawing(m), m)
       End
     }
+
+    // Store selections close to the mouse-point for visual feedback, before any actions are taken
+    case MouseMove(p, _, keys) :: tail => {
+      val point = p.transform(View.deviceTransformation)
+      val shapes = Drawing(point)
+      activeSelection = Selection(shapes.map(t => t._1 -> (t._2 -> t._2.getSelector(point))))
+    }
+
   },
 
   'Box -> {
@@ -73,24 +81,33 @@ class Selection extends Module {
     case KeyDown(Key.Esc, _) :: tail => End
     case MouseDown(p, MouseButtonRight, _) :: tail => End
 
+    // Do nothing if shift is pressed
+    case KeyDown(Key.Shift, _) :: tail =>
+
     case MouseDrag(p, _, _) :: tail => {
       val rectangle = Rectangle2D(startPoint.get, p)
       box = Some(rectangle)
       val transformedRectangle = rectangle.transform(View.deviceTransformation)
       val selection = Drawing(transformedRectangle).map(t =>
         t._1 -> (t._2 -> (if (isEnclosed) FullShapeSelector else t._2.getSelector(transformedRectangle))))
-      boxSelection = Selection(selection)
+      activeSelection = Selection(selection)
     }
-    case MouseUp(p, _, _) :: tail => {
+    case MouseUp(p, _, keys) :: tail => {
       if (box.isDefined) {
-        Select(box.get.transform(View.deviceTransformation), isEnclosed)
+        // Toggle the selection if shift is pressed
+        if (keys == Shift) {
+          SelectToggle(box.get.transform(View.deviceTransformation), isEnclosed)
+        } else {
+          Drawing.deselect()
+          Select(box.get.transform(View.deviceTransformation), isEnclosed)
+        }
       }
       End
     }
     case e => End
   })
 
-  private val highlighted = "#667788".color
+  private val highlighted = "#554499".color
   private val enclosed    = "#8899CC".color
   private val focused     = "#CC8899".color
   private val rasterEnclosed = new Color(100, 120, 210, 20)
@@ -105,9 +122,9 @@ class Selection extends Module {
       g draw r
     }
 
-    boxSelection.parts.foreach(p => {
+    activeSelection.parts.foreach(p => {
       g draw p.setAttributes("Color" -> highlighted).transform(t)
     })
-    boxSelection.vertices.foreach(v => g draw v.transform(t))
+    activeSelection.vertices.foreach(v => g draw v.transform(t))
   }
 }
