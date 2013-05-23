@@ -12,6 +12,7 @@
 package com.siigna.module.cad.modify
 
 import com.siigna._
+import module.cad.create.InputRequestNew
 
 class Rotate extends Module {
 
@@ -41,10 +42,11 @@ class Rotate extends Module {
 
       // If we are starting, forward to Input
       case Start(_, _) :: tail => {
+        println("ROTATE START")
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         if (Drawing.selection.isDefined) {
-          Siigna display "set centre point for rotation"
-          Start('cad, "create.InputNew", 1)
+          Siigna display "set center point for rotation"
+          Start('cad, "create.InputNew", InputRequestNew(6,None))
         } else {
           Siigna display "nothing selected"
           End
@@ -53,13 +55,25 @@ class Rotate extends Module {
     },
 
     'StartPoint -> {
+      case e => {
+        println( e)
+        e match {
+
       // If the user drags the mouse we are searching for an angle
       case MouseMove(p1, _, _) :: MouseDown(p2, _, _) :: tail if (p1.distanceTo(p2) > 0.5) => {
         anglePoint = Some(p1)
         'DragAngle
       }
       // If the user clicks a single point, he defined the start of the rotation
-      case MouseUp(p, _, _) :: _ :: MouseDown(down, _, _) :: tail => {
+      case MouseUp(p, _, _) :: _ :: MouseDown(_, _, _) :: tail => {
+        println("got startpoint")
+        anglePoint = Some(p)
+        'AnglePoint
+      }
+
+      // If the user clicks a single point, he defined the start of the rotation
+      case MouseUp(p, _, _) :: MouseDown(_, _, _) :: tail => {
+        println("got startpoint")
         anglePoint = Some(p)
         'AnglePoint
       }
@@ -76,7 +90,8 @@ class Rotate extends Module {
 
       // If we get anything else we quit
       case End(_) :: tail => End
-    },
+        }}
+      },
 
     'AnglePoint -> {
       case MouseUp(p, _, _) :: tail => {
