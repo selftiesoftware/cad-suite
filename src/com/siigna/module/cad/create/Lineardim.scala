@@ -120,9 +120,9 @@ class Lineardim extends Module {
       case End(p : Vector2D) :: tail => {
         points = points :+ p
         if (points.length == 1) {
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(LineShape(p, v)))
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(1))
-          Start('cad, "create.Input", inputRequest)
+          val vector2DGuide = Vector2DGuideNew((v: Vector2D) => Traversable(LineShape(p, v)))
+          val inputRequest = InputRequestNew(6,None,vector2DGuide)
+          Start('cad,"create.InputNew", inputRequest)
         } else if (points.length == 2) {
           val line = points(1) - points(0)
           val point = points(0) - p
@@ -132,10 +132,14 @@ class Lineardim extends Module {
           else
             offsetSide = true
           Siigna display "click on the side away from the pointers"
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(LineShape(points(0), points(1))))
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(11))
-          //Input 11: Vector2D, only by mouseDown
-          Start('cad, "create.Input", inputRequest)
+
+          val vector2DGuide = Vector2DGuideNew((v: Vector2D) => Traversable(LineShape(points(0), points(1))))
+
+          val inputRequest = InputRequestNew(2,None,vector2DGuide)
+          Start('cad,"create.InputNew", inputRequest)
+
+          //Input 2: Vector2D, only by mouseDown
+
         } else if (points.length == 3) {
           //Finalise
           val line = points(1) - points(0)
@@ -164,7 +168,7 @@ class Lineardim extends Module {
       case _ => {
       //get the current paperScale
       scale = Siigna.paperScale
-        Start('cad, "create.Input", 1)
+        Start('cad, "create.InputNew", InputRequestNew(6,None))
       }
       
       
