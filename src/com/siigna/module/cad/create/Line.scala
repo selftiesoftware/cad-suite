@@ -32,12 +32,11 @@ class Line extends Module {
       case End(v : Vector2D) :: tail => {
         if (startPoint.isEmpty) {
           startPoint = Some(v)
-          //eventParser.snapTo(() => List(LineShape(v, mousePosition)))
-          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
+          val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
             Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
           })
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(112))
-          Start('cad,"create.Input", inputRequest)
+          val inputRequest = InputRequestNew(7,startPoint,vector2DGuide)
+          Start('cad,"create.InputNew", inputRequest)
         } else {
           val line = LineShape(startPoint.get,v).addAttributes("Color" -> color , "StrokeWidth" -> stroke)
           Create(line)
@@ -49,29 +48,29 @@ class Line extends Module {
       //If input module returns nothing:
       case End("no point returned") :: tail => {
         if (startPoint.isEmpty) {
-          Start('cad, "create.Input", 111)
+          Start('cad, "create.InputNew", InputRequestNew(6,None))
         } else {
-          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
+          val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
             Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
           })
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(112))
-          Start('cad,"create.Input", inputRequest)
+          val inputRequest = InputRequestNew(7,startPoint,vector2DGuide)
+          Start('cad,"create.InputNew", inputRequest)
       }}
       case End(k : KeyDown) :: tail => {
         // If the key is backspace without modification (shift etc), the last point is deleted, if there is any
         if (k == KeyDown(Key.Backspace,ModifierKeys(false,false,false))) {
           if (startPoint.isEmpty) {
-            Start('cad, "create.Input", 111)
+            Start('cad, "create.InputNew", InputRequestNew(6,None))
           } else {
-            val vector2DGuide = Vector2DGuide((v : Vector2D) => {
+            val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
               Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
             })
-            val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(112))
-            Start('cad,"create.Input", inputRequest)
+            val inputRequest = InputRequestNew(7,startPoint,vector2DGuide)
+            Start('cad,"create.InputNew", inputRequest)
           }
         }
       }
-      case _ => Start('cad, "create.Input", 111)
+      case _ => Start('cad, "create.InputNew", InputRequestNew(6,None))
     }
   )
 }

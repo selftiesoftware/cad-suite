@@ -41,16 +41,27 @@ class Polyline extends Module {
         if (startPoint.isEmpty){
           //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
           startPoint = Some(v)
-          val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
-          val inputRequest = InputRequest(Some(guide),None,None,None,None,None,startPoint,None,None,Some(112))
-          Start('cad, "create.Input", inputRequest)
+          //val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+          //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,startPoint,None,None,Some(112))
+          //Start('cad, "create.Input", inputRequest)
+
+          val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
+            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
+          })
+          val inputRequest = InputRequestNew(7,startPoint,vector2DGuide)
+          Start('cad,"create.InputNew", inputRequest)
         } else {
 
           //If the start point is set, the first segment is made and points should be added.
           points :+ v
-          val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
-          val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
-          Start('cad, "create.Input", inputRequest)
+          //val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+          //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
+          //Start('cad, "create.Input", inputRequest)
+          val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
+            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
+          })
+          val inputRequest = InputRequestNew(7,Some(points.last),vector2DGuide)
+          Start('cad,"create.InputNew", inputRequest)
         }
       }
 
@@ -60,13 +71,25 @@ class Polyline extends Module {
         if (points.length == 1){
           //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
           startPoint = Some(points.last)
-          val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
-          val inputRequest = InputRequest(Some(guide),None,None,None,None,None,startPoint,None,None,Some(112))
-          Start('cad, "create.Input", inputRequest)
+          //val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+          //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,startPoint,None,None,Some(112))
+          //Start('cad, "create.Input", inputRequest)
+
+          val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
+            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
+          })
+          val inputRequest = InputRequestNew(7,startPoint,vector2DGuide)
+          Start('cad,"create.InputNew", inputRequest)
         } else {
-          val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
-          val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
-          Start('cad, "create.Input", inputRequest)
+          //val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+          //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
+          //Start('cad, "create.Input", inputRequest)
+
+          val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
+            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
+          })
+          val inputRequest = InputRequestNew(7,Some(points.last),vector2DGuide)
+          Start('cad,"create.InputNew", inputRequest)
         }
       }
 
@@ -81,9 +104,15 @@ class Polyline extends Module {
           //And if there is a start point, a new guide is returned
           if (startPoint.isDefined) {
 
-            val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
-            val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
-            Start('cad, "create.Input", inputRequest)
+           // val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+            //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
+            //Start('cad, "create.Input", inputRequest)
+            val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
+              Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
+            })
+            val inputRequest = InputRequestNew(7,Some(points.last),vector2DGuide)
+            Start('cad,"create.InputNew", inputRequest)
+
           } else {
             //If not, point is started without guide.
             Start('cad, "create.Input")
@@ -104,8 +133,8 @@ class Polyline extends Module {
       }
       case x => {
         points = List[Vector2D]()
-
-        Start('cad, "create.Input", 111)
+        Start('cad, "create.InputNew", InputRequestNew(6,None))
+        //Start('cad, "create.Input", 111)
       }
     }
   )

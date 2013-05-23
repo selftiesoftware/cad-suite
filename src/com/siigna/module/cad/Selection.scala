@@ -12,171 +12,119 @@
 package com.siigna.module.cad
 
 import com.siigna._
+import com.siigna.{Selection => SiignaSelection}
+import java.awt.Color
+import com.siigna.app.model.selection.EmptySelection
+
 /**
- * A Module for selecting shapes.
+ * A Module for selecting shapes and shape-parts.
  */
 class Selection extends Module {
 
+  // The box, describing the area selection, if any
   private var box : Option[SimpleRectangle2D] = None
 
-  var nearestShape : Option[(Int, Shape)] = None
+  // The selection from the box, if any
+  private var activeSelection : SiignaSelection = EmptySelection
 
-  private var selectEntireShape : Boolean = false
-
-  // The starting point of the rectangle
+  // The starting point of the box-selection
   private var startPoint : Option[Vector2D] = None
-  private var zoom : Double = View.zoom
-
-   //find the shape closest to the mouse
-  def findNearest(m : Vector2D) = {
-    var n : Option[(Int, Shape)] = None
-    if (Drawing(m).size > 0) {
-      val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-      n = if (nearest._2.distanceTo(m) < Siigna.selectionDistance) Some(nearest) else None
-    }
-    n
-  }
-  //test if the segment or point is selected
-  //Return True if the segment is selected
-  //Return False if the segment is not selected
-  def isSelected(m : Vector2D) : Boolean = {
-    val clickedShp = findNearest(m)
-    if(Drawing.selection.isDefined && clickedShp.isDefined) {
-      val parts = Drawing.selection.get.shapes
-      parts.foreach(s => println("AA: "+s._1))
-    }
-    false
-  }
 
   /**
-   * Examines whether the selection is currently enclosed or not.
+   * Examines whether the selection is currently enclosed (selects the entire shapes) or not (only selects parts).
    */
-  def isEnclosed : Boolean = startPoint.isDefined && startPoint.get.x <= mousePosition.transform(View.deviceTransformation).x
-
-  var hasShift = false
-
-  //select or deselect part shapes
-  def processPartShape(m: Vector2D) = {
-    nearestShape = findNearest(m)   //find the shape closest to the mouse
-    //if a nearest shape is defined, and SHIFT is not pressed, add the part to the selection
-    if (!nearestShape.isEmpty && hasShift == false) {
-      val part = nearestShape.get._2.getPart(mousePosition.transform(View.deviceTransformation))
-      Drawing.select(nearestShape.get._1, part)
-    } else if (!nearestShape.isEmpty && hasShift == true && isSelected(m) == false) {
-      //TODO: update this so that it deselects only a segment, not the entire model.
-      Drawing.deselect()
-    }
-  }
-
-  //select or deselect full shapes
-  def processFullShape(m: Vector2D) = {
-    nearestShape = findNearest(m) //find the shape closest to the mouse
-    //if a nearest shape is defined, and SHIFT is not pressed, add the part to the selection
-    if (!nearestShape.isEmpty && hasShift == false) {
-      Drawing.select(nearestShape.get._1)
-    } else if (!nearestShape.isEmpty && hasShift == true) {
-      //TODO: update this so that is deselects only the relevant shape, not all shapes.
-      Drawing.deselect()
-    }
-  }
+  def isEnclosed : Boolean = startPoint.isDefined && startPoint.get.x <= mousePosition.x
 
   def stateMap = Map(
   'Start -> {
 
-      //case events => println(events)
-      //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
+    //exit strategy
+    case KeyDown(Key.Esc, _) :: tail => End
+    case MouseUp(_, MouseButtonRight, _) :: tail => End
 
-      //check for SHIFT down /up events
-      case Start(_ , _) :: KeyDown(Key.Shift, _) :: tail => hasShift = true
-      case KeyDown(Key.Shift, _) :: tail => hasShift = true
-
-      //if ModuleInit forwards to selection with a left mouse click
-      // If a shape-part is hit, it is selected:
-      case Start(_ , message : MouseDown) :: tail => {
-        val m = mousePosition.transform(View.deviceTransformation)
-        processPartShape(m)
-        End
+    case MouseUp(p, _, modifier) :: tail => {
+      val m = mousePosition.transform(View.deviceTransformation)
+      // If shift is not pressed we should deselect everything
+      if (!modifier.shift) {
+        Drawing.deselect()
       }
 
-      //if SHIFT is pressed the selection module does not end, but listens after events.
-      //in case of a mouse down, a de-selection is made.
+      // Select the area
+      SelectToggle(m)
 
-      case MouseDown(p, _, _) :: tail => {
-        val m = mousePosition.transform(View.deviceTransformation)
-        processPartShape(m)
-        End
-      }
-
-      case MouseUp(p, _, _) :: tail => {
-        val m = mousePosition.transform(View.deviceTransformation)
-        processPartShape(m)
-        End
-      }
-      //if ModuleInit forwards to selection with a mouse drag
-      // 1: If a shape-part is hit, it is selected (so it will be moved)
-      // 2: If not a shape-part is hit, a drag box is initiated:
-      case Start(_,message : MouseDrag) :: tail => {
-        val m = mousePosition.transform(View.deviceTransformation)
-
-        //find the shape closest to the mouse:
-        nearestShape = findNearest(m)
-
-        if (!nearestShape.isEmpty) {
-          processPartShape(m)
-          End
-        } else {
-        startPoint = Some(message.position)
-        'Box
-      }}
-
-      //double click anywhere on a shape selects the full shape.
-      case Start(_,MouseDouble(p,_,_)) :: tail => {
-        val m = mousePosition.transform(View.deviceTransformation)
-        processFullShape(m)
-        End
-      }
-
-      case MouseDrag(p, button, modifier) :: tail =>  //SHIFT USED (not input from ModuleInit)
-      case MouseMove(_,_,_) :: tail =>
-      case f => { println("Selection recieved an unknown input: " + f)}
-    },
-
-    'Box -> {
-      //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
-      case MouseDown(p, MouseButtonRight, _) :: tail => End
-
-      case MouseDrag(p, _, _) :: tail => {
-        //Dragging a selection box from LEFT TO RIGHT: ONLY shapes that are fully enclosed in the box are selected.
-        if(startPoint.get.x < p.x) {
-          selectEntireShape = false
-          box = Some(Rectangle2D(startPoint.get, p))
-        }
-        //Dragging from RIGHT TO LEFT selects all the shapes that intersect the box
-        else {
-          selectEntireShape = true
-          box = Some(Rectangle2D(startPoint.get, p))
-        }
-      }
-      case MouseUp(p, _, _) :: tail => {
-        if (box.isDefined && selectEntireShape == true) Select(box.get.transform(View.deviceTransformation), true)
-        else if (box.isDefined && selectEntireShape == false) Select(box.get.transform(View.deviceTransformation), false)
-        End
-      }
-      case e => {
-        println("Box ending: cannot select this...")
-        End
-      }
+      End
     }
-  )
+
+    case (m : MouseDrag) :: tail => {
+      startPoint = Some(m.position)
+      'Box
+    }
+
+    //double click anywhere on a shape selects the full shape.
+    case Start :: MouseUp(_, _, _) :: MouseDown(_, _, _) :: MouseUp(_, _, _) :: tail => {
+      val m = mousePosition.transform(View.deviceTransformation)
+      Select(Drawing(m), m)
+      End
+    }
+
+    // Store selections close to the mouse-point for visual feedback, before any actions are taken
+    case MouseMove(p, _, keys) :: tail => {
+      val point = p.transform(View.deviceTransformation)
+      val shapes = Drawing(point)
+      activeSelection = Selection(shapes.map(t => t._1 -> (t._2 -> t._2.getSelector(point))))
+    }
+
+  },
+
+  'Box -> {
+    //exit strategy
+    case KeyDown(Key.Esc, _) :: tail => End
+    case MouseDown(p, MouseButtonRight, _) :: tail => End
+
+    // Do nothing if shift is pressed
+    case KeyDown(Key.Shift, _) :: tail =>
+
+    case MouseDrag(p, _, _) :: tail => {
+      val rectangle = Rectangle2D(startPoint.get, p)
+      box = Some(rectangle)
+      val transformedRectangle = rectangle.transform(View.deviceTransformation)
+      val selection = Drawing(transformedRectangle).map(t =>
+        t._1 -> (t._2 -> (if (isEnclosed) FullShapeSelector else t._2.getSelector(transformedRectangle))))
+      activeSelection = Selection(selection)
+    }
+    case MouseUp(p, _, keys) :: tail => {
+      if (box.isDefined) {
+        // Toggle the selection if shift is pressed
+        if (keys == Shift) {
+          SelectToggle(box.get.transform(View.deviceTransformation), isEnclosed)
+        } else {
+          Drawing.deselect()
+          Select(box.get.transform(View.deviceTransformation), isEnclosed)
+        }
+      }
+      End
+    }
+    case e => End
+  })
+
+  private val highlighted = "#554499".color
+  private val enclosed    = "#8899CC".color
+  private val focused     = "#CC8899".color
+  private val rasterEnclosed = new Color(100, 120, 210, 20)
+  private val rasterFocused  = new Color(210, 100, 120, 20)
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    val enclosed = "Color" -> "#9999FF".color
-    val focused  = "Color" -> "#FF9999".color
 
     if (box.isDefined) {
-      g draw PolylineShape(box.get).setAttribute("Color" -> (if (isEnclosed) enclosed else focused))
+      val p = PolylineShape(box.get).setAttribute("Color" -> (if (isEnclosed) enclosed else focused))
+      val r = p.setAttributes("Raster" -> (if (isEnclosed) rasterEnclosed else rasterFocused))
+      g draw p
+      g draw r
     }
+
+    activeSelection.parts.foreach(p => {
+      g draw p.setAttributes("Color" -> highlighted).transform(t)
+    })
+    activeSelection.vertices.foreach(v => g draw v.transform(t))
   }
 }

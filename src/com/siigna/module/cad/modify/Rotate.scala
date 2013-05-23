@@ -12,18 +12,14 @@
 package com.siigna.module.cad.modify
 
 import com.siigna._
-import app.Siigna
-import com.siigna.module.cad.create._
-import com.siigna.module.ModuleInit
 
 class Rotate extends Module {
 
+  private var anglePoint : Option[Vector2D] = None
   private var centerPoint : Option[Vector2D] = None
-  private var endVector : Option[Vector2D] = None
-  var startVectorSet: Boolean = false
 
-  private var startVector : Option[Vector2D] = Some(Vector2D(0,0))
-  var transformation : Option[TransformationMatrix] = None
+  private var transformation : TransformationMatrix = TransformationMatrix()
+  def transformSelection(t : TransformationMatrix) = Drawing.selection.transform(t).shapes.values
 
   val stateMap: StateMap = Map(
 
@@ -34,80 +30,88 @@ class Rotate extends Module {
       case MouseDown(p,MouseButtonRight,modifier) :: tail => End
       case KeyDown(Key.escape,modifier) :: tail => End
 
+      // Receive a starting point from Input
       case End(p : Vector2D) :: tail => {
-        if(!centerPoint.isDefined) {
-          centerPoint = Some(p)
-          Siigna display "click to set rotation start point, or type a rotation angle"
-          val doubleGuide = DoubleGuide((a : Double) => {
-            val t : TransformationMatrix =
-              TransformationMatrix( ).rotate(-a, centerPoint.get)
-            Drawing.selection.get.apply(t)
-          })
-
-          val inputRequest = InputRequest(None,Some(doubleGuide),None,None,None,None,centerPoint,None,None,Some(120))
-          Start('cad, "create.Input", inputRequest)
-        }
-
-        // if the center of rotation and origin for rotation is set, return to Point to draw the rotation dynamically.
-        else if(centerPoint.isDefined && startVectorSet == false){
-          startVector = Some(p)
-          startVectorSet = true
-          Siigna display "click to finish rotation, or type a rotation angle"
-          val doubleGuide = DoubleGuide((d: Double) => {
-            val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
-            Drawing.selection.get.apply(t)
-          })
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
-            //Angle of line from reference point to mouse position:
-            val d : Double = (-((mousePosition.transform(View.deviceTransformation) - centerPoint.get).angle - (startVector.get - centerPoint.get).angle))
-            val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
-            Drawing.selection.get.apply(t)
-          })
-          val inputRequest = InputRequest(Some(vector2DGuide),Some(doubleGuide),None,None,None,None,None,None,None,Some(13))
-          //13 : Input type = Double from keys, or Vector2D from mouseDown.
-          Start('cad, "create.Input", inputRequest)
-          //If a rotation-vector is set, do the rotation!
-        } else if(startVectorSet == true && centerPoint.isDefined) {
-          endVector = Some(p)
-
-          val t : TransformationMatrix = {
-            if (endVector.isDefined) {
-              val a1 : Double = (startVector.get - centerPoint.get).angle
-              val a2 : Double = (endVector.get - centerPoint.get).angle
-              TransformationMatrix(Vector2D(0,0), 1).rotate(a2 - a1, centerPoint.get)
-            } else TransformationMatrix()
-          }
-          //val t = transformation.get.rotate(rotation,centerPoint.get)
-          Drawing.selection.get.transform(t)
-          Drawing.deselect()
-          End
-        }
+        centerPoint = Some(p)
+        'StartPoint
       }
 
-      //if Point returns a typed angle:
-      case End(a : Double) :: tail => {
-        val t : TransformationMatrix = {
-          if (centerPoint.isDefined) {
-            TransformationMatrix(Vector2D(0,0), 1).rotate(-a, centerPoint.get)
-          } else TransformationMatrix()
-        }
-        //val t = transformation.get.rotate(rotation,centerPoint.get)
-        Drawing.selection.get.transform(t)
-        Drawing.deselect()
-        End
-      }
+      // Quit if we get anything else from the input module
+      case End(_) :: tail => End
 
-      case _ => {
+      // If we are starting, forward to Input
+      case Start(_, _) :: tail => {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
-        val l = new ModuleInit
-        if (l.usableSelectionExists) {
+        if (Drawing.selection.isDefined) {
           Siigna display "set centre point for rotation"
-          Start('cad, "create.Input", 1)
+          Start('cad, "create.InputNew", 1)
         } else {
           Siigna display "nothing selected"
           End
         }
       }
+    },
+
+    'StartPoint -> {
+      // If the user drags the mouse we are searching for an angle
+      case MouseMove(p1, _, _) :: MouseDown(p2, _, _) :: tail if (p1.distanceTo(p2) > 0.5) => {
+        anglePoint = Some(p1)
+        'DragAngle
+      }
+      // If the user clicks a single point, he defined the start of the rotation
+      case MouseUp(p, _, _) :: _ :: MouseDown(down, _, _) :: tail => {
+        anglePoint = Some(p)
+        'AnglePoint
+      }
+
+      // Match for input
+      case KeyDown(c, _) :: tail if (c.toChar.isDigit) => {
+        Start('cad, "create.InputOneValueByKey")
+      }
+
+      // Match for returning double
+      case End(angle : Double) :: tail => {
+        transformation = getTransformation(centerPoint.get, angle)
+      }
+
+      // If we get anything else we quit
+      case End(_) :: tail => End
+    },
+
+    'AnglePoint -> {
+      case MouseUp(p, _, _) :: tail => {
+        transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
+        Drawing.selection.transform(transformation)
+        Drawing.deselect()
+        End
+      }
+      case MouseMove(p, _, _) :: tail => {
+        transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
+      }
+    },
+
+    'DragAngle -> {
+      case MouseMove(p, _, _) :: tail => {
+        transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
+      }
+      case MouseUp(p, _, _) :: tail => {
+        transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
+        Drawing.selection.transform(transformation)
+        Drawing.deselect()
+        End
+      }
     }
   )
+
+  private def getAngle(p : Vector2D) = (p.transform(View.deviceTransformation) - centerPoint.get).angle
+
+  private def getTransformation(center : Vector2D, angle : Double) =
+    TransformationMatrix().rotate(angle, center)
+
+  override def paint(g : Graphics, t : TransformationMatrix) {
+    Drawing.selection.shapes.foreach( t =>
+      g.draw( t._2.transform(transformation) )
+    )
+  }
+
 }

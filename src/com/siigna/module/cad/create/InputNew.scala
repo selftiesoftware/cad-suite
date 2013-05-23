@@ -1,0 +1,204 @@
+package com.siigna.module.cad.create
+
+import com.siigna._
+
+/**
+ * Created by IntelliJ IDEA.
+ * User: Niels Egholm
+ * Date: 19-03-13
+ * Time: 17:09
+ * To change this template use File | Settings | File Templates.
+ */
+
+class InputNew extends Module {
+
+  //Information received from calling module
+  var inputRequest: Option[InputRequestNew] = None
+  var inputType: Option[Int] = None
+  var guides: Seq[Guide] = Seq()
+  var referencePoint: Option[Vector2D] = None
+  var trackDoubleRequest: Boolean = false
+
+  def interpretMouseInput(p : Vector2D) : Option[End[Any]] = {
+    if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)
+      || inputType == Some(9))  {
+      //Absolute values returned
+      Some(End(p.transform(View.deviceTransformation)))
+    } else if (inputType == Some(10)) {
+      //Type is distance from start point, returned as double
+      val startPointX = referencePoint.get.x
+      val startPointY = referencePoint.get.y
+      val distanceFromStartToMouse: Double = math.sqrt(( (startPointX-p.transform(View.deviceTransformation).x) * (startPointX-p.transform(View.deviceTransformation).x)) + ( (startPointY-p.transform(View.deviceTransformation).y) * (startPointY-p.transform(View.deviceTransformation).y)) )
+      if (distanceFromStartToMouse != 0) {
+        Some(End(distanceFromStartToMouse))
+      } else None
+    } else if (inputType == Some(999)) {
+      //Relative values returned
+      Some(End((p+referencePoint.get).transform(View.deviceTransformation)))
+    } else None
+  }
+
+  val stateMap: StateMap = Map(
+    'Start -> {
+      case Start(_ , i: InputRequestNew) :: tail => {
+        inputRequest = Some(i)
+        inputType = Some(i.inputType)
+        guides = i.guides
+        referencePoint = i.referencePoint
+        guides.foreach(_ match {
+          case Vector2DGuideNew(guide) => {
+            val snapFunction = () => guide(mousePosition)
+            eventParser.snapTo(snapFunction)
+          }
+          case _ => // No known guide
+        } )
+
+        'ReceiveUserInput
+      }
+      case _ => {
+        End
+      }
+    },
+
+  'ReceiveUserInput -> {
+    //Input from mouse-actions:
+
+    //Left mouse button down
+    case MouseDown(p,MouseButtonLeft,_) :: tail => interpretMouseInput(p).getOrElse(None)
+    case End(MouseDown(p, MouseButtonLeft, _)) :: tail => interpretMouseInput(p).getOrElse(None)
+
+    //Left mouse button up:
+    case MouseUp(p,MouseButtonLeft,modifier)::tail => {
+      if (inputType == Some(8)) {
+        End(p.transform(View.deviceTransformation))
+    }}
+
+    //Right mouse button down
+    case MouseDown(p,MouseButtonRight,modifier)::tail => {
+      //Standard: the mouseDown action is returned
+      End(MouseDown(p.transform(View.deviceTransformation),MouseButtonRight,modifier))
+    }
+
+    //Input from keyboard:
+      //AngleGizmo
+    case KeyDown(Key.shift, _) :: tail => {
+      //Angle gizmo based on track point (Track point is sent to Angle Gizmo - not referencePoint (if there is one)
+      if (Track.isTracking == true && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Siigna.selectionDistance) {
+        Start('cad,"create.AngleGizmo",InputRequestNew(inputType.get,Track.pointOne,guides:_*))
+      //Angle gizmo based on reference point (The angle gizmo gets a track point, if one is active. If none is active, the reference point is sent.
+      //If there is neither track- or reference point, Angle gizmo does not start (since it wouldn't know where it's centre should be).
+      } else if ((inputType == Some(7) || inputType == Some(10)) && !referencePoint.isEmpty) {
+        Start('cad,"create.AngleGizmo",inputRequest.get)
+      }
+    }
+
+
+    //Most key-inputs are not handled directly in Input, but sorted and forwarded to key-input modules.
+    //Some are, however - eg. escape and backspace.
+    case KeyDown(key,modifier) :: tail => {
+      if (trackDoubleRequest == true) trackDoubleRequest = false
+      //ESCAPE: Is returned to the asking module as a key-down event:
+      if (key == Key.escape) End(KeyDown(key,modifier))
+      //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event:
+      else if (key == Key.backspace) End(KeyDown(key,modifier))
+      //Input types where track-offset is activated: Vector2D-guides are transformed to DoubleGuides:
+      else if ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7) || inputType == Some(9)) && Track.isTracking == true) {
+        val guidesNew = guides.collect({
+          case Vector2DGuideNew(guide) => {
+            DoubleGuideNew((d : Double) => {
+              guide(Track.getPointFromDistance(d).get)
+            })
+          }
+        })
+        val newInputRequest = InputRequestNew(7,referencePoint,guidesNew:_*)
+        trackDoubleRequest = true
+        Start('cad,"create.InputOneValueByKey",newInputRequest)
+      // Input types accepting Vector2D by keys:
+      } else if(inputType == Some(3) || inputType == Some(5)
+        || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7)) && Track.isTracking == false)) {
+        Start('cad,"create.InputValuesByKey",inputRequest.get)
+      }
+       else if (inputType == Some(9) || inputType == Some(10)) {
+      // Input types accepting a double as input:
+        Start('cad,"create.InputOneValueByKey",inputRequest.get)
+      } else if(inputType == Some(11) ) {
+        println("HER")
+      // Input types accepting a string as input:
+        Start('cad,"create.InputText",inputRequest.get)
+      }
+    }
+
+    //Input received from other modules (eg. Input OneValue, InputTwoValues, InputText, AngleGizmo):
+
+    //Vector2D: (Standard: The received Vector2D is returned, un-transformed)
+    case End(p : Vector2D) :: tail => {
+      //if (drawGuideInInputModule == false) drawGuideInInputModule = true
+      if (inputType == Some(7) && !referencePoint.isEmpty) {
+        End(referencePoint.get + p)
+      } else {
+        End(p)
+      }
+    }
+
+    //Double:
+    case End(s : Double) :: tail => {
+      if (trackDoubleRequest == true && (inputType == Some(4) || inputType == Some(6)|| inputType == Some(7) || inputType == Some(9))) {
+        trackDoubleRequest = false
+        End(Track.getPointFromDistance(s).get)
+      } else if (inputType == Some(9) || inputType == Some(10)) {
+        End(s)
+      }
+    }
+
+    //String:
+    case End(s : String) :: tail => {
+      End(s)
+    }
+
+    case _ => {
+
+    }
+  })
+
+
+  //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
+  override def paint(g : Graphics, t : TransformationMatrix) {
+    if (!isForwarding) {
+      guides.foreach(_ match {
+        case Vector2DGuideNew(guide) => {
+          guide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
+        }
+        case _ => // No known guide
+      } )
+    }
+  }
+}
+
+trait Guide {
+  def guide : _ => Traversable[Shape]
+}
+
+//The input request to be sent to the input module. Contains the information, the module needs to pass to the input module. Consists of:
+// 1) inputType: An integer, which tells the input-module what input the asking module needs. For description of types, see below.
+// 2) referencePoint: A reference point, if it is required. If no reference point is required, write None - as it is an option[Vector2d]
+// 3) guide(s): One or more guides, used for drawing the shapes dynamically based on the user-input. Seperate guides by , if there are more than one.
+//    If there is no guide, don't write anything here.
+
+case class InputRequestNew(inputType: Int, referencePoint: Option[Vector2D], guides : Guide*)
+
+// inputType	Return	  Input method              Track-offset default	AngleGizmo default	Absolute coordinates	Relative coordinates	Reference point(s)
+// 1		      Vector2D	Left mouse down           Off	                  Off	                Yes	                  No	                  None
+// 2		      Vector2D	Left mouse down           On	                  On	                Yes	                  No	                  None
+// 3		      Vector2D	Keys                      Off	                  Off	                Yes	                  No	                  None
+// 4		      Vector2D	Keys                      On	                  On	                Yes	                  No	                  None
+// 5		      Vector2D	Keys or left mouse down   Off	                  Off	                Yes	                  No	                  None
+// 6		      Vector2D	Keys or left mouse down   On	                  On	                Yes	                  No	                  None
+// 7		      Vector2D	Keys or left mouse down   On	                  On	                No	                  Yes	                  One
+
+
+case class DoubleGuideNew(guide : Double => Traversable[Shape]) extends Guide
+case class Vector2DGuideNew(guide : Vector2D => Traversable[Shape]) extends Guide
+case class TextGuideNew(guide : String => Traversable[Shape]) extends Guide
+case class DoubleMessageGuideNew(guide : Double => Traversable[Shape]) extends Guide
+case class Vector2DMessageGuideNew(guide : Vector2D => Traversable[Shape]) extends Guide
+case class TextMessageGuideNew(guide : String => Traversable[Shape]) extends Guide

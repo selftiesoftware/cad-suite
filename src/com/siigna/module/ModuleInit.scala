@@ -12,9 +12,9 @@
 package com.siigna.module
 
 import base.{PaperHeader, Menu}
-import cad.radialmenu.category.StartCategory
+import com.siigna.module.cad.radialmenu.category.{ModifyCategory, StartCategory}
 import com.siigna._
-import app.model.shape.FullShapePart
+import com.siigna.app.model.selection.EmptySelection
 
 /**
  * An init module for the cad-suite.
@@ -26,7 +26,8 @@ class ModuleInit extends Module {
 
   protected var lastModule : Option[Module] = None
 
-  var nearestShape : Option[(Int, Shape)] = None   //The nearest shape to the current mouse position.
+  var activeSelection : Selection = EmptySelection   //The nearest shape to the current mouse position.
+  var activeSelectionVertices : Traversable[Vector2D] = Set.empty
   var toolSuggestions = List[String]() //a list of possible tools in a given category. activated by shortcuts
 
   var selectionAlteration = false
@@ -51,48 +52,6 @@ class ModuleInit extends Module {
     Start(m, modText)
   }
 
-  //Check if there is a useable selection:
-  // TODO: Make a more elegant way to check for usable selection - in mainline?
-  def usableSelectionExists = {
-    var usableSelectionExists: Boolean = false
-    if (!Drawing.selection.isEmpty) {
-      //The selection could be an empty map, which is unusable - check for that:
-      if (Drawing.selection.get.self.size != 0)
-      //The map could contain an EmptyShapePart or a Part with
-      // an empty bit-set, which is unusable - check for that:
-        Drawing.selection.get.self.foreach((shape) => {
-          shape._2 match {
-            //A FullShapePart or a selector containing a BitSet means a useable selection:
-            case FullShapePart => usableSelectionExists = true
-            case app.model.shape.PolylineShape.Part(x) => {
-              if (x.size >0) {
-                //If the size of the bitset is larger than 0, something useful is selected...
-                usableSelectionExists = true
-              }
-            }
-            case app.model.shape.LineShape.Part(x) => {
-              //If the selector exists, something useful is selected...
-              usableSelectionExists = true
-            }
-            case app.model.shape.CircleShape.Part(x) => {
-              //If the selector exists, something useful is selected...
-              usableSelectionExists = true
-            }
-            case app.model.shape.GroupShape.Part(x) => if (x.size >0) {
-              //If the bitset is larger than 0, something useful is selected...
-              usableSelectionExists = true
-            }
-            case app.model.shape.TextShape.Part(x) => {
-              //If the bitset is larger than 0, something useful is selected...
-              usableSelectionExists = true
-            }
-            case _ =>
-          }
-        })
-    }
-    (usableSelectionExists)
-  }
-
   def stateMap = Map(
     'Start -> {
       // Match for modules to forward to
@@ -105,16 +64,15 @@ class ModuleInit extends Module {
       //Rightclick starts menu:
       case MouseDown(_, MouseButtonRight, _) :: tail => {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
-        Start('base, "Menu")
+
+        // If any selections are defined we start in the Modify category
+        if (Drawing.selection.isDefined) {
+          Start('base, "Menu", ModifyCategory)
+        } else Start('base, "Menu")
       }
 
-      //double click anywhere on a shape selects the full shape.
-      case  MouseDown(p2, button, modifier) :: MouseUp(p1 ,MouseButtonLeft , _) :: tail => {
-        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
-
-        if (p1 == p2){
-          Start('cad, "Selection", MouseDouble(p2,button,modifier))
-        } }
+      // Make sure we do not return to the selection immediately after it ended
+      case End :: MouseDown(_, _, _) :: tail =>
 
       //Leftclick:
       // 1: Starts select, to select shape part at cursor, if nothing is selected,
@@ -123,39 +81,23 @@ class ModuleInit extends Module {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
 
         //Check if there is a useable selection:
-        Start('cad, "Selection", MouseDown(p, MouseButtonLeft, modifier))
-      }
-
-      //Leftclick and drag starts :
-      // 1: Move if something is selected, and near where the drag starts, or
-      // 2: Select, if nothing is selected yet, or if something is selected, but away from the cursor
-      // TODO: Change it, so it is if something is not close to the selection - now it if the click
-      // is close to any shape in the drawing
-      case MouseDrag(p2, button2, modifier2) :: MouseDown(p, button, modifier) :: tail => {
-        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
-        if (usableSelectionExists == true) {
-          val m = p.transform(View.deviceTransformation)
-          if (Drawing(m).size > 0) {
-            val nearest = Drawing(m).reduceLeft((a, b) => if (a._2.geometry.distanceTo(m) < b._2.geometry.distanceTo(m)) a else b)
-            if (nearest._2.distanceTo(m) < Siigna.selectionDistance) {
-            Start('cad, "modify.Move", p )
-            } else {
-            Start('cad, "Selection", MouseDrag(p, button, modifier))
-          }} else {
-            //Necessary since Drawing(m).size is 0 when marking far away from selected shape/parts
-            Start('cad, "Selection", MouseDrag(p, button, modifier))
-          }
-        } else {
-          Start('cad, "Selection", MouseDrag(p, button, modifier))
-        }
+        Start('cad, "Selection")
       }
 
       // Delete
       case KeyDown(Key.Delete, _) :: tail => {
         shortcut = ""
-        if (usableSelectionExists) {
-          Delete(Drawing.selection.get.self)
+        if (Drawing.selection.isDefined) {
+          Delete(Drawing.selection)
         }
+      }
+
+      // Highlight active shape(s)
+      case MouseMove(p, _, _) :: tail => {
+        val point = p.transform(View.deviceTransformation)
+        val shapes = Drawing(point)
+        activeSelection = Selection(shapes.map(t => t._1 -> (t._2 -> t._2.getSelector(point))))
+        activeSelectionVertices = activeSelection.parts.flatMap(s => s.getVertices(s.getSelector(point)))
       }
 
       //shortcuts
@@ -204,10 +146,6 @@ class ModuleInit extends Module {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         Drawing.deselect()
       }
-      // add or subtract from selections
-      case KeyDown(Key.Shift, modifier) :: tail => Start('cad, "Selection", KeyDown(Key.Shift, modifier))
-      //End(KeyDown(Key.Shift, modifier))  // Start subtract from selection
-      case KeyUp(Key.Shift, modifier) :: tail => End(KeyUp(Key.Shift,modifier))  // Stop subtract from selection
 
       //MENU SHORTCUTS
       case KeyDown('c', _) :: tail => {
@@ -231,6 +169,8 @@ class ModuleInit extends Module {
     }
   )
 
+  private val selectionAttributes = Attributes("StrokeWidth" -> 0.7, "Color" -> Siigna.color("colorSelected").getOrElse("#AAAAAA"))
+
   override def paint(g : Graphics, t : TransformationMatrix) {
     g draw PaperHeader.openness.transform(t) //color to show level of openness
     g draw PaperHeader.headerFrame.transform(t) //frame around drawing info
@@ -243,5 +183,8 @@ class ModuleInit extends Module {
         g draw s(i)
       }  
     }
+
+    activeSelection.parts.foreach(s => g draw s.setAttributes(selectionAttributes).transform(t))
+    activeSelectionVertices.foreach(v => g draw v.transform(t))
   }
 }
