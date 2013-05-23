@@ -50,7 +50,7 @@ class Selection extends Module {
       }
 
       // Select the area
-      Select.toggle(m)
+      SelectToggle(m)
 
       End
     }
@@ -96,7 +96,7 @@ class Selection extends Module {
       if (box.isDefined) {
         // Toggle the selection if shift is pressed
         if (keys == Shift) {
-          Select.toggle(box.get.transform(View.deviceTransformation), isEnclosed)
+          SelectToggle(box.get.transform(View.deviceTransformation), isEnclosed)
         } else {
           Drawing.deselect()
           Select(box.get.transform(View.deviceTransformation), isEnclosed)
