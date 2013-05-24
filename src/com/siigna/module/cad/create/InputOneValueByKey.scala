@@ -62,7 +62,7 @@ class InputOneValueByKey extends Module {
         referencePoint = i.referencePoint
       }
 
-      //Read numbers and minus, "," and enter as first entry if no guide is provided:
+      //Read numbers and minus, "." and enter as first entry if no guide is provided:
       case Start(_,_) :: KeyDown(code, _) :: tail => {
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
@@ -73,13 +73,18 @@ class InputOneValueByKey extends Module {
 
       }
 
-      //Ends on return, komma, TAB - returning value:
-      case KeyDown(Key.Enter | Key.Tab | (','), _) :: tail => {
+      //Ends on return, TAB - returning value:
+      case KeyDown(Key.Enter | Key.Tab , _) :: tail => {
         if (coordinateValue.length > 0) {
             var value = Some(java.lang.Double.parseDouble(coordinateValue))
             End(value.get)
           } else End(0.0)
         }
+
+      //Hints, that "," is not a decimal separator - "." should be used
+      case KeyDown(',', _) :: tail => {
+        Siigna display "Use . for decimal separation"
+      }
 
       case KeyDown(Key.Backspace, _) :: tail => {
         if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
