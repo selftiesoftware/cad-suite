@@ -1,12 +1,20 @@
 /*
- * Copyright (c) 2008-2013. Siigna is released under the creative common license by-nc-sa. You are free
- * to Share — to copy, distribute and transmit the work,
- * to Remix — to adapt the work
+ * Copyright (c) 2008-2013, Selftie Software. Siigna is released under the
+ * creative common license by-nc-sa. You are free
+ *   to Share — to copy, distribute and transmit the work,
+ *   to Remix — to adapt the work
  *
  * Under the following conditions:
- * Attribution —  You must attribute the work to http://siigna.com in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work).
- * Noncommercial — You may not use this work for commercial purposes.
- * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
+ *   Attribution —   You must attribute the work to http://siigna.com in
+ *                    the manner specified by the author or licensor (but
+ *                    not in any way that suggests that they endorse you
+ *                    or your use of the work).
+ *   Noncommercial — You may not use this work for commercial purposes.
+ *   Share Alike   — If you alter, transform, or build upon this work, you
+ *                    may distribute the resulting work only under the
+ *                    same or similar license to this one.
+ *
+ * Read more at http://siigna.com and https://github.com/siigna/main
  */
 
 package com.siigna.module.cad
@@ -42,6 +50,7 @@ class Selection extends Module {
     case KeyDown(Key.Esc, _) :: tail => End
     case MouseUp(_, MouseButtonRight, _) :: tail => End
 
+    // If we immediately receive a mouse-up we select nearby shapes
     case MouseUp(p, _, modifier) :: tail => {
       val m = mousePosition.transform(View.deviceTransformation)
       // If shift is not pressed we should deselect everything
@@ -53,11 +62,6 @@ class Selection extends Module {
       SelectToggle(m)
 
       End
-    }
-
-    case (m : MouseDrag) :: tail => {
-      startPoint = Some(m.position)
-      'Box
     }
 
     //double click anywhere on a shape selects the full shape.
@@ -72,6 +76,27 @@ class Selection extends Module {
       val point = p.transform(View.deviceTransformation)
       val shapes = Drawing(point)
       activeSelection = Selection(shapes.map(t => t._1 -> (t._2 -> t._2.getSelector(point))))
+    }
+
+    // Forward to box if the mouse is dragged
+    case (m : MouseDrag) :: tail => {
+      startPoint = Some(m.position)
+      'Box
+    }
+
+    // Forward to drag if we receive a mouse down with a shape close-by
+    case MouseDown(p, MouseButtonLeft, _) :: tail => {
+      val mouse = p.transform(View.deviceTransformation)
+      val shapes = Drawing(mouse)
+      if (!shapes.isEmpty) {
+        val (id, shape) = shapes.reduceLeft((a, b) => if (a._2.distanceTo(mouse) < b._2.distanceTo(mouse)) a else b)
+        shape.getSelector(mouse) match {
+          case EmptyShapeSelector =>
+          case x => Select(id, shape, x)
+        }
+      }
+
+      // Forward to
     }
 
   },
@@ -105,6 +130,11 @@ class Selection extends Module {
       End
     }
     case e => End
+  },
+
+
+  'Drag -> {
+    case _ =>
   })
 
   private val highlighted = "#554499".color
