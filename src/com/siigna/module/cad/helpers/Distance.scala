@@ -46,9 +46,8 @@ class Distance extends Module {
       case End(v : Vector2D) :: tail => {
         if (!startPoint.isDefined){
           startPoint = Some(v)
-          val vector2DGuide = Vector2DGuide((p: Vector2D) => Traversable(LineShape(startPoint.get, p)))
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(1))
-          Start('cad, "create.Input", inputRequest)
+          val vector2DGuide = Vector2DGuideNew((p: Vector2D) => Traversable(LineShape(startPoint.get, p)))
+          Start('cad, "create.InputNew", InputRequestNew(6,startPoint,vector2DGuide))
 
         } else if (startPoint.isDefined) {
           var length : Int = ((startPoint.get - v).length).toInt
@@ -58,7 +57,7 @@ class Distance extends Module {
       }
       case _ => {
         Siigna display "set two points to measure the distance between them."
-        Start('cad, "create.Input", 1)
+        Start('cad, "create.InputNew", InputRequestNew(6,None))
       }
       //if
 
