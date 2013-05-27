@@ -78,25 +78,19 @@ class Selection extends Module {
       activeSelection = Selection(shapes.map(t => t._1 -> (t._2 -> t._2.getSelector(point))))
     }
 
-    // Forward to box if the mouse is dragged
-    case (m : MouseDrag) :: tail => {
-      startPoint = Some(m.position)
-      'Box
-    }
-
-    // Forward to drag if we receive a mouse down with a shape close-by
-    case MouseDown(p, MouseButtonLeft, _) :: tail => {
+    // Forward to Move if we start to drag and a selection is active and shift is not down
+    case MouseDrag(_, _, mod) :: Start(_, _) :: MouseDown(p, _, _) :: tail => {
       val mouse = p.transform(View.deviceTransformation)
-      val shapes = Drawing(mouse)
-      if (!shapes.isEmpty) {
-        val (id, shape) = shapes.reduceLeft((a, b) => if (a._2.distanceTo(mouse) < b._2.distanceTo(mouse)) a else b)
-        shape.getSelector(mouse) match {
-          case EmptyShapeSelector =>
-          case x => Select(id, shape, x)
-        }
-      }
+      Select(mouse)
 
-      // Forward to
+      // If no shape have been selected, assume the user wants a box-selection
+      if (Drawing.selection.isEmpty) {
+        startPoint = Some(p)
+        'Box
+      // Otherwise we forward to the move module
+      } else {
+        End(Module('cad, "modify.Move"))
+      }
     }
 
   },

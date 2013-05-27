@@ -39,7 +39,7 @@ class Move extends Module {
 
   val vector2DGuide = Vector2DGuideNew((v : Vector2D) => startPoint match {
     case Some(point) => {
-      val t : TransformationMatrix = TransformationMatrix(v - point, 1)
+      //val t : TransformationMatrix = TransformationMatrix(v - point, 1)
       // Return the shape, transformed
       //Drawing.selection.transform(t).shapes.values
       Nil
@@ -61,15 +61,27 @@ class Move extends Module {
       //If the move module starts with a point, it knows where to start...
       case Start(_,p: Vector2D) :: tail => {
         //set the startpoint for the move operation (if not already set)
-        startPoint = Some(p.transform(View.deviceTransformation))
+        startPoint = Some(p)
         // Move the shapes
         'EndPoint
       }
 
       case End :: tail => End
 
+      case MouseDrag(_, _, _) :: MouseDown(p, _, _) :: tail if Drawing.selection.isDefined => {
+        startPoint = Some(p)
+        'Drag
+      }
+
+      // Special case: Forwarded from Selection
+      case Start(_, _) :: End(_) :: MouseDrag(_, _, _) :: MouseDown(p, _, _) :: tail => {
+        startPoint = Some(p)
+        'Drag
+      }
+
       //on first entry, send input request to input to get the start point for the move operations.
-      case _ => {
+      case e => {
+        println(e)
         if (Drawing.selection.isDefined) {
           'StartPoint
         } else {
@@ -80,6 +92,9 @@ class Move extends Module {
     },
 
     'StartPoint -> {
+      // Exit
+      case KeyDown(Key.Esc, _) :: tail => End
+
       // If a mouse-down is received the user
       //    a) wishes to drag, or
       //    b) Wishes to "pick up" the selection to move it.
@@ -99,7 +114,6 @@ class Move extends Module {
         val inputRequest = InputRequestNew(8,startPoint,vector2DGuide)
         Start('cad,"create.InputNew", inputRequest)
 
-
         //val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,None,None,None,Some(9))
 
         // Get the endpoint
@@ -111,21 +125,37 @@ class Move extends Module {
     },
 
     'Drag -> {
-      case MouseDrag(p : Vector2D, _, _) :: MouseDown(q, _, _) :: tail => {
-        def toDrawing(p : Vector2D) = p.transform(View.deviceTransformation)
-        Drawing.selection.transform(TransformationMatrix(toDrawing(p) - toDrawing(q)))
+      // Exit
+      case KeyDown(Key.Esc, _) :: tail => End
+
+      case MouseDrag(p : Vector2D, _, _) :: tail => {
+        startPoint match {
+          case Some(q) => {
+            def toDrawing(p : Vector2D) = p.transform(View.deviceTransformation)
+            Drawing.selection.transform(TransformationMatrix(toDrawing(p) - toDrawing(q)))
+          }
+          case _ =>
+        }
       }
 
-      case MouseUp(p : Vector2D, _, _) :: MouseDrag(_, _, _) :: MouseDown(q, _, _) :: tail => {
-        def toDrawing(p : Vector2D) = p.transform(View.deviceTransformation)
-        Drawing.selection.transform(TransformationMatrix(toDrawing(p) - toDrawing(q)))
-        End // We're done here
+      case MouseUp(p : Vector2D, _, _) :: MouseDrag(_, _, _) :: tail => {
+        startPoint match {
+          case Some(q) => {
+            def toDrawing(p : Vector2D) = p.transform(View.deviceTransformation)
+            Drawing.selection.transform(TransformationMatrix(toDrawing(p) - toDrawing(q)))
+            Deselect()
+            End // We're done here
+          }
+        }
       }
 
-      case e => println(e.head)
+      case e =>
     },
 
     'EndPoint -> {
+      // Exit
+      case KeyDown(Key.Esc, _) :: tail => End
+
       case End(v : Vector2D) :: tail => {
         //If the received point, when there is a start point, is the same as the start point, it is the start-point for the move
         //(since mouse-up happened on the same spot as mouse-down). Send an input-request for an end-point:

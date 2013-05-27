@@ -123,8 +123,8 @@ class Rotate extends Module {
     TransformationMatrix().rotate(angle, center)
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    Drawing.selection.shapes.foreach( t =>
-      g.draw( t._2.transform(transformation) )
+    Drawing.selection.parts.foreach( x =>
+      g.draw( x.transform(t.concatenate(transformation)) )
     )
   }
 
