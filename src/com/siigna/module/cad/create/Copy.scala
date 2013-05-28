@@ -41,19 +41,19 @@ class Copy extends Module {
         if(!startPoint.isDefined && !Drawing.selection.isEmpty) {
           startPoint = Some(p)
           Siigna display "set destination"
-          val vector2DGuide = Vector2DGuide((v : Vector2D) => transform(TransformationMatrix(v - startPoint.get, 1)))
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(1))
-          Start('cad, "create.Input", inputRequest)
+          val vector2DGuide = Vector2DGuideNew((v : Vector2D) => transform(TransformationMatrix(v - startPoint.get, 1)))
+          val inputRequest = InputRequestNew(6,None,vector2DGuide)
+          Start('cad, "create.InputNew", inputRequest)
         }
         else if(startPoint.isDefined){
           endPoint = Some(p)
           transformation = TransformationMatrix((p - startPoint.get), 1)
           Siigna display "type number of copies or click for one"
           multiActive = true
-          val doubleGuide = DoubleGuide((r: Double) => transform(transformation))
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => transform(transformation))
-          val inputRequest = InputRequest(Some(vector2DGuide),Some(doubleGuide),None,None,None,None,startPoint,None,None,Some(17))
-          Start('cad, "create.Input", inputRequest)
+          val doubleGuide = DoubleGuideNew((r: Double) => transform(transformation))
+          val vector2DGuide = Vector2DGuideNew((v: Vector2D) => transform(transformation))
+          val inputRequest = InputRequestNew(13, None,vector2DGuide,doubleGuide)
+          Start('cad, "create.InputNew", inputRequest)
         }
       }
 
@@ -62,9 +62,10 @@ class Copy extends Module {
           var g: Double = f
           if (g == 0) g = 1
           if (g < 0) g = math.abs(g)
-          for (i <- 1 to g.toInt) {
-            Create(transform(TransformationMatrix(Vector2D((endPoint.get.x - startPoint.get.x) * i, (endPoint.get.y - startPoint.get.y) * i), 1)))
+          val shapes = for (i <- 1 to g.toInt) yield {
+             transform(TransformationMatrix(Vector2D((endPoint.get.x - startPoint.get.x) * i, (endPoint.get.y - startPoint.get.y) * i), 1))
           }
+          Create(shapes.flatten)
         }
         End
       }
@@ -101,7 +102,7 @@ class Copy extends Module {
           }
           else {
             Siigna display "set origin of copy"
-            Start('cad,"create.Input",1)
+            Start('cad,"create.InputNew",InputRequestNew(6,None))
           }
         } else {
           Siigna display "nothing selected"
