@@ -95,13 +95,13 @@ class Selection extends Module {
       val mouse = p.transform(View.deviceTransformation)
       Select(mouse)
 
-      // If no shape have been selected, assume the user wants a box-selection
-      if (Drawing.selection.isEmpty) {
+      // If one or more shapes have been selected and the cursor is close to a shape, assume we want to drag-move
+      if (!Drawing.selection.isEmpty && !Drawing(mouse).isEmpty) {
+        End(Module('cad, "modify.Move"))
+      // If no shape are selected or close, assume the user wants a box-selection
+      } else {
         startPoint = Some(p)
         'Box
-      // Otherwise we forward to the move module
-      } else {
-        End(Module('cad, "modify.Move"))
       }
     }
 
