@@ -105,7 +105,7 @@ class ModuleInit extends Module {
         val point = p.transform(View.deviceTransformation)
         val shapes = Drawing(point)
         activeSelection = Selection(shapes.map(t => t._1 -> (t._2 -> t._2.getSelector(point))))
-        activeSelectionVertices = activeSelection.parts.flatMap(s => s.getVertices(s.getSelector(point)))
+        activeSelectionVertices = activeSelection.shapes.values.flatMap(s => s.getVertices(s.getSelector(point)))
       }
 
       //shortcuts

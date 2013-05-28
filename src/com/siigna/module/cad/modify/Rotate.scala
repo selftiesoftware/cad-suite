@@ -60,6 +60,8 @@ class Rotate extends Module {
     },
 
     'StartPoint -> {
+      case KeyDown(Key.Esc, _) :: tail => Deselect(); End
+
       // If the user drags the mouse we are searching for an angle
       case MouseMove(p1, _, _) :: MouseDown(p2, _, _) :: tail if (p1.distanceTo(p2) > 0.5) => {
         anglePoint = Some(p1)
@@ -73,7 +75,6 @@ class Rotate extends Module {
 
       // If the user clicks a single point, he defined the start of the rotation
       case MouseUp(p, _, _) :: MouseDown(_, _, _) :: tail => {
-        println("got startpoint", "hej", eventParser.events)
         anglePoint = Some(p)
         'AnglePoint
       }
@@ -85,7 +86,9 @@ class Rotate extends Module {
 
       // Match for returning double
       case End(angle : Double) :: tail => {
-        transformation = getTransformation(centerPoint.get, angle)
+        transformSelection(centerPoint.get, angle)
+        Deselect()
+        End
       }
 
       // If we get anything else we quit
@@ -94,38 +97,33 @@ class Rotate extends Module {
 
     'AnglePoint -> {
       case MouseUp(p, _, _) :: tail => {
-        transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
-        Drawing.selection.transform(transformation)
+        transformSelection(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
         Drawing.deselect()
         End
       }
       case MouseMove(p, _, _) :: tail => {
-        transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
+        transformSelection(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
       }
+      case KeyDown(Key.Esc, _) :: tail => Deselect(); End
     },
 
     'DragAngle -> {
       case MouseMove(p, _, _) :: tail => {
-        transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
+        transformSelection(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
       }
       case MouseUp(p, _, _) :: tail => {
-        transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
-        Drawing.selection.transform(transformation)
+        transformSelection(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
         Drawing.deselect()
         End
       }
+      case KeyDown(Key.Esc,_) :: tail => Deselect(); End
     }
   )
 
   private def getAngle(p : Vector2D) = (p.transform(View.deviceTransformation) - centerPoint.get).angle
 
-  private def getTransformation(center : Vector2D, angle : Double) =
-    TransformationMatrix().rotate(angle, center)
-
-  override def paint(g : Graphics, t : TransformationMatrix) {
-    Drawing.selection.parts.foreach( x =>
-      g.draw( x.transform(t.concatenate(transformation)) )
-    )
+  private def transformSelection(center : Vector2D, angle : Double) = {
+    Drawing.selection.transform(TransformationMatrix().rotate(angle, center))
   }
 
 }

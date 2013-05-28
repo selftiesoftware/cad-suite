@@ -144,9 +144,10 @@ class Move extends Module {
             def toDrawing(p : Vector2D) = p.transform(View.deviceTransformation)
             Drawing.selection.transform(TransformationMatrix(toDrawing(p) - toDrawing(q)))
             Deselect()
-            End // We're done here
           }
+          case _ =>
         }
+        End // We're done here
       }
 
       case e =>
