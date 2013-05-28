@@ -209,16 +209,14 @@ case class InputRequestNew(inputType: Int, referencePoint: Option[Vector2D], gui
 
 //The most common input-types' basic features (for complete features and advanced input types, ask Niels for reference sheet :-) ):
 
-// inputType Left Mouse Down                        Keys                 Track-offset default	 Reference point(s)  AngleGizmo default
-// 6		     Vector2D, absolute                     Vector2D, absolute   On	                   None                On
-// 10		     Double, distance from reference point  Double               Off	                 One                 On
-// 11        None                                   Double               Off                   None                On
-// 12        None                                   String               Off                   None                On
+// inputType Left Mouse Down                        Keys                                Track-offset default	 Reference point(s)  AngleGizmo default
+// 6		     Vector2D, absolute                     Vector2D, absolute                  On	                   None                On
+// 7         Vector2D, absolute                     Vector2D, added to reference point  On                     One                 On
+// 10		     Double, distance from reference point  Double                              Off	                   One                 On
+// 11        None                                   Double                              Off                    None                On
+// 12        None                                   String                              Off                    None                On
 
 
 case class DoubleGuideNew(guide : Double => Traversable[Shape]) extends Guide
 case class Vector2DGuideNew(guide : Vector2D => Traversable[Shape]) extends Guide
 case class TextGuideNew(guide : String => Traversable[Shape]) extends Guide
-case class DoubleMessageGuideNew(guide : Double => Traversable[Shape]) extends Guide
-case class Vector2DMessageGuideNew(guide : Vector2D => Traversable[Shape]) extends Guide
-case class TextMessageGuideNew(guide : String => Traversable[Shape]) extends Guide
