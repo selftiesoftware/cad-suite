@@ -53,13 +53,25 @@ class Selection extends Module {
     // If we immediately receive a mouse-up we select nearby shapes
     case MouseUp(p, _, modifier) :: tail => {
       val m = mousePosition.transform(View.deviceTransformation)
-      // If shift is not pressed we should deselect everything
+      // If shift is not pressed we should deselect
       if (!modifier.shift) {
-        Drawing.deselect()
+        val shapes = Drawing(m)
+        if (!shapes.isEmpty) {
+            val (id, shape) = shapes.reduceLeft((a, b) => if (a._2.distanceTo(m) < a._2.distanceTo(m)) a else b)
+            val selector = shape.getSelector(m)
+            Drawing.selection.get(id) match {
+              // If we can find the exact same selector, select the entire shape
+              case Some((x, y)) if (y == selector && y != FullShapeSelector) => Deselect(); Select(id)
+              // If the old selector differs we simply select the new selection
+              case _ => Deselect(); Select(id, selector)
+            }
+          } else {
+            Deselect()
+          }
+      } else {
+        // Select the area
+        SelectToggle(m)
       }
-
-      // Select the area
-      SelectToggle(m)
 
       End
     }
