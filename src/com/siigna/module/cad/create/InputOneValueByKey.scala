@@ -1,12 +1,20 @@
 /*
- * Copyright (c) 2008-2013. Siigna is released under the creative common license by-nc-sa. You are free
- * to Share — to copy, distribute and transmit the work,
- * to Remix — to adapt the work
+ * Copyright (c) 2008-2013, Selftie Software. Siigna is released under the
+ * creative common license by-nc-sa. You are free
+ *   to Share — to copy, distribute and transmit the work,
+ *   to Remix — to adapt the work
  *
  * Under the following conditions:
- * Attribution —  You must attribute the work to http://siigna.com in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work).
- * Noncommercial — You may not use this work for commercial purposes.
- * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
+ *   Attribution —   You must attribute the work to http://siigna.com in
+ *                    the manner specified by the author or licensor (but
+ *                    not in any way that suggests that they endorse you
+ *                    or your use of the work).
+ *   Noncommercial — You may not use this work for commercial purposes.
+ *   Share Alike   — If you alter, transform, or build upon this work, you
+ *                    may distribute the resulting work only under the
+ *                    same or similar license to this one.
+ *
+ * Read more at http://siigna.com and https://github.com/siigna/main
  */
 
 package com.siigna.module.cad.create
@@ -62,7 +70,7 @@ class InputOneValueByKey extends Module {
         referencePoint = i.referencePoint
       }
 
-      //Read numbers and minus, "," and enter as first entry if no guide is provided:
+      //Read numbers and minus, "." and enter as first entry if no guide is provided:
       case Start(_,_) :: KeyDown(code, _) :: tail => {
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
@@ -73,13 +81,18 @@ class InputOneValueByKey extends Module {
 
       }
 
-      //Ends on return, komma, TAB - returning value:
-      case KeyDown(Key.Enter | Key.Tab | (','), _) :: tail => {
+      //Ends on return, TAB - returning value:
+      case KeyDown(Key.Enter | Key.Tab , _) :: tail => {
         if (coordinateValue.length > 0) {
             var value = Some(java.lang.Double.parseDouble(coordinateValue))
             End(value.get)
           } else End(0.0)
         }
+
+      //Hints, that "," is not a decimal separator - "." should be used
+      case KeyDown(',', _) :: tail => {
+        Siigna display "Use . for decimal separation"
+      }
 
       case KeyDown(Key.Backspace, _) :: tail => {
         if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)

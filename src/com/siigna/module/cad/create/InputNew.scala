@@ -1,3 +1,22 @@
+/*
+ * Copyright (c) 2008-2013, Selftie Software. Siigna is released under the
+ * creative common license by-nc-sa. You are free
+ *   to Share — to copy, distribute and transmit the work,
+ *   to Remix — to adapt the work
+ *
+ * Under the following conditions:
+ *   Attribution —   You must attribute the work to http://siigna.com in
+ *                    the manner specified by the author or licensor (but
+ *                    not in any way that suggests that they endorse you
+ *                    or your use of the work).
+ *   Noncommercial — You may not use this work for commercial purposes.
+ *   Share Alike   — If you alter, transform, or build upon this work, you
+ *                    may distribute the resulting work only under the
+ *                    same or similar license to this one.
+ *
+ * Read more at http://siigna.com and https://github.com/siigna/main
+ */
+
 package com.siigna.module.cad.create
 
 import com.siigna._
@@ -19,7 +38,7 @@ class InputNew extends Module {
   var referencePoint: Option[Vector2D] = None
   var trackDoubleRequest: Boolean = false
 
-  def interpretMouseInput(p : Vector2D) : Option[End[Any]] = {
+  def interpretMouseInput(p : Vector2D) : Option[ModuleEvent] = {
     if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)
       || inputType == Some(9))  {
       //Absolute values returned
@@ -35,6 +54,8 @@ class InputNew extends Module {
     } else if (inputType == Some(999)) {
       //Relative values returned
       Some(End((p+referencePoint.get).transform(View.deviceTransformation)))
+    } else if (inputType == Some(13)) {
+      Some(End)
     } else None
   }
 
@@ -118,10 +139,10 @@ class InputNew extends Module {
         || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7)) && Track.isTracking == false)) {
         Start('cad,"create.InputValuesByKey",inputRequest.get)
       }
-       else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11)) {
+       else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13)) {
       // Input types accepting a double as input:
         Start('cad,"create.InputOneValueByKey",inputRequest.get)
-      } else if(inputType == Some(12) ) {
+      } else if(inputType == Some(12)) {
         println("HER")
       // Input types accepting a string as input:
         Start('cad,"create.InputText",inputRequest.get)
@@ -145,7 +166,7 @@ class InputNew extends Module {
       if (trackDoubleRequest == true && (inputType == Some(4) || inputType == Some(6)|| inputType == Some(7) || inputType == Some(9))) {
         trackDoubleRequest = false
         End(Track.getPointFromDistance(s).get)
-      } else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11)) {
+      } else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13)) {
         End(s)
       }
     }

@@ -1,12 +1,20 @@
 /*
- * Copyright (c) 2008-2013. Siigna is released under the creative common license by-nc-sa. You are free
- * to Share — to copy, distribute and transmit the work,
- * to Remix — to adapt the work
+ * Copyright (c) 2008-2013, Selftie Software. Siigna is released under the
+ * creative common license by-nc-sa. You are free
+ *   to Share — to copy, distribute and transmit the work,
+ *   to Remix — to adapt the work
  *
  * Under the following conditions:
- * Attribution —  You must attribute the work to http://siigna.com in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work).
- * Noncommercial — You may not use this work for commercial purposes.
- * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
+ *   Attribution —   You must attribute the work to http://siigna.com in
+ *                    the manner specified by the author or licensor (but
+ *                    not in any way that suggests that they endorse you
+ *                    or your use of the work).
+ *   Noncommercial — You may not use this work for commercial purposes.
+ *   Share Alike   — If you alter, transform, or build upon this work, you
+ *                    may distribute the resulting work only under the
+ *                    same or similar license to this one.
+ *
+ * Read more at http://siigna.com and https://github.com/siigna/main
  */
 
 package com.siigna.module.cad
@@ -42,22 +50,30 @@ class Selection extends Module {
     case KeyDown(Key.Esc, _) :: tail => End
     case MouseUp(_, MouseButtonRight, _) :: tail => End
 
+    // If we immediately receive a mouse-up we select nearby shapes
     case MouseUp(p, _, modifier) :: tail => {
       val m = mousePosition.transform(View.deviceTransformation)
-      // If shift is not pressed we should deselect everything
+      // If shift is not pressed we should deselect
       if (!modifier.shift) {
-        Drawing.deselect()
+        val shapes = Drawing(m)
+        if (!shapes.isEmpty) {
+            val (id, shape) = shapes.reduceLeft((a, b) => if (a._2.distanceTo(m) < a._2.distanceTo(m)) a else b)
+            val selector = shape.getSelector(m)
+            Drawing.selection.get(id) match {
+              // If we can find the exact same selector, select the entire shape
+              case Some((x, y)) if (y == selector && y != FullShapeSelector) => Deselect(); Select(id)
+              // If the old selector differs we simply select the new selection
+              case _ => Deselect(); Select(id, selector)
+            }
+          } else {
+            Deselect()
+          }
+      } else {
+        // Select the area
+        SelectToggle(m)
       }
 
-      // Select the area
-      SelectToggle(m)
-
       End
-    }
-
-    case (m : MouseDrag) :: tail => {
-      startPoint = Some(m.position)
-      'Box
     }
 
     //double click anywhere on a shape selects the full shape.
@@ -72,6 +88,21 @@ class Selection extends Module {
       val point = p.transform(View.deviceTransformation)
       val shapes = Drawing(point)
       activeSelection = Selection(shapes.map(t => t._1 -> (t._2 -> t._2.getSelector(point))))
+    }
+
+    // Forward to Move if we start to drag and a selection is active and shift is not down
+    case MouseDrag(_, _, mod) :: Start(_, _) :: MouseDown(p, _, _) :: tail => {
+      val mouse = p.transform(View.deviceTransformation)
+      Select(mouse)
+
+      // If one or more shapes have been selected and the cursor is close to a shape, assume we want to drag-move
+      if (!Drawing.selection.isEmpty && !Drawing(mouse).isEmpty) {
+        End(Module('cad, "modify.Move"))
+      // If no shape are selected or close, assume the user wants a box-selection
+      } else {
+        startPoint = Some(p)
+        'Box
+      }
     }
 
   },
@@ -105,6 +136,11 @@ class Selection extends Module {
       End
     }
     case e => End
+  },
+
+
+  'Drag -> {
+    case _ =>
   })
 
   private val highlighted = "#554499".color

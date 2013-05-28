@@ -1,12 +1,20 @@
 /*
- * Copyright (c) 2008-2013. Siigna is released under the creative common license by-nc-sa. You are free
- * to Share — to copy, distribute and transmit the work,
- * to Remix — to adapt the work
+ * Copyright (c) 2008-2013, Selftie Software. Siigna is released under the
+ * creative common license by-nc-sa. You are free
+ *   to Share — to copy, distribute and transmit the work,
+ *   to Remix — to adapt the work
  *
  * Under the following conditions:
- * Attribution —  You must attribute the work to http://siigna.com in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work).
- * Noncommercial — You may not use this work for commercial purposes.
- * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
+ *   Attribution —   You must attribute the work to http://siigna.com in
+ *                    the manner specified by the author or licensor (but
+ *                    not in any way that suggests that they endorse you
+ *                    or your use of the work).
+ *   Noncommercial — You may not use this work for commercial purposes.
+ *   Share Alike   — If you alter, transform, or build upon this work, you
+ *                    may distribute the resulting work only under the
+ *                    same or similar license to this one.
+ *
+ * Read more at http://siigna.com and https://github.com/siigna/main
  */
 
 package com.siigna.module.cad.modify
@@ -52,6 +60,8 @@ class Rotate extends Module {
     },
 
     'StartPoint -> {
+      case KeyDown(Key.Esc, _) :: tail => Deselect(); End
+
       // If the user drags the mouse we are searching for an angle
       case MouseMove(p1, _, _) :: MouseDown(p2, _, _) :: tail if (p1.distanceTo(p2) > 0.5) => {
         anglePoint = Some(p1)
@@ -65,7 +75,6 @@ class Rotate extends Module {
 
       // If the user clicks a single point, he defined the start of the rotation
       case MouseUp(p, _, _) :: MouseDown(_, _, _) :: tail => {
-        println("got startpoint", "hej", eventParser.events)
         anglePoint = Some(p)
         'AnglePoint
       }
@@ -77,7 +86,9 @@ class Rotate extends Module {
 
       // Match for returning double
       case End(angle : Double) :: tail => {
-        transformation = getTransformation(centerPoint.get, angle)
+        transformSelection(centerPoint.get, angle)
+        Deselect()
+        End
       }
 
       // If we get anything else we quit
@@ -86,38 +97,33 @@ class Rotate extends Module {
 
     'AnglePoint -> {
       case MouseUp(p, _, _) :: tail => {
-        transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
-        Drawing.selection.transform(transformation)
+        transformSelection(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
         Drawing.deselect()
         End
       }
       case MouseMove(p, _, _) :: tail => {
-        transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
+        transformSelection(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
       }
+      case KeyDown(Key.Esc, _) :: tail => Deselect(); End
     },
 
     'DragAngle -> {
       case MouseMove(p, _, _) :: tail => {
-        transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
+        transformSelection(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
       }
       case MouseUp(p, _, _) :: tail => {
-        transformation = getTransformation(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
-        Drawing.selection.transform(transformation)
+        transformSelection(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
         Drawing.deselect()
         End
       }
+      case KeyDown(Key.Esc,_) :: tail => Deselect(); End
     }
   )
 
   private def getAngle(p : Vector2D) = (p.transform(View.deviceTransformation) - centerPoint.get).angle
 
-  private def getTransformation(center : Vector2D, angle : Double) =
-    TransformationMatrix().rotate(angle, center)
-
-  override def paint(g : Graphics, t : TransformationMatrix) {
-    Drawing.selection.shapes.foreach( t =>
-      g.draw( t._2.transform(transformation) )
-    )
+  private def transformSelection(center : Vector2D, angle : Double) = {
+    Drawing.selection.transform(TransformationMatrix().rotate(angle, center))
   }
 
 }
