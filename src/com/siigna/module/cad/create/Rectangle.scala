@@ -39,8 +39,11 @@ class Rectangle extends Module {
         //use second point
         else if (points.length == 1) {
           points = points :+ v
+          val width = (points(1).x - (points(0).x))
+          val height = (points(1).y - (points(0).y))
+          val center = Vector2D((points(0).x + width/2),(points(0).y + height/2))
           //create the rectangle
-          Create(PolylineShape(Rectangle2D(points(0), points(1))).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
+          Create(RectangleShape(center,width,height,0.0,Attributes("Color" -> color , "StrokeWidth" -> stroke)))
           points = List()
           End
         }
