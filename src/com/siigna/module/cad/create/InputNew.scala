@@ -38,7 +38,7 @@ class InputNew extends Module {
   var referencePoint: Option[Vector2D] = None
   var trackDoubleRequest: Boolean = false
 
-  def interpretMouseInput(p : Vector2D) : Option[End[Any]] = {
+  def interpretMouseInput(p : Vector2D) : Option[ModuleEvent] = {
     if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)
       || inputType == Some(9))  {
       //Absolute values returned
@@ -54,6 +54,8 @@ class InputNew extends Module {
     } else if (inputType == Some(999)) {
       //Relative values returned
       Some(End((p+referencePoint.get).transform(View.deviceTransformation)))
+    } else if (inputType == Some(13)) {
+      Some(End)
     } else None
   }
 
@@ -137,10 +139,10 @@ class InputNew extends Module {
         || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7)) && Track.isTracking == false)) {
         Start('cad,"create.InputValuesByKey",inputRequest.get)
       }
-       else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11)) {
+       else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13)) {
       // Input types accepting a double as input:
         Start('cad,"create.InputOneValueByKey",inputRequest.get)
-      } else if(inputType == Some(12) ) {
+      } else if(inputType == Some(12)) {
         println("HER")
       // Input types accepting a string as input:
         Start('cad,"create.InputText",inputRequest.get)
@@ -164,7 +166,7 @@ class InputNew extends Module {
       if (trackDoubleRequest == true && (inputType == Some(4) || inputType == Some(6)|| inputType == Some(7) || inputType == Some(9))) {
         trackDoubleRequest = false
         End(Track.getPointFromDistance(s).get)
-      } else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11)) {
+      } else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13)) {
         End(s)
       }
     }
@@ -207,16 +209,14 @@ case class InputRequestNew(inputType: Int, referencePoint: Option[Vector2D], gui
 
 //The most common input-types' basic features (for complete features and advanced input types, ask Niels for reference sheet :-) ):
 
-// inputType Left Mouse Down                        Keys                 Track-offset default	 Reference point(s)  AngleGizmo default
-// 6		     Vector2D, absolute                     Vector2D, absolute   On	                   None                On
-// 10		     Double, distance from reference point  Double               Off	                 One                 On
-// 11        None                                   Double               Off                   None                On
-// 12        None                                   String               Off                   None                On
+// inputType Left Mouse Down                        Keys                                Track-offset default	 Reference point(s)  AngleGizmo default
+// 6		     Vector2D, absolute                     Vector2D, absolute                  On	                   None                On
+// 7         Vector2D, absolute                     Vector2D, added to reference point  On                     One                 On
+// 10		     Double, distance from reference point  Double                              Off	                   One                 On
+// 11        None                                   Double                              Off                    None                On
+// 12        None                                   String                              Off                    None                On
 
 
 case class DoubleGuideNew(guide : Double => Traversable[Shape]) extends Guide
 case class Vector2DGuideNew(guide : Vector2D => Traversable[Shape]) extends Guide
 case class TextGuideNew(guide : String => Traversable[Shape]) extends Guide
-case class DoubleMessageGuideNew(guide : Double => Traversable[Shape]) extends Guide
-case class Vector2DMessageGuideNew(guide : Vector2D => Traversable[Shape]) extends Guide
-case class TextMessageGuideNew(guide : String => Traversable[Shape]) extends Guide
