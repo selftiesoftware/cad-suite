@@ -78,7 +78,7 @@ class inputFeedback {
         if (category == Some("modify")) command = Some("move")
         else {
           category = Some("modify")
-          suggestions = List ("M - move", "S - scale", "T - trim")
+          suggestions = List ("M - move", "R - rotate", "S - scale", "T - trim")
         }
       }
       case "p" => {

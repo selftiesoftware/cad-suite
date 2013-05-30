@@ -53,14 +53,14 @@ class Rotate extends Module {
           Siigna display "set center point for rotation"
           Start('cad, "create.InputNew", InputRequestNew(6,None))
         } else {
-          Siigna display "nothing selected"
+          Siigna display "Nothing selected"
           End
         }
       }
     },
 
     'StartPoint -> {
-      case KeyDown(Key.Esc, _) :: tail => Deselect(); End
+      case KeyDown(Key.Esc, _) :: tail => End
 
       // If the user drags the mouse we are searching for an angle
       case MouseMove(p1, _, _) :: MouseDown(p2, _, _) :: tail if (p1.distanceTo(p2) > 0.5) => {
@@ -87,7 +87,6 @@ class Rotate extends Module {
       // Match for returning double
       case End(angle : Double) :: tail => {
         transformSelection(centerPoint.get, angle)
-        Deselect()
         End
       }
 
@@ -98,25 +97,25 @@ class Rotate extends Module {
     'AnglePoint -> {
       case MouseUp(p, _, _) :: tail => {
         transformSelection(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
-        Drawing.deselect()
         End
       }
       case MouseMove(p, _, _) :: tail => {
         transformSelection(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
+        anglePoint = Some(p)
       }
-      case KeyDown(Key.Esc, _) :: tail => Deselect(); End
+      case KeyDown(Key.Esc, _) :: tail => End
     },
 
     'DragAngle -> {
       case MouseMove(p, _, _) :: tail => {
         transformSelection(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
+        anglePoint = Some(p)
       }
       case MouseUp(p, _, _) :: tail => {
         transformSelection(centerPoint.get, getAngle(p) - getAngle(anglePoint.get))
-        Drawing.deselect()
         End
       }
-      case KeyDown(Key.Esc,_) :: tail => Deselect(); End
+      case KeyDown(Key.Esc,_) :: tail => End
     }
   )
 
