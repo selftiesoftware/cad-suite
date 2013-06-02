@@ -92,11 +92,15 @@ class Move extends Module {
         startPoint = Some(v)
 
         // Get the endpoint
+        Siigna display "Set end point"
         'EndPoint
       }
 
-        // Request an input type 6
-      case e => Start('cad, "create.InputNew", InputRequestNew(6, None))
+      // Request an input type 6
+      case e => {
+        Siigna display "Set start point"
+        Start('cad, "create.InputNew", InputRequestNew(6, None))
+      }
     },
 
     'Drag -> {
@@ -137,12 +141,27 @@ class Move extends Module {
             val t = TransformationMatrix(toDrawing(p) - toDrawing(v))
             Drawing.selection.transform(t)
           }
-          case _ => End
+          case _ =>
         }
+        End
       }
 
       case _ => {
-        val inputRequest = InputRequestNew(6,startPoint)
+        val inputRequest = InputRequestNew(6,startPoint, Vector2DGuideNew((v : Vector2D) => {
+          // First transform the start point
+          startPoint match {
+            case Some(p) if (p != v) => {
+              val t = TransformationMatrix(toDrawing(p) - toDrawing(v))
+              Drawing.selection.transform(t)
+            }
+            case _ =>
+          }
+
+          // Update the points for relative coordinates
+          startPoint = Some(v)
+
+          Nil
+        }))
         Start('cad,"create.InputNew", inputRequest)
       }
     }
