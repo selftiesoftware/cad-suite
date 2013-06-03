@@ -105,10 +105,10 @@ class Move extends Module {
 
       case MouseDrag(p : Vector2D, _, _) :: tail => {
         startPoint match {
-            case Some(q) => {
-              startPoint = Some(p)
-              Drawing.selection.transform(TransformationMatrix(toDrawing(p) - toDrawing(q)))
-            }
+          case Some(q) => {
+            startPoint = Some(p)
+            Drawing.selection.transform(TransformationMatrix(toDrawing(p) - toDrawing(q)))
+          }
           case _ =>
         }
       }
