@@ -22,13 +22,8 @@ package com.siigna.module.cad.create
 import com.siigna._
 
 /**
- * Created by IntelliJ IDEA.
- * User: Niels Egholm
- * Date: 19-03-13
- * Time: 17:09
- * To change this template use File | Settings | File Templates.
+ * An input request module.
  */
-
 class InputNew extends Module {
 
   //Information received from calling module
