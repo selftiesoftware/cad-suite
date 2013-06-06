@@ -150,10 +150,8 @@ class Selection extends Module {
   private val rasterFocused  = new Color(210, 100, 120, 20)
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-    println("NNN")
 
     if (box.isDefined) {
-      println("HER SEL")
       val p = PolylineShape(box.get).setAttribute("Color" -> (if (isEnclosed) enclosed else focused))
       val r = p.setAttributes("Raster" -> (if (isEnclosed) rasterEnclosed else rasterFocused))
       g draw p
@@ -161,7 +159,6 @@ class Selection extends Module {
     }
 
     activeSelection.parts.foreach(p => {
-      println("HER SEL 2")
       g draw p.setAttributes("Color" -> highlighted).transform(t)
     })
     activeSelection.vertices.foreach(v => g draw v.transform(t))
