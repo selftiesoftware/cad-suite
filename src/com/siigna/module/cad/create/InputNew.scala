@@ -61,11 +61,9 @@ class InputNew extends Module {
         inputType = Some(i.inputType)
         guides = i.guides
         referencePoint = i.referencePoint
-        if (inputType != Some(5)) {
-          println("her")
+        if (inputType != Some(5) && inputType != Some(8) ) {
           guides.foreach(_ match {
             case Vector2DGuideNew(guide) => {
-              println("Der")
               val snapFunction = () => guide(mousePosition)
               eventParser.snapTo(snapFunction)
             }

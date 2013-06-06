@@ -89,16 +89,34 @@ class Move extends Module {
         // b): The point, where the user "picks up" the selection that should be moved.
         // That depends on whether the mouse is released at the same, or a different point.
         // So, the input-request is only for a mouse-up (input type 8)
-        startPoint = Some(v)
+        if (startPoint.isEmpty) {
+          startPoint = Some(v)
+          var referencePoint: Vector2D = startPoint.get
+          val inputRequest = InputRequestNew(8,None, Vector2DGuideNew((v : Vector2D) => {
+            if (referencePoint != v) {
+              val t = TransformationMatrix(v - referencePoint)
+              Drawing.selection.transform(t)
+              // Update the points for relative coordinates
+              referencePoint = v
+            }
+            Drawing.selection.shapes.values
+          }))
+          Start('cad,"create.InputNew", inputRequest)
 
-        // Get the endpoint
-        Siigna display "Set end point"
-        'EndPoint
+        } else if (v != startPoint.get ) {
+          //A drag has occured. Do the move.
+          End
+        } else {
+          // Get the endpoint
+          Siigna display "Set end point"
+          'EndPoint
+        }
       }
 
-      // Request an input type 6
+      // Request an input type 6:
       case e => {
-        Siigna display "Set start point"
+        Siigna display "Set start point, or drag the selected shapes"
+
         Start('cad, "create.InputNew", InputRequestNew(6, None))
       }
     },
