@@ -26,7 +26,6 @@ import com.siigna.module.cad.create._
 class Move extends Module {
 
   var startPoint : Option[Vector2D] = None
-  var referenceMousePosition : Option[Vector2D] = None
 
   protected def toDrawing(p : Vector2D) = p.transform(View.deviceTransformation)
   protected def transformSelection(t : TransformationMatrix) = Drawing.selection.transform(t).shapes.values
@@ -92,7 +91,7 @@ class Move extends Module {
         // b): The point, where the user "picks up" the selection that should be moved.
         // That depends on whether the mouse is released at the same, or a different point.
         // So, the input-request is only for a mouse-up (input type 8)
-        if (startPoint.isEmpty && referenceMousePosition.get == mousePosition) {
+        if (startPoint.isEmpty && v == mousePosition.transform(View.deviceTransformation)) {
           startPoint = Some(v)
           var referencePoint: Vector2D = startPoint.get
           val inputRequest = InputRequestNew(8,None, Vector2DGuideNew((v : Vector2D) => {
@@ -121,7 +120,6 @@ class Move extends Module {
 
       // Request an input type 7:
       case e => {
-        referenceMousePosition = Some(mousePosition)
         Siigna display "Set start point, or drag the selected shapes"
 
         Start('cad, "create.InputNew", InputRequestNew(7, None))
