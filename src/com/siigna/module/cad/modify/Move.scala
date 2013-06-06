@@ -26,6 +26,7 @@ import com.siigna.module.cad.create._
 class Move extends Module {
 
   var startPoint : Option[Vector2D] = None
+  var referenceMousePosition : Option[Vector2D] = None
 
   protected def toDrawing(p : Vector2D) = p.transform(View.deviceTransformation)
   protected def transformSelection(t : TransformationMatrix) = Drawing.selection.transform(t).shapes.values
@@ -78,6 +79,8 @@ class Move extends Module {
     },
 
     'StartPoint -> {
+
+
       // Exit
       case KeyDown(Key.Esc, _) :: tail => End
 
@@ -89,7 +92,7 @@ class Move extends Module {
         // b): The point, where the user "picks up" the selection that should be moved.
         // That depends on whether the mouse is released at the same, or a different point.
         // So, the input-request is only for a mouse-up (input type 8)
-        if (startPoint.isEmpty) {
+        if (startPoint.isEmpty && referenceMousePosition.get == mousePosition) {
           startPoint = Some(v)
           var referencePoint: Vector2D = startPoint.get
           val inputRequest = InputRequestNew(8,None, Vector2DGuideNew((v : Vector2D) => {
@@ -102,9 +105,12 @@ class Move extends Module {
             Drawing.selection.shapes.values
           }))
           Start('cad,"create.InputNew", inputRequest)
-
+        } else if (startPoint.isEmpty ) {
+          //A vector has been typed by keys. Do the move.
+          Drawing.selection.transform(TransformationMatrix(v))
+          End
         } else if (v != startPoint.get ) {
-          //A drag has occured. Do the move.
+          //A drag has occured, or a vector has been typed by keys. Do the move.
           End
         } else {
           // Get the endpoint
@@ -113,11 +119,12 @@ class Move extends Module {
         }
       }
 
-      // Request an input type 6:
+      // Request an input type 7:
       case e => {
+        referenceMousePosition = Some(mousePosition)
         Siigna display "Set start point, or drag the selected shapes"
 
-        Start('cad, "create.InputNew", InputRequestNew(6, None))
+        Start('cad, "create.InputNew", InputRequestNew(7, None))
       }
     },
 
