@@ -61,14 +61,17 @@ class InputNew extends Module {
         inputType = Some(i.inputType)
         guides = i.guides
         referencePoint = i.referencePoint
-        guides.foreach(_ match {
-          case Vector2DGuideNew(guide) => {
-            val snapFunction = () => guide(mousePosition)
-            eventParser.snapTo(snapFunction)
-          }
-          case _ => // No known guide
-        } )
-
+        if (inputType != Some(5)) {
+          println("her")
+          guides.foreach(_ match {
+            case Vector2DGuideNew(guide) => {
+              println("Der")
+              val snapFunction = () => guide(mousePosition)
+              eventParser.snapTo(snapFunction)
+            }
+            case _ => // No known guide
+          } )
+        }
         'ReceiveUserInput
       }
       case _ => {
@@ -118,9 +121,10 @@ class InputNew extends Module {
       //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event:
       else if (key == Key.backspace) End(KeyDown(key,modifier))
       //Input types where track-offset is activated: Vector2D-guides are transformed to DoubleGuides:
-      else if ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7) || inputType == Some(9)) && Track.isTracking == true) {
+      else if ((inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(9)) && Track.isTracking == true) {
         val guidesNew = guides.collect({
           case Vector2DGuideNew(guide) => {
+            println("Der 3")
             DoubleGuideNew((d : Double) => {
               guide(Track.getPointFromDistance(d).get)
             })
@@ -149,7 +153,7 @@ class InputNew extends Module {
     //Vector2D: (Standard: The received Vector2D is returned, un-transformed)
     case End(p : Vector2D) :: tail => {
       //if (drawGuideInInputModule == false) drawGuideInInputModule = true
-      if (inputType == Some(7) && !referencePoint.isEmpty) {
+      if (inputType == Some(5) || inputType == Some(7) && !referencePoint.isEmpty) {
         End(referencePoint.get + p)
       } else {
         End(p)
@@ -158,7 +162,7 @@ class InputNew extends Module {
 
     //Double:
     case End(s : Double) :: tail => {
-      if (trackDoubleRequest == true && (inputType == Some(4) || inputType == Some(6)|| inputType == Some(7) || inputType == Some(9))) {
+      if (trackDoubleRequest == true && (inputType == Some(4) || inputType == Some(5) || inputType == Some(6)|| inputType == Some(7) || inputType == Some(9))) {
         trackDoubleRequest = false
         End(Track.getPointFromDistance(s).get)
       } else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13)) {
@@ -184,7 +188,7 @@ class InputNew extends Module {
         case Vector2DGuideNew(guide) => {
           guide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
         }
-        case _ => // No known guide
+        case _ => println("Unknown guide in input")// No known guide
       } )
     }
   }

@@ -131,6 +131,7 @@ class InputValuesByKey extends Module {
           inputType = Some(i.inputType)
           guides = i.guides
           referencePoint = i.referencePoint
+          if(referencePoint.isEmpty) referencePoint = Some(Vector2D(0,0))
           //save the already typed key:
           if (code.toChar.isDigit) coordinateValue += code.toChar
           if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
