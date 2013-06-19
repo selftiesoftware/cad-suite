@@ -57,6 +57,7 @@ class Polyline extends Module {
             Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
           })
           val inputRequest = InputRequestNew(7,startPoint,vector2DGuide)
+          println("JJ")
           Start('cad,"create.InputNew", inputRequest)
         } else {
 
