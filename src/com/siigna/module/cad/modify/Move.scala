@@ -28,7 +28,6 @@ class Move extends Module {
   var startPoint : Option[Vector2D] = None
 
   protected def toDrawing(p : Vector2D) = p.transform(View.deviceTransformation)
-  protected def transformSelection(t : TransformationMatrix) = Drawing.selection.transform(t).shapes.values
 
   val stateMap: StateMap = Map(
     'Start -> {
@@ -147,10 +146,10 @@ class Move extends Module {
       }
 
       case _ => {
-        val inputRequest = InputRequestNew(6,startPoint, Vector2DGuideNew((v : Vector2D) => {
+        val inputRequest = InputRequestNew(6, startPoint, Vector2DGuideNew((v : Vector2D) => {
           // First transform the start point
           startPoint match {
-            case Some(p) if (p != v) => {
+            case Some(p) if p != v => {
               val t = TransformationMatrix(toDrawing(p) - toDrawing(v))
               Drawing.selection.transform(t)
             }

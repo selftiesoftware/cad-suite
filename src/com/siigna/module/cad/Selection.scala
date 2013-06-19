@@ -55,19 +55,38 @@ class Selection extends Module {
       val m = mousePosition.transform(View.deviceTransformation)
       // If shift is not pressed we should deselect
       if (!modifier.shift) {
-        val shapes = Drawing(m)
-        if (!shapes.isEmpty) {
-            val (id, shape) = shapes.reduceLeft((a, b) => if (a._2.distanceTo(m) < a._2.distanceTo(m)) a else b)
-            val selector = shape.getSelector(m)
-            Drawing.selection.get(id) match {
-              // If we can find the exact same selector, select the entire shape
-              case Some((x, y)) if (y == selector && y != FullShapeSelector) => Deselect(); Select(id)
-              // If the old selector differs we simply select the new selection
-              case _ => Deselect(); Select(id, selector)
-            }
-          } else {
-            Deselect()
+        // A lazy value for finding the closes shape in the drawing - might not be used
+        lazy val drawingShape : Option[(Int, Shape)] = {
+          val drawing = Drawing(m)
+          if (!drawing.isEmpty) {
+            Some(drawing.reduceLeft((a, b) => if (a._2.distanceTo(m) < a._2.distanceTo(m)) a else b))
+          } else None
+        }
+
+        // First examine if a shape already close to the point is selected. If so, we should ignore other shapes
+        // Fixes trello: http://goo.gl/Cdlyc
+        val nearestShape : Option[(Int, Shape)] = if (Drawing.selection.isDefined) {
+          val x = Drawing.selection.reduceLeft((a, b) => if (a._2._1.distanceTo(m) < a._2._1.distanceTo(m)) a else b)
+          x._2._1.getSelector(m) match {
+            case EmptyShapeSelector => drawingShape
+            case _ => Some(x._1 -> x._2._1)
           }
+        } else drawingShape
+
+        // Deselect the current selection since shift is up
+        Deselect()
+
+        // Select the shape, if available
+        if (nearestShape.isDefined) {
+          val (id, shape) = nearestShape.get
+          val selector = shape.getSelector(m)
+          Drawing.selection.get(id) match {
+            // If we can find the exact same selector, select the entire shape
+            case Some((x, y)) if y == selector && y != FullShapeSelector => Select(id)
+            // If the old selector differs we simply select the new selection
+            case _ => Select(id, selector)
+          }
+        }
       } else {
         // Select the area
         SelectToggle(m)
