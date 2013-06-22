@@ -28,7 +28,6 @@ class Move extends Module {
   var startPoint : Option[Vector2D] = None
 
   protected def toDrawing(p : Vector2D) = p.transform(View.deviceTransformation)
-  protected def transformSelection(t : TransformationMatrix) = Drawing.selection.transform(t).shapes.values
 
   val stateMap: StateMap = Map(
     'Start -> {
@@ -46,10 +45,12 @@ class Move extends Module {
         'EndPoint
       }
 
-      case End :: tail => End
+      case End :: tail => {
+        End
+      }
 
       case MouseDrag(_, _, _) :: MouseDown(p, _, _) :: tail if Drawing.selection.isDefined => {
-        startPoint = Some(p)
+        startPoint = Some(p.transform(View.deviceTransformation))
         'Drag
       }
 
@@ -62,7 +63,7 @@ class Move extends Module {
 
       // Special case: Forwarded from Selection
       case Start(_, _) :: End(_) :: MouseDrag(_, _, _) :: MouseDown(p, _, _) :: tail => {
-        startPoint = Some(p)
+        startPoint = Some(p.transform(View.deviceTransformation))
         'Drag
       }
 
@@ -78,6 +79,8 @@ class Move extends Module {
     },
 
     'StartPoint -> {
+
+
       // Exit
       case KeyDown(Key.Esc, _) :: tail => End
 
@@ -89,17 +92,38 @@ class Move extends Module {
         // b): The point, where the user "picks up" the selection that should be moved.
         // That depends on whether the mouse is released at the same, or a different point.
         // So, the input-request is only for a mouse-up (input type 8)
-        startPoint = Some(v)
-
-        // Get the endpoint
-        Siigna display "Set end point"
-        'EndPoint
+        if (startPoint.isEmpty && v == mousePosition.transform(View.deviceTransformation)) {
+          startPoint = Some(v)
+          var referencePoint: Vector2D = startPoint.get
+          val inputRequest = InputRequestNew(8,None, Vector2DGuideNew((v : Vector2D) => {
+            if (referencePoint != v) {
+              val t = TransformationMatrix(v - referencePoint)
+              Drawing.selection.transform(t)
+              // Update the points for relative coordinates
+              referencePoint = v
+            }
+            Drawing.selection.shapes.values
+          }))
+          Start('cad,"create.InputNew", inputRequest)
+        } else if (startPoint.isEmpty ) {
+          //A vector has been typed by keys. Do the move.
+          Drawing.selection.transform(TransformationMatrix(v))
+          End
+        } else if (v != startPoint.get ) {
+          //A drag has occured, or a vector has been typed by keys. Do the move.
+          End
+        } else {
+          // Get the endpoint
+          Siigna display "Set end point"
+          'EndPoint
+        }
       }
 
-      // Request an input type 6
+      // Request an input type 7:
       case e => {
-        Siigna display "Set start point"
-        Start('cad, "create.InputNew", InputRequestNew(6, None))
+        Siigna display "Set start point, or drag the selected shapes"
+
+        Start('cad, "create.InputNew", InputRequestNew(7, None))
       }
     },
 
@@ -109,10 +133,17 @@ class Move extends Module {
 
       case MouseDrag(p : Vector2D, _, _) :: tail => {
         startPoint match {
+<<<<<<< HEAD
           case Some(q) => {
             startPoint = Some(p)
             Drawing.selection.transform(TransformationMatrix(toDrawing(p) - toDrawing(q)))
           }
+=======
+            case Some(q) => {
+              startPoint = Some(p.transform(View.deviceTransformation))
+              Drawing.selection.transform(TransformationMatrix(p.transform(View.deviceTransformation) - q) )
+            }
+>>>>>>> 893a588427bcbbab50fadf38267d7f5b83bbad26
           case _ =>
         }
       }
@@ -120,8 +151,7 @@ class Move extends Module {
       case MouseUp(p : Vector2D, _, _) :: MouseDrag(_, _, _) :: tail => {
         startPoint match {
           case Some(q) => {
-            startPoint = Some(p)
-            Drawing.selection.transform(TransformationMatrix(toDrawing(p) - toDrawing(q)))
+            Drawing.selection.transform(TransformationMatrix(p.transform(View.deviceTransformation) - q))
           }
           case _ =>
         }
@@ -138,7 +168,7 @@ class Move extends Module {
       case End(v : Vector2D) :: tail => {
         startPoint match {
           case Some(p) => {
-            val t = TransformationMatrix(toDrawing(p) - toDrawing(v))
+            val t = TransformationMatrix(v - p)
             Drawing.selection.transform(t)
           }
           case _ =>
@@ -147,20 +177,17 @@ class Move extends Module {
       }
 
       case _ => {
-        val inputRequest = InputRequestNew(6,startPoint, Vector2DGuideNew((v : Vector2D) => {
-          // First transform the start point
-          startPoint match {
-            case Some(p) if (p != v) => {
-              val t = TransformationMatrix(toDrawing(p) - toDrawing(v))
+        val inputRequest = InputRequestNew(5,startPoint, Vector2DGuideNew((v : Vector2D) => {
+
+            if (startPoint.get != v) {
+
+              val t = TransformationMatrix(v - startPoint.get)
               Drawing.selection.transform(t)
+              // Update the points for relative coordinates
+              startPoint = Some(v)
             }
-            case _ =>
-          }
 
-          // Update the points for relative coordinates
-          startPoint = Some(v)
-
-          Nil
+          Drawing.selection.shapes.values
         }))
         Start('cad,"create.InputNew", inputRequest)
       }
