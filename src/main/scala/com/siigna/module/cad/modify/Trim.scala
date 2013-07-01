@@ -27,19 +27,49 @@ class Trim extends Module {
 
   /*
    * a function to trim a polylineShape
-   * s1 = the trimGuideShape
-   * s2 = the shape to be trimmed
+   * gs = the trimGuideShapes
+   * ts = the shape to be trimmed
+   * p = trim point (the part of s2 which should be deleted
+   *
+   *  SITUATION A - one trimPoint
+   *
+   *            tp
+   *            |            s2
+   *      *-----|------ * p ----------*
+   *            |
+   *
+   *  SITUATION B - two or more trimPoints, p between two of them
+   *
+   *            tp        tp
+   *            |          |   ts
+   *      *-----|--- * p --|------*
+   *            |          |
+   *
+   * SITUATION C - two or more trimPoints, p not between two of them
+   *
+   *            tp        tp
+   *            |          |        ts
+   *      *-----|----------|-- * p ----*
+   *            |          |
    */
 
-  def trimTwoShapes(s1 : Shape, s2 : Shape) = {
-    if (s1.geometry.intersects(s2.geometry)) {
-      val ints = s1.geometry.intersections(s2.geometry)
-      println("s1 geom: "+s1.geometry)
-      println("s2 geom: "+s2.geometry)
-      println("ints: "+ints)
-      ints
+  def trimTwoPolyLineShapes(gs : List[PolylineShape], ts : PolylineShape, p : Vector2D) = {
 
-    } else println("NO INTERSECTION")
+    var ints = List[Set[Vector2D]]()
+
+    gs.foreach(g => {
+      //get the intersections
+      if (g.geometry.intersects(ts.geometry)) ints = g.geometry.intersections(ts.geometry) :: ints else println("NO INTERSECTION")
+
+      if(ints.length == 1) {
+        println("one trimPoint")
+      }
+      else if (ints.length > 1) {
+        println("more than one trimPoints")
+      }
+      else None
+
+    })
   }
 
   val trimGuideShapes : List[Shape] = List()
