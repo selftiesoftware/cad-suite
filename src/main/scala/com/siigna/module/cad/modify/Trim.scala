@@ -26,55 +26,10 @@ import java.awt.Color
 
 class Trim extends Module {
 
-  /*
-   * a function to trim a polylineShape
-   * gs = the trimGuideShape(s)
-   * ts = the shape to be trimmed
-   * p = trim point (the part of ts which should be deleted
-   *
-   *  SITUATION A - one trimGuideShape
-   *
-   *            gs
-   *            |            ts
-   *      *-----|------ * p ----------*
-   *            |
-   *
-   *  SITUATION B - two or more trimGuideShape, p between two of them
-   *
-   *            gs        gs
-   *            |          |   ts
-   *      *-----|--- * p --|------*
-   *            |          |
-   *
-   * SITUATION C - two or more trimGuideShape, p not between two of them
-   *
-   *            gs        gs
-   *            |          |        ts
-   *      *-----|----------|-- * p ----*
-   *            |          |
-   */
+  private var attr = Attributes()
 
-  def trimTwoPolyLineShapes(gs : List[PolylineShape], ts : PolylineShape, p : Vector2D) = {
-    //store intersections
-    var ints = List[Set[Vector2D]]()
-
-    gs.foreach(g => {
-      //get the intersections
-      if (g.geometry.intersects(ts.geometry)) ints = g.geometry.intersections(ts.geometry) :: ints else println("NO INTERSECTION")
-    })
-
-    if(ints.length == 1) {
-      //evaluate if the trimpoint is ...??? how to do this...??!
-      println("one trimPoint")
-    }
-    else if (ints.length > 1) {
-      println("more than one trimPoints")
-    }
-    else None
-
-  }
-
-  val trimGuideShapes : List[Shape] = List()
+  //the shape to be trimmed
+  private var nearestShape : Option[Shape] = None
 
   val stateMap: StateMap = Map(
     //check if shapes are selected. If not, allow the user to do so.
@@ -120,6 +75,10 @@ class Trim extends Module {
         Siigna display ("Point clicked: " + p)
 
         println("trim here!")
+        val nearest = Drawing(p).reduceLeft((a, b) => if (a._2.geometry.distanceTo(p) < b._2.geometry.distanceTo(p)) a else b)
+        nearestShape = if (nearest._2.distanceTo(p) < Siigna.selectionDistance) Some(nearest._2) else None
+        attr = nearestShape.get.attributes
+        //TrimmingMethods.trimTwoPolyLineShapes(Drawing.selection,nearest,p,attr)
 
       }
 

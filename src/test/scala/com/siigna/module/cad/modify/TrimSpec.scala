@@ -15,6 +15,7 @@ import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import com.siigna.util.geom._
 import com.siigna.app.model.shape.PolylineShape
+import com.siigna.util.collection.Attributes
 
 /**
  * Tests the [[com.siigna.module.cad.modify.Trim]] class.
@@ -22,23 +23,21 @@ import com.siigna.app.model.shape.PolylineShape
 
 class TrimSpec extends FunSpec with ShouldMatchers {
 
-  val trimLine = PolylineShape(List(Vector2D(-100,0),Vector2D(10,10), Vector2D(100,0)))
+  val attr = Attributes()
   val gs1 = PolylineShape(List(Vector2D(-10,20),Vector2D(-15,-30)))
   val gs2 = PolylineShape(List(Vector2D(10,20),Vector2D(10,-30)))
-
   val oneGuide = List(gs1)
+  val trimLine = PolylineShape(List(Vector2D(-100,0),Vector2D(10,10), Vector2D(100,0)))
   val twoGuides = List(gs1, gs2)
 
   val p1 = Vector2D(55,5)
   val p2 = Vector2D(0,9.09175)
   val p3 = Vector2D(-50,4.54321)
 
-  //instantiate the trim class
-  val trimModule = new Trim
 
   describe("a PolylineShape... ") {
     it("can be trimmed by another PolylineShape when the trimpoint is next to the endpoint") {
-      trimModule.trimTwoPolyLineShapes(oneGuide,trimLine,p1) should equal(Set(PolylineShape(Vector2D(-100,0),Vector2D(10,10))))
+      //TrimmingMethods.trimTwoPolyLineShapes(oneGuide,trimLine,p1,attr) should equal(Set(PolylineShape(Vector2D(-100,0),Vector2D(10,10))))
     }
 
 
