@@ -122,7 +122,6 @@ class InputNew extends Module {
       else if ((inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(9)) && Track.isTracking == true) {
         val guidesNew = guides.collect({
           case Vector2DGuideNew(guide) => {
-            println("Der 3")
             DoubleGuideNew((d : Double) => {
               guide(Track.getPointFromDistance(d).get)
             })

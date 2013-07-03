@@ -20,6 +20,7 @@
 package com.siigna.module.cad.modify
 
 import com.siigna._
+import module.cad.create.InputRequestNew
 import util.geom.Geometry2D
 import java.awt.Color
 
@@ -29,25 +30,25 @@ class Trim extends Module {
    * a function to trim a polylineShape
    * gs = the trimGuideShapes
    * ts = the shape to be trimmed
-   * p = trim point (the part of s2 which should be deleted
+   * p = trim point (the part of ts which should be deleted
    *
    *  SITUATION A - one trimPoint
    *
-   *            tp
-   *            |            s2
+   *            gs
+   *            |            ts
    *      *-----|------ * p ----------*
    *            |
    *
    *  SITUATION B - two or more trimPoints, p between two of them
    *
-   *            tp        tp
+   *            gs        gs
    *            |          |   ts
    *      *-----|--- * p --|------*
    *            |          |
    *
    * SITUATION C - two or more trimPoints, p not between two of them
    *
-   *            tp        tp
+   *            gs        gs
    *            |          |        ts
    *      *-----|----------|-- * p ----*
    *            |          |
@@ -90,24 +91,35 @@ class Trim extends Module {
         Create(PolylineShape(lineHoriz1))
         Create(PolylineShape(lineHoriz2))
       }
-      case MouseDown(p, MouseButtonRight, _) :: tail => End
-      case End(KeyDown(Key.Esc, _)) :: tail => End
-      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
 
       //save the selection if returned from the select module
       case End(MouseDown(p, MouseButtonLeft, _)) :: tail => {
-        println("got selection")
+        //Dont know what this is / Niels
+
       }
 
       case _ => {
-        //goto trim if there is a selection only)
+        //Go to trim - state only if there is a selection
+        println("Underscore")
+        if(Drawing.selection.isEmpty) {
+          Siigna display "No shapes selected - select shapes to trim"
+          println("No selection")
+          End
+        } else {
+          println(" selection")
+          'Trim
+        }
       }
+
     },
 
     //when shapes are selected, check for mouse clicks (later: also selection boxes(dragged)) to trim shapes.
     'Trim -> {
-      case MouseDown(p, MouseButtonLeft, _) :: tail => {
+      case End(p : Vector2D) :: tail => {
+        Siigna display ("Point clicked: " + p)
+
         println("trim here!")
+
       }
 
       //exit strategy
@@ -116,7 +128,11 @@ class Trim extends Module {
       case End(KeyDown(Key.Esc, _)) :: tail => End
 
 
-      case _ => //stay in this state and check for new events
+      case _ => {
+        Siigna display "Click shapes to trim"
+        //Requests mouse-down input
+        Start('cad,"create.InputNew",InputRequestNew(1,None))
+      }
     }
   )
 }
