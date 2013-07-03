@@ -29,24 +29,23 @@ class TrimSpec extends FunSpec with ShouldMatchers {
   val oneGuide = List(gs1)
   val twoGuides = List(gs1, gs2)
 
-  val p1 = Vector2D(0,9.09175)
-  val p2 = Vector2D(-50,4.54321)
+  val p1 = Vector2D(55,5)
+  val p2 = Vector2D(0,9.09175)
+  val p3 = Vector2D(-50,4.54321)
 
   //instantiate the trim class
   val trimModule = new Trim
 
   describe("a PolylineShape... ") {
-    it("can be trimmed by another PolylineShape") {
-
-      trimModule.trimTwoPolyLineShapes(oneGuide,trimLine,p1) should equal(Set(PolylineShape(Vector2D(-100,0),Vector2D(-11.192660550458712,8.073394495412845))))
+    it("can be trimmed by another PolylineShape when the trimpoint is next to the endpoint") {
+      trimModule.trimTwoPolyLineShapes(oneGuide,trimLine,p1) should equal(Set(PolylineShape(Vector2D(-100,0),Vector2D(10,10))))
     }
 
-    //it("can be trimmed by two PolylineShapes when the trim point is between the two PolylineShapes") {
 
-    //  trimModule.trimTwoPolyLineShapes(twoGuides,trimLine,p1) should equal(Set(PolylineShape(Vector2D(-100,0),Vector2D(-11.192660550458712,8.073394495412845)),PolylineShape(Vector2D(10,10),Vector2D(100,0))))
-      //p not between the lines
-    //  trimModule.trimTwoPolyLineShapes(twoGuides,trimLine,p2) should equal(Set(PolylineShape(Vector2D(-100,0),Vector2D(-11.192660550458712,8.073394495412845))))
-    //}
+    //it("can be trimmed by two GuideShapes (polylines) when the trim point is between the two GuideShapes") {
+
+    //  trimModule.trimTwoPolyLineShapes(twoGuides,trimLine,p2) should equal(Set(PolylineShape(Vector2D(-100,0),Vector2D(-11.192660550458712,8.073394495412845)),PolylineShape(Vector2D(10,10),Vector2D(100,0))))
+  //}
   }
 
 }
