@@ -61,6 +61,7 @@ class InputNew extends Module {
         inputType = Some(i.inputType)
         guides = i.guides
         referencePoint = i.referencePoint
+        //Turn off snap to shapes in the making, if required
         if (inputType != Some(5) && inputType != Some(8) ) {
           guides.foreach(_ match {
             case Vector2DGuideNew(guide) => {
@@ -70,9 +71,12 @@ class InputNew extends Module {
             case _ => // No known guide
           } )
         }
+        //Turn off track,if required
+        if(inputType == Some(2)) Track.trackEnabled = false
         'ReceiveUserInput
       }
       case _ => {
+        if (Track.trackEnabled == false) Track.trackEnabled = true
         End
       }
     },
@@ -87,12 +91,14 @@ class InputNew extends Module {
     //Left mouse button up:
     case MouseUp(p,MouseButtonLeft,modifier)::tail => {
       if (inputType == Some(8)) {
+        if (Track.trackEnabled == false) Track.trackEnabled = true
         End(p.transform(View.deviceTransformation))
     }}
 
     //Right mouse button down
     case MouseDown(p,MouseButtonRight,modifier)::tail => {
       //Standard: the mouseDown action is returned
+      if (Track.trackEnabled == false) Track.trackEnabled = true
       End(MouseDown(p.transform(View.deviceTransformation),MouseButtonRight,modifier))
     }
 
@@ -115,9 +121,15 @@ class InputNew extends Module {
     case KeyDown(key,modifier) :: tail => {
       if (trackDoubleRequest == true) trackDoubleRequest = false
       //ESCAPE: Is returned to the asking module as a key-down event:
-      if (key == Key.escape) End(KeyDown(key,modifier))
+      if (key == Key.escape) {
+        if (Track.trackEnabled == false) Track.trackEnabled = true
+        End(KeyDown(key,modifier))
+      }
       //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event:
-      else if (key == Key.backspace) End(KeyDown(key,modifier))
+      else if (key == Key.backspace) {
+        if (Track.trackEnabled == false) Track.trackEnabled = true
+        End(KeyDown(key,modifier))
+      }
       //Input types where track-offset is activated: Vector2D-guides are transformed to DoubleGuides:
       else if ((inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(9)) && Track.isTracking == true) {
         val guidesNew = guides.collect({
@@ -151,8 +163,10 @@ class InputNew extends Module {
     case End(p : Vector2D) :: tail => {
       //if (drawGuideInInputModule == false) drawGuideInInputModule = true
       if (inputType == Some(5) || inputType == Some(7) && !referencePoint.isEmpty) {
+        if (Track.trackEnabled == false) Track.trackEnabled = true
         End(referencePoint.get + p)
       } else {
+        if (Track.trackEnabled == false) Track.trackEnabled = true
         End(p)
       }
     }
@@ -161,14 +175,17 @@ class InputNew extends Module {
     case End(s : Double) :: tail => {
       if (trackDoubleRequest == true && (inputType == Some(4) || inputType == Some(5) || inputType == Some(6)|| inputType == Some(7) || inputType == Some(9))) {
         trackDoubleRequest = false
+        if (Track.trackEnabled == false) Track.trackEnabled = true
         End(Track.getPointFromDistance(s).get)
       } else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13)) {
+        if (Track.trackEnabled == false) Track.trackEnabled = true
         End(s)
       }
     }
 
     //String:
     case End(s : String) :: tail => {
+      if (Track.trackEnabled == false) Track.trackEnabled = true
       End(s)
     }
 

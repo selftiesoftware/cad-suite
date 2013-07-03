@@ -131,7 +131,7 @@ class Trim extends Module {
       case _ => {
         Siigna display "Click shapes to trim"
         //Requests mouse-down input
-        Start('cad,"create.InputNew",InputRequestNew(1,None))
+        Start('cad,"create.InputNew",InputRequestNew(2,None))
       }
     }
   )
