@@ -149,7 +149,7 @@ class ModuleInit extends Module {
       }
 
       // Release all selections
-      case KeyDown(Key.Esc, _) :: tail => {
+      case KeyDown((Key.Esc | Key.Enter), _) :: tail => {
         shortcut = ""
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         Drawing.deselect()

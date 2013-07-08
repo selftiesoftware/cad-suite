@@ -97,7 +97,7 @@ class Move extends Module {
           var referencePoint: Vector2D = startPoint.get
           val inputRequest = InputRequestNew(8,None, Vector2DGuideNew((v : Vector2D) => {
             if (referencePoint != v) {
-              val t = TransformationMatrix(v - referencePoint)
+              val t = TransformationMatrix(referencePoint - v)
               Drawing.selection.transform(t)
               // Update the points for relative coordinates
               referencePoint = v
