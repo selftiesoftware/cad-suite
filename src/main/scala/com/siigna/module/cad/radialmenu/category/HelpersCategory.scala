@@ -24,8 +24,8 @@ import com.siigna._
 
 case object HelpersCategory extends MenuCategory {
   val graph = Map[MenuEvent,MenuElement](
-    EventENE -> MenuModule(Module('cad,"helpers.Snap"), MenuIcons.snap),
-    EventESE -> MenuModule(Module('cad,"helpers.Track"), MenuIcons.guides),
+    EventENE -> MenuModule(Module('cad,"helpers.SnapToggle"), MenuIcons.snap),
+    EventESE -> MenuModule(Module('cad,"helpers.TrackToggle"), MenuIcons.guides),
 
 
       //EventWNW -> MenuModule(Module('cad,"helpers.Grid"), MenuIcons.grid),

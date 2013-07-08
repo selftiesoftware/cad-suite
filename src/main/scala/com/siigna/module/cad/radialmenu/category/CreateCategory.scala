@@ -21,7 +21,6 @@ package com.siigna.module.cad.radialmenu.category
 
 import com.siigna.module.base.radialmenu._
 import com.siigna._
-import module.base.radialmenu
 
 case object CreateCategory extends MenuCategory{
   val graph = Map[MenuEvent,MenuElement](
@@ -30,7 +29,6 @@ case object CreateCategory extends MenuCategory{
     EventNNW -> MenuModule(Module('cad,"create.Copy"), MenuIcons.copy),
     EventNNE -> MenuModule(Module('cad,"create.Polyline"), MenuIcons.polyline),
 
-    EventWNW -> MenuModule(Module('cad,"create.Rectangle"), MenuIcons.rectangle),
     EventWSW -> MenuModule(Module('cad,"create.Line"), MenuIcons.line),
 
     EventENE -> MenuModule(Module('cad,"create.Offset"), MenuIcons.offset),
@@ -40,7 +38,6 @@ case object CreateCategory extends MenuCategory{
     EventSSW -> MenuModule(Module('cad,"create.Circle"), MenuIcons.circle),
 
     EventWSW -> MenuModule(Module('cad,"create.Lineardim"), MenuIcons.linearDimension)
-    //EventSSW -> MenuModule(Module('cad,"create.Fill"), MenuIcons.raster)
 
   )
 

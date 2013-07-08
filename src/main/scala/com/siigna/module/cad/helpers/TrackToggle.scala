@@ -26,14 +26,11 @@ class TrackToggle extends Module{
   val stateMap : StateMap = Map(
     'Start-> {
       case _ => {
-        if (Track.trackEnabled == true) {
-          Track.trackEnabled = false
-          Siigna display ("track is off")
+        val value = Siigna.trackToggle match {
+          case true => "on"
+          case _ => "off"
         }
-        else {
-          Track.trackEnabled = true
-          Siigna display ("track is on")
-        }
+        Siigna display "Track is " + value
         End
       }
     }

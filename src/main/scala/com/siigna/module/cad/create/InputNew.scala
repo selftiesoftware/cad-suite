@@ -72,11 +72,11 @@ class InputNew extends Module {
           } )
         }
         //Turn off track,if required
-        if(inputType == Some(2)) Track.trackEnabled = false
+        if(inputType == Some(2)) Siigna("track") = false
         'ReceiveUserInput
       }
       case _ => {
-        if (Track.trackEnabled == false) Track.trackEnabled = true
+        if (!Siigna.isTrackEnabled) Siigna("track") = true
         End
       }
     },
@@ -91,14 +91,14 @@ class InputNew extends Module {
     //Left mouse button up:
     case MouseUp(p,MouseButtonLeft,modifier)::tail => {
       if (inputType == Some(8)) {
-        if (Track.trackEnabled == false) Track.trackEnabled = true
+        if (!Siigna.isTrackEnabled) Siigna("track") = true
         End(p.transform(View.deviceTransformation))
     }}
 
     //Right mouse button down
     case MouseDown(p,MouseButtonRight,modifier)::tail => {
       //Standard: the mouseDown action is returned
-      if (Track.trackEnabled == false) Track.trackEnabled = true
+      if (!Siigna.isTrackEnabled) Siigna("track") = true
       End(MouseDown(p.transform(View.deviceTransformation),MouseButtonRight,modifier))
     }
 
@@ -106,7 +106,7 @@ class InputNew extends Module {
       //AngleGizmo
     case KeyDown(Key.shift, _) :: tail => {
       //Angle gizmo based on track point (Track point is sent to Angle Gizmo - not referencePoint (if there is one)
-      if (Track.isTracking == true && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Siigna.selectionDistance) {
+      if (Track.isTracking && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Siigna.selectionDistance) {
         Start('cad,"create.AngleGizmo",InputRequestNew(inputType.get,Track.pointOne,guides:_*))
       //Angle gizmo based on reference point (The angle gizmo gets a track point, if one is active. If none is active, the reference point is sent.
       //If there is neither track- or reference point, Angle gizmo does not start (since it wouldn't know where it's centre should be).
@@ -119,19 +119,19 @@ class InputNew extends Module {
     //Most key-inputs are not handled directly in Input, but sorted and forwarded to key-input modules.
     //Some are, however - eg. escape and backspace.
     case KeyDown(key,modifier) :: tail => {
-      if (trackDoubleRequest == true) trackDoubleRequest = false
+      if (trackDoubleRequest) trackDoubleRequest = false
       //ESCAPE: Is returned to the asking module as a key-down event:
       if (key == Key.escape) {
-        if (Track.trackEnabled == false) Track.trackEnabled = true
+        Siigna("track") = true
         End(KeyDown(key,modifier))
       }
       //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event:
       else if (key == Key.backspace) {
-        if (Track.trackEnabled == false) Track.trackEnabled = true
+        Siigna("track") = true
         End(KeyDown(key,modifier))
       }
       //Input types where track-offset is activated: Vector2D-guides are transformed to DoubleGuides:
-      else if ((inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(9)) && Track.isTracking == true) {
+      else if ((inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(9)) && Track.isTracking) {
         val guidesNew = guides.collect({
           case Vector2DGuideNew(guide) => {
             DoubleGuideNew((d : Double) => {
@@ -144,7 +144,7 @@ class InputNew extends Module {
         Start('cad,"create.InputOneValueByKey",newInputRequest)
       // Input types accepting Vector2D by keys:
       } else if(inputType == Some(3) || inputType == Some(5)
-        || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7)) && Track.isTracking == false)) {
+        || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7)) && !Track.isTracking)) {
         Start('cad,"create.InputValuesByKey",inputRequest.get)
       }
        else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13)) {
@@ -163,29 +163,29 @@ class InputNew extends Module {
     case End(p : Vector2D) :: tail => {
       //if (drawGuideInInputModule == false) drawGuideInInputModule = true
       if (inputType == Some(5) || inputType == Some(7) && !referencePoint.isEmpty) {
-        if (Track.trackEnabled == false) Track.trackEnabled = true
+        Siigna("track") = true
         End(referencePoint.get + p)
       } else {
-        if (Track.trackEnabled == false) Track.trackEnabled = true
+        Siigna("track") = true
         End(p)
       }
     }
 
     //Double:
     case End(s : Double) :: tail => {
-      if (trackDoubleRequest == true && (inputType == Some(4) || inputType == Some(5) || inputType == Some(6)|| inputType == Some(7) || inputType == Some(9))) {
+      if (trackDoubleRequest && (inputType == Some(4) || inputType == Some(5) || inputType == Some(6)|| inputType == Some(7) || inputType == Some(9))) {
         trackDoubleRequest = false
-        if (Track.trackEnabled == false) Track.trackEnabled = true
+        Siigna("track") = true
         End(Track.getPointFromDistance(s).get)
       } else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13)) {
-        if (Track.trackEnabled == false) Track.trackEnabled = true
+        Siigna("track") = true
         End(s)
       }
     }
 
     //String:
     case End(s : String) :: tail => {
-      if (Track.trackEnabled == false) Track.trackEnabled = true
+      Siigna("track") = true
       End(s)
     }
 

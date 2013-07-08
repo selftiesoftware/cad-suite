@@ -33,15 +33,11 @@ class SnapToggle extends Module {
 
     'Start-> {
       case _ => {
-        if (Snap.snapEnabled == true) {
-          Snap.snapEnabled = false
-          Siigna display ("snap is off")
-          isSnapping = false
+        val value = Siigna.snapToggle match {
+          case true => "on"
+          case _ => "off"
         }
-        else {
-          Snap.snapEnabled = true
-          Siigna display ("snap is on")
-        }
+        Siigna display "Snap is " + value
         End
       }
     }
