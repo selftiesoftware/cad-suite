@@ -63,7 +63,7 @@ class Selection extends Module {
           } else None
         }
 
-        // First examine if a shape already close to the point is selected. If so, we should ignore other shapes
+        // First examine if a shape, that is already close to the point, is selected. If so, we should ignore other shapes
         // Fixes trello: http://goo.gl/Cdlyc
         val nearestShape : Option[(Int, Shape)] = if (Drawing.selection.isDefined) {
           val x = Drawing.selection.reduceLeft((a, b) => if (a._2._1.distanceTo(m) < a._2._1.distanceTo(m)) a else b)
@@ -73,20 +73,20 @@ class Selection extends Module {
           }
         } else drawingShape
 
-        // Deselect the current selection since shift is up
-        Deselect()
-
         // Select the shape, if available
         if (nearestShape.isDefined) {
           val (id, shape) = nearestShape.get
           val selector = shape.getSelector(m)
           Drawing.selection.get(id) match {
-            // If we can find the exact same selector, select the entire shape
+            // If we can find the exact same selector, select the entire shape (equal to dbl-click)
             case Some((x, y)) if y == selector && y != FullShapeSelector => Select(id)
             // If the old selector differs we simply select the new selection
-            case _ => Select(id, selector)
+            case _ => {
+              Deselect() // Deselect the current selection since shift is up
+              Select(id, selector)
+            }
           }
-        }
+        } else Deselect() // Deselect the current selection since shift is up
       } else {
         // Select the area
         SelectToggle(m)
