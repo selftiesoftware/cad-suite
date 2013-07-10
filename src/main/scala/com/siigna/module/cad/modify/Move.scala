@@ -95,23 +95,13 @@ class Move extends Module {
         // So, the input-request is only for a mouse-up (input type 8)
         if (startPoint.isEmpty && v == mousePosition.transform(View.deviceTransformation)) {
           startPoint = Some(v)
-          var referencePoint: Vector2D = startPoint.get
-          val inputRequest = InputRequestNew(8,None, Vector2DGuideNew((v : Vector2D) => {
-            if (referencePoint != v) {
-              val t = TransformationMatrix(referencePoint - v)
-              Drawing.selection.transform(t)
-              // Update the points for relative coordinates
-              referencePoint = v
-            }
-            Drawing.selection.shapes.values
-          }))
-          Start('cad,"create.InputNew", inputRequest)
+          'EndPoint
         } else if (startPoint.isEmpty ) {
           //A vector has been typed by keys. Do the move.
           Drawing.selection.transform(TransformationMatrix(v))
           End
         } else if (v != startPoint.get ) {
-          //A drag has occured, or a vector has been typed by keys. Do the move.
+          //A drag has occurred, or a vector has been typed by keys. Do the move.
           End
         } else {
           // Get the endpoint
@@ -136,7 +126,7 @@ class Move extends Module {
         startPoint match {
           case Some(q) => {
             startPoint = Some(p.transform(View.deviceTransformation))
-            Drawing.selection.transform(TransformationMatrix(p.transform(View.deviceTransformation) - q) )
+            Drawing.selection.transform(TransformationMatrix(p - q))
           }
           case _ =>
         }
@@ -145,7 +135,7 @@ class Move extends Module {
       case MouseUp(p : Vector2D, _, _) :: MouseDrag(_, _, _) :: tail => {
         startPoint match {
           case Some(q) => {
-            Drawing.selection.transform(TransformationMatrix(p.transform(View.deviceTransformation) - q))
+            Drawing.selection.transform(TransformationMatrix(p - q))
           }
           case _ =>
         }
