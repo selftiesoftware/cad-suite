@@ -87,6 +87,7 @@ class Move extends Module {
       //Vector2D received (from input, could be from mouse up (when input type 8 has been requested),
       // or mouse down (from the other input types used in this module):
       case End(v: Vector2D) :: tail => {
+        println("got startpt")
         //The first clicked point can be:
         // a): The point where a drag-move starts, or
         // b): The point, where the user "picks up" the selection that should be moved.
@@ -149,6 +150,7 @@ class Move extends Module {
       case KeyDown(Key.Esc, _) :: tail => End
 
       case End(v : Vector2D) :: tail => {
+
         startPoint match {
           case Some(p) => {
             val t = TransformationMatrix(v - p)
