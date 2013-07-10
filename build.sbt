@@ -15,6 +15,6 @@ resolvers += "Siigna" at "http://rls.siigna.com"
 publishTo := Some(Resolver.sftp("Siigna rls", "rls.siigna.com", 22, "/srv/rls") as ("siigna", new File("../budapest/jenkins.rsa")))
 
 libraryDependencies ++= Seq(
-  "com.siigna" %% "siigna-main" % "nightly",
-  "com.siigna" %% "siigna-base" % "nightly"
+  "com.siigna" %% "siigna-main" % "stable",
+  "com.siigna" %% "siigna-base" % "stable"
 )
