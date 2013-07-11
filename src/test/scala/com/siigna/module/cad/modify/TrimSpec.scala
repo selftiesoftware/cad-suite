@@ -43,7 +43,7 @@ class TrimSpec extends FunSpec with ShouldMatchers {
 
   //TODO: test trimming of a rotated rect inside a larger rect, creating four intersections:
 
-  describe("intersections... ") {
+  describe("intersections on a PL... ") {
 
     it("can be found with a PL intersected twice by two PolyLines") {
       TrimmingMethods.getIntersectSegmentNumbers(twoGuides,trimLine) should equal(Map(0 -> List(Vector2D(-11.192660550458715,8.073394495412844), Vector2D(10.0,10.0)), 1 -> List(Vector2D(10.0,10.0))))
@@ -59,18 +59,20 @@ class TrimSpec extends FunSpec with ShouldMatchers {
     }
 
     it("can return the first relevant intersection (to be used for trimming) in a given direction from the trim point ") {
-      val ints = TrimmingMethods.getIntersectSegmentNumbers(twoGuidesOnSegment,trimLine)
+      val oneInt = TrimmingMethods.getIntersectSegmentNumbers(List(gs1),trimLine)
+      val twoInts = TrimmingMethods.getIntersectSegmentNumbers(twoGuidesOnSegment,trimLine)
       //one of the guide lines is on top of a vertex:
       val intsTlOnNode = TrimmingMethods.getIntersectSegmentNumbers(twoGuides,trimLine)
       val fiveInts = TrimmingMethods.getIntersectSegmentNumbers(fiveGuides,trimLine)
 
-      TrimmingMethods.findIntersection(trimLine,1,intsTlOnNode,true,p1) should equal(None) //positive direction
-      TrimmingMethods.findIntersection(trimLine,1,ints,false,p1) should equal(Some(Vector2D(20.0,8.88888888888889))) //negative direction
-      TrimmingMethods.findIntersection(trimLine,1,intsTlOnNode,false,p1) should equal(Some(Vector2D(10.0,10.0))) //negative direction
-      TrimmingMethods.findIntersection(trimLine,1,fiveInts,true,p1) should equal (Some(Vector2D(60.0,4.444444444444445))) //positive direction
-      TrimmingMethods.findIntersection(trimLine,1,fiveInts,false,p1) should equal (Some(Vector2D(32.5,7.5))) //negative direction
+      TrimmingMethods.findIntersection(trimLine,intsTlOnNode,true,p1) should equal(None) //positive direction
+      TrimmingMethods.findIntersection(trimLine,twoInts,false,p1) should equal(Some(Vector2D(20.0,8.88888888888889))) //negative direction
+      TrimmingMethods.findIntersection(trimLine,intsTlOnNode,false,p1) should equal(Some(Vector2D(10.0,10.0))) //negative direction
+      TrimmingMethods.findIntersection(trimLine,fiveInts,true,p1) should equal (Some(Vector2D(60.0,4.444444444444445))) //positive direction
+      TrimmingMethods.findIntersection(trimLine,fiveInts,false,p1) should equal (Some(Vector2D(32.5,7.5))) //negative direction
 
-      //TODO: test situations where intersections occur on adjacent segments only.
+      //situations where intersections occur on adjacent segments only:
+      //TrimmingMethods.findIntersection(trimLine,oneInt,false,p1) should equal (Some(Vector2D(-11.192660550458715,8.073394495412844)))
     }
 
     //it("can be trimmed by another PolylineShape when there is one guideShape") {

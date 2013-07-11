@@ -21,8 +21,6 @@ package com.siigna.module.cad.modify
 
 import com.siigna._
 import module.cad.create.InputRequestNew
-import util.geom.Geometry2D
-import java.awt.Color
 
 class Trim extends Module {
 
@@ -60,7 +58,7 @@ class Trim extends Module {
         if(Drawing.selection.isEmpty) {
           Siigna display "No shapes selected - select shapes to trim"
           println("No selection")
-          End
+          //End
         } else {
           println(" selection")
           'Trim
@@ -69,17 +67,20 @@ class Trim extends Module {
 
     },
 
-    //when shapes are selected, check for mouse clicks (later: also selection boxes(dragged)) to trim shapes.
+    //when shapes are selected, check for mouse clicks to trim shapes. (TODO: trim by selection box)
     'Trim -> {
-      case End(p : Vector2D) :: tail => {
-        Siigna display ("Point clicked: " + p)
-
-        println("trim here!")
-        val nearest = Drawing(p).reduceLeft((a, b) => if (a._2.geometry.distanceTo(p) < b._2.geometry.distanceTo(p)) a else b)
-        nearestShape = if (nearest._2.distanceTo(p) < Siigna.selectionDistance) Some(nearest._2) else None
-        attr = nearestShape.get.attributes
-        //TrimmingMethods.trimTwoPolyLineShapes(Drawing.selection,nearest,p,attr)
-
+      case End(p : Vector2D) :: tail =>
+      case MouseUp(p, _, _) :: tail => {
+        val t = View.deviceTransformation
+        val point = p.transform(t)
+        val nearest = Drawing(point).reduceLeft((a, b) => if (a._2.geometry.distanceTo(point) < b._2.geometry.distanceTo(point)) a else b)
+        val trimLine = if (nearest._2.distanceTo(point) < Siigna.selectionDistance) Some(nearest._2) else None
+        //attr = trimLine.get.attributes
+        println("trimLine: "+trimLine.get)
+        if(trimLine.isDefined) {
+          println("running trimming method")
+          TrimmingMethods.trimPolyline(Drawing.selection.shapes,trimLine.get,point)
+        }
       }
 
       //exit strategy
@@ -88,10 +89,11 @@ class Trim extends Module {
       case End(KeyDown(Key.Esc, _)) :: tail => End
 
 
-      case _ => {
+      case e => {
+        println("error: "+e)
         Siigna display "Click shapes to trim"
         //Requests mouse-down input
-        Start('cad,"create.InputNew",InputRequestNew(2,None))
+        Start('cad,"create.InputNew",InputRequestNew(6,None))
       }
     }
   )
