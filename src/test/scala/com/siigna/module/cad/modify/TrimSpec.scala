@@ -14,8 +14,10 @@ package com.siigna.module.cad.modify
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import com.siigna.util.geom._
-import com.siigna.app.model.shape.PolylineShape
+import com.siigna.app.model.shape.{LineShape, PolylineLineShape, PolylineShape}
 import com.siigna.util.collection.Attributes
+import scala.collection.mutable.ArrayBuffer
+import com.siigna.app.model.shape.PolylineShape.PolylineShapeOpen
 
 /**
  * Tests the [[com.siigna.module.cad.modify.Trim]] class.
@@ -26,19 +28,54 @@ class TrimSpec extends FunSpec with ShouldMatchers {
   val attr = Attributes()
   val gs1 = PolylineShape(List(Vector2D(-10,20),Vector2D(-15,-30)))
   val gs2 = PolylineShape(List(Vector2D(10,20),Vector2D(10,-30)))
-  val oneGuide = List(gs1)
+  val gs3 = PolylineShape(List(Vector2D(20,20),Vector2D(20,-30)))
+  val gs4 = PolylineShape(List(Vector2D(30,20),Vector2D(40,-30)))
+  val gs5 = PolylineShape(List(Vector2D(60,20),Vector2D(60,-30)))
   val trimLine = PolylineShape(List(Vector2D(-100,0),Vector2D(10,10), Vector2D(100,0)))
   val twoGuides = List(gs1, gs2)
+  val fiveGuides = List(gs1, gs2, gs3, gs4, gs5)
+  val twoGuidesOnSegment = List(gs1, gs3)
 
   val p1 = Vector2D(55,5)
   val p2 = Vector2D(0,9.09175)
   val p3 = Vector2D(-50,4.54321)
+  val p4 = Vector2D(0,-50)
 
+  //TODO: test trimming of a rotated rect inside a larger rect, creating four intersections:
 
-  describe("a PolylineShape... ") {
-    it("can be trimmed by another PolylineShape when the trimpoint is next to the endpoint") {
-      //TrimmingMethods.trimTwoPolyLineShapes(oneGuide,trimLine,p1,attr) should equal(Set(PolylineShape(Vector2D(-100,0),Vector2D(10,10))))
+  describe("intersections... ") {
+
+    it("can be found with a PL intersected twice by two PolyLines") {
+      TrimmingMethods.getIntersectSegmentNumbers(twoGuides,trimLine) should equal(Map(0 -> List(Vector2D(-11.192660550458715,8.073394495412844), Vector2D(10.0,10.0)), 1 -> List(Vector2D(10.0,10.0))))
     }
+
+    //findIntersection tests:
+
+    it("can return the segment ID and Segment on which a point is set") {
+      TrimmingMethods.findIntSegNrAtPoint(trimLine,p1) should equal (Some((1,Segment2D(Vector2D(10.0,10.0),Vector2D(100.0,0.0)))))
+      TrimmingMethods.findIntSegNrAtPoint(trimLine,p2) should equal (Some((0,Segment2D(Vector2D(-100.0,0.0),Vector2D(10.0,10.0)))))
+      TrimmingMethods.findIntSegNrAtPoint(trimLine,p3) should equal (Some((0,Segment2D(Vector2D(-100.0,0.0),Vector2D(10.0,10.0)))))
+      TrimmingMethods.findIntSegNrAtPoint(trimLine,p4) should equal (None)
+    }
+
+    it("can return the first relevant intersection (to be used for trimming) in a given direction from the trim point ") {
+      val ints = TrimmingMethods.getIntersectSegmentNumbers(twoGuidesOnSegment,trimLine)
+      //one of the guide lines is on top of a vertex:
+      val intsTlOnNode = TrimmingMethods.getIntersectSegmentNumbers(twoGuides,trimLine)
+      val fiveInts = TrimmingMethods.getIntersectSegmentNumbers(fiveGuides,trimLine)
+
+      TrimmingMethods.findIntersection(trimLine,1,intsTlOnNode,true,p1) should equal(None) //positive direction
+      TrimmingMethods.findIntersection(trimLine,1,ints,false,p1) should equal(Some(Vector2D(20.0,8.88888888888889))) //negative direction
+      TrimmingMethods.findIntersection(trimLine,1,intsTlOnNode,false,p1) should equal(Some(Vector2D(10.0,10.0))) //negative direction
+      TrimmingMethods.findIntersection(trimLine,1,fiveInts,true,p1) should equal (Some(Vector2D(60.0,4.444444444444445))) //positive direction
+      TrimmingMethods.findIntersection(trimLine,1,fiveInts,false,p1) should equal (Some(Vector2D(32.5,7.5))) //negative direction
+
+      //TODO: test situations where intersections occur on adjacent segments only.
+    }
+
+    //it("can be trimmed by another PolylineShape when there is one guideShape") {
+    //  TrimmingMethods.trimPolyline(twoGuides,trimLine,p1) should equal(PolylineShape(Vector2D(-100,0),Vector2D(-11.192660550458712,8.073394495412845)))
+    //}
 
 
     //it("can be trimmed by two GuideShapes (polylines) when the trim point is between the two GuideShapes") {
