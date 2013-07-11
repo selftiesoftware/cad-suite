@@ -126,7 +126,7 @@ class Move extends Module {
         startPoint match {
           case Some(q) => {
             startPoint = Some(p.transform(View.deviceTransformation))
-            Drawing.selection.transform(TransformationMatrix(p - q))
+            Drawing.selection.transform(TransformationMatrix(p.transform(View.deviceTransformation) - q))
           }
           case _ =>
         }
@@ -135,7 +135,7 @@ class Move extends Module {
       case MouseUp(p : Vector2D, _, _) :: MouseDrag(_, _, _) :: tail => {
         startPoint match {
           case Some(q) => {
-            Drawing.selection.transform(TransformationMatrix(p - q))
+            Drawing.selection.transform(TransformationMatrix(p.transform(View.deviceTransformation) - q))
           }
           case _ =>
         }
