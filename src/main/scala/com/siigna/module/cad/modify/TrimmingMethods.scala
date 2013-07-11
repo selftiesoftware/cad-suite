@@ -75,24 +75,27 @@ object TrimmingMethods {
     intersections.toMap //return
   }
   //returns the segment (LineShape) and ID at given point.
-  def findIntSegNrAtPoint(pl : PolylineShape, p : Vector2D) : Option[(Int, InnerPolylineShape)] = {
+  def findIntSegNrAtPoint(pl : PolylineShape, p : Vector2D) : Option[(Int, GeometryBasic2D)] = {
     //get the first segment within selection distance to p.
     val closest = pl.shapes.zipWithIndex.find(_._1.distanceTo(p) < Siigna.selectionDistance)
-    print("CLOSEST: "+Siigna.selectionDistance)
     //return the ID and the innerShape (the two endpoints) of that segment TODO: .map innerShapes filters out one of the endpoints?
     //closest.map(t => t._2 -> pl.innerShapes(t._2))
-    val cM = closest.map(t => t._2 -> pl.innerShapes(t._2))
-    println("cM: "+cM)
-    cM
+    val cM = closest.map(t => t._2 -> pl.shapes(t._2).geometry)
+
+    if(cM.isDefined) cM else None
   }
 
-  /*calculate the relevant trim point(s) on a polyline
+  /* calculate the relevant trim point on a polyline in a given direction.
+  Note: This means the function should be run twice to calculate trimming points in both directions from p.
+
   input:
   1: the shape to be trimmed
   2: intSegNr: the segment number on which the trim point lies
   3: the list of all intersection vectors and corresponding ID's for the polyline to be trimmed (from getIntersectSegmentNumbers)
   4: a boolean telling if the intersections towards the start or the end of the polyline should be returned
   5: the trim point
+
+  returns: The Vector2D at which the Polyline should be trimmed, or None.
   */
   def findIntersection(tL : PolylineShape, intSegNr : Int, i : Map[Int,List[Vector2D]], d : Boolean, p : Vector2D) : Option[Vector2D] = {
 
@@ -101,38 +104,43 @@ object TrimmingMethods {
     //--|-----*------|------ p ----------------------|----|---*----
     //    endPoint      <-- direction                      segment endPt
 
-    // get the ID for the segment on which p lies.
+    // get the ID for the segment on which p lies.   OK
     val (trimSegmentInt, shape) = findIntSegNrAtPoint(tL, p).get
 
     //find the endpoint of the segment on which p lies .
     //if it is the first segment of the  trimline, the startpoint of the polyline is used.
-    val endPoint = if(d) shape.point else if(trimSegmentInt == 0) tL.startPoint else tL.innerShapes(trimSegmentInt - 1).point
+    val endPoint = if(d) shape.vertices(1) else if(trimSegmentInt == 0) tL.startPoint else shape.vertices(0)
 
-    //get intersecting vectors at the same segment as the segment p is on
+    //get intersecting vectors at the same segment as the segment p is on   OK
     val intSegmentVectors = i(trimSegmentInt)
 
-    //get intersecting points on the segment in the given direction (set with a boolean value), if any:
-    val r = intSegmentVectors.filter(_.distanceTo(p)<p.distanceTo(endPoint))
-    println("r: "+r)
+    //get intersecting points on the segment in the given direction E1 or E2 (set with a boolean value), if any:
+    //based on a distance calculation: filters out ints with a distance greater than d(x,E2)
+    //  E1 |---A--- p --- B----| E2
+    //         |<  d(A,E2)    >|
+    //              |< d(x,E2)-|
+
+    val r = intSegmentVectors.filter(_.distanceTo(endPoint)<p.distanceTo(endPoint))
     r.size match{
       //evaluate adjacent segments to look for intersections there.
       case(0) => {
-        //check if there are more segments on the polyline.
+        //check if there are more segments on the polyline in the given direction.
+
         //if so, iterate through the segments, starting with the ones closest to the intSegment.
+
         //check if there are intersections.
-        //If there are more than one int on a segment, return the one closest the endPoint closest to the intSegment.
-        println("test adjacent segments here!")
+
+        //If there are more than one int on a segment, return the one closest to the endPoint which is closest to the trimpoint.
+
         None
       }
       //if there is just one intersection, we know that the polyline should be trimmed by that point, so it is returned.
       case(1) => {
-        println("return intersection vector here")
-        None
+        Some(r.head)
       }
       //if there are more than one point, the one closest to p should be returned.
       case _  => {
-        r.reduceLeft((a,b) => if(a.distanceTo(p) < b.distanceTo(p)) a else b)
-        None
+        Some(r.reduceLeft((a,b) => if(a.distanceTo(p) < b.distanceTo(p)) a else b))
       }
     }
 
