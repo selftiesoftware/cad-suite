@@ -26,35 +26,6 @@ import com.siigna.app.Siigna
 
 object TrimmingMethods {
 
-  val trimGuideShapes : List[Shape] = List()
-
-  def IsOnSegment(pt1 : Vector2D, pt2 : Vector2D, pt3 : Vector2D) = {
-    val xi = pt1.x
-    val yi = pt1.y
-    val xj = pt2.x
-    val yj = pt2.y
-    val xk = pt3.x
-    val yk = pt3.y
-    if((xi <= xk || xj <= xk) && (xk <= xi || xk <= xj) && (yi <= yk || yj <= yk) && (yk <= yi || yk <= yj)) {
-      true
-    } else false
-  }
-
-  def ComputeDirection(pt1 : Vector2D, pt2 : Vector2D, pt3 : Vector2D) = {
-    val xi = pt1.x
-    val yi = pt1.y
-    val xj = pt2.x
-    val yj = pt2.y
-    val xk = pt3.x
-    val yk = pt3.y
-    val a = (xk - xi) * (yj - yi)
-    val b = (xj - xi) * (yk - yi)
-    //return (a < b) ? -1 : a > b ? 1 : 0
-    if(a < b) -1
-    else if(a > b) 1
-    else 0
-  }
-
   /*
   Input:
   g : a list of guide shapes
@@ -91,104 +62,128 @@ object TrimmingMethods {
   input:
   1: the shape to be trimmed
   2: the list of all intersection vectors and corresponding ID's for the polyline to be trimmed (from getIntersectSegmentNumbers)
-  3: a boolean telling if the intersections towards the start or the end of the polyline should be returned
-  4: the trim point
+  3: the ID of the segment on which the trim point is set (with MouseDown)
+  4: a boolean telling if the intersections towards the start or the end of the polyline should be returned
+  5: the trim point
 
   returns: The Vector2D at which the Polyline should be trimmed, or None.
   */
-  def findIntersection(tL : PolylineShape, i : Map[Int,List[Vector2D]], d : Boolean, p : Vector2D) : Option[Vector2D] = {
+  def findIntersection(tL : PolylineShape, intIDs : Map[Int, List[Vector2D]], id : Int, d : Boolean, p : Option[Vector2D]) : Option[Vector2D] = {
+    //get intersecting vectors at the same segment as the segment p is on   OK
 
-    //        *         trimSegment                           *
-    //               i   intSegmentVectors           i    i
-    //--|-----*------|------ p ----------------------|----|---*----
-    //    endPoint      <-- (d)irection                 segment endPoint
-
-    // get the ID for the segment on which p lies.   OK
-    val (trimSegmentInt, shape) = findIntSegNrAtPoint(tL, p).get
+    val intersections = intIDs(id)
+    val shape = tL.shapes(id)
 
     //find the endpoint of the segment on which p lies .
     //if it is the first segment of the  trimline, the startpoint of the polyline is used.
-    val endPoint = if(d) shape.vertices(1) else if(trimSegmentInt == 0) tL.startPoint else shape.vertices(0)
-
-    //get intersecting vectors at the same segment as the segment p is on   OK
-    val intSegmentVectors = i(trimSegmentInt)
-
+    val endPoint = if(d) shape.geometry.vertices(0) else if(id == 0) tL.startPoint else shape.geometry.vertices(1)
+    println("endPoint: "+endPoint)
     //get intersecting points on the segment in the given direction E1 or E2 (set with a boolean value), if any:
     //based on a distance calculation: filters out ints with a distance greater than d(x,E2)
     //  E1 |---A--- p --- B----| E2
     //         |<  d(A,E2)    >|
     //              |< d(x,E2)-|
 
-    val r = intSegmentVectors.filter(_.distanceTo(endPoint)<p.distanceTo(endPoint))
+
+    //test if it is the first segment that is being evaluated (there is a trim point, case Some(x)).
+    //if so, a filter selects the intersections on the right side of the trim point only:
+    val r = p match {
+      case Some(x) => {
+        intersections.filter(_.distanceTo(endPoint)>x.distanceTo(endPoint))
+      }
+      case _ => intersections
+    }
+
+    println("r: "+r)
+
     r.size match{
       //if there are no intersections on the segment on which p lies...
       case(0) => {
         //iterate through next segments, starting with the ones closest to the intSegment.
         //in the given direction.
+
         if(d){
-          //and check for intersections
-          println("going through higher segments")
-
-
+          id match {
+            case i if i >= tL.size - 1 => {
+              None
+            }
+            case _ => {
+              println("at id: "+(id + 1))
+              findIntersection(tL, intIDs, (id + 1), true, None)
+            }
+          }
         } else {
-          println("going through lower segments")
+          id match {
+            case i if i <= 0 => {
+              None
+            }
+            case _ => {
+              findIntersection(tL, intIDs, id - 1, false, None)
+            }
+          }
         }
-
-
-        //check if there are intersections.
-
-        //If there are more than one int on a segment, return the one closest to the endPoint which is closest to the trimpoint.
-
-        None
       }
+
       //if there is just one intersection, we know that the polyline should be trimmed by that point, so it is returned.
       case(1) => {
         Some(r.head)
       }
       //if there are more than one point, the one closest to p should be returned.
       case _  => {
-        Some(r.reduceLeft((a,b) => if(a.distanceTo(p) < b.distanceTo(p)) a else b))
+        val x = p match {
+          // if there is a mouse point, use it
+          case Some(x) => x
+          //if not, use the end point:
+          case _ => endPoint
+        }
+        Some(r.reduceLeft((a,b) => if(a.distanceTo(x) < b.distanceTo(x)) a else b))
       }
     }
   }
 
-  //a function that splits a shape into two lists by a point
-  def splitPolyline(p : List[Vector2D], splitPoint : Vector2D) : (List[Vector2D], List[Vector2D]) = {
-    var list1 = List[Vector2D]()
-    var list2 = List[Vector2D]()
-    var r = 0
-    //evaluate on which segment the splitpoint lies -unless the length is two, in which case it is not a polyline
-    if(p.length >= 2) for(i <- 0 to (p.length - 2)) if(IsOnSegment(p(i),p(i+1),splitPoint)) r = i
-
-    for (i <- 0 to r) list1 = list1 :+ p(i) //make a list of points up until the split segment
-    for (i <- (r + 1) to p.length - 2) list2 = list2 :+ p(i) //make a list of points after the split segment
-    (list2, list1)  //return the two lists
-  }
-
   /*
- * a function to trim a polylineShape
- * gs = the trimGuideShape(s)
- * ts = the shape to be trimmed
- * p = trim point (the part of ts which should be deleted
+  a function to trim a polylineShape
+
+ input:
+ gs = the trimGuideShape(s)
+ ts = the shape to be trimmed
+ p = trim point (the part of ts which should be deleted
+
+ returns:
+ a list of Option[Shape] (because one or both trim lines may or may not exist)
  */
 
-  def trimPolyline(guides : Map[Int,Shape], trimLine : Shape, p : Vector2D) : List[Shape] = {
-    val trimmedLine1 : Option[List[Vector2D]] = None
-    val trimmedLine2 : Option[List[Vector2D]] = None
+  def trimPolyline(guides : Map[Int,Shape], shape : Shape, p : Vector2D) : List[Option[Shape]] = {
+    var trimmedLine1 : Option[Shape] = None
+    var trimmedLine2 : Option[Shape] = None
+    val trimLine = shape.asInstanceOf[PolylineShape]
 
     //TODO: check that the trimLine IS a polyline!
-    val intIDs = getIntersectSegmentNumbers(guides.map(_._2).toList,trimLine.asInstanceOf[PolylineShape])
+    val intIDs = getIntersectSegmentNumbers(guides.map(_._2).toList,trimLine)
+
+    // Where does the mouse intersect the PL?
+    //        *         trimSegment                           *
+    //               i   intSegmentVectors           i    i
+    //--|-----*------|------ p ----------------------|----|---*----
+    //    endPoint      <-- (d)irection                 segment endPoint
+
+    // get the ID for the segment on which p lies.   OK
+    val (trimSegmentInt, _) = findIntSegNrAtPoint(trimLine, p).get
 
     //find intersections in the positive direction
-    val int1 = findIntersection(trimLine.asInstanceOf[PolylineShape],intIDs,true,p)
+    val int1 = findIntersection(trimLine, intIDs, trimSegmentInt, true,Some(p))
 
     //find intersections in the negative direction
-    val int2 = findIntersection(trimLine.asInstanceOf[PolylineShape],intIDs,false,p)
+    val int2 = findIntersection(trimLine, intIDs, trimSegmentInt, false,Some(p))
 
     println("GOT FIRST INTERSECTION! : "+int1)
     println("GOT SECOND INTERSECTION! : "+int2)
 
+    //create new polyline(s) from the intersection point(s):
+    if(int1.isDefined) "construct and return the first trimline here!"
+    if(int2.isDefined) "construct and return the second trimline here!"
+
     //return
-    List()
+    List(trimmedLine1,trimmedLine2)
   }
 }

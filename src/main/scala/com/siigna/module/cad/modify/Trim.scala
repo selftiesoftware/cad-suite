@@ -26,9 +26,6 @@ class Trim extends Module {
 
   private var attr = Attributes()
 
-  //the shape to be trimmed
-  private var nearestShape : Option[Shape] = None
-
   val stateMap: StateMap = Map(
     //check if shapes are selected. If not, allow the user to do so.
     'Start -> {
@@ -37,7 +34,7 @@ class Trim extends Module {
 
       //create testshapes
       case KeyDown(Key.ArrowDown, _) :: tail => {
-        val lineVert = List(Vector2D(-100,0),Vector2D(10,10), Vector2D(100,0))
+        val lineVert = List(Vector2D(-200,50),Vector2D(-100,0),Vector2D(10,10), Vector2D(100,0))
         val lineHoriz1 = List(Vector2D(-10,20),Vector2D(-15,-30))
         val lineHoriz2 = List(Vector2D(10,20),Vector2D(10,-30))
 
@@ -64,7 +61,6 @@ class Trim extends Module {
           'Trim
         }
       }
-
     },
 
     //when shapes are selected, check for mouse clicks to trim shapes. (TODO: trim by selection box)
