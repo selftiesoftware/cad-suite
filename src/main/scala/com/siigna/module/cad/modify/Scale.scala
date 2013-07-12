@@ -28,7 +28,7 @@ class Scale extends Module {
 
   var endPoint : Option[Vector2D] = None
   var startPoint : Option[Vector2D] = None
-  var middlePoint: Option[Vector2D] = None 
+  var middlePoint: Option[Vector2D] = None
   var firstPointEntered: Boolean = false
   var transformation : TransformationMatrix = TransformationMatrix()
   var requestedLength: Option[Double] = None
@@ -43,7 +43,7 @@ class Scale extends Module {
       case End(KeyDown(Key.Esc, _)) :: tail => End
       case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
 
-       case End(p : Vector2D) :: tail => {
+      case End(p : Vector2D) :: tail => {
         if(startPoint.isEmpty){
           startPoint = Some(p)
           //STEP 1: If start point is not set, p is the start point.
@@ -76,12 +76,12 @@ class Scale extends Module {
           //STEP 2a: There is a start, but no endpoint, and a new point is recieved (from mouseUp):
           //If it the coords are the same as mouse up, it is the startpoint, and the mouse has ben clicked, not dragged.
           //If not, it is the end of a drag, defining a scale operation, which is then done:
-            val scaleFactor = ((p-startPoint.get).length/100 + 0.25)
-            Siigna display ("scale factor: " + scaleFactor)
-            //transformation = TransformationMatrix().scale(scaleFactor,startPoint.get)
-            //Drawing.selection.transform(transformation)
-            Drawing.deselect()
-            End
+          val scaleFactor = ((p-startPoint.get).length/100 + 0.25)
+          Siigna display ("scale factor: " + scaleFactor)
+          //transformation = TransformationMatrix().scale(scaleFactor,startPoint.get)
+          //Drawing.selection.transform(transformation)
+          Drawing.deselect()
+          End
         } else if (p == startPoint.get && firstPointEntered == false) {
           Siigna display "set second reference point for scaling, type scale factor or drag to scale"
           firstPointEntered = true
@@ -175,14 +175,14 @@ class Scale extends Module {
       //if a scaling factor is given:
       case End(l : Double) :: tail => {
         //if a reference length is not set, then scale the shapes by the scale factor.
-        if (endPoint.isEmpty) {          
+        if (endPoint.isEmpty) {
           Siigna display ("scale factor: "+l)
           /*if (!startPoint.isEmpty) transformation = TransformationMatrix().scale(l,startPoint.get)
           else transformation = TransformationMatrix().scale(l)
           Drawing.selection.transform(transformation) */
           Drawing.deselect()
           End
-        //if a reference length is set, then point out, what should have this length:
+          //if a reference length is set, then point out, what should have this length:
         } else if(!endPoint.isEmpty) {
           //This is the length between start and endpoints after the scale. Do the scale:          
           val scaleFactor = (l/(startPoint.get.distanceTo(endPoint.get)))
@@ -220,8 +220,8 @@ class Scale extends Module {
           Start('cad, "create.InputNew", InputRequestNew(9,None,doubleGuide))
         } else {
           Siigna display "nothing selected"
-        End
+          End
         }
-    } }
+      } }
   )
 }
