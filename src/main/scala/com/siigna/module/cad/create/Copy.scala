@@ -28,21 +28,13 @@ class Copy extends Module {
   var startPoint : Option[Vector2D] = None
   var transformation = TransformationMatrix()
 
-  // Transforms the selection and returns the resulting shapes
-  def transform(t : TransformationMatrix) = Drawing.selection.shapes.map(_._2.transform(t)) //.shapes.values
-
 
   /**
-   * Transform the givens shapes with the given transformation
-   * @param t
-   * @param shapes
+   * Transform the shapes with the given transformation
+   * @param t The transformation
    * @return The shapes transformed
    */
-  def transform(t : TransformationMatrix, shapes : Map[Int,Shape]) = {
-
-
-    shapes
-  }
+  def transform(t : TransformationMatrix) = Drawing.selection.shapes.map(_._2.transform(t))
 
   val stateMap: StateMap = Map(
 
