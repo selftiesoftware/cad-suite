@@ -58,7 +58,7 @@ class Scale extends Module {
             // Return the shape, transformed
             transformSelection(t)
           })
-          val inputRequest = InputRequestNew(8,None,vector2DGuide)
+          val inputRequest = InputRequestNew(8,None)//,vector2DGuide)
           //8: Input type: Coordinates at mouseUp
           //if the base point for scaling is set, goto point with a shape guide
           Start('cad, "create.InputNew", inputRequest)
@@ -86,7 +86,7 @@ class Scale extends Module {
             transformSelection(t)
             }
           )
-          Start('cad, "create.InputNew", InputRequestNew(9,None,doubleGuide))
+          Start('cad, "create.InputNew", InputRequestNew(9,None))//,doubleGuide))
         } else if (firstPointEntered == true && endPoint.isEmpty) {
           //STEP 3: A point is returned (from mouse down). To find out what to do with it, a mouse-up is required:
           endPoint = Some(p)
@@ -98,7 +98,7 @@ class Scale extends Module {
             transformSelection(t)
           })
           //8: Input type: Coordinates at mouseUp
-          Start('cad, "create.InputNew", InputRequestNew(8,None,vector2DGuide))
+          Start('cad, "create.InputNew", InputRequestNew(8,None ))//,vector2DGuide))
         } else if (firstPointEntered == true && !endPoint.isEmpty && endPoint.get == p) {
           //STEP 4a: A point is returned (from mouse up). If it is the same as the point in step 3, it is
           //the end-point, and the user should:
@@ -118,7 +118,7 @@ class Scale extends Module {
             // Return the shape, transformed
             transformSelection(t)
           })
-          Start('cad, "create.InputNew", InputRequestNew(9,None,vector2DGuide,doubleGuide))
+          Start('cad, "create.InputNew", InputRequestNew(9,None)) //,vector2DGuide,doubleGuide))
         } else if (firstPointEntered == true && !endPoint.isEmpty && endPoint.get != p) {
           //Step 4b: A drag has occured (the point from mouse up is not the same as from mouse down).
           // or the mouse has been clicked after the end point has been set, defining a scale factor. Do the scaling:
@@ -166,10 +166,10 @@ class Scale extends Module {
           )
           //Start input, request coordinates from mouse down, or scaling-factor from double,
           //or distance from mouseDown to mouseUp, if a drag occurs:
-          Start('cad, "create.InputNew", InputRequestNew(9,None,doubleGuide))
+          Start('cad, "create.InputNew", InputRequestNew(9,None)) //doubleGuide))
         } else {
           Siigna display "nothing selected"
-        End
+          End
         }
     } }
   )
