@@ -35,7 +35,7 @@ class Trim extends Module {
       //create testshapes
       case KeyDown(Key.ArrowDown, _) :: tail => {
         val lineVert = List(Vector2D(-200,50),Vector2D(-100,0),Vector2D(10,10), Vector2D(100,0))
-        val lineHoriz1 = List(Vector2D(-10,20),Vector2D(-15,-30))
+        val lineHoriz1 = List(Vector2D(30,150),Vector2D(-20,30),Vector2D(-10,20),Vector2D(-15,-30))
         val lineHoriz2 = List(Vector2D(10,20),Vector2D(10,-30))
 
         Create(PolylineShape(lineVert))
@@ -70,13 +70,33 @@ class Trim extends Module {
         val t = View.deviceTransformation
         val point = p.transform(t)
         val nearest = Drawing(point).reduceLeft((a, b) => if (a._2.geometry.distanceTo(point) < b._2.geometry.distanceTo(point)) a else b)
-        val trimLine = if (nearest._2.distanceTo(point) < Siigna.selectionDistance) Some(nearest._2) else None
+        val trimLine = if (nearest._2.distanceTo(point) < Siigna.selectionDistance) Some(nearest) else None
         //attr = trimLine.get.attributes
-        println("trimLine: "+trimLine.get)
+
         if(trimLine.isDefined) {
-          println("running trimming method")
-          TrimmingMethods.trimPolyline(Drawing.selection.shapes,trimLine.get,point)
+          //remove the trimline from the selection to prevent false intersections.
+          //TODO: enable trimming of shapes with themselves.
+          Drawing.deselect(trimLine.get._1)
+
+          val guides = Drawing.selection.shapes
+          val trimmedShapes = TrimmingMethods.trimPolyline(Drawing.selection.shapes,trimLine.get._2,point)
+
+          //if at least one trimmedShapes is defined, delete the original shape:
+          if(trimmedShapes._1.isDefined || trimmedShapes._2.isDefined) {
+            Delete(nearest._1)
+
+            //construct new shapes
+            if(trimmedShapes._1.isDefined) {
+              //println("t1; "+trimmedShapes._1.get)
+              Create(PolylineShape(trimmedShapes._1.get))
+            }
+            if(trimmedShapes._2.isDefined) {
+              //println("t2; "+trimmedShapes._2.get)
+              Create(PolylineShape(trimmedShapes._2.get))
+            }
+          }
         }
+        End
       }
 
       //exit strategy

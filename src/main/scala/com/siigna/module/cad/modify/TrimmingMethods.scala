@@ -77,7 +77,7 @@ object TrimmingMethods {
     //find the endpoint of the segment on which p lies .
     //if it is the first segment of the  trimline, the startpoint of the polyline is used.
     val endPoint = if(d) shape.geometry.vertices(0) else if(id == 0) tL.startPoint else shape.geometry.vertices(1)
-    println("endPoint: "+endPoint)
+
     //get intersecting points on the segment in the given direction E1 or E2 (set with a boolean value), if any:
     //based on a distance calculation: filters out ints with a distance greater than d(x,E2)
     //  E1 |---A--- p --- B----| E2
@@ -93,9 +93,6 @@ object TrimmingMethods {
       }
       case _ => intersections
     }
-
-    println("r: "+r)
-
     r.size match{
       //if there are no intersections on the segment on which p lies...
       case(0) => {
@@ -108,7 +105,6 @@ object TrimmingMethods {
               None
             }
             case _ => {
-              println("at id: "+(id + 1))
               findIntersection(tL, intIDs, (id + 1), true, None)
             }
           }
@@ -153,19 +149,24 @@ object TrimmingMethods {
  a list of Option[Shape] (because one or both trim lines may or may not exist)
  */
 
-  def trimPolyline(guides : Map[Int,Shape], shape : Shape, p : Vector2D) : List[Option[Shape]] = {
-    var trimmedLine1 : Option[Shape] = None
-    var trimmedLine2 : Option[Shape] = None
+  def trimPolyline(guides : Map[Int,Shape], shape : Shape, p : Vector2D) : (Option[List[Vector2D]],Option[List[Vector2D]]) = {
+
+    var t1 : Option[List[Vector2D]] = None
+    var t2 : Option[List[Vector2D]] = None
+    //TODO: allow trimming of LineShape types (and arcs and circles...)
     val trimLine = shape.asInstanceOf[PolylineShape]
+    val trimVertices = trimLine.geometry.vertices.toList
 
     //TODO: check that the trimLine IS a polyline!
+
     val intIDs = getIntersectSegmentNumbers(guides.map(_._2).toList,trimLine)
 
+    println("intIDs: "+intIDs)
     // Where does the mouse intersect the PL?
     //        *         trimSegment                           *
     //               i   intSegmentVectors           i    i
     //--|-----*------|------ p ----------------------|----|---*----
-    //    endPoint      <-- (d)irection                 segment endPoint
+    //    endPoint      <-- (d)irection (true/false)      segment endPoint
 
     // get the ID for the segment on which p lies.   OK
     val (trimSegmentInt, _) = findIntSegNrAtPoint(trimLine, p).get
@@ -176,14 +177,23 @@ object TrimmingMethods {
     //find intersections in the negative direction
     val int2 = findIntersection(trimLine, intIDs, trimSegmentInt, false,Some(p))
 
-    println("GOT FIRST INTERSECTION! : "+int1)
-    println("GOT SECOND INTERSECTION! : "+int2)
+    println("int1; "+int1)
+    println("int2; "+int2)
 
-    //create new polyline(s) from the intersection point(s):
-    if(int1.isDefined) "construct and return the first trimline here!"
-    if(int2.isDefined) "construct and return the second trimline here!"
+    //construct and return the first trimline, if any
+    if(int1.isDefined) {
+      // remove the trimmed vertices, but add the intersection vertex:
+      t1 = Some(trimVertices.takeRight(trimSegmentInt + 1) .+:(int1.get))
+      println("t1 in trimM; "+t1)
+    }
 
+    //construct and return the first trimline, if any
+    if(int2.isDefined) {
+      // remove the trimmed vertices, but add the intersection vertex:
+      t2 = Some(trimVertices.take(trimSegmentInt + 1) :+ int2.get)
+      println("t2 in trimM; "+t2)
+    }
     //return
-    List(trimmedLine1,trimmedLine2)
+    (t1,t2)
   }
 }
