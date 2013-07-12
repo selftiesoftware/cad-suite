@@ -166,7 +166,7 @@ object TrimmingMethods {
     //        *         trimSegment                           *
     //               i   intSegmentVectors           i    i
     //--|-----*------|------ p ----------------------|----|---*----
-    //    endPoint      <-- (d)irection                 segment endPoint
+    //    endPoint      <-- (d)irection (true/false)      segment endPoint
 
     // get the ID for the segment on which p lies.   OK
     val (trimSegmentInt, _) = findIntSegNrAtPoint(trimLine, p).get
@@ -190,7 +190,7 @@ object TrimmingMethods {
     //construct and return the first trimline, if any
     if(int2.isDefined) {
       // remove the trimmed vertices, but add the intersection vertex:
-      t2 = Some(trimVertices.take(trimSegmentInt) :+ int2.get)
+      t2 = Some(trimVertices.take(trimSegmentInt + 1) :+ int2.get)
       println("t2 in trimM; "+t2)
     }
     //return

@@ -35,7 +35,7 @@ class Trim extends Module {
       //create testshapes
       case KeyDown(Key.ArrowDown, _) :: tail => {
         val lineVert = List(Vector2D(-200,50),Vector2D(-100,0),Vector2D(10,10), Vector2D(100,0))
-        val lineHoriz1 = List(Vector2D(-10,20),Vector2D(-15,-30))
+        val lineHoriz1 = List(Vector2D(30,150),Vector2D(-20,30),Vector2D(-10,20),Vector2D(-15,-30))
         val lineHoriz2 = List(Vector2D(10,20),Vector2D(10,-30))
 
         Create(PolylineShape(lineVert))
@@ -96,6 +96,7 @@ class Trim extends Module {
             }
           }
         }
+        End
       }
 
       //exit strategy
