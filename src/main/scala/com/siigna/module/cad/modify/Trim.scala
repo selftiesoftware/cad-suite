@@ -80,6 +80,7 @@ class Trim extends Module {
 
           val guides = Drawing.selection.shapes
           val trimmedShapes = TrimmingMethods.trimPolyline(Drawing.selection.shapes,trimLine.get._2,point)
+          println("AAA"+Drawing.selection.shapes)
 
           //if at least one trimmedShapes is defined, delete the original shape:
           if(trimmedShapes._1.isDefined || trimmedShapes._2.isDefined) {

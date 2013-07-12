@@ -81,15 +81,22 @@ class TrimSpec extends FunSpec with ShouldMatchers {
       TrimmingMethods.findIntersection(trimLine,sevenInts,0,true,Some(p4)) should equal (Some(Vector2D(-45,5.0))) //positive direction, point far left
 
     }
+    it("can create the proper trimLine at int1 situations... ") {
+      val shapes = Map(-2 -> PolylineShapeOpen(Vector2D(30.0,150.0),List(PolylineLineShape(Vector2D(-20.0,30.0)), PolylineLineShape(Vector2D(-10.0,20.0)), PolylineLineShape(Vector2D(-15.0,-30.0))), Attributes()), -3 -> PolylineShapeOpen(Vector2D(10.0,20.0),List(PolylineLineShape(Vector2D(10.0,-30.0))), Attributes()))
 
-    //it("can be trimmed by another PolylineShape when there is one guideShape") {
-    //  TrimmingMethods.trimPolyline(twoGuides,trimLine,p1) should equal(PolylineShape(Vector2D(-100,0),Vector2D(-11.192660550458712,8.073394495412845)))
-    //}
+      TrimmingMethods.trimPolyline(shapes,trimLine,p4)._1 should equal(Some(List(Vector2D(-11.192660550458712,8.073394495412845), Vector2D(200.0,30.0))))
+      TrimmingMethods.trimPolyline(shapes,trimLine,p4)._2 should equal(None)
 
-    //it("can be trimmed by two GuideShapes (polylines) when the trim point is between the two GuideShapes") {
+      //TODO: add trimming of a closed polyline - currently does not work??
+    }
 
-    //  trimModule.trimTwoPolyLineShapes(twoGuides,trimLine,p2) should equal(Set(PolylineShape(Vector2D(-100,0),Vector2D(-11.192660550458712,8.073394495412845)),PolylineShape(Vector2D(10,10),Vector2D(100,0))))
-  //}
+    it("can create the proper trimLine at int2 situations... ") {
+      val shapes = Map(-2 -> PolylineShapeOpen(Vector2D(30.0,150.0),List(PolylineLineShape(Vector2D(-20.0,30.0)), PolylineLineShape(Vector2D(-10.0,20.0)), PolylineLineShape(Vector2D(-15.0,-30.0))), Attributes()), -3 -> PolylineShapeOpen(Vector2D(10.0,20.0),List(PolylineLineShape(Vector2D(10.0,-30.0))), Attributes()))
+
+      TrimmingMethods.trimPolyline(shapes,trimLine,p1)._1 should equal(None)
+      TrimmingMethods.trimPolyline(shapes,trimLine,p1)._2 should equal(Some(List(Vector2D(-200.0,-30.0), Vector2D(-100.0,0.0), Vector2D(10.0,10.0), Vector2D(10.0,10.0))))
+    }
+
   }
 
 }

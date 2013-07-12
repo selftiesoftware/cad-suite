@@ -45,6 +45,7 @@ object TrimmingMethods {
     val intersections = t.shapes.map(_.geometry).zipWithIndex.map(t => t._2 -> shapes.map(_.intersections(t._1)).flatten)
     intersections.toMap //return
   }
+
   //returns the segment (LineShape) and ID at given point.
   def findIntSegNrAtPoint(pl : PolylineShape, p : Vector2D) : Option[(Int, GeometryBasic2D)] = {
     //get the first segment within selection distance to p.
@@ -66,13 +67,14 @@ object TrimmingMethods {
   4: a boolean telling if the intersections towards the start or the end of the polyline should be returned
   5: the trim point
 
-  returns: The Vector2D at which the Polyline should be trimmed, or None.
+  returns: Vector2Ds which are needed to construct the trimmed Polyline, or None.
   */
   def findIntersection(tL : PolylineShape, intIDs : Map[Int, List[Vector2D]], id : Int, d : Boolean, p : Option[Vector2D]) : Option[Vector2D] = {
     //get intersecting vectors at the same segment as the segment p is on   OK
 
     val intersections = intIDs(id)
     val shape = tL.shapes(id)
+    var trimPoint : Option[Vector2D] = None
 
     //find the endpoint of the segment on which p lies .
     //if it is the first segment of the  trimline, the startpoint of the polyline is used.
@@ -85,8 +87,8 @@ object TrimmingMethods {
     //              |< d(x,E2)-|
 
 
-    //test if it is the first segment that is being evaluated (there is a trim point, case Some(x)).
-    //if so, a filter selects the intersections on the right side of the trim point only:
+    //test if there are intersections on the first segment that is being evaluated (there is a trim point, case Some(x)).
+    //if so, store them in the val r, and filter the intersections to get the ones on the right side of the trim point only:
     val r = p match {
       case Some(x) => {
         intersections.filter(_.distanceTo(endPoint)>x.distanceTo(endPoint))
@@ -137,17 +139,18 @@ object TrimmingMethods {
     }
   }
 
+
   /*
   a function to trim a polylineShape
 
- input:
- gs = the trimGuideShape(s)
- ts = the shape to be trimmed
- p = trim point (the part of ts which should be deleted
+  input:
+  gs = the trimGuideShape(s)
+  ts = the shape to be trimmed
+  p = trim point (the part of ts which should be deleted
 
- returns:
- a list of Option[Shape] (because one or both trim lines may or may not exist)
- */
+  returns:
+  a list of Option[Shape] (because one or both trim lines may or may not exist)
+  */
 
   def trimPolyline(guides : Map[Int,Shape], shape : Shape, p : Vector2D) : (Option[List[Vector2D]],Option[List[Vector2D]]) = {
 
