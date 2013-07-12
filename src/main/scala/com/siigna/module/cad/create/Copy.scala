@@ -29,8 +29,20 @@ class Copy extends Module {
   var transformation = TransformationMatrix()
 
   // Transforms the selection and returns the resulting shapes
-  def transform(t : TransformationMatrix) = Drawing.selection.transform(t).shapes.values
+  def transform(t : TransformationMatrix) = Drawing.selection.shapes.map(_._2.transform(t)) //.shapes.values
 
+
+  /**
+   * Transform the givens shapes with the given transformation
+   * @param t
+   * @param shapes
+   * @return The shapes transformed
+   */
+  def transform(t : TransformationMatrix, shapes : Map[Int,Shape]) = {
+
+
+    shapes
+  }
 
   val stateMap: StateMap = Map(
 
@@ -42,7 +54,8 @@ class Copy extends Module {
           startPoint = Some(p)
           Siigna display "set destination"
           val vector2DGuide = Vector2DGuideNew((v : Vector2D) =>
-            Drawing.selection.shapes.map(_._2.transform(TransformationMatrix(v - startPoint.get, 1)))
+            transform(TransformationMatrix(v - startPoint.get, 1))
+            //Drawing.selection.shapes.map(_._2.transform(TransformationMatrix(v - startPoint.get, 1)))
           )
 
           val inputRequest = InputRequestNew(6,None,vector2DGuide)
@@ -54,11 +67,14 @@ class Copy extends Module {
           transformation = TransformationMatrix(p - startPoint.get, 1)
           Siigna display "type number of copies or click for one"
           multiActive = true
+
           val doubleGuide = DoubleGuideNew((r: Double) =>
-            Drawing.selection.shapes.map(_._2.transform(transformation)))
+            transform(transformation))
+            //Drawing.selection.shapes.map(_._2.transform(transformation)))
 
           val vector2DGuide = Vector2DGuideNew((v: Vector2D) =>
-            Drawing.selection.shapes.map(_._2.transform(transformation)))
+            transform(transformation))
+            //Drawing.selection.shapes.map(_._2.transform(transformation)))
           val inputRequest = InputRequestNew(13, None,vector2DGuide,doubleGuide)
           Start('cad, "create.InputNew", inputRequest)
         }
