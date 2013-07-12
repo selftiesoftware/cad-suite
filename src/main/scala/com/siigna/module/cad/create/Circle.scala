@@ -21,15 +21,17 @@ package com.siigna.module.cad.create
 
 import com.siigna._
 import app.Siigna
-import java.awt.Color
 
 class Circle extends Module {
 
   val c = CircleShape(Vector2D(0, 0), 50)
   var center : Option[Vector2D] = None
-  var color = Siigna("activeColor")
+  val attributes = {
+    val color = Siigna.color("activeColor")
+    val lineWidth = Siigna.double("activeLineWidth")
+    Attributes(Seq(color.map(c => "Color" -> c), lineWidth.map(w => "StrokeWidth" -> lineWidth)).flatten)
+  }
   var r = TransformationMatrix()
-  val stroke = Siigna("activeLineWidth")
 
   def stateMap = Map(
     //StartCategory: Defines a centerpoint for the circle and forwards to 'SetRadius
@@ -43,10 +45,10 @@ class Circle extends Module {
           case End(p : Vector2D) :: tail => {
             center = Some(p)
             //Send guides, and ask for one-coordinate input: Radius - from point by click, or by key-entry.
-            val doubleGuide = DoubleGuideNew((r: Double) => Traversable(CircleShape(p, math.abs(r)).addAttributes("Color" -> color , "StrokeWidth" -> stroke)))
-            val vector2DGuide = Vector2DGuideNew((p: Vector2D) =>
-              Traversable(
-                CircleShape(center.get, math.sqrt(( (center.get.x-p.x) * (center.get.x-p.x)) + ( (center.get.y-p.y) * (center.get.y-p.y)) )).addAttributes("Color" -> color , "StrokeWidth" -> stroke)))
+            val doubleGuide = DoubleGuideNew((r: Double) => Traversable(CircleShape(p, math.abs(r)).addAttributes(attributes)))
+            val vector2DGuide = Vector2DGuideNew((p: Vector2D) => Traversable(
+              CircleShape(center.get, math.sqrt(( (center.get.x-p.x) * (center.get.x-p.x)) + ( (center.get.y-p.y) * (center.get.y-p.y)) )).addAttributes(attributes))
+            )
             val inputRequest = InputRequestNew(10,center,vector2DGuide, doubleGuide)
             Start('cad,"create.InputNew", inputRequest)
 
@@ -55,7 +57,7 @@ class Circle extends Module {
           }
 
           case End(r : Double) :: tail => {
-            val circle = CircleShape(center.get, math.abs(r)).addAttributes("Color" -> color , "StrokeWidth" -> stroke)
+            val circle = CircleShape(center.get, math.abs(r)).addAttributes(attributes)
               Create(circle)
 
             End
