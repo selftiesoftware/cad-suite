@@ -24,8 +24,10 @@ import app.Siigna
 
 class Polyline extends Module {
 
-  var color = Siigna("activeColor")
-  val lineWidth = Siigna("activeLineWidth")
+  var color = Siigna.color("activeColor")
+  val lineWidth = Siigna.double("activeLineWidth")
+  val attributes = Attributes(Seq(color.map(c => "Color" -> c), lineWidth.map(w => "StrokeWidth" -> lineWidth)).flatten)
+
   var startPoint: Option[Vector2D] = None
   private var points   = List[Vector2D]()
 
@@ -37,7 +39,7 @@ class Polyline extends Module {
       case End(KeyDown(Key.Esc, _)) :: tail => End
       case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
         if (points.length > 1) {
-          val polyline = PolylineShape(points).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)
+          val polyline = PolylineShape(points).addAttributes(attributes)
           Create(polyline)
         }
         End
@@ -54,10 +56,9 @@ class Polyline extends Module {
           //Start('cad, "create.Input", inputRequest)
 
           val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
+            Array(PolylineShape(points :+ v).addAttributes(attributes))
           })
           val inputRequest = InputRequestNew(7,startPoint,vector2DGuide)
-          println("JJ")
           Start('cad,"create.InputNew", inputRequest)
         } else {
 
@@ -67,7 +68,7 @@ class Polyline extends Module {
           //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
           //Start('cad, "create.Input", inputRequest)
           val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
+            Array(PolylineShape(points :+ v).addAttributes(attributes))
           })
           val inputRequest = InputRequestNew(7,Some(points.last),vector2DGuide)
           Start('cad,"create.InputNew", inputRequest)
@@ -85,7 +86,7 @@ class Polyline extends Module {
           //Start('cad, "create.Input", inputRequest)
 
           val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
+            Array(PolylineShape(points :+ v).addAttributes(attributes))
           })
           val inputRequest = InputRequestNew(7,startPoint,vector2DGuide)
           Start('cad,"create.InputNew", inputRequest)
@@ -95,7 +96,7 @@ class Polyline extends Module {
           //Start('cad, "create.Input", inputRequest)
 
           val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
+            Array(PolylineShape(points :+ v).addAttributes(attributes))
           })
           val inputRequest = InputRequestNew(7,Some(points.last),vector2DGuide)
           Start('cad,"create.InputNew", inputRequest)
@@ -107,7 +108,6 @@ class Polyline extends Module {
         // If the key is backspace without modification (shift etc), the last bit of line is deleted:
         if (k == KeyDown(Key.Backspace,ModifierKeys(false,false,false))) {
           if (points.length > 1) {
-            println("Points - wil be shortened: " + points)
             points = points.dropRight(1)
           }
           //And if there is a start point, a new guide is returned
@@ -117,7 +117,7 @@ class Polyline extends Module {
             //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
             //Start('cad, "create.Input", inputRequest)
             val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
-              Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
+              Array(PolylineShape(points :+ v).addAttributes(attributes))
             })
             val inputRequest = InputRequestNew(7,Some(points.last),vector2DGuide)
             Start('cad,"create.InputNew", inputRequest)
@@ -131,7 +131,7 @@ class Polyline extends Module {
       case End :: tail => {
         //If there are two or more points in the polyline, it can be saved to the Siigna universe.
         if (points.length > 1) {
-          val polyline = PolylineShape(points).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)
+          val polyline = PolylineShape(points).addAttributes(attributes)
           Create(polyline)
           points = List[Vector2D]()
         }
