@@ -66,7 +66,9 @@ class inputFeedback {
         if (category == Some("create")) command = Some("circle")
         else {
           category = Some("create")
-          suggestions = List ("A - arc", "C - circle", "D - linear dimension","E - explode","L - line","P - polyline","O - offset","R - rectangle", "T - text")
+          //"A - arc",
+
+          suggestions = List ("C - circle", "D - linear dimension","E - explode","L - line","P - polyline","O - offset","R - rectangle", "T - text")
         }
       }
       case "h" => {
@@ -90,7 +92,7 @@ class inputFeedback {
       }
 
       //COMMANDS  //TODO: tie these to the module names in moduleInit?
-      case "a" => if (category == Some("create")) command = Some("arc")
+      //case "a" => if (category == Some("create")) command = Some("arc")
       case "d" => if (category == Some("create")) command = Some("linear dimension")
       case "e" => if (category == Some("create")) command = Some("explode")
       case "l" => if (category == Some("create")) command = Some("line")
