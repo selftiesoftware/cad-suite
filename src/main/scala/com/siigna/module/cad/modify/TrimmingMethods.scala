@@ -50,7 +50,6 @@ object TrimmingMethods {
     //get the first segment within selection distance to p.
     val closest = pl.shapes.zipWithIndex.find(_._1.distanceTo(p) < Siigna.selectionDistance)
     //return the ID and the innerShape (the two endpoints) of that segment TODO: .map innerShapes filters out one of the endpoints?
-    //closest.map(t => t._2 -> pl.innerShapes(t._2))
     val cM = closest.map(t => t._2 -> pl.shapes(t._2).geometry)
 
     if(cM.isDefined) cM else None
@@ -91,8 +90,12 @@ object TrimmingMethods {
     //if so, store them in the val r, and filter the intersections to get the ones on the right side of the trim point only:
     val r = p match {
       case Some(x) => {
-        println("SOME!!")
-        intersections.filter(_.distanceTo(endPoint)>x.distanceTo(endPoint))
+        println("intersections: "+intersections)
+        println("endpoint; "+endPoint)
+        println("dist test: "+intersections(0).distanceTo(endPoint))
+        val p = intersections.filter(_.distanceTo(endPoint)>x.distanceTo(endPoint))
+        println("P: "+p)
+        p
       }
       case _ => intersections
     }
@@ -175,6 +178,7 @@ object TrimmingMethods {
     val (trimSegmentInt, _) = findIntSegNrAtPoint(trimLine, p).get
 
     //find intersections in the positive direction.
+    println("intIDs: "+intIDs)
     val int1 = findIntersection(trimLine, intIDs, trimSegmentInt, true,Some(p))
 
     //find intersections in the negative direction

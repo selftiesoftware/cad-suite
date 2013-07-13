@@ -50,18 +50,27 @@ class TrimSpec extends FunSpec with ShouldMatchers {
 
   describe("intersections on a PL... ") {
 
-    it("can be found with a PL intersected twice by two PolyLines") {
+    it("can be found with a PL") {
+      val trimLine2 = PolylineShape(List(Vector2D(0,-10),Vector2D(0,0),Vector2D(10,0), Vector2D(10,-10)))
+      val trimLine3 = PolylineShape(List(Vector2D(10,-10),Vector2D(10,0),Vector2D(0,0), Vector2D(0,-10)))
+      val oneGuide = List(PolylineShape(List(Vector2D(0,30),Vector2D(0,-30)))
+      )
       TrimmingMethods.getIntersectSegmentNumbers(twoGuides,trimLine) should equal(Map(0 -> List(), 1 -> List(Vector2D(-45.0,5.0), Vector2D(-11.192660550458712,8.073394495412845)), 2 -> List(), 3 -> List()))
+      TrimmingMethods.getIntersectSegmentNumbers(oneGuide,trimLine2) should equal(Map(0 -> List(), 1 -> List(Vector2D(0.0,0.0)), 2 -> List()))
+      //trimLine reversed
+      TrimmingMethods.getIntersectSegmentNumbers(oneGuide,trimLine2) should equal(Map(0 -> List(), 1 -> List(Vector2D(0.0,0.0)), 2 -> List()))
     }
+
+
 
     //findIntersection tests:
 
     it("can return the segment ID and Segment on which a point is set") {
-      TrimmingMethods.findIntSegNrAtPoint(trimLine,p1) should equal (Some((2,Segment2D(Vector2D(10.0,10.0),Vector2D(100.0,0.0)))))
-      TrimmingMethods.findIntSegNrAtPoint(trimLine,p2) should equal (Some((1,Segment2D(Vector2D(-100.0,0.0),Vector2D(10.0,10.0)))))
-      TrimmingMethods.findIntSegNrAtPoint(trimLine,p3) should equal (Some((1,Segment2D(Vector2D(-100.0,0.0),Vector2D(10.0,10.0)))))
-      TrimmingMethods.findIntSegNrAtPoint(trimLine,p4) should equal (Some((0,Segment2D(Vector2D(-200.0,-30.0),Vector2D(-100.0,0.0)))))
-      TrimmingMethods.findIntSegNrAtPoint(trimLine,p5) should equal (None)
+      //TrimmingMethods.findIntSegNrAtPoint(trimLine,p1) should equal (Some((2,Segment2D(Vector2D(10.0,10.0),Vector2D(100.0,0.0)))))
+      //TrimmingMethods.findIntSegNrAtPoint(trimLine,p2) should equal (Some((1,Segment2D(Vector2D(-100.0,0.0),Vector2D(10.0,10.0)))))
+      //TrimmingMethods.findIntSegNrAtPoint(trimLine,p3) should equal (Some((1,Segment2D(Vector2D(-100.0,0.0),Vector2D(10.0,10.0)))))
+      //TrimmingMethods.findIntSegNrAtPoint(trimLine,p4) should equal (Some((0,Segment2D(Vector2D(-200.0,-30.0),Vector2D(-100.0,0.0)))))
+      //TrimmingMethods.findIntSegNrAtPoint(trimLine,p5) should equal (None)
     }
 
     it("can return the first relevant intersection (to be used for trimming) in a given direction from the trim point ") {
@@ -90,10 +99,11 @@ class TrimSpec extends FunSpec with ShouldMatchers {
    (0/2)|  |   |(2/0)
 
        */
-      val shapes = Map(-2 -> PolylineShapeOpen(Vector2D(0.0,-10.0),List(PolylineLineShape(Vector2D(0.0,0.0)), PolylineLineShape(Vector2D(10.0,0.0)), PolylineLineShape(Vector2D(10.0,-10.0))), Attributes()))
-      val tL = PolylineShape(List(Vector2D(0,-30),Vector2D(0,30)))
+      val tL = Map(-2 -> PolylineShapeOpen(Vector2D(0.0,-10.0),List(PolylineLineShape(Vector2D(0.0,0.0)), PolylineLineShape(Vector2D(10.0,0.0)), PolylineLineShape(Vector2D(10.0,-10.0))), Attributes()))
+      val trimLine = tL.head._2
+      val shapes = Map(-3 -> PolylineShapeOpen(Vector2D(0,-30),List(PolylineLineShape(Vector2D(0,30))),Attributes()))
       val tP = Vector2D(5,0)
-      TrimmingMethods.trimPolyline(shapes,tL,tP)._1 should equal(None)
+      //TrimmingMethods.trimPolyline(shapes,trimLine,tP)._1 should equal(None)
       //TrimmingMethods.trimPolyline(shapesRev,tL,tP)._1 should equal(None)
 
       //TODO: add trimming of a closed polyline - currently does not work??
