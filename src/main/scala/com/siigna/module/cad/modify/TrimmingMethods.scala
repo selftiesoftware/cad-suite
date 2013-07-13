@@ -69,6 +69,7 @@ object TrimmingMethods {
 
   returns: Vector2Ds which are needed to construct the trimmed Polyline, or None.
   */
+
   def findIntersection(tL : PolylineShape, intIDs : Map[Int, List[Vector2D]], id : Int, d : Boolean, p : Option[Vector2D]) : Option[Vector2D] = {
     //get intersecting vectors at the same segment as the segment p is on   OK
 
@@ -91,6 +92,7 @@ object TrimmingMethods {
     //if so, store them in the val r, and filter the intersections to get the ones on the right side of the trim point only:
     val r = p match {
       case Some(x) => {
+        println("SOME!!")
         intersections.filter(_.distanceTo(endPoint)>x.distanceTo(endPoint))
       }
       case _ => intersections
@@ -139,7 +141,6 @@ object TrimmingMethods {
     }
   }
 
-
   /*
   a function to trim a polylineShape
 
@@ -153,7 +154,7 @@ object TrimmingMethods {
   */
 
   def trimPolyline(guides : Map[Int,Shape], shape : Shape, p : Vector2D) : (Option[List[Vector2D]],Option[List[Vector2D]]) = {
-
+    println("guide: "+guides)
     var t1 : Option[List[Vector2D]] = None
     var t2 : Option[List[Vector2D]] = None
     //TODO: allow trimming of LineShape types (and arcs and circles...)
@@ -174,7 +175,7 @@ object TrimmingMethods {
     // get the ID for the segment on which p lies.   OK
     val (trimSegmentInt, _) = findIntSegNrAtPoint(trimLine, p).get
 
-    //find intersections in the positive direction
+    //find intersections in the positive direction.
     val int1 = findIntersection(trimLine, intIDs, trimSegmentInt, true,Some(p))
 
     //find intersections in the negative direction
