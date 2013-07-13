@@ -26,21 +26,17 @@ case object CreateCategory extends MenuCategory{
   val graph = Map[MenuEvent,MenuElement](
     //EventN -> GeometryCategory,
 
-    EventNNW -> MenuModule(Module('cad,"create.Rectangle"), MenuIcons.rectangle),
+    EventNNW -> MenuModule(Module('cad,"create.Text"), MenuIcons.text),
     EventNNE -> MenuModule(Module('cad,"create.Line"), MenuIcons.line),
 
     EventENE -> MenuModule(Module('cad,"create.Offset"), MenuIcons.offset),
     //EventESE -> MenuModule(Module('cad,"create.Explode"), MenuIcons.explode),
     EventESE -> MenuModule(Module('cad,"create.Copy"), MenuIcons.copy),
 
-    /**
-     * Removed until iteration 2
-     */
-    //EventWSW -> MenuModule(Module('cad,"create.Arc"), MenuIcons.arc),
-    EventWNW -> MenuModule(Module('cad,"create.Circle"), MenuIcons.circle),
+    EventSSE -> MenuModule(Module('cad,"create.Arc"), MenuIcons.arc),
+    EventSSW -> MenuModule(Module('cad,"create.Circle"), MenuIcons.circle),
 
-    EventSSW -> MenuModule(Module('cad,"create.Text"), MenuIcons.text),
-    EventSSE -> MenuModule(Module('cad,"create.Lineardim"), MenuIcons.linearDimension)
+    EventWSW -> MenuModule(Module('cad,"create.Lineardim"), MenuIcons.linearDimension)
 
   )
 

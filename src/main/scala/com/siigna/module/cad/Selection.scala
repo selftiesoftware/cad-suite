@@ -81,11 +81,10 @@ class Selection extends Module {
             // If we can find the exact same selector, select the entire shape (equal to dbl-click)
             case Some((x, y)) if y == selector && y != FullShapeSelector => Select(id)
             // If the old selector differs we simply select the new selection
-            case _ if shape.distanceTo(m) < Siigna.selectionDistance => {
+            case _ => {
               Deselect() // Deselect the current selection since shift is up
               Select(id, selector)
             }
-            case _ => Deselect() // Deselect the current selection since shift is up
           }
         } else Deselect() // Deselect the current selection since shift is up
       } else {
