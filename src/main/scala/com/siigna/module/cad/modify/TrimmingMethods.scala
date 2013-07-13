@@ -21,7 +21,6 @@ package com.siigna.module.cad.modify
 
 import com.siigna.util.geom._
 import com.siigna.app.model.shape._
-import com.siigna.util.collection.Attributes
 import com.siigna.app.Siigna
 
 object TrimmingMethods {
