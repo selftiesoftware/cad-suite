@@ -90,9 +90,6 @@ object TrimmingMethods {
     //if so, store them in the val r, and filter the intersections to get the ones on the right side of the trim point only:
     val r = p match {
       case Some(x) => {
-        println("intersections: "+intersections)
-        println("endpoint; "+endPoint)
-        println("dist test: "+intersections(0).distanceTo(endPoint))
         val p = intersections.filter(_.distanceTo(endPoint)>x.distanceTo(endPoint))
         println("P: "+p)
         p
