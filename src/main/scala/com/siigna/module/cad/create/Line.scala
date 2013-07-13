@@ -21,15 +21,19 @@ package com.siigna.module.cad.create
 
 import com.siigna._
 import app.Siigna
-import java.awt.Color
 
 /**
  * A line module (draws one line-segment)
  */
 class Line extends Module {
 
-  var color = Siigna("activeColor")
-  val stroke = Siigna("activeLineWidth")
+
+  val attributes = {
+    val color = Siigna.color("activeColor")
+    val lineWidth = Siigna.double("activeLineWidth")
+    Attributes(Seq(color.map(c => "Color" -> c), lineWidth.map(w => "StrokeWidth" -> lineWidth)).flatten)
+  }
+
   var startPoint: Option[Vector2D] = None
   val stateMap: StateMap = Map(
 
@@ -41,12 +45,12 @@ class Line extends Module {
         if (startPoint.isEmpty) {
           startPoint = Some(v)
           val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
-            Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
+            Array(LineShape(startPoint.get, v).addAttributes(attributes))
           })
           val inputRequest = InputRequestNew(7,startPoint,vector2DGuide)
           Start('cad,"create.InputNew", inputRequest)
         } else {
-          val line = LineShape(startPoint.get,v).addAttributes("Color" -> color , "StrokeWidth" -> stroke)
+          val line = LineShape(startPoint.get,v).addAttributes(attributes)
           Create(line)
           startPoint = None
           End
@@ -59,7 +63,7 @@ class Line extends Module {
           Start('cad, "create.InputNew", InputRequestNew(6,None))
         } else {
           val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
-            Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
+            Array(LineShape(startPoint.get, v).addAttributes(attributes))
           })
           val inputRequest = InputRequestNew(7,startPoint,vector2DGuide)
           Start('cad,"create.InputNew", inputRequest)
@@ -71,7 +75,7 @@ class Line extends Module {
             Start('cad, "create.InputNew", InputRequestNew(6,None))
           } else {
             val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
-              Array(LineShape(startPoint.get, v).addAttributes("Color" -> color , "StrokeWidth" -> stroke))
+              Array(LineShape(startPoint.get, v).addAttributes(attributes))
             })
             val inputRequest = InputRequestNew(7,startPoint,vector2DGuide)
             Start('cad,"create.InputNew", inputRequest)
