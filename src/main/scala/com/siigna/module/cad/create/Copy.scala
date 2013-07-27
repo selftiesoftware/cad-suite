@@ -28,45 +28,48 @@ class Copy extends Module {
   var startPoint : Option[Vector2D] = None
   var transformation = TransformationMatrix()
 
-
   /**
    * Transform the shapes with the given transformation
    * @param t The transformation
    * @return The shapes transformed
    */
-  def transform(t : TransformationMatrix) = Drawing.selection.shapes.map(_._2.transform(t))
+  def transform(t : TransformationMatrix) = {
+    Drawing.selection.shapes.map(_._2.transform(t))
+  }
 
   val stateMap: StateMap = Map(
 
     'Start -> {
+      case (End | End(_)) :: tail if Drawing.selection.isEmpty => {
+        End
+      }
+      case _ if Drawing.selection.isEmpty => {
+        Siigna display "Select objects to copy"
+        Start('cad, "Selection")
+      }
+      case _ => 'StartCopy
+    },
 
+    'StartCopy -> {
       case End(p : Vector2D) :: tail => {
 
         if(!startPoint.isDefined && !Drawing.selection.isEmpty) {
           startPoint = Some(p)
           Siigna display "set destination"
-          val vector2DGuide = Vector2DGuideNew((v : Vector2D) =>
+          val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
             transform(TransformationMatrix(v - startPoint.get, 1))
-            //Drawing.selection.shapes.map(_._2.transform(TransformationMatrix(v - startPoint.get, 1)))
-          )
+          })
 
-          val inputRequest = InputRequestNew(6,None,vector2DGuide)
+          val inputRequest = InputRequestNew(5,startPoint,vector2DGuide)
           Start('cad, "create.InputNew", inputRequest)
-        }
-
-        else if(startPoint.isDefined){
+        } else if (startPoint.isDefined){
           endPoint = Some(p)
           transformation = TransformationMatrix(p - startPoint.get, 1)
           Siigna display "type number of copies or click for one"
           multiActive = true
 
-          val doubleGuide = DoubleGuideNew((r: Double) =>
-            transform(transformation))
-            //Drawing.selection.shapes.map(_._2.transform(transformation)))
-
-          val vector2DGuide = Vector2DGuideNew((v: Vector2D) =>
-            transform(transformation))
-            //Drawing.selection.shapes.map(_._2.transform(transformation)))
+          val doubleGuide = DoubleGuideNew((r: Double) => transform(transformation))
+          val vector2DGuide = Vector2DGuideNew((v: Vector2D) => transform(transformation))
           val inputRequest = InputRequestNew(13, None,vector2DGuide,doubleGuide)
           Start('cad, "create.InputNew", inputRequest)
         }
@@ -115,16 +118,14 @@ class Copy extends Module {
 
 
       //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
       case MouseDown(p, MouseButtonRight, _) :: tail => End
 
       case _ => {
         if (Drawing.selection.isDefined) {
-          if(multiActive == true) {
+          if (multiActive) {
             Create(transform(transformation))
             End
-          }
-          else {
+          } else {
             Siigna display "set origin of copy"
             Start('cad,"create.InputNew",InputRequestNew(6,None))
           }
@@ -134,5 +135,6 @@ class Copy extends Module {
         }
       }
     }
+
   )
 }

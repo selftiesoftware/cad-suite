@@ -220,7 +220,7 @@ class InputNew extends Module {
 }
 
 trait Guide {
-  def guide : _ => Traversable[Shape]
+  def guide : ((_) => Traversable[Shape])
 }
 
 //The input request to be sent to the input module. Contains the information, the module needs to pass to the input module. Consists of:
