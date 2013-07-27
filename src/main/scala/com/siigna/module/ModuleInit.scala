@@ -26,6 +26,35 @@ import com.siigna.app.model.selection.EmptySelection
 
 /**
  * An init module for the cad-suite.
+ *
+ * MODULE-MAP:
+ *
+ * legend: L/R  Left/Right
+ *         M    Mouse
+ *         D/U  Down/Up
+ *         S/N  Same/New (point)
+ *         P    Point
+ *         R    Return to start
+ *         M    Menu
+ *         I/O  On/Off
+ *         C    Char
+ *
+ *            START
+ *
+ *         /    |    \
+ *        /     |     \
+ *      LMD    RMD      CHAR
+ *      g       |    /   |    \
+ *      |       | del ctrl+c  C
+ *     LMU     menu           |
+ *     / \                  shortcut
+ *   SP  NP
+ *   |    |
+ *  / \ selBox
+ * MO MI
+ * |  |
+ * R MenuTool
+ *
  */
 class ModuleInit extends Module {
   Menu.startCategory = StartCategory
