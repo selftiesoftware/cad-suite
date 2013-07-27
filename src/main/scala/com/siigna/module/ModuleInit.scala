@@ -86,7 +86,6 @@ class ModuleInit extends Module {
     // Sets the latest module and start it
     Module(m, modText) collect {
       case module => {
-        println("Module" + module)
         lastModule = Some(module)
       } //enable module recall with space
     }
