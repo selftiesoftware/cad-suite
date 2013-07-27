@@ -35,7 +35,7 @@ class InputNew extends Module {
 
   def interpretMouseInput(p : Vector2D) : Option[ModuleEvent] = {
     if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)
-      || inputType == Some(9) || inputType == Some(14))  {
+      || inputType == Some(9) || inputType == Some(14) || inputType == Some(15))  {
       //Absolute values returned
       Some(End(p.transform(View.deviceTransformation)))
     } else if (inputType == Some(10)) {
@@ -105,13 +105,17 @@ class InputNew extends Module {
     //Input from keyboard:
       //AngleGizmo
     case KeyDown(Key.shift, _) :: tail => {
-      //Angle gizmo based on track point (Track point is sent to Angle Gizmo - not referencePoint (if there is one)
-      if (Track.isTracking && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Siigna.selectionDistance) {
-        Start('cad,"create.AngleGizmo",InputRequestNew(inputType.get,Track.pointOne,guides:_*))
-      //Angle gizmo based on reference point (The angle gizmo gets a track point, if one is active. If none is active, the reference point is sent.
-      //If there is neither track- or reference point, Angle gizmo does not start (since it wouldn't know where it's centre should be).
-      } else if ((inputType == Some(7) || inputType == Some(10)) && !referencePoint.isEmpty) {
-        Start('cad,"create.AngleGizmo",inputRequest.get)
+      if (inputType == Some(1) || inputType == Some(2) || inputType == Some(3) || inputType == Some(4) || inputType == Some(5)
+        || inputType == Some(6) || inputType == Some(7) || inputType == Some(8) || inputType == Some(9) || inputType == Some(10)
+        || inputType == Some(11) || inputType == Some(12) || inputType == Some(15)) {
+        //Angle gizmo based on track point (Track point is sent to Angle Gizmo - not referencePoint (if there is one)
+        if (Track.isTracking && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Siigna.selectionDistance) {
+          Start('cad,"create.AngleGizmo",InputRequestNew(inputType.get,Track.pointOne,guides:_*))
+        //Angle gizmo based on reference point (The angle gizmo gets a track point, if one is active. If none is active, the reference point is sent.
+        //If there is neither track- or reference point, Angle gizmo does not start (since it wouldn't know where it's centre should be).
+        } else if ((inputType == Some(7) || inputType == Some(10)) && !referencePoint.isEmpty) {
+          Start('cad,"create.AngleGizmo",inputRequest.get)
+        }
       }
     }
 
@@ -147,7 +151,7 @@ class InputNew extends Module {
         || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7)) && !Track.isTracking)) {
         Start('cad,"create.InputValuesByKey",inputRequest.get)
       }
-       else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13)) {
+       else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13) || inputType == Some(15)) {
       // Input types accepting a double as input:
         Start('cad,"create.InputOneValueByKey",inputRequest.get)
       } else if(inputType == Some(12)) {
@@ -179,7 +183,7 @@ class InputNew extends Module {
         trackDoubleRequest = false
         Siigna("track") = true
         End(Track.getPointFromDistance(s).get)
-      } else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13)) {
+      } else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13) || inputType == Some(15)) {
         Siigna("track") = true
         End(s)
       }

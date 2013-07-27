@@ -130,7 +130,7 @@ class Scale extends Module {
           //the end-point, and the user should:
           // 1) enter the desired distance between the two points to finish the scale, or
           // 2) Leftclick to set scale factor:
-          Siigna display "type the distance between the reference points, or move mousa and click to scale"
+          Siigna display "type the distance between the reference points, or move mouse and click to scale"
           var lastDouble: Option[Double] = None
           val doubleGuide = DoubleGuideNew((s : Double) => {
             if ((lastDouble.isEmpty || s != lastDouble.get) && s!= 0) {
@@ -161,7 +161,7 @@ class Scale extends Module {
               Drawing.selection.shapes.values
             }
           })
-          Start('cad, "create.InputNew", InputRequestNew(5,None,vector2DGuide,doubleGuide))
+          Start('cad, "create.InputNew", InputRequestNew(15,None,vector2DGuide,doubleGuide))
         } else if (firstPointEntered == true && !endPoint.isEmpty && endPoint.get != p) {
           //Step 4b: A drag has occured (the point from mouse up is not the same as from mouse down).
           // or the mouse has been clicked after the end point has been set, defining a scale factor. Do the scaling:
