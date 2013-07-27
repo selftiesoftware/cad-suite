@@ -33,8 +33,6 @@ import module.cad.create.InputRequestNew
  * legend: L/R  Left/Right
  *         M    Mouse
  *         D/U  Down/Up
- *         S/N  Same/New (point)
- *         P    Point
  *         R    Return to start
  *         M    Menu
  *         I/O  On/Off
