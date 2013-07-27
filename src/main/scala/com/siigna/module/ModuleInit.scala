@@ -42,19 +42,15 @@ import module.cad.create.InputRequestNew
  *
  *            START
  *
- *         /    |    \
- *        /     |     \
- *      LMD    RMD      CHAR
- *      g       |    /   |    \
- *      |       | del ctrl+c  C
- *     LMU     menu           |
- *     / \                  shortcut
- *   SP  NP
- *   |    |
- *  / \ selBox
- * MO MI
- * |  |
- * R MenuTool
+ *         /      |      \
+ *        /       |       \
+ *      LMD      RMD      CHAR
+ *       |        |        |
+ *    SELECT      |        C -- ESC, Space,
+ *               menu      |
+ *                        CHAR
+ *                         |
+ *                      Shortcut
  *
  */
 class ModuleInit extends Module {
@@ -186,118 +182,6 @@ class ModuleInit extends Module {
         }
 
       }
-
-
-      /*
-
-      //Rightclick starts menu:
-      case MouseDown(_, MouseButtonRight, _) :: tail => {
-        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
-
-        // If any selections are defined we start in the Modify category
-        if (Drawing.selection.isDefined) {
-          Start('base, "Menu", ModifyCategory)
-        } else Start('base, "Menu")
-      }
-
-
-
-
-      // Make sure we do not return to the selection immediately after it ended
-      case End :: MouseDown(_, _, _) :: tail =>
-
-
-
-      //Leftclick:
-      // 1: Starts select, to select shape part at cursor, if nothing is selected,
-      // TODO: or if the click was away from the selection:
-      case MouseDown(p, MouseButtonLeft, modifier) :: tail => {
-        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
-
-        //Check if there is a useable selection:
-        Start('cad, "Selection")
-      }
-
-      // Delete
-      case KeyDown(Key.Delete, _) :: tail => {
-        shortcut = ""
-        if (Drawing.selection.isDefined) {
-          Delete(Drawing.selection)
-        }
-      }
-
-      // Highlight active shape(s)
-      case MouseMove(p, _, _) :: tail => {
-        val point = p.transform(View.deviceTransformation)
-        val shapes = Drawing(point)
-        activeSelection = Selection(shapes.map(t => t._1 -> (t._2 -> t._2.getSelector(point))))
-        activeSelectionVertices = activeSelection.shapes.values.flatMap(s => s.getVertices(s.getSelector(point)))
-      }
-
-      //shortcuts
-
-      //create
-      case KeyDown('a', _) :: KeyUp('c', _) :: tail => shortcutProcess("a", "create.Arc", 'cad)
-      case KeyDown('c', _) :: KeyUp('c', _) :: tail => shortcutProcess("c", "create.Circle", 'cad)
-      case KeyDown('d', _) :: KeyUp('c', _) :: tail => shortcutProcess("d", "create.Lineardim", 'cad)
-      case KeyDown('e', _) :: KeyUp('c', _) :: tail => shortcutProcess("e", "create.Explode", 'cad)
-      case KeyDown('l', _) :: KeyUp('c', _) :: tail => shortcutProcess("l", "create.Line", 'cad)
-      case KeyDown('o', _) :: KeyUp('c', _) :: tail => shortcutProcess("o", "create.Offset", 'cad)
-      case KeyDown('p', _) :: KeyUp('c', _) :: tail => shortcutProcess("p", "create.Polyline", 'cad)
-      case KeyDown('r', _) :: KeyUp('c', _) :: tail => shortcutProcess("r", "create.Rectangle", 'cad)
-      case KeyDown('t', _) :: KeyUp('c', _) :: tail => shortcutProcess("t", "create.Text", 'cad)
-
-      //helpers
-      case KeyDown('d', _) :: KeyUp('h', _) :: tail => shortcutProcess("d", "helpers.Distance", 'cad)
-      case KeyDown('s', _) :: KeyUp('h', _) :: tail => shortcutProcess("s", "helpers.SnapToggle", 'cad)
-      case KeyDown('t', _) :: KeyUp('h', _) :: tail => shortcutProcess("t", "helpers.TrackToggle", 'cad)
-
-      //MODIFY
-      case KeyDown('m', _) :: KeyUp('m', _) :: tail => shortcutProcess("m", "modify.Move", 'cad)
-      case KeyDown('r', _) :: KeyUp('m', _) :: tail => shortcutProcess("r", "modify.Rotate", 'cad)
-      case KeyDown('s', _) :: KeyUp('m', _) :: tail => shortcutProcess("s", "modify.Scale", 'cad)
-      case KeyDown('t', _) :: KeyUp('m', _) :: tail => shortcutProcess("t", "modify.Trim", 'cad)
-
-      //PROPERTIES
-      case KeyDown('c', _) :: KeyUp('p', _) :: tail => shortcutProcess("c", "properties.Colors", 'cad)
-      case KeyDown('s', _) :: KeyUp('p', _) :: tail => shortcutProcess("s", "properties.Stroke", 'cad)
-
-      case KeyDown('a', Control) :: tail => Drawing.selectAll()
-      case KeyDown('c', Control) :: tail => shortcutProcess("q", "create.Copy", 'cad)
-      case KeyDown('z', Control) :: tail => Drawing.undo()
-      case KeyDown('y', Control) :: tail => Drawing.redo()
-
-      // Forward to the last initiated module
-      case KeyDown(Key.Space, _) :: tail => if (lastModule.isDefined) {
-        textFeedback.inputFeedback("EMPTY")//clear any active tooltips
-        textFeedback.inputFeedback("GETPREVIOUS") //send a command to inputFeedback to display the last module name
-        Start(lastModule.get.newInstance)
-      }
-
-      // Release all selections
-      case KeyDown((Key.Esc | Key.Enter), _) :: tail => {
-        shortcut = ""
-        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
-        Drawing.deselect()
-      }
-
-      //MENU SHORTCUTS
-      case KeyDown('c', _) :: tail => {
-        shortcut = "c"
-        toolSuggestions = textFeedback.inputFeedback(shortcut)
-      }
-      case KeyDown('h', _) :: tail => {
-        shortcut = "h"
-        toolSuggestions = textFeedback.inputFeedback(shortcut)
-      }
-      case KeyDown('m', _) :: tail => {
-        shortcut = "m"
-        toolSuggestions = textFeedback.inputFeedback(shortcut)
-      }
-      case KeyDown('p', _) :: tail => {
-        shortcut = "p"
-        toolSuggestions = textFeedback.inputFeedback(shortcut)
-      } */
 
       case _ => {
         Start('cad,"create.InputNew", InputRequestNew(14,None))
