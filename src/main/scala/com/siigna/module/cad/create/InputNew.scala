@@ -35,7 +35,7 @@ class InputNew extends Module {
 
   def interpretMouseInput(p : Vector2D) : Option[ModuleEvent] = {
     if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)
-      || inputType == Some(9))  {
+      || inputType == Some(9) || inputType == Some(14))  {
       //Absolute values returned
       Some(End(p.transform(View.deviceTransformation)))
     } else if (inputType == Some(10)) {
@@ -151,9 +151,11 @@ class InputNew extends Module {
       // Input types accepting a double as input:
         Start('cad,"create.InputOneValueByKey",inputRequest.get)
       } else if(inputType == Some(12)) {
-        println("HER")
       // Input types accepting a string as input:
         Start('cad,"create.InputText",inputRequest.get)
+      } else if(inputType == Some(14)) {
+        // Input types accepting a character as input:
+        Start('cad,"create.InputCharacter",inputRequest.get)
       }
     }
 
@@ -187,6 +189,11 @@ class InputNew extends Module {
     case End(s : String) :: tail => {
       Siigna("track") = true
       End(s)
+    }
+
+    //Character or special key:
+    case End(KeyDown(code: Int,modifier: ModifierKeys)) :: tail => {
+      End(KeyDown(code: Int,modifier: ModifierKeys))
     }
 
     case _ => {

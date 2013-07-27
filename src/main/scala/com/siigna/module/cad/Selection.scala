@@ -50,6 +50,12 @@ class Selection extends Module {
     case KeyDown(Key.Esc, _) :: tail => End
     case MouseUp(_, MouseButtonRight, _) :: tail => End
 
+    //If started with a Vector2D:
+    case Start(_ , v: Vector2D) :: tail => {
+
+
+    }
+
     // If we immediately receive a mouse-up we select nearby shapes
     case MouseUp(p, _, modifier) :: tail => {
       val m = mousePosition.transform(View.deviceTransformation)
@@ -111,7 +117,7 @@ class Selection extends Module {
     }
 
     // Forward to Move if we start to drag and a selection is active and shift is not down
-    case MouseDrag(_, _, mod) :: Start(_, _) :: MouseDown(p, _, _) :: tail => {
+    case MouseDrag(_, _, mod) :: Start(_, _) :: End(_) :: MouseDown(p, _, _) :: tail => {
       val mouse = p.transform(View.deviceTransformation)
       Select(mouse)
 
@@ -124,6 +130,10 @@ class Selection extends Module {
         startPoint = Some(p)
         'Box
       //}
+    }
+
+    case x => {
+      println(x)
     }
 
   },
