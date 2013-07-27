@@ -120,6 +120,7 @@ class Move extends Module {
 
     'Drag -> {
       // Exit
+
       case KeyDown(Key.Esc, _) :: tail => End
 
       case MouseDrag(p : Vector2D, _, _) :: tail => {
@@ -158,6 +159,7 @@ class Move extends Module {
           }
           case _ =>
         }
+        Drawing.deselect()
         End
       }
 
