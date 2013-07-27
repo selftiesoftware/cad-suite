@@ -132,10 +132,6 @@ class Selection extends Module {
       //}
     }
 
-    case x => {
-      println(x)
-    }
-
   },
 
   'Box -> {
