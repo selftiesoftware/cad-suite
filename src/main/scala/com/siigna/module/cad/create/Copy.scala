@@ -45,7 +45,6 @@ class Copy extends Module {
       case KeyDown(Key.Esc, _) :: tail => End
       case MouseDown(p, MouseButtonRight, _) :: tail => End
       case End(KeyDown(Key.Esc, _)) :: tail => End
-      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
 
       case End(p : Vector2D) :: tail => {
 
@@ -111,10 +110,6 @@ class Copy extends Module {
           End('base, "Menu")
         }
       }
-
-
-      //exit strategy
-      case MouseDown(p, MouseButtonRight, _) :: tail => End
 
       case _ => {
         if (Drawing.selection.isDefined) {
