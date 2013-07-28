@@ -27,10 +27,11 @@ case object HelpersCategory extends MenuCategory {
     EventENE -> MenuModule(Module('cad,"helpers.SnapToggle"), MenuIcons.snap),
     EventESE -> MenuModule(Module('cad,"helpers.TrackToggle"), MenuIcons.guides),
 
+    EventSSW -> MenuModule(Module('cad,"helpers.ZoomExtends"), MenuIcons.zoomExtends),
 
-      //EventWNW -> MenuModule(Module('cad,"helpers.Grid"), MenuIcons.grid),
+    //EventWNW -> MenuModule(Module('cad,"helpers.Grid"), MenuIcons.grid),
 
-    EventSSW -> MenuModule(Module('cad,"helpers.Area"), MenuIcons.area),
+    EventNNW -> MenuModule(Module('cad,"helpers.Area"), MenuIcons.area),
     EventNNE -> MenuModule(Module('cad,"helpers.Distance"), MenuIcons.distance)
 
   )
