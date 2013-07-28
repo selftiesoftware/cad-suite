@@ -47,8 +47,8 @@ class Selection extends Module {
   'Start -> {
 
     //exit strategy
-    case KeyDown(Key.Esc, _) :: tail => End
-    case MouseUp(_, MouseButtonRight, _) :: tail => End
+    case KeyDown(Key.Esc,m) :: tail => End(KeyDown(Key.Escape,m))
+    case MouseDown(p, MouseButtonRight,m) :: tail => End(MouseDown(p,MouseButtonRight,m))
 
     //If started with a Vector2D:
     case Start(_ , v: Vector2D) :: tail => {
@@ -130,14 +130,22 @@ class Selection extends Module {
         startPoint = Some(p)
         'Box
       //}
-    }
+      }
+
+    //When coming from module as for instance copy, when there is no selection, this event-list is needed to start box-selection:
+      case MouseDrag(_, _, mod) :: MouseDown(p, _, _) :: tail => {
+        startPoint = Some(p)
+        'Box
+      }
+
+    case e => println(e)
 
   },
 
   'Box -> {
     //exit strategy
-    case KeyDown(Key.Esc, _) :: tail => End
-    case MouseDown(p, MouseButtonRight, _) :: tail => End
+    case KeyDown(Key.Esc,m) :: tail => End(KeyDown(Key.Escape,m))
+    case MouseDown(p, MouseButtonRight,m) :: tail => End(MouseDown(p,MouseButtonRight,m))
 
     // Do nothing if shift is pressed
     case KeyDown(Key.Shift, _) :: tail =>
@@ -162,7 +170,9 @@ class Selection extends Module {
       }
       End
     }
-    case e => End
+    case e => {println(e)
+      End}
+
   },
 
 

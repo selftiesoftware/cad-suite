@@ -40,17 +40,13 @@ class Copy extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
-      case (End | End(_)) :: tail if Drawing.selection.isEmpty => {
-        End
-      }
-      case _ if Drawing.selection.isEmpty => {
-        Siigna display "Select objects to copy"
-        Start('cad, "Selection")
-      }
-      case _ => 'StartCopy
-    },
 
-    'StartCopy -> {
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End(KeyDown(Key.Esc, _)) :: tail => End
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
+
       case End(p : Vector2D) :: tail => {
 
         if(!startPoint.isDefined && !Drawing.selection.isEmpty) {
@@ -130,8 +126,8 @@ class Copy extends Module {
             Start('cad,"create.InputNew",InputRequestNew(6,None))
           }
         } else {
-          Siigna display "nothing selected"
-          End
+          Siigna display "Select objects to copy"
+          Start('cad, "Selection")
         }
       }
     }
