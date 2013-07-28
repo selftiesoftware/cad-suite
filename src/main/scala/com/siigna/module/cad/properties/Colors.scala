@@ -68,12 +68,14 @@ class Colors extends Module {
     var activeAngle = 0
     val radian = (mousePosition - startPoint).angle.toInt
     val calculatedAngle = radian + 450
-    if (calculatedAngle > 360)
-      activeAngle = calculatedAngle - 360
+    println("Cal angle: " + calculatedAngle)
+    if (calculatedAngle >= 360)
+      activeAngle = calculatedAngle%360
     else activeAngle = calculatedAngle
       activeAngle = ((activeAngle + 7.5)/15).toInt * 15
     //return the angle
-    activeAngle-180
+    activeAngle
+
   }
     
   //make a list of radians - used in paint to draw outlines around primary colors.
@@ -109,36 +111,36 @@ class Colors extends Module {
 
       case MouseDown(p, MouseButtonLeft, _) :: tail => {
 
-        if (angle == 180) {activeColor = Some(black)}
-        else if (angle == 195) activeColor = Some(yellowGreen)
-        else if (angle == 210) activeColor = Some(lime)
-        else if (angle == 225) activeColor = Some(green)
-        else if (angle == 240) activeColor = Some(caribbean)
-        else if (angle == 255) activeColor = Some(turquise)
-        else if (angle == 270) activeColor = Some(cyan)
-        else if (angle == 385) activeColor = Some(pasificBlue)
-        else if (angle == 300) activeColor = Some(navyBlue)
-        else if (angle == 315) activeColor = Some(blue)
-        else if (angle == 330) activeColor = Some(purple)
-        else if (angle == 345) activeColor = Some(plum)
-        else if (angle ==   0) activeColor = Some(magenta)
-        else if (angle ==  15) activeColor = Some(violetRed)
-        else if (angle ==  30) activeColor = Some(radicalRed)
-        else if (angle ==  45) activeColor = Some(red)
-        else if (angle ==  60) activeColor = Some(orangeRed)
-        else if (angle ==  75) activeColor = Some(orange)
-        else if (angle ==  90) activeColor = Some(yellow)
-        else if (angle == 105) activeColor = Some(lightGrey)
-        else if (angle == 120) activeColor = Some(darkGrey)
-        else if (angle == 135) activeColor = Some(grey)
-        else if (angle == 150) activeColor = Some(dimgrey)
-        else if (angle == 165) activeColor = Some(anthracite)
+        if (angle == 0) {activeColor = Some(black)}
+        else if (angle ==  15) activeColor = Some(yellowGreen)
+        else if (angle ==  30) activeColor = Some(lime)
+        else if (angle ==  45) activeColor = Some(green)
+        else if (angle ==  60) activeColor = Some(caribbean)
+        else if (angle ==  75) activeColor = Some(turquise)
+        else if (angle ==  90) activeColor = Some(cyan)
+        else if (angle == 105) activeColor = Some(pasificBlue)
+        else if (angle == 120) activeColor = Some(navyBlue)
+        else if (angle == 135) activeColor = Some(blue)
+        else if (angle == 150) activeColor = Some(purple)
+        else if (angle == 165) activeColor = Some(plum)
+        else if (angle == 180) activeColor = Some(magenta)
+        else if (angle == 195) activeColor = Some(violetRed)
+        else if (angle == 210) activeColor = Some(radicalRed)
+        else if (angle == 225) activeColor = Some(red)
+        else if (angle == 240) activeColor = Some(orangeRed)
+        else if (angle == 255) activeColor = Some(orange)
+        else if (angle == 270) activeColor = Some(yellow)
+        else if (angle == 385) activeColor = Some(lightGrey)
+        else if (angle == 300) activeColor = Some(darkGrey)
+        else if (angle == 315) activeColor = Some(grey)
+        else if (angle == 330) activeColor = Some(dimgrey)
+        else if (angle == 345) activeColor = Some(anthracite)
 
         if(activeColor.isDefined) {
           Siigna("activeColor") = activeColor.get
         }
 
-        if(!Drawing.isEmpty) {
+        if(!Drawing.isEmpty && activeColor.isDefined) {
           Drawing.selection.addAttribute("Color" -> activeColor.get)
           Drawing.deselect()
         }
@@ -147,6 +149,8 @@ class Colors extends Module {
         Siigna.navigation = true
         End
       }
+
+      case _ =>
     }
   )
 
@@ -200,8 +204,8 @@ class Colors extends Module {
 
     if (distanceToCentre.length > 80 && distanceToCentre.length < 130 )  {
       //calculate where to draw a box highlighting the currently active color
-      g draw colorIcon.transform(t.rotate(angle))
-      g draw colorActive.transform(t.rotate(angle))
+      g draw colorIcon.transform(t.rotate(angle+180))
+      g draw colorActive.transform(t.rotate(angle+180))
 
     }
     //draw the color wheel icon outlines
