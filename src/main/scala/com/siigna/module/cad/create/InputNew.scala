@@ -35,7 +35,7 @@ class InputNew extends Module {
 
   def interpretMouseInput(p : Vector2D) : Option[ModuleEvent] = {
     if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)
-      || inputType == Some(9) || inputType == Some(14) || inputType == Some(15))  {
+      || inputType == Some(9) || inputType == Some(14) || inputType == Some(15) || inputType == Some(16))  {
       //Absolute values returned
       Some(End(p.transform(View.deviceTransformation)))
     } else if (inputType == Some(10)) {
@@ -107,7 +107,7 @@ class InputNew extends Module {
     case KeyDown(Key.shift, _) :: tail => {
       if (inputType == Some(1) || inputType == Some(2) || inputType == Some(3) || inputType == Some(4) || inputType == Some(5)
         || inputType == Some(6) || inputType == Some(7) || inputType == Some(8) || inputType == Some(9) || inputType == Some(10)
-        || inputType == Some(11) || inputType == Some(12) || inputType == Some(15)) {
+        || inputType == Some(11) || inputType == Some(12) || inputType == Some(15) || inputType == Some(16)) {
         //Angle gizmo based on track point (Track point is sent to Angle Gizmo - not referencePoint (if there is one)
         if (Track.isTracking && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Siigna.selectionDistance) {
           Start('cad,"create.AngleGizmo",InputRequestNew(inputType.get,Track.pointOne,guides:_*))
@@ -135,7 +135,8 @@ class InputNew extends Module {
         End(KeyDown(key,modifier))
       }
       //Input types where track-offset is activated: Vector2D-guides are transformed to DoubleGuides:
-      else if ((inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(9)) && Track.isTracking) {
+      else if ((inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(9)
+        || inputType == Some(16)) && Track.isTracking) {
         val guidesNew = guides.collect({
           case Vector2DGuideNew(guide) => {
             DoubleGuideNew((d : Double) => {
@@ -148,7 +149,7 @@ class InputNew extends Module {
         Start('cad,"create.InputOneValueByKey",newInputRequest)
       // Input types accepting Vector2D by keys:
       } else if(inputType == Some(3) || inputType == Some(5)
-        || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7)) && !Track.isTracking)) {
+        || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7) || inputType == Some(16)) && !Track.isTracking)) {
         Start('cad,"create.InputValuesByKey",inputRequest.get)
       }
        else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13) || inputType == Some(15)) {
@@ -171,6 +172,8 @@ class InputNew extends Module {
       if (inputType == Some(5) || inputType == Some(7) && !referencePoint.isEmpty) {
         Siigna("track") = true
         End(referencePoint.get + p)
+      } else if ( inputType == Some(16)){
+        End(MouseDown(p,MouseButtonLeft,ModifierKeys(false,false,false)))
       } else {
         Siigna("track") = true
         End(p)
@@ -179,7 +182,8 @@ class InputNew extends Module {
 
     //Double:
     case End(s : Double) :: tail => {
-      if (trackDoubleRequest && (inputType == Some(4) || inputType == Some(5) || inputType == Some(6)|| inputType == Some(7) || inputType == Some(9))) {
+      if (trackDoubleRequest && (inputType == Some(4) || inputType == Some(5) || inputType == Some(6)|| inputType == Some(7) || inputType == Some(9)
+        || inputType == Some(16))) {
         trackDoubleRequest = false
         Siigna("track") = true
         End(Track.getPointFromDistance(s).get)
@@ -245,3 +249,5 @@ case class InputRequestNew(inputType: Int, referencePoint: Option[Vector2D], gui
 case class DoubleGuideNew(guide : Double => Traversable[Shape]) extends Guide
 case class Vector2DGuideNew(guide : Vector2D => Traversable[Shape]) extends Guide
 case class TextGuideNew(guide : String => Traversable[Shape]) extends Guide
+//An extra guide: A Hack, to be able to draw a guide when inputting Vector2D by keys, but not when inputting by mouse
+case class Vector2DGuideKeysNew(guide : Vector2D => Traversable[Shape]) extends Guide

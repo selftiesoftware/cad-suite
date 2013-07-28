@@ -235,6 +235,10 @@ class InputValuesByKey extends Module {
       case Vector2DGuideNew(guide) => {
         guide(Vector2D(referencePoint.get.x + x,referencePoint.get.y + y)).foreach(s => g.draw(s.transform(t)))
       }
+      //An extra guide: A Hack, to be able to draw a guide when inputting Vector2D by keys, but not when inputting by mouse
+      case Vector2DGuideKeysNew(guide) => {
+        guide(Vector2D(referencePoint.get.x + x,referencePoint.get.y + y)).foreach(s => g.draw(s.transform(t)))
+      }
       case _ => // No known guide
     })
   }

@@ -94,14 +94,27 @@ class Move extends Module {
         }
       }
 
+      //Input Type 16 returns mouse-down-event, if a vector is typed by key - if such a vector is typed, do the move:
+      case End(MouseDown(v: Vector2D,_,_)) :: tail => {
+        Drawing.selection.transformation = origin
+        transformation = Some(TransformationMatrix(v, 1))
+        Drawing.selection.transform(transformation.get)
+        Drawing.deselect()
+        End
+      }
+
       case End :: tail => End
 
       //on first entry, send input request to input to get the start point for the move operations.
       case _ => {
-        //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
-        val l = new ModuleInit
         if (!Drawing.selection.isEmpty) {
-          Start('cad, "create.InputNew", InputRequestNew(6,None))
+          val vector2DGuide = Vector2DGuideKeysNew((v: Vector2D) => {
+            Drawing.selection.transformation = origin
+            val t : TransformationMatrix = TransformationMatrix(v, 1)
+            // Return the shape, transformed
+            Drawing.selection.transform(t).shapes.values
+          })
+          Start('cad, "create.InputNew", InputRequestNew(16,None,vector2DGuide))
         } else {
           Siigna display "nothing selected"
           End
