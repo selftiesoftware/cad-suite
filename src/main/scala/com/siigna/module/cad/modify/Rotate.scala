@@ -132,8 +132,8 @@ class Rotate extends Module {
           Siigna display "set centre point for rotation"
           Start('cad, "create.InputNew", InputRequestNew(6,None))
         } else {
-          Siigna display "nothing selected"
-          End
+          Siigna display "Select objects to rotate"
+          Start('cad, "Selection")
         }
       }
     }

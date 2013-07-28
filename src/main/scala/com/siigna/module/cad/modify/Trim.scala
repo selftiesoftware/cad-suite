@@ -31,6 +31,9 @@ class Trim extends Module {
     'Start -> {
       //exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End(KeyDown(Key.Esc, _)) :: tail => End
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
 
       //create testshapes
       case KeyDown(Key.ArrowDown, _) :: tail => {
@@ -54,8 +57,7 @@ class Trim extends Module {
         println("Underscore")
         if(Drawing.selection.isEmpty) {
           Siigna display "No shapes selected - select shapes to trim"
-          println("No selection")
-          //End
+          Start('cad, "Selection")
         } else {
           println(" selection")
           'Trim
@@ -65,6 +67,14 @@ class Trim extends Module {
 
     //when shapes are selected, check for mouse clicks to trim shapes. (TODO: trim by selection box)
     'Trim -> {
+
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End(KeyDown(Key.Esc, _)) :: tail => End
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
+
+
       case End(p : Vector2D) :: tail =>
       case MouseUp(p, _, _) :: tail => {
         val t = View.deviceTransformation
@@ -99,11 +109,6 @@ class Trim extends Module {
         }
         End
       }
-
-      //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
-      case MouseDown(p, MouseButtonRight, _) :: tail => End
-      case End(KeyDown(Key.Esc, _)) :: tail => End
 
 
       case e => {

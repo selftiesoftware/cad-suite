@@ -116,8 +116,8 @@ class Move extends Module {
           })
           Start('cad, "create.InputNew", InputRequestNew(16,None,vector2DGuide))
         } else {
-          Siigna display "nothing selected"
-          End
+          Siigna display "Select objects to move"
+          Start('cad, "Selection")
         }
       }
     }

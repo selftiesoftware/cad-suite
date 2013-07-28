@@ -184,8 +184,8 @@ class Scale extends Module {
           //or distance from mouseDown to mouseUp, if a drag occurs:
           Start('cad, "create.InputNew", InputRequestNew(9,None,doubleGuide))
         } else {
-          Siigna display "nothing selected"
-          End
+          Siigna display "Select objects to scale"
+          Start('cad, "Selection")
         }
       } }
   )
