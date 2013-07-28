@@ -123,14 +123,14 @@ class Selection extends Module {
 
       // If one or more shapes have been selected and the cursor is close to a shape, assume we want to drag-move
       //DRAG MOVE DEACTIVATED DUE TO BUG: Unable to turn off snap in the making, due to not using input-module
-      /*if (!Drawing.selection.isEmpty && !Drawing(mouse).isEmpty) {
+      if (!Drawing.selection.isEmpty && !Drawing(mouse).isEmpty) {
         End(Module('cad, "modify.Move"))
       // If no shape are selected or close, assume the user wants a box-selection
-      } else {      */
+      } else {
         startPoint = Some(p)
         'Box
       //}
-      }
+      } }
 
     //When coming from module as for instance copy, when there is no selection, this event-list is needed to start box-selection:
       case MouseDrag(_, _, mod) :: MouseDown(p, _, _) :: tail => {
