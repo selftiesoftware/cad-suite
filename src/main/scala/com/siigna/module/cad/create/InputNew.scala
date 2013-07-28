@@ -62,7 +62,7 @@ class InputNew extends Module {
         guides = i.guides
         referencePoint = i.referencePoint
         //Turn off snap to shapes in the making, if required
-        if (inputType != Some(5) && inputType != Some(8) ) {
+        if (inputType != Some(5) && inputType != Some(8) && inputType != Some(15) ) {
           guides.foreach(_ match {
             case Vector2DGuideNew(guide) => {
               val snapFunction = () => guide(mousePosition)
@@ -72,7 +72,7 @@ class InputNew extends Module {
           } )
         }
         //Turn off track,if required
-        if(inputType == Some(2)) Siigna("track") = false
+        if(inputType == Some(2) || inputType == Some(8) || inputType == Some(15)) Siigna("track") = false
         'ReceiveUserInput
       }
       case _ => {
@@ -213,7 +213,8 @@ class InputNew extends Module {
         case Vector2DGuideNew(guide) => {
           guide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
         }
-        case _ => println("Unknown guide in input")// No known guide
+        case DoubleGuideNew(guide) =>
+        case x => println("Unknown guide in input: " + x)// No known guide
       } )
     }
   }

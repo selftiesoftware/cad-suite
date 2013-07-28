@@ -47,19 +47,24 @@ class Rotate extends Module {
           //Request mouse down - it might be a rotation start point, or the start of a rotation angle:
           centerPoint = Some(p)
           Siigna display "click to set rotation start point, or type a rotation angle"
-          Start('cad, "create.InputNew", InputRequestNew(1,None))
+          val doubleGuide = DoubleGuideNew((d: Double) => {
+            Drawing.selection.transformation = origin
+            val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
+            Drawing.selection.transform(t).shapes.values
+          })
+          Start('cad, "create.InputNew", InputRequestNew(15,None,doubleGuide))
         } else if (centerPoint.isDefined && firstPoint == true) {
           firstPoint = false
           mouseDownPoint = Some(p)
           //Find out where the mousebutton is released - if it's a start point or an angle that's defined:
-          val doubleGuide = Vector2DGuideNew((v : Vector2D) => {
+          val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
             Drawing.selection.transformation = origin
             val rotateAngle = -((p - centerPoint.get).angle - (v - centerPoint.get).angle)
             val t : TransformationMatrix =
               TransformationMatrix( ).rotate(rotateAngle, centerPoint.get)
             Drawing.selection.transform(t).shapes.values
           })
-          Start('cad, "create.InputNew", InputRequestNew(8,None,doubleGuide))
+          Start('cad, "create.InputNew", InputRequestNew(8,None,vector2DGuide))
           //Where the mouse up is:
         } else if (mouseReleased == true) {
           mouseReleased = false
@@ -73,8 +78,8 @@ class Rotate extends Module {
             startVectorSet = true
             Siigna display "click to finish rotation, or type a rotation angle"
             val doubleGuide = DoubleGuideNew((d: Double) => {
-              Drawing.selection.transformation = origin
               val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
+              Drawing.selection.transformation = origin
               Drawing.selection.transform(t).shapes.values
             })
             val vector2DGuide = Vector2DGuideNew((v: Vector2D) => {
@@ -84,7 +89,7 @@ class Rotate extends Module {
               val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
               Drawing.selection.transform(t).shapes.values
             })
-            val inputRequest = InputRequestNew(9,None,vector2DGuide)
+            val inputRequest = InputRequestNew(15,None,vector2DGuide,doubleGuide)
             //9 : Input type = Double from keys, or Vector2D from mouseDown.
             Start('cad, "create.InputNew", inputRequest)
             //If a rotation-vector is set, do the rotation!
@@ -108,13 +113,14 @@ class Rotate extends Module {
 
       //if Point returns a typed angle:
       case End(a : Double) :: tail => {
-        /*val t : TransformationMatrix = {
+        Drawing.selection.transformation = origin
+        val t : TransformationMatrix = {
           if (centerPoint.isDefined) {
             TransformationMatrix(Vector2D(0,0), 1).rotate(-a, centerPoint.get)
           } else TransformationMatrix()
         }
         //val t = transformation.get.rotate(rotation,centerPoint.get)
-        Drawing.selection.get.transform(t)*/
+        Drawing.selection.transform(t)
         Drawing.deselect()
         End
       }

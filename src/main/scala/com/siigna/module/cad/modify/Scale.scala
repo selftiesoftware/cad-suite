@@ -95,7 +95,7 @@ class Scale extends Module {
             transformSelection(t)
           }
           )
-          Start('cad, "create.InputNew", InputRequestNew(9,None,doubleGuide))
+          Start('cad, "create.InputNew", InputRequestNew(15,None,doubleGuide))
         } else if (firstPointEntered == true && endPoint.isEmpty) {
           //STEP 3: A point is returned (from mouse down). To find out what to do with it, a mouse-up is required:
           endPoint = Some(p)
