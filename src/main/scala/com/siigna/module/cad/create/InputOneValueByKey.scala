@@ -147,7 +147,7 @@ class InputOneValueByKey extends Module {
           guide(input.get).foreach(s => g.draw(s.transform(t)))
         }
       }
-      case _ => // No known guide
+      case _ => // No double guide
     } )
   }
 }

@@ -47,8 +47,14 @@ class Selection extends Module {
   'Start -> {
 
     //exit strategy
-    case KeyDown(Key.Esc, _) :: tail => End
-    case MouseUp(_, MouseButtonRight, _) :: tail => End
+    case KeyDown(Key.Esc,m) :: tail => End(KeyDown(Key.Escape,m))
+    case MouseDown(p, MouseButtonRight,m) :: tail => End(MouseDown(p,MouseButtonRight,m))
+
+    //If started with a Vector2D:
+    case Start(_ , v: Vector2D) :: tail => {
+
+
+    }
 
     // If we immediately receive a mouse-up we select nearby shapes
     case MouseUp(p, _, modifier) :: tail => {
@@ -81,10 +87,11 @@ class Selection extends Module {
             // If we can find the exact same selector, select the entire shape (equal to dbl-click)
             case Some((x, y)) if y == selector && y != FullShapeSelector => Select(id)
             // If the old selector differs we simply select the new selection
-            case _ => {
+            case _ if shape.distanceTo(m) < Siigna.selectionDistance => {
               Deselect() // Deselect the current selection since shift is up
               Select(id, selector)
             }
+            case _ => Deselect() // Deselect the current selection since shift is up
           }
         } else Deselect() // Deselect the current selection since shift is up
       } else {
@@ -110,7 +117,7 @@ class Selection extends Module {
     }
 
     // Forward to Move if we start to drag and a selection is active and shift is not down
-    case MouseDrag(_, _, mod) :: Start(_, _) :: MouseDown(p, _, _) :: tail => {
+    case MouseDrag(_, _, mod) :: Start(_, _) :: End(_) :: MouseDown(p, _, _) :: tail => {
       val mouse = p.transform(View.deviceTransformation)
       Select(mouse)
 
@@ -121,15 +128,23 @@ class Selection extends Module {
       } else {
         startPoint = Some(p)
         'Box
+      //}
+      } }
+
+    //When coming from module as for instance copy, when there is no selection, this event-list is needed to start box-selection:
+      case MouseDrag(_, _, mod) :: MouseDown(p, _, _) :: tail => {
+        startPoint = Some(p)
+        'Box
       }
-    }
+
+    case e => println(e)
 
   },
 
   'Box -> {
     //exit strategy
-    case KeyDown(Key.Esc, _) :: tail => End
-    case MouseDown(p, MouseButtonRight, _) :: tail => End
+    case KeyDown(Key.Esc,m) :: tail => End(KeyDown(Key.Escape,m))
+    case MouseDown(p, MouseButtonRight,m) :: tail => End(MouseDown(p,MouseButtonRight,m))
 
     // Do nothing if shift is pressed
     case KeyDown(Key.Shift, _) :: tail =>
@@ -154,7 +169,9 @@ class Selection extends Module {
       }
       End
     }
-    case e => End
+    case e => {println(e)
+      End}
+
   },
 
 

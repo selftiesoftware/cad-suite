@@ -33,7 +33,6 @@ package com.siigna.module
 import java.awt.Color
 import com.siigna.app.view._
 import com.siigna.app.model.shape.TextShape
-import com.siigna.util.collection.Attributes
 import com.siigna.app.Siigna
 import com.siigna.util.geom.Vector2D
 

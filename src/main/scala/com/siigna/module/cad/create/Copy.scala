@@ -28,28 +28,41 @@ class Copy extends Module {
   var startPoint : Option[Vector2D] = None
   var transformation = TransformationMatrix()
 
-  // The selection
-  def selection = Drawing.selection
-
-  // Transforms the selection and returns the resulting shapes
-  def transform(t : TransformationMatrix) = selection.transform(t).shapes.values
+  /**
+   * Transform the shapes with the given transformation
+   * @param t The transformation
+   * @return The shapes transformed
+   */
+  def transform(t : TransformationMatrix) = {
+    Drawing.selection.shapes.map(_._2.transform(t))
+  }
 
   val stateMap: StateMap = Map(
 
     'Start -> {
+
+      //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => End
+      case MouseDown(p, MouseButtonRight, _) :: tail => End
+      case End(KeyDown(Key.Esc, _)) :: tail => End
+
       case End(p : Vector2D) :: tail => {
+
         if(!startPoint.isDefined && !Drawing.selection.isEmpty) {
           startPoint = Some(p)
           Siigna display "set destination"
-          val vector2DGuide = Vector2DGuideNew((v : Vector2D) => transform(TransformationMatrix(v - startPoint.get, 1)))
-          val inputRequest = InputRequestNew(6,None,vector2DGuide)
+          val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
+            transform(TransformationMatrix(v - startPoint.get, 1))
+          })
+
+          val inputRequest = InputRequestNew(5,startPoint,vector2DGuide)
           Start('cad, "create.InputNew", inputRequest)
-        }
-        else if(startPoint.isDefined){
+        } else if (startPoint.isDefined){
           endPoint = Some(p)
-          transformation = TransformationMatrix((p - startPoint.get), 1)
+          transformation = TransformationMatrix(p - startPoint.get, 1)
           Siigna display "type number of copies or click for one"
           multiActive = true
+
           val doubleGuide = DoubleGuideNew((r: Double) => transform(transformation))
           val vector2DGuide = Vector2DGuideNew((v: Vector2D) => transform(transformation))
           val inputRequest = InputRequestNew(13, None,vector2DGuide,doubleGuide)
@@ -58,12 +71,20 @@ class Copy extends Module {
       }
 
       case End(f : Double) :: tail => {
-        if (multiActive == true && endPoint.isDefined){
+        if (multiActive && endPoint.isDefined){
           var g: Double = f
           if (g == 0) g = 1
           if (g < 0) g = math.abs(g)
           val shapes = for (i <- 1 to g.toInt) yield {
-             transform(TransformationMatrix(Vector2D((endPoint.get.x - startPoint.get.x) * i, (endPoint.get.y - startPoint.get.y) * i), 1))
+             transform(
+               TransformationMatrix(
+                 Vector2D(
+                   (endPoint.get.x - startPoint.get.x) * i,
+                   (endPoint.get.y - startPoint.get.y) * i
+                 ),
+                 1
+               )
+             )
           }
           Create(shapes.flatten)
         }
@@ -71,8 +92,8 @@ class Copy extends Module {
       }
 
       case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => {
-        if (multiActive == true) {
-          transformation = TransformationMatrix((endPoint.get - startPoint.get), 1)
+        if (multiActive) {
+          transformation = TransformationMatrix(endPoint.get - startPoint.get, 1)
           Create(transform(transformation))
           val module = Module('base, "Menu")
           End(module)
@@ -81,34 +102,30 @@ class Copy extends Module {
 
       case End(KeyDown(key,modifier)) :: tail => {
         if (key == Key.escape) {
-          if (multiActive == true) {
-            transformation = TransformationMatrix((endPoint.get - startPoint.get), 1)
+          if (multiActive) {
+
+            transformation = TransformationMatrix(endPoint.get - startPoint.get, 1)
             Create(transform(transformation))
           }
           End('base, "Menu")
         }
       }
 
-
-      //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
-      case MouseDown(p, MouseButtonRight, _) :: tail => End
-
       case _ => {
         if (Drawing.selection.isDefined) {
-          if(multiActive == true) {
+          if (multiActive) {
             Create(transform(transformation))
             End
-          }
-          else {
+          } else {
             Siigna display "set origin of copy"
             Start('cad,"create.InputNew",InputRequestNew(6,None))
           }
         } else {
-          Siigna display "nothing selected"
-          End
+          Siigna display "Select objects to copy"
+          Start('cad, "Selection")
         }
       }
     }
+
   )
 }
