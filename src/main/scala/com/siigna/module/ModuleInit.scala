@@ -23,7 +23,6 @@ import base.{PaperHeader, Menu}
 import com.siigna.module.cad.radialmenu.category.{ModifyCategory, StartCategory}
 import com.siigna._
 import com.siigna.app.model.selection.EmptySelection
-import module.cad.create.InputRequestNew
 
 /**
  * An init module for the cad-suite.
@@ -87,6 +86,91 @@ class ModuleInit extends Module {
     Start(m, modText)
   }
 
+  def startMenu = {
+    textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
+    // If any selections are defined we start in the Modify category
+    if (Drawing.selection.isDefined) {
+      Start('base, "Menu", ModifyCategory)
+    } else Start('base, "Menu")
+  }
+
+  def startSelection(p : Vector2D) = {
+    textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
+    Start('cad, "Selection", p)
+  }
+
+  def startPrevious = {
+    if (lastModule.isDefined) {
+      println("Space")
+      println("Last module: " + lastModule.get)
+      shortcut = ""
+      textFeedback.inputFeedback("EMPTY")//clear any active tooltips
+      textFeedback.inputFeedback("GETPREVIOUS") //send a command to inputFeedback to display the last module name
+      Start(lastModule.get.newInstance)
+    }
+  }
+
+  def handleKeyDown(code : Int, modifier : ModifierKeys) = {
+    // Special keys:
+    //Delete:
+    if (code == Key.Delete) {
+      shortcut = ""
+      if (Drawing.selection.isDefined) {
+        Delete(Drawing.selection)
+      }
+      //Escape:
+    } else if (code == Key.Escape) {
+      shortcut = ""
+      textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
+      Drawing.deselect()
+    }
+
+    // Letters or numbers:
+    if (code.toChar.isLetterOrDigit) {
+      val shortcutKey: Char = code.toChar
+      println("shortcutKey" + shortcutKey)
+
+      //Modified keys: Control:
+      if (modifier.ctrl) {
+        if (shortcutKey == 'a') Drawing.selectAll()
+        if (shortcutKey == 'c') shortcutProcess("q", "create.Copy", 'cad)
+        if (shortcutKey == 'z') Drawing.undo()
+        if (shortcutKey == 'y') Drawing.redo()
+      }
+
+      //MENU SHORTCUTS - LETTERS:
+      if (shortcut == "") {
+        if(shortcutKey == 'c' || shortcutKey == 'h' || shortcutKey == 'm' || shortcutKey == 'p') {
+          shortcut = shortcutKey.toString
+          toolSuggestions = textFeedback.inputFeedback(shortcut)
+        }
+      } else if (shortcut == "c") {
+        if      (shortcutKey == 'a') shortcutProcess("a", "create.Arc", 'cad)
+        else if (shortcutKey == 'c') shortcutProcess("c", "create.Circle", 'cad)
+        else if (shortcutKey == 'd') shortcutProcess("d", "create.Lineardim", 'cad)
+        else if (shortcutKey == 'e') shortcutProcess("e", "create.Explode", 'cad)
+        else if (shortcutKey == 'l') shortcutProcess("l", "create.Line", 'cad)
+        else if (shortcutKey == 'o') shortcutProcess("o", "create.Offset", 'cad)
+        else if (shortcutKey == 'p') shortcutProcess("p", "create.Polyline", 'cad)
+        else if (shortcutKey == 'r') shortcutProcess("r", "create.Rectangle", 'cad)
+        else if (shortcutKey == 't') shortcutProcess("t", "create.Text", 'cad)
+      } else if (shortcut == "h") {
+        if      (shortcutKey == 'd')   shortcutProcess("d", "helpers.Distance", 'cad)
+        else if (shortcutKey == 's')   shortcutProcess("s", "helpers.SnapToggle", 'cad)
+        else if (shortcutKey == 't')   shortcutProcess("t", "helpers.TrackToggle", 'cad)
+      } else if (shortcut == "m") {
+        if      (shortcutKey == 'm')   shortcutProcess("m", "modify.Move", 'cad)
+        else if (shortcutKey == 'r')   shortcutProcess("r", "modify.Rotate", 'cad)
+        else if (shortcutKey == 's')   shortcutProcess("s", "modify.Scale", 'cad)
+        else if (shortcutKey == 't')   shortcutProcess("t", "modify.Trim", 'cad)
+      } else if (shortcut == "p") {
+        if      (shortcutKey == 'c')   shortcutProcess("c", "properties.Colors", 'cad)
+        else if (shortcutKey == 's')   shortcutProcess("s", "properties.Stroke", 'cad)
+      }
+    }
+
+  }
+
   def stateMap = Map(
     'Start -> {
 
@@ -96,94 +180,23 @@ class ModuleInit extends Module {
         Start(module) // Forward
       }
 
-      case End(p : Vector2D) :: tail => {
-        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
-        Start('cad, "Selection", p)
-      }
+      // Menu
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => startMenu
+      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => startMenu
 
-      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => {
-        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
-        // If any selections are defined we start in the Modify category
-        if (Drawing.selection.isDefined) {
-          Start('base, "Menu", ModifyCategory)
-        } else Start('base, "Menu")
-      }
+      // Selection
+      case End(p : Vector2D) :: tail => startSelection(p)
+      case MouseDown(p : Vector2D, _, _) :: tail => startSelection(p)
 
-      case End(KeyDown(Key.Space,_)) :: tail => {
-        if (lastModule.isDefined) {
-          println("Space")
-          println("Last module: " + lastModule.get)
-          shortcut = ""
-          textFeedback.inputFeedback("EMPTY")//clear any active tooltips
-          textFeedback.inputFeedback("GETPREVIOUS") //send a command to inputFeedback to display the last module name
-          Start(lastModule.get.newInstance)
-        }
-      }
+      // Start previous
+      case KeyDown(Key.Space,_) :: tail => startPrevious
+      case End(KeyDown(Key.Space,_)) :: tail => startPrevious
 
-      case End(KeyDown(code: Int,modifier: ModifierKeys)) :: tail => {
-        // Special keys:
-        //Delete:
-        if (code == Key.Delete) {
-          shortcut = ""
-          if (Drawing.selection.isDefined) {
-            Delete(Drawing.selection)
-          }
-          //Escape:
-        } else if (code == Key.Escape) {
-          shortcut = ""
-          textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
-          Drawing.deselect()
-        }
-
-        // Letters or numbers:
-        if (code.toChar.isLetterOrDigit == true) {
-          val shortcutKey: Char = code.toChar
-          println("shortcutKey" + shortcutKey)
-
-          //Modified keys: Control:
-          if (modifier.ctrl == true ) {
-            if (shortcutKey == 'a') Drawing.selectAll()
-            if (shortcutKey == 'c') shortcutProcess("q", "create.Copy", 'cad)
-            if (shortcutKey == 'z') Drawing.undo()
-            if (shortcutKey == 'y') Drawing.redo()
-          }
-
-          //MENU SHORTCUTS - LETTERS:
-          if (shortcut == "") {
-            if(shortcutKey == 'c' || shortcutKey == 'h' || shortcutKey == 'm' || shortcutKey == 'p') {
-              shortcut = shortcutKey.toString
-              toolSuggestions = textFeedback.inputFeedback(shortcut)
-            }
-          } else if (shortcut == "c") {
-            if      (shortcutKey == 'a') shortcutProcess("a", "create.Arc", 'cad)
-            else if (shortcutKey == 'c') shortcutProcess("c", "create.Circle", 'cad)
-            else if (shortcutKey == 'd') shortcutProcess("d", "create.Lineardim", 'cad)
-            else if (shortcutKey == 'e') shortcutProcess("e", "create.Explode", 'cad)
-            else if (shortcutKey == 'l') shortcutProcess("l", "create.Line", 'cad)
-            else if (shortcutKey == 'o') shortcutProcess("o", "create.Offset", 'cad)
-            else if (shortcutKey == 'p') shortcutProcess("p", "create.Polyline", 'cad)
-            else if (shortcutKey == 'r') shortcutProcess("r", "create.Rectangle", 'cad)
-            else if (shortcutKey == 't') shortcutProcess("t", "create.Text", 'cad)
-          } else if (shortcut == "h") {
-            if      (shortcutKey == 'd')   shortcutProcess("d", "helpers.Distance", 'cad)
-            else if (shortcutKey == 's')   shortcutProcess("s", "helpers.SnapToggle", 'cad)
-            else if (shortcutKey == 't')   shortcutProcess("t", "helpers.TrackToggle", 'cad)
-          } else if (shortcut == "m") {
-            if      (shortcutKey == 'm')   shortcutProcess("m", "modify.Move", 'cad)
-            else if (shortcutKey == 'r')   shortcutProcess("r", "modify.Rotate", 'cad)
-            else if (shortcutKey == 's')   shortcutProcess("s", "modify.Scale", 'cad)
-            else if (shortcutKey == 't')   shortcutProcess("t", "modify.Trim", 'cad)
-          } else if (shortcut == "p") {
-            if      (shortcutKey == 'c')   shortcutProcess("c", "properties.Colors", 'cad)
-            else if (shortcutKey == 's')   shortcutProcess("s", "properties.Stroke", 'cad)
-          }
-        }
-
-      }
+      case KeyDown(code: Int,modifier: ModifierKeys) :: tail => handleKeyDown(code, modifier)
+      case End(KeyDown(code: Int,modifier: ModifierKeys)) :: tail => handleKeyDown(code, modifier)
 
       case _ => {
-        Start('cad,"create.InputNew", InputRequestNew(14,None))
-
+        //Start('cad,"create.InputNew", InputRequestNew(14,None))
       }
     }
   )
