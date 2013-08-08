@@ -203,8 +203,8 @@ class Offset extends Module {
 
     case _ => {
       if (Drawing.selection.isDefined == false && done == false) {
-        Siigna display "select an object to offset first"
-        End
+        Siigna display "select an object to offset"
+        Start('cad, "Selection")
       }
       else if (Drawing.selection.size == 1 ){
         attr = Drawing.selection.shapes.head._2.attributes

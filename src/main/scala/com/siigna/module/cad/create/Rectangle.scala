@@ -12,6 +12,7 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
+import com.siigna.app.model.shape.RectangleShape
 
 class Rectangle extends Module {
 
@@ -43,7 +44,8 @@ class Rectangle extends Module {
         else if (points.length == 1) {
           points = points :+ v
           //create the rectangle
-          Create(PolylineShape(Rectangle2D(points(0), points(1))).addAttributes(attributes))
+          Create(RectangleShape(points(0),points(1)).addAttributes(attributes))
+          //Create(PolylineShape(Rectangle2D(points(0), points(1))).addAttributes(attributes))
           points = List()
           End
         }
