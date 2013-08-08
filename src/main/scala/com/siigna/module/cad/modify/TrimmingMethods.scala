@@ -22,6 +22,7 @@ package com.siigna.module.cad.modify
 import com.siigna.util.geom._
 import com.siigna.app.model.shape._
 import com.siigna.app.Siigna
+import com.siigna.app.model.shape.PolylineShape.PolylineShapeClosed
 
 object TrimmingMethods {
 
@@ -35,14 +36,20 @@ object TrimmingMethods {
    * a) the segment numbers (Int) on the trimShape on which an intersection occurs
    * b) the intersection point
    */
+
   def getIntersectSegmentNumbers(g : List[Shape], t : PolylineShape) : Map[Int,List[Vector2D]] = {
     //make a list of all intersections between the guideShapes and the trimShape
     val shapes = g.map(_.geometry)
     //1 = shape
     //2 = ID
+    //println("T: " + t.geometry)
+    //println("G: " + g(0).geometry)
+    //println("INTS: "+(t.geometry).intersections(g(0).geometry))
+
     //make a list of tuples: the segment nr at which the intersection takes place, and the coordinate.
     val intersections = t.shapes.map(_.geometry).zipWithIndex.map(t => t._2 -> shapes.map(_.intersections(t._1)).flatten)
-    intersections.toMap //return
+    val i = intersections.toMap //return
+    i
   }
 
   /**
@@ -92,7 +99,6 @@ object TrimmingMethods {
     val r = p match {
       case Some(x) => {
         val p = intersections.filter(_.distanceTo(endPoint)>x.distanceTo(endPoint))
-        println("P: "+p)
         p
       }
       case _ => intersections
@@ -147,16 +153,14 @@ object TrimmingMethods {
   input:
   gs = the trimGuideShape(s)
   ts = the shape to be trimmed
-  p = trim point (the part of ts which should be deleted
+  p = trim point (the part of ts which should be deleted)
 
   returns:
   a list of Option[Shape] (because one or both trim lines may or may not exist)
   */
 
   def trimPolyline(guides : Map[Int,Shape], shape : Shape, p : Vector2D) : (Option[List[Vector2D]],Option[List[Vector2D]]) = {
-    var t1 : Option[List[Vector2D]] = None
-    var t2 : Option[List[Vector2D]] = None
-    //TODO: allow trimming of LineShape types (and arcs and circles...)
+
     val trimLine = shape.asInstanceOf[PolylineShape]
     val trimVertices = trimLine.geometry.vertices.toList
 
@@ -193,5 +197,54 @@ object TrimmingMethods {
     }
     //return
     (line1,line2)
+  }
+
+  //closed polylines
+  //should always return one trimmed polyline or none. Never two polylines
+  def trimPolylineClosed(guides : Map[Int,Shape], shape : Shape, p : Vector2D) : Option[List[Vector2D]] = {
+
+    val trimLine = shape.asInstanceOf[PolylineShapeClosed]
+    val trimVertices = trimLine.geometry.vertices.toList
+
+    //TODO: check that the trimLine IS a polyline!
+    val intIDs = getIntersectSegmentNumbers(guides.map(_._2).toList,trimLine)
+    val ints = intIDs.count(!_._2.isEmpty)
+
+    //if there are less than two intersections, the polyline should not be trimmed.
+    if(ints > 1) {
+
+    // Where does the mouse intersect the PL?
+    //        *         trimSegment                           *
+    //               i   intSegmentVectors           i    i
+    //--|-----*------|------ p ----------------------|----|---*----
+    //    endPoint      <-- (d)irection (true/false)      segment endPoint
+
+    // get the ID for the segment on which p lies.   OK
+    val (trimSegmentInt, _) = findIntSegNrAtPoint(trimLine, p).get
+
+    //find intersections in the positive direction.
+    //construct and return the first trimline, if any
+    val line1 = findIntersection(trimLine, intIDs, trimSegmentInt, true, Some(p)) match {
+      case Some((id1, int1)) => {
+        // remove the trimmed vertices, but add the intersection vertex:
+        Some(trimVertices.drop(id1 + 1).+:(int1))
+      }
+      case _ => None
+    }
+
+    //find intersections in the negative direction
+    //construct and return the first trimline, if any
+    val line2 = findIntersection(trimLine, intIDs, trimSegmentInt, false, Some(p)) match {
+      case Some((id2, int2)) => {
+        // remove the trimmed vertices, but add the intersection vertex:
+        Some(trimVertices.take(id2 + 1) :+ int2)
+      }
+      case _ => None
+    }
+    //return
+    val line = (line1.get ++ line2.get).distinct
+    Some(line)
+    }
+    else None
   }
 }
