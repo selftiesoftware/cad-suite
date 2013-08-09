@@ -113,6 +113,7 @@ class TrimSpec extends FunSpec with ShouldMatchers {
       TrimmingMethods.trimPolyline(shapes,trimLine,p1)._2 should equal(Some(List(Vector2D(-200.0,-30.0), Vector2D(-100.0,0.0), Vector2D(10.0,10.0), Vector2D(10.0,10.0))))
     }
 
+
   }
 
 }
