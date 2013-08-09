@@ -20,6 +20,7 @@
 package com.siigna.module.cad.modify
 
 import com.siigna._
+import app.model.shape.PolylineShape.{PolylineShapeClosed, PolylineShapeOpen}
 import module.cad.create.InputRequestNew
 
 class Trim extends Module {
@@ -88,28 +89,55 @@ class Trim extends Module {
           //TODO: enable trimming of shapes with themselves.
           Drawing.deselect(trimLine.get._1)
 
-          val guides = Drawing.selection.shapes
-          val trimmedShapes = TrimmingMethods.trimPolyline(Drawing.selection.shapes,trimLine.get._2,point)
-          println("AAA"+Drawing.selection.shapes)
+          val tl = trimLine.get._2
+          tl match {
+            //TRIM LINE
+            case l : LineShape => {
+              println("GOT L: "+l)
+              Siigna display ("trimming of lineSegments under construction!")
 
-          //if at least one trimmedShapes is defined, delete the original shape:
-          if(trimmedShapes._1.isDefined || trimmedShapes._2.isDefined) {
-            Delete(nearest._1)
+            }
 
-            //construct new shapes
-            if(trimmedShapes._1.isDefined) {
-              //println("t1; "+trimmedShapes._1.get)
-              Create(PolylineShape(trimmedShapes._1.get))
+            //TRIM CLOSED POLYLINES
+            case pc : PolylineShapeClosed => {
+              val trimmedShapes = TrimmingMethods.trimPolylineClosed(Drawing.selection.shapes,pc,point)
+
+              //if at least one trimmedShapes is defined, delete the original shape:
+              if(trimmedShapes.isDefined) {
+                Delete(nearest._1)
+
+                //construct new shape
+                if(trimmedShapes.isDefined) {
+                  Create(PolylineShape(trimmedShapes.get))
+                }
+              }
             }
-            if(trimmedShapes._2.isDefined) {
-              //println("t2; "+trimmedShapes._2.get)
-              Create(PolylineShape(trimmedShapes._2.get))
+
+            //TRIM OPEN POLYLINES
+            case p : PolylineShapeOpen => {
+              val trimmedShapes = TrimmingMethods.trimPolyline(Drawing.selection.shapes,p,point)
+
+              //if at least one trimmedShapes is defined, delete the original shape:
+              if(trimmedShapes._1.isDefined || trimmedShapes._2.isDefined) {
+                Delete(nearest._1)
+
+                //construct new shapes
+                if(trimmedShapes._1.isDefined) {
+                  //println("t1; "+trimmedShapes._1.get)
+                  Create(PolylineShape(trimmedShapes._1.get))
+                }
+                if(trimmedShapes._2.isDefined) {
+                  //println("t2; "+trimmedShapes._2.get)
+                  Create(PolylineShape(trimmedShapes._2.get))
+                }
+              }
             }
+            //UNSUPPORTED SHAPES:
+            case e => Siigna display ("sorry, Siigna can not trim " + e.toString.takeWhile(_ != '(') + "s yet!")
           }
         }
         End
       }
-
 
       case e => {
         println("error: "+e)
