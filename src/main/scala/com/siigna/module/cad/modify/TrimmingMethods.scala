@@ -368,6 +368,8 @@ object TrimmingMethods {
     val trimLine = shape.asInstanceOf[PolylineShapeClosed]
     val trimVertices = trimLine.geometry.vertices.toList
 
+    val trimmedLine : Option[List[Vector2D]] = None
+
     //TODO: check that the trimLine IS a polyline!
     val intIDs = getIntersectSegmentNumbers(guides.map(_._2).toList,trimLine)
     val ints = intIDs.count(!_._2.isEmpty)
@@ -378,30 +380,62 @@ object TrimmingMethods {
     // get the ID for the segment on which p lies.
     val (trimSegmentInt, _) = findIntSegNrAtPoint(trimLine, p).get
 
+
     //find intersections in the positive direction.
     //construct and return the first trimline, if any
-    val line1 = findIntersectionClosed(trimLine, intIDs, trimSegmentInt, true, Some(p)) match {
-      case Some((id1, int1)) => {
-        // remove the trimmed vertices, but add the intersection vertex:
-        Some(trimVertices.drop(id1 + 1).+:(int1))
-      }
-      case _ => None
-    }
+    val int1 = findIntersectionClosed(trimLine, intIDs, trimSegmentInt, true, Some(p))
 
     //find intersections in the negative direction
     //construct and return the first trimline, if any
-    val line2 = findIntersectionClosed(trimLine, intIDs, trimSegmentInt, false, Some(p)) match {
-      case Some((id2, int2)) => {
-        // remove the trimmed vertices, but add the intersection vertex:
-        Some(trimVertices.take(id2 + 1) :+ int2)
-      }
-      case _ => None
+    val int2 = findIntersectionClosed(trimLine, intIDs, trimSegmentInt, false, Some(p))
+
+    //TODO: construct the trimmed line from the original line and the two intersections...
+
+    //if the trimmed line consists of two disconnected open polylines, they should be connected.
+    //-> TrimPoint INT1 id < TP id < INT2 id
+      /*
+  END x    0
+      *---------*
+     3|         |1
+     -*---------*--- GuideLine
+
+          *TP
+           2
+      */
+     println("tsINT; "+trimSegmentInt)
+
+     if(int1.isDefined && int2.isDefined){
+       val id1 = int1.get._1
+       val id2 = int2.get._1
+       if((trimSegmentInt >= id1 && trimSegmentInt <= id2) || (trimSegmentInt >= id2 && trimSegmentInt <= id1)){
+         println("connect two lines")
+
+         //construct a line from the end of the pl to the first int
+         val l1 = Some(trimVertices.drop(id1 + 1).+:(int1))
+         //construct a line from the start of the pl to the second int
+         val l2 = Some(trimVertices.take(id2 + 1) :+ int2)
+
+         //trim
+         println("l1: "+l1)
+         println("l2: "+l2)
+       }
+
+     }
+      //if the trimmed line consists of one polyline for which one or both ends are trimmed, these end segments should be removed.
+      // TP id < INT1/2 id || TP id > INT1/2 id
+
+
+      /*
+  END x    0
+          *TP
+                1
+     -*---------*--- GuideLine
+     3|         |
+      *---------*
+           2
+      */
+
     }
-    //return
-    //val line = (line1.get ++ line2.get).distinct
-    //Some(line)
-      None
-    }
-    else None
+    trimmedLine
   }
 }

@@ -182,8 +182,8 @@ class TrimSpec extends FunSpec with ShouldMatchers {
       val ints1 = TrimmingMethods.getIntersectSegmentNumbers(gs1,trimLine)
       val ints2 = TrimmingMethods.getIntersectSegmentNumbers(gs2,trimLine)
 
-      TrimmingMethods.findIntersectionClosed(trimLine,ints1,3,true,Some(tp)) should equal(Some((1,Vector2D(20.0,0.0)))) //positive direction
-      TrimmingMethods.findIntersectionClosed(trimLine,ints1,3,false,Some(tp)) should equal(Some((3,Vector2D(-20.0,0.0)))) //negative direction
+      //TrimmingMethods.findIntersectionClosed(trimLine,ints1,3,true,Some(tp)) should equal(Some((1,Vector2D(20.0,0.0)))) //positive direction
+      //TrimmingMethods.findIntersectionClosed(trimLine,ints1,3,false,Some(tp)) should equal(Some((3,Vector2D(-20.0,0.0)))) //negative direction
 
       /*
 
@@ -198,9 +198,9 @@ class TrimSpec extends FunSpec with ShouldMatchers {
        */
 
       //direction END - should flip from 3 to 0 and find the top intersection.
-      TrimmingMethods.findIntersectionClosed(trimLine,ints2,3,true,Some(tp)) should equal(Some((0,Vector2D(0.0,20.0)))) //positive direction
+      //TrimmingMethods.findIntersectionClosed(trimLine,ints2,3,true,Some(tp)) should equal(Some((0,Vector2D(0.0,20.0)))) //positive direction
       //direction START - should descend from 3 to 2 and find the bottom intersection.
-      TrimmingMethods.findIntersectionClosed(trimLine,ints2,3,false,Some(tp)) should equal(Some((2,Vector2D(0.0,-20.0)))) //negative direction
+      //TrimmingMethods.findIntersectionClosed(trimLine,ints2,3,false,Some(tp)) should equal(Some((2,Vector2D(0.0,-20.0)))) //negative direction
 
     }
 
@@ -210,17 +210,27 @@ class TrimSpec extends FunSpec with ShouldMatchers {
       val gs = Map(-4 -> PolylineShapeOpen(Vector2D(0,0),List(PolylineLineShape(Vector2D(0,30))),Attributes()))
       val tp = Vector2D(20,10)
 
-      TrimmingMethods.trimPolylineClosed(gs,trimLine,tp) should equal(None)
+      //TrimmingMethods.trimPolylineClosed(gs,trimLine,tp) should equal(None)
     }
     it("should be trimmed with two intersections") {
 
       val trimLine = PolylineShape(Rectangle2D(Vector2D(-20,-20),Vector2D(20,20)))
       val gs = Map(4 -> PolylineShapeOpen(Vector2D(-30,0),List(PolylineLineShape(Vector2D(30,0))),Attributes()))
-      //tp = D
+
       val tp = Vector2D(-20,10)
       val tp2 = Vector2D(-20,0)
 
-      //TrimmingMethods.trimPolylineClosed(gs,trimLine,tp) should equal(Some(List(Vector2D(0.0,-20.0), Vector2D(-20.0,-20.0), Vector2D(-20.0,20.0),Vector2D(0.0,20))))
+      /*
+  END x    0
+      *---------*
+    TP*         |1
+     -*---------*--- GuideLine
+     3|         |
+      *---------*
+           2
+     */
+
+      TrimmingMethods.trimPolylineClosed(gs,trimLine,tp) should equal(Some(List(Vector2D(0.0,-20.0), Vector2D(-20.0,-20.0), Vector2D(-20.0,20.0),Vector2D(0.0,20))))
       //TrimmingMethods.trimPolylineClosed(gs,trimLine,tp2) should equal(Some(List(Vector2D(0.0,20.0), Vector2D(20.0,-20.0), Vector2D(20.0,20.0),Vector2D(0.0,20))))
     }
   }
