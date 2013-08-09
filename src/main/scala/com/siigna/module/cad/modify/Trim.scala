@@ -115,7 +115,7 @@ class Trim extends Module {
 
             //TRIM OPEN POLYLINES
             case p : PolylineShapeOpen => {
-              val trimmedShapes = TrimmingMethods.trimPolyline(Drawing.selection.shapes,p,point)
+              val trimmedShapes = TrimmingMethods.trimPolylineOpen(Drawing.selection.shapes,p,point)
 
               //if at least one trimmedShapes is defined, delete the original shape:
               if(trimmedShapes._1.isDefined || trimmedShapes._2.isDefined) {
