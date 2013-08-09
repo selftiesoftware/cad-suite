@@ -71,7 +71,7 @@ object TrimmingMethods {
   1: the shape to be trimmed
   2: the list of all intersection vectors and corresponding ID's for the polyline to be trimmed (from getIntersectSegmentNumbers)
   3: the ID of the segment on which the trim point is set (with MouseDown)
-  4: a boolean telling if the intersections towards the start or the end of the polyline should be returned
+  4: d: a boolean telling if the intersections towards the start (TRUE) or the end (FALSE) of the polyline should be returned
   5: the trim point
 
   returns: Vector2Ds which are needed to construct the trimmed Polyline, or None.
@@ -79,13 +79,17 @@ object TrimmingMethods {
 
   def findIntersection(tL : PolylineShape, intIDs : Map[Int, List[Vector2D]], id : Int, d : Boolean, p : Option[Vector2D]) : Option[(Int, Vector2D)] = {
     //get intersecting vectors at the same segment as the segment p is on   OK
-
     val intersections = intIDs(id)
     val shape = tL.shapes(id)
 
     //find the endpoint of the segment on which p lies .
-    //if it is the first segment of the  trimline, the startpoint of the polyline is used.
-    val endPoint = if(d) shape.geometry.vertices(0) else if(id == 0) tL.startPoint else shape.geometry.vertices(1)
+    //if it is the first segment of the trimline and the direction is FALSE, the startpoint of the polyline is used.
+    //if it is the first segment and the direction is TRUE, the startPoint + 1 (next point) is used.
+    val endPoint = if(d) {
+      shape.geometry.vertices(0)
+    } else {
+      shape.geometry.vertices(1)
+    }
 
     //get intersecting points on the segment in the given direction E1 or E2 (set with a boolean value), if any:
     //based on a distance calculation: filters out ints with a distance greater than d(x,E2)
@@ -98,7 +102,11 @@ object TrimmingMethods {
     //if so, store them in the val r, and filter the intersections to get the ones on the right side of the trim point only:
     val r = p match {
       case Some(x) => {
-        val p = intersections.filter(_.distanceTo(endPoint)>x.distanceTo(endPoint))
+        val p = if(d) {
+          intersections.filter(_.distanceTo(endPoint)>x.distanceTo(endPoint))
+        } else {
+          intersections.filter(_.distanceTo(endPoint)>x.distanceTo(endPoint))
+        }
         p
       }
       case _ => intersections

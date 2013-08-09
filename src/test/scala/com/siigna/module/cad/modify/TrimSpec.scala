@@ -52,12 +52,20 @@ class TrimSpec extends FunSpec with ShouldMatchers {
     it("intersections can be found with another PL") {
       val trimLine2 = PolylineShape(List(Vector2D(0,-10),Vector2D(0,0),Vector2D(10,0), Vector2D(10,-10)))
       val trimLine3 = PolylineShape(List(Vector2D(10,-10),Vector2D(10,0),Vector2D(0,0), Vector2D(0,-10)))
+
+      val trimLine4 = PolylineShape(List(Vector2D(-20,-10),Vector2D(-20,20),Vector2D(20,20), Vector2D(20,-10)))
+
+
       val oneGuide = List(PolylineShape(List(Vector2D(0,30),Vector2D(0,-30))))
+      val oneGuide2 = List(PolylineShape(List(Vector2D(-30,0),Vector2D(30,0))))
 
       TrimmingMethods.getIntersectSegmentNumbers(twoGuides,trimLine) should equal(Map(0 -> List(), 1 -> List(Vector2D(-45.0,5.0), Vector2D(-11.192660550458712,8.073394495412845)), 2 -> List(), 3 -> List()))
       TrimmingMethods.getIntersectSegmentNumbers(oneGuide,trimLine2) should equal(Map(0 -> List(), 1 -> List(Vector2D(0.0,0.0)), 2 -> List()))
       //trimLine reversed
       TrimmingMethods.getIntersectSegmentNumbers(oneGuide,trimLine3) should equal(Map(0 -> List(), 1 -> List(Vector2D(0.0,0.0)), 2 -> List()))
+
+      //three segment trimline with two ints (on seg 0 and 2)
+      TrimmingMethods.getIntersectSegmentNumbers(oneGuide2,trimLine4) should equal(Map(0 -> List(Vector2D(-20.0,0.0)), 1 -> List(), 2 -> List(Vector2D(20.0,0.0))))
     }
 
     //findIntersection tests:
@@ -87,11 +95,51 @@ class TrimSpec extends FunSpec with ShouldMatchers {
       TrimmingMethods.findIntersection(trimLine,sevenInts,0,true,Some(p4)) should equal (Some((1,Vector2D(-45.0,5.0)))) //positive direction, point far left
     }
 
+
+    it("both relevant intersections (to be used for trimming) can be found when the trimpoint is on the same segment as either intersection") {
+      val trimLine = PolylineShape(List(Vector2D(-20,-10),Vector2D(-20,20),Vector2D(20,20), Vector2D(20,-10)))
+      val gs = List(LineShape(Vector2D(-30,0),Vector2D(30,0)))
+      val tp = Vector2D(-20,10)
+
+      val ints = TrimmingMethods.getIntersectSegmentNumbers(gs,trimLine)
+
+      TrimmingMethods.findIntersection(trimLine,ints,0,true,Some(tp)) should equal(Some((2,Vector2D(20.0,0.0)))) //positive direction
+      TrimmingMethods.findIntersection(trimLine,ints,0,false,Some(tp)) should equal(Some((0,Vector2D(-20.0,0.0)))) //negative direction
+
+    }
+
+
     it("resultant trimLines at int2 situations can be generated... ") {
       val shapes = Map(-2 -> PolylineShapeOpen(Vector2D(30.0,150.0),List(PolylineLineShape(Vector2D(-20.0,30.0)), PolylineLineShape(Vector2D(-10.0,20.0)), PolylineLineShape(Vector2D(-15.0,-30.0))), Attributes()), -3 -> PolylineShapeOpen(Vector2D(10.0,20.0),List(PolylineLineShape(Vector2D(10.0,-30.0))), Attributes()))
+      val trimLine2 = PolylineShape(List(Vector2D(-20,-10),Vector2D(-20,20),Vector2D(20,20), Vector2D(20,-10)))
+      val gs = Map(-4 -> LineShape(Vector2D(-30,0),Vector2D(30,0)))
+      val tp1 = Vector2D(20,10)
+      val tp2 = Vector2D(-20,10)
 
       TrimmingMethods.trimPolyline(shapes,trimLine,p1)._1 should equal(None)
       TrimmingMethods.trimPolyline(shapes,trimLine,p1)._2 should equal(Some(List(Vector2D(-200.0,-30.0), Vector2D(-100.0,0.0), Vector2D(10.0,10.0), Vector2D(10.0,10.0))))
+
+      //trimming with two intersections, regardless of which trimline segment is clicked
+
+      /* 1
+      *----*
+  TP1*|    |*TP2
+    ----*----*---- gs
+      |0   |2
+
+      */
+
+      //TP on int1 segment
+      TrimmingMethods.trimPolyline(gs,trimLine2,tp1)._1 should equal(Some(List(Vector2D(20.0,0.0), Vector2D(20.0,-10.0))))
+      TrimmingMethods.trimPolyline(gs,trimLine2,tp1)._2 should equal(Some(List(Vector2D(-20.0,-10.0), Vector2D(-20.0,0.0))))
+
+
+
+      //CCW
+      TrimmingMethods.trimPolyline(gs,trimLine2,tp2)._1 should equal(Some(List(Vector2D(20.0,0.0), Vector2D(20.0,-10.0))))
+      // TODO: THIS FAILS - the second trimmed line is not drawn!!
+      TrimmingMethods.trimPolyline(gs,trimLine2,tp2)._2 should equal(Some(List(Vector2D(-20.0,-10.0), Vector2D(-20.0,0.0))))
+
     }
 
     it("can be trimmed by a pl which intersects the same segment of the tl multiple times... ") {
@@ -101,41 +149,6 @@ class TrimSpec extends FunSpec with ShouldMatchers {
 
       TrimmingMethods.trimPolyline(gs,trimLine,tp)._1 should equal(Some(List(Vector2D(10.0,20.0), Vector2D(20.0,20.0), Vector2D(20.0,0.0))))
       TrimmingMethods.trimPolyline(gs,trimLine,tp)._2 should equal(Some(List(Vector2D(-20.0,00.0), Vector2D(-20.0,20.0), Vector2D(-10.0,20.0))))
-    }
-    it("CW ORTHOGONAL TRIMLINE: can be trimmed when the trimPoint is set on the same segment as the second of two intersections") {
-      /*     1
-          *----*
-          |    |*TP
-      ----*----*---- gs
-          |0   |2
-
-      */
-
-      val trimLine = PolylineShape(List(Vector2D(-20,-10),Vector2D(-20,20),Vector2D(20,20), Vector2D(20,-10)))
-      val gs = Map(-4 -> LineShape(Vector2D(-30,0),Vector2D(30,0)))
-      val tp = Vector2D(20,10)
-
-      TrimmingMethods.trimPolyline(gs,trimLine,tp)._1 should equal(Some(List(Vector2D(20.0,0.0), Vector2D(20.0,-10.0))))
-      TrimmingMethods.trimPolyline(gs,trimLine,tp)._2 should equal(Some(List(Vector2D(-20.0,-10.0), Vector2D(-20.0,0.0))))
-
-    }
-    // TODO: THIS FAILS!!
-    it("CCW DRAWN TRIMLINE: can be trimmed when the trimPoint is set on the same segment as the second of two intersections") {
-      /*    1
-          *----*
-          |    |*TP
-      ----*----*---- gs
-          |2   |0
-
-      */
-
-      val trimLine = PolylineShape(List(Vector2D(25,-10),Vector2D(20,20),Vector2D(-20,20), Vector2D(-25,-10)))
-      val gs = Map(-4 -> LineShape(Vector2D(-30,0),Vector2D(30,0)))
-      val tp = Vector2D(20,10)
-
-      TrimmingMethods.trimPolyline(gs,trimLine,tp)._1 should equal(Some(List(Vector2D(-23.333333333333336,0.0), Vector2D(-25.0,-10.0))))
-      TrimmingMethods.trimPolyline(gs,trimLine,tp)._2 should equal(Some(List(Vector2D(25.0,-10.0), Vector2D(23.333333333333336,0.0))))
-
     }
   }
 
