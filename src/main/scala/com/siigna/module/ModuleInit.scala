@@ -196,9 +196,13 @@ class ModuleInit extends Module {
       case KeyDown(code: Int,modifier: ModifierKeys) :: tail => handleKeyDown(code, modifier)
       case End(KeyDown(code: Int,modifier: ModifierKeys)) :: tail => handleKeyDown(code, modifier)
 
+      // When the modules are loaded, the eventstream is shaped so that the InputRequest is not sent in the correct
+      // place in the event stream, and the Input-module might return end without any return input. If this is caught
+      // by case _ and it forwards to in
       case End =>
 
-      case _ => {
+      case y => {
+        println(y)
         Start('cad,"create.InputNew", InputRequestNew(14,None))
       }
     }
