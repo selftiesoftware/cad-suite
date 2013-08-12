@@ -196,6 +196,8 @@ class ModuleInit extends Module {
       case KeyDown(code: Int,modifier: ModifierKeys) :: tail => handleKeyDown(code, modifier)
       case End(KeyDown(code: Int,modifier: ModifierKeys)) :: tail => handleKeyDown(code, modifier)
 
+      case End =>
+
       case _ => {
         Start('cad,"create.InputNew", InputRequestNew(14,None))
       }

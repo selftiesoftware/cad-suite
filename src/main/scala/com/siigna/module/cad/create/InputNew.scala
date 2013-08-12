@@ -75,8 +75,7 @@ class InputNew extends Module {
         if(inputType == Some(2) || inputType == Some(8) || inputType == Some(15)) Siigna("track") = false
         'ReceiveUserInput
       }
-      case x => {
-        println(x)
+      case _ => {
         if (!Siigna.isTrackEnabled) Siigna("track") = true
         End
       }
