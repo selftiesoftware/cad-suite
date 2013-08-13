@@ -110,8 +110,8 @@ class Trim extends Module {
 
                 //construct new shape
                 if(trimmedShapes.isDefined) {
-                  Siigna display ("trimming of closed polylines is right around the corner!!")
-                  //Create(PolylineShape(trimmedShapes.get.map(_._2)))
+                  //Siigna display ("trimming of closed polylines is right around the corner!!")
+                  Create(PolylineShape(trimmedShapes.get.map(_._2)))
                 }
               }
             }
