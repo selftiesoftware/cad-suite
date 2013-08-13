@@ -88,8 +88,8 @@ object TrimmingMethods {
     val shape = tL.shapes(id)
 
     //find the endpoint of the segment on which p lies .
-    //if the direction is FALSE, the startpoint of the polyline is used.
-    //if the direction is TRUE, the startPoint + 1 (next point) is used.
+    //if the direction is FALSE, the startpoint of the polyline is used.   GOING TOWARDS START
+    //if the direction is TRUE, the startPoint + 1 (next point) is used.   GOING TOWARDS END
     val endPoint = if(d) {
       shape.geometry.vertices(0)
     } else {
@@ -131,7 +131,7 @@ object TrimmingMethods {
         //iterate through next segments, starting with the ones closest to the intSegment.
         //in the given direction.
 
-        //if TRUE (going towards the END of the PL)
+        //if TRUE (going towards the END of the PL)  - then evaluating from START and down.
         if(d){
           id match {
             case i if i >= maxID => {
@@ -172,16 +172,16 @@ object TrimmingMethods {
               else findIntersectionClosed(tL, intIDs, (id + 1), true, None)
             }
           }
-        //if FALSE ( going towards the END of the PL)
+        //if FALSE ( going towards the START of the PL)
         } else {
 
           id match {
             case i if i <= 0 => {
-              //the end is reached, time to try in the same direction, but from the other end:
+              //the start is reached, time to try in the same direction, but from the end:
               firstRunComplete = true
               //end only if the second iteration has finished
               id = maxID
-              findIntersectionClosed(tL, intIDs, (id - 1), false, None)
+              findIntersectionClosed(tL, intIDs, (id), false, None)
 
             }
             case _ => {
@@ -234,8 +234,8 @@ object TrimmingMethods {
     val shape = tL.shapes(id)
 
     //find the endpoint of the segment on which p lies .
-    //if the direction is FALSE, the startpoint of the polyline is used.
-    //if the direction is TRUE, the startPoint + 1 (next point) is used.
+    //if the direction is FALSE, the startpoint of the polyline is used. - EVALUATING TOWARDS START
+    //if the direction is TRUE, the startPoint + 1 (next point) is used. - EVALUATING TOWARDS END
     val endPoint = if(d) {
       shape.geometry.vertices(0)
     } else {
@@ -278,6 +278,7 @@ object TrimmingMethods {
               findIntersectionOpen(tL, intIDs, (id + 1), true, None)
             }
           }
+        //direction START
         } else {
           id match {
             case i if i <= 0 => {
@@ -374,78 +375,89 @@ object TrimmingMethods {
 
     var trimmedLine : Option[List[(Int,Vector2D)]] = None
 
-    //TODO: check that the trimLine IS a polyline
     val intIDs = getIntersectSegmentNumbers(guides.map(_._2).toList,trimLine)
     val ints = intIDs.count(!_._2.isEmpty)
 
     //if there are less than two intersections, the polyline should not be trimmed.
     if(ints > 1) {
 
-    // get the ID for the segment on which p lies.
-    val (trimSegmentInt, _) = findIntSegNrAtPoint(trimLine, p).get
+      // get the ID for the segment on which p lies.
+      val (trimSegmentInt, trimGeom) = findIntSegNrAtPoint(trimLine, p).get
 
 
-    //find intersections in the positive direction.
-    //construct and return the first trimline, if any
-    val int1 = findIntersectionClosed(trimLine, intIDs, trimSegmentInt, true, Some(p))
-    val id1 = int1.get._1
-    //find intersections in the negative direction
-    //construct and return the first trimline, if any
-    val int2 = findIntersectionClosed(trimLine, intIDs, trimSegmentInt, false, Some(p))
-    val id2 = int2.get._1
-    //TODO: construct the trimmed line from the original line and the two intersections...
+      //find intersections in the positive direction.
+      //construct and return the first trimline, if any
+      val int1 = findIntersectionClosed(trimLine, intIDs, trimSegmentInt, true, Some(p))
+      val id1 = int1.get._1
+      //find intersections in the negative direction
+      //construct and return the first trimline, if any
+      val int2 = findIntersectionClosed(trimLine, intIDs, trimSegmentInt, false, Some(p))
+      val id2 = int2.get._1
 
-    //if the trimmed line consists of two disconnected open polylines, they should be connected.
-    //-> TrimPoint INT1 id < TP id < INT2 id
-      /*
-    END x    0
-      *---------*
-     3|   LINE1 |1
-     -*---------*--- GuideLine
-     INT2      INT1
-      |   LINE2 |
-      *----2----*
-      */
+      //construct the line from START to INT1:
+      //take: take the first elements until INT1. Then remove the first point (drop(1)), as it will be added with line 1B.
 
-    //take: take the first elements until INT1. Then remove the first point, as it will be added with line 1B.
-    val line1A = (trimVertices.take(id1 + 1) :+ int1.get).drop(1)//construct the line from START to INT1:
+      val line1A = {
+        if(id1<id2) (trimVertices.take(id1 + 1) :+ int1.get).drop(1)
+        else (trimVertices.take(id2 + 1) :+ int2.get).drop(1)
+      }
 
-    //drop: Selects all elements except first n ones
-    val line1B = trimVertices.drop(id2 + 1).+:(int2.get) //construct the line from INT2 to END:
+      //construct the line from INT2 to END:
+            //drop: Selects all elements except first n ones
+      val line1B = {
+        if(id1<id2) trimVertices.drop(id2 + 1).+:(int2.get)
+        else trimVertices.drop(id1 + 1).+:(int1.get)
+      }
 
-    //join the two parts into the first possible trimline to keep:
-    val line1 = line1B ++ line1A
+      //join the two parts into the first possible trimline to keep:
+      val line1 = line1B ++ line1A
 
 
-    //construct the line from INT1 to INT2:
-    //get the untrimmed segments
-    println("trimVertices: "+trimVertices)
-    println("int1ID: "+int1.get._1)
-      //1 - 3
-    val line2A = trimVertices.slice(int2.get._1,int1.get._1)
-    // add the first trimPoint
-    val line2B = line2A.+:(int1.get)
-    //add the second trimPoint
-    val line2 = line2B :+ int2.get
+      //construct the line from INT1 to INT2: (taking into account that sometimes id1>id2
 
-    println("line2A: "+line2A)
-    println("line2: "+line2)
+      val line2A = {
+        if(id1<id2)trimVertices.slice(int1.get._1 + 1,int2.get._1 + 1)
+        else trimVertices.slice(int2.get._1 + 1,int1.get._1 + 1)
+      }
+      // add the first trimPoint
+      val line2B = {
+        if(id1<id2)line2A.+:(int1.get)
+        else line2A.+:(int2.get)
+      }
+      //add the second trimPoint
+      val line2 = {
+        if(id1>id2)line2B :+ int1.get
+        else line2B :+ int2.get
+      }
 
-    var pIsOnLine1 = false
-    var pIsOnLine2 = false
+      var p1 : Option[Vector2D] = None
+      var p2 : Option[Vector2D] = None
 
-    //find out on which part P is. Use the trimmedLine OPPOSITE the trim Point. (the clicked part of the polyline is removed)
-    line1.foreach(s => {
-      if((s._1 - 1 == trimSegmentInt)) pIsOnLine1 = true
-    })
-    line2.foreach(s => {
-      if((s._1 - 1 == trimSegmentInt)) pIsOnLine2 = true
-    })
+      //find out on which part P is. Use the trimmedLine OPPOSITE the trim Point. (the clicked part of the polyline is removed)
+      trimGeom match {
+        case s : Segment2D => {
+          p1 = Some(s.p1)
+          p2 = Some(s.p2)
+        }
+        case _ => println("unsupported trimSegment"+trimGeom)
+      }
 
-    if (pIsOnLine1) trimmedLine = Some(line2)
-    if (pIsOnLine2) trimmedLine = Some(line1)
+      //evaluate if the two Vectors of the trimPoint segment exists in the list. If so, the line should not be used.
+      val pIsOnLine1 = line1.exists(_._2 == p1.get) && line1.exists(_._2 == p2.get)
+      val pIsOnLine2 = line2.exists(_._2 == p1.get) && line2.exists(_._2 == p2.get)
 
+
+      if (pIsOnLine1) trimmedLine = {
+        println("RETURN BOTTOM")
+        Some(line2)
+      }
+      if (pIsOnLine2) trimmedLine = {
+        println("RETURN TOP")
+        Some(line1)
+      }
+      //end of if(ints > 1) evaluation
     }
+    println("trimmedLine; "+trimmedLine)
     trimmedLine
   }
 }
