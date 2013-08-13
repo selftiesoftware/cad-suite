@@ -31,24 +31,24 @@ import module.cad.create.InputRequestNew
  * MODULE-MAP:
  *
  * legend: L/R  Left/Right
- *         M    Mouse
- *         D/U  Down/Up
- *         R    Return to start
- *         M    Menu
- *         I/O  On/Off
- *         C    Char
+ * M    Mouse
+ * D/U  Down/Up
+ * R    Return to start
+ * M    Menu
+ * I/O  On/Off
+ * C    Char
  *
- *            START
+ * START
  *
- *         /      |      \
- *        /       |       \
- *      LMD      RMD      CHAR
- *       |        |        |
- *    SELECT      |        C -- ESC, Space,
- *               menu      |
- *                        CHAR
- *                         |
- *                      Shortcut
+ * /      |      \
+ * /       |       \
+ * LMD      RMD      CHAR
+ * |        |        |
+ * SELECT      |        C -- ESC, Space,
+ * menu      |
+ * CHAR
+ * |
+ * Shortcut
  *
  */
 class ModuleInit extends Module {
@@ -56,10 +56,11 @@ class ModuleInit extends Module {
 
   val header = com.siigna.module.base.PaperHeader
 
-  protected var lastModule : Option[Module] = None
+  protected var lastModule: Option[Module] = None
 
-  var activeSelection : Selection = EmptySelection   //The nearest shape to the current mouse position.
-  var activeSelectionVertices : Traversable[Vector2D] = Set.empty
+  var activeSelection: Selection = EmptySelection
+  //The nearest shape to the current mouse position.
+  var activeSelectionVertices: Traversable[Vector2D] = Set.empty
   var toolSuggestions = List[String]() //a list of possible tools in a given category. activated by shortcuts
 
   var selectionAlteration = false
@@ -72,10 +73,10 @@ class ModuleInit extends Module {
 
   //start module and process graphic feedback when a tool shortcut is received
   //input : shortcut, module name, module category
-  def shortcutProcess(s : String, modText : String, m : Symbol) = {
+  def shortcutProcess(s: String, modText: String, m: Symbol) = {
     shortcut = s
     toolSuggestions = List[String]() //reset tool suggestions
-    textFeedback.inputFeedback(shortcut)//display feedback telling the module is active
+    textFeedback.inputFeedback(shortcut) //display feedback telling the module is active
 
     // Sets the latest module and start it
     Module(m, modText) collect {
@@ -95,7 +96,7 @@ class ModuleInit extends Module {
     } else Start('base, "Menu")
   }
 
-  def startSelection(p : Vector2D) = {
+  def startSelection(p: Vector2D) = {
     textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
     Start('cad, "Selection", p)
   }
@@ -105,13 +106,13 @@ class ModuleInit extends Module {
       println("Space")
       println("Last module: " + lastModule.get)
       shortcut = ""
-      textFeedback.inputFeedback("EMPTY")//clear any active tooltips
+      textFeedback.inputFeedback("EMPTY") //clear any active tooltips
       textFeedback.inputFeedback("GETPREVIOUS") //send a command to inputFeedback to display the last module name
       Start(lastModule.get.newInstance)
     }
   }
 
-  def handleKeyDown(code : Int, modifier : ModifierKeys) = {
+  def handleKeyDown(code: Int, modifier: ModifierKeys) = {
     // Special keys:
     //Delete:
     if (code == Key.Delete) {
@@ -141,12 +142,12 @@ class ModuleInit extends Module {
 
       //MENU SHORTCUTS - LETTERS:
       if (shortcut == "") {
-        if(shortcutKey == 'c' || shortcutKey == 'h' || shortcutKey == 'm' || shortcutKey == 'p') {
+        if (shortcutKey == 'c' || shortcutKey == 'h' || shortcutKey == 'm' || shortcutKey == 'p') {
           shortcut = shortcutKey.toString
           toolSuggestions = textFeedback.inputFeedback(shortcut)
         }
       } else if (shortcut == "c") {
-        if      (shortcutKey == 'a') shortcutProcess("a", "create.Arc", 'cad)
+        if (shortcutKey == 'a') shortcutProcess("a", "create.Arc", 'cad)
         else if (shortcutKey == 'c') shortcutProcess("c", "create.Circle", 'cad)
         else if (shortcutKey == 'd') shortcutProcess("d", "create.Lineardim", 'cad)
         else if (shortcutKey == 'e') shortcutProcess("e", "create.Explode", 'cad)
@@ -156,17 +157,17 @@ class ModuleInit extends Module {
         else if (shortcutKey == 'r') shortcutProcess("r", "create.Rectangle", 'cad)
         else if (shortcutKey == 't') shortcutProcess("t", "create.Text", 'cad)
       } else if (shortcut == "h") {
-        if      (shortcutKey == 'd')   shortcutProcess("d", "helpers.Distance", 'cad)
-        else if (shortcutKey == 's')   shortcutProcess("s", "helpers.SnapToggle", 'cad)
-        else if (shortcutKey == 't')   shortcutProcess("t", "helpers.TrackToggle", 'cad)
+        if (shortcutKey == 'd') shortcutProcess("d", "helpers.Distance", 'cad)
+        else if (shortcutKey == 's') shortcutProcess("s", "helpers.SnapToggle", 'cad)
+        else if (shortcutKey == 't') shortcutProcess("t", "helpers.TrackToggle", 'cad)
       } else if (shortcut == "m") {
-        if      (shortcutKey == 'm')   shortcutProcess("m", "modify.Move", 'cad)
-        else if (shortcutKey == 'r')   shortcutProcess("r", "modify.Rotate", 'cad)
-        else if (shortcutKey == 's')   shortcutProcess("s", "modify.Scale", 'cad)
-        else if (shortcutKey == 't')   shortcutProcess("t", "modify.Trim", 'cad)
+        if (shortcutKey == 'm') shortcutProcess("m", "modify.Move", 'cad)
+        else if (shortcutKey == 'r') shortcutProcess("r", "modify.Rotate", 'cad)
+        else if (shortcutKey == 's') shortcutProcess("s", "modify.Scale", 'cad)
+        else if (shortcutKey == 't') shortcutProcess("t", "modify.Trim", 'cad)
       } else if (shortcut == "p") {
-        if      (shortcutKey == 'c')   shortcutProcess("c", "properties.Colors", 'cad)
-        else if (shortcutKey == 's')   shortcutProcess("s", "properties.Stroke", 'cad)
+        if (shortcutKey == 'c') shortcutProcess("c", "properties.Colors", 'cad)
+        else if (shortcutKey == 's') shortcutProcess("s", "properties.Stroke", 'cad)
       }
     }
 
@@ -176,51 +177,51 @@ class ModuleInit extends Module {
     'Start -> {
 
       // Match for modules to forward to
-      case End(module : Module) :: tail => {
+      case End(module: Module) :: tail => {
         lastModule = Some(module) // Store it as a last module
         Start(module) // Forward
       }
 
       // Menu
-      case MouseDown(p,MouseButtonRight,modifier) :: tail => startMenu
-      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => startMenu
+      case MouseDown(p, MouseButtonRight, modifier) :: tail => startMenu
+      case End(MouseDown(p, MouseButtonRight, modifier)) :: tail => startMenu
 
       // Selection
-      case End(p : Vector2D) :: tail => startSelection(p)
-      case MouseDown(p : Vector2D, _, _) :: tail => startSelection(p)
+      case End(p: Vector2D) :: tail => startSelection(p)
+      case MouseDown(p: Vector2D, _, _) :: tail => startSelection(p)
 
       // Start previous
-      case KeyDown(Key.Space,_) :: tail => startPrevious
-      case End(KeyDown(Key.Space,_)) :: tail => startPrevious
+      case KeyDown(Key.Space, _) :: tail => startPrevious
+      case End(KeyDown(Key.Space, _)) :: tail => startPrevious
 
-      case KeyDown(code: Int,modifier: ModifierKeys) :: tail => handleKeyDown(code, modifier)
-      case End(KeyDown(code: Int,modifier: ModifierKeys)) :: tail => handleKeyDown(code, modifier)
+      case KeyDown(code: Int, modifier: ModifierKeys) :: tail => handleKeyDown(code, modifier)
+      case End(KeyDown(code: Int, modifier: ModifierKeys)) :: tail => handleKeyDown(code, modifier)
 
       // When the modules are loaded, the eventstream is shaped so that the InputRequest is not sent in the correct
       // place in the event stream, and the Input-module might return end without any return input. If this is caught
       // by case _ and it forwards to in
-      case End =>
+      case End :: tail =>
 
       case y => {
         println(y)
-        Start('cad,"create.InputNew", InputRequestNew(14,None))
+        Start('cad, "create.InputNew", InputRequestNew(14, None))
       }
     }
   )
 
   private val selectionAttributes = Attributes("StrokeWidth" -> 0.7, "Color" -> Siigna.color("colorSelected").getOrElse("#AAAAAA"))
 
-  override def paint(g : Graphics, t : TransformationMatrix) {
+  override def paint(g: Graphics, t: TransformationMatrix) {
     g draw PaperHeader.openness.transform(t) //color to show level of openness
     g draw PaperHeader.headerFrame.transform(t) //frame around drawing info
     g draw PaperHeader.scaleText.transform(t) //frame around drawing info
 
     //draw tool shourcut suggestions
-    if(!shortcut.isEmpty) {
+    if (!shortcut.isEmpty) {
       val s = textFeedback.paintSuggestions(toolSuggestions)
-      for (i <- 0 to s.size -1) {
+      for (i <- 0 to s.size - 1) {
         g draw s(i)
-      }  
+      }
     }
 
     activeSelection.parts.foreach(s => g draw s.setAttributes(selectionAttributes).transform(t))
