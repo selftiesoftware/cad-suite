@@ -21,7 +21,9 @@ package com.siigna.module.cad.modify
 
 import com.siigna._
 import app.model.shape.PolylineShape.{PolylineShapeClosed, PolylineShapeOpen}
+import app.model.shape.{PolylineLineShape, PolylineShape, RectangleShape}
 import module.cad.create.InputRequestNew
+import util.collection.Attributes
 
 class Trim extends Module {
 
@@ -108,7 +110,8 @@ class Trim extends Module {
 
                 //construct new shape
                 if(trimmedShapes.isDefined) {
-                  Create(PolylineShape(trimmedShapes.get))
+                  Siigna display ("trimming of closed polylines is right around the corner!!")
+                  //Create(PolylineShape(trimmedShapes.get.map(_._2)))
                 }
               }
             }
@@ -132,6 +135,25 @@ class Trim extends Module {
                 }
               }
             }
+
+            //TRIM RECTANGLES
+            case r : RectangleShape => {
+              //val rec = PolylineShapeClosed(PolylineLineShape(r.p1,r.p2,r.p3,r))
+              val rec = PolylineShapeClosed(r.p0,List(PolylineLineShape(r.p1)),Attributes())
+              val trimmedShapes = TrimmingMethods.trimPolylineClosed(Drawing.selection.shapes,rec,point)
+
+              //if at least one trimmedShapes is defined, delete the original shape:
+              if(trimmedShapes.isDefined) {
+                Delete(nearest._1)
+
+                //construct new shape
+                if(trimmedShapes.isDefined) {
+                  Siigna display ("trimming of rectangles is right around the corner!!")
+                  //Create(PolylineShape(trimmedShapes.get.map(_._2)))
+                }
+              }
+            }
+
             //UNSUPPORTED SHAPES:
             case e => Siigna display ("sorry, Siigna can not trim " + e.toString.takeWhile(_ != '(') + "s yet!")
           }

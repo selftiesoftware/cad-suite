@@ -201,9 +201,7 @@ class TrimSpec extends FunSpec with ShouldMatchers {
       //TrimmingMethods.findIntersectionClosed(trimLine,ints2,3,true,Some(tp)) should equal(Some((0,Vector2D(0.0,20.0)))) //positive direction
       //direction START - should descend from 3 to 2 and find the bottom intersection.
       //TrimmingMethods.findIntersectionClosed(trimLine,ints2,3,false,Some(tp)) should equal(Some((2,Vector2D(0.0,-20.0)))) //negative direction
-
     }
-
 
     it("should not be trimmed when there is only one intersection") {
       val trimLine = PolylineShape(Rectangle2D(Vector2D(-20,-20),Vector2D(20,20)))
@@ -218,7 +216,9 @@ class TrimSpec extends FunSpec with ShouldMatchers {
       val gs = Map(4 -> PolylineShapeOpen(Vector2D(-30,0),List(PolylineLineShape(Vector2D(30,0))),Attributes()))
 
       val tp = Vector2D(-20,10)
-      val tp2 = Vector2D(-20,0)
+      //TODO: test draworder
+      val tp2 = Vector2D(-20,-10)
+      val tp3 = Vector2D(-20,0)
 
       /*
   END x    0
@@ -230,8 +230,15 @@ class TrimSpec extends FunSpec with ShouldMatchers {
            2
      */
 
-      TrimmingMethods.trimPolylineClosed(gs,trimLine,tp) should equal(Some(List(Vector2D(0.0,-20.0), Vector2D(-20.0,-20.0), Vector2D(-20.0,20.0),Vector2D(0.0,20))))
-      //TrimmingMethods.trimPolylineClosed(gs,trimLine,tp2) should equal(Some(List(Vector2D(0.0,20.0), Vector2D(20.0,-20.0), Vector2D(20.0,20.0),Vector2D(0.0,20))))
+      //TrimmingMethods.trimPolylineClosed(gs,trimLine,tp) should equal(Some(List((1,Vector2D(20.0,0.0)), (2,Vector2D(20.0,-20.0)), (3,Vector2D(-20.0,-20.0)), (3,Vector2D(-20.0,0.0)))))
+      //TrimmingMethods.trimPolylineClosed(gs,trimLine,tp2) should equal(Some(List((3,Vector2D(-20.0,0.0)), (1,Vector2D(20.0,20.0)), (2,Vector2D(20.0,-20.0)), (1,Vector2D(20.0,0.0)))))
+    }
+    //TODO: is complexRectangle used in the rect tool?
+    it("a Complex RectangleShape can be trimmed as a closed Polyline") {
+      //val trimLine = R(Vector2D(0,0),40,40,0)
+      //val gs = Map(4 -> PolylineShapeOpen(Vector2D(-30,0),List(PolylineLineShape(Vector2D(30,0))),Attributes()))
+      //val tp = Vector2D(-20,10)
+      //TrimmingMethods.trimPolylineClosed(gs,trimLine,tp) should equal(Some(List((1,Vector2D(20.0,0.0)), (2,Vector2D(20.0,-20.0)), (3,Vector2D(-20.0,-20.0)), (3,Vector2D(-20.0,0.0)))))
     }
   }
 }

@@ -363,14 +363,18 @@ object TrimmingMethods {
   TRIMMING OF CLOSED POLYLINES
  */
 
-  def trimPolylineClosed(guides : Map[Int,Shape], shape : Shape, p : Vector2D) : Option[List[Vector2D]] = {
+  def trimPolylineClosed(guides : Map[Int,Shape], shape : Shape, p : Vector2D) : Option[List[(Int,Vector2D)]] = {
 
     val trimLine = shape.asInstanceOf[PolylineShapeClosed]
-    val trimVertices = trimLine.geometry.vertices.toList
 
-    val trimmedLine : Option[List[Vector2D]] = None
+    //construct a map assigning an ID to each vertex. Used to find out on which segment the mouse is pressed -
+    //which in turn allow the calculation of which line to keep and which to discard.
 
-    //TODO: check that the trimLine IS a polyline!
+    val trimVertices = trimLine.geometry.vertices.toList.zipWithIndex.map(t => t._2 -> t._1)
+
+    var trimmedLine : Option[List[(Int,Vector2D)]] = None
+
+    //TODO: check that the trimLine IS a polyline
     val intIDs = getIntersectSegmentNumbers(guides.map(_._2).toList,trimLine)
     val ints = intIDs.count(!_._2.isEmpty)
 
@@ -384,56 +388,62 @@ object TrimmingMethods {
     //find intersections in the positive direction.
     //construct and return the first trimline, if any
     val int1 = findIntersectionClosed(trimLine, intIDs, trimSegmentInt, true, Some(p))
-
+    val id1 = int1.get._1
     //find intersections in the negative direction
     //construct and return the first trimline, if any
     val int2 = findIntersectionClosed(trimLine, intIDs, trimSegmentInt, false, Some(p))
-
+    val id2 = int2.get._1
     //TODO: construct the trimmed line from the original line and the two intersections...
 
     //if the trimmed line consists of two disconnected open polylines, they should be connected.
     //-> TrimPoint INT1 id < TP id < INT2 id
       /*
-  END x    0
+    END x    0
       *---------*
-     3|         |1
+     3|   LINE1 |1
      -*---------*--- GuideLine
-
-          *TP
-           2
+     INT2      INT1
+      |   LINE2 |
+      *----2----*
       */
-     println("tsINT; "+trimSegmentInt)
 
-     if(int1.isDefined && int2.isDefined){
-       val id1 = int1.get._1
-       val id2 = int2.get._1
-       if((trimSegmentInt >= id1 && trimSegmentInt <= id2) || (trimSegmentInt >= id2 && trimSegmentInt <= id1)){
-         println("connect two lines")
+    //take: take the first elements until INT1. Then remove the first point, as it will be added with line 1B.
+    val line1A = (trimVertices.take(id1 + 1) :+ int1.get).drop(1)//construct the line from START to INT1:
 
-         //construct a line from the end of the pl to the first int
-         val l1 = Some(trimVertices.drop(id1 + 1).+:(int1))
-         //construct a line from the start of the pl to the second int
-         val l2 = Some(trimVertices.take(id2 + 1) :+ int2)
+    //drop: Selects all elements except first n ones
+    val line1B = trimVertices.drop(id2 + 1).+:(int2.get) //construct the line from INT2 to END:
 
-         //trim
-         println("l1: "+l1)
-         println("l2: "+l2)
-       }
-
-     }
-      //if the trimmed line consists of one polyline for which one or both ends are trimmed, these end segments should be removed.
-      // TP id < INT1/2 id || TP id > INT1/2 id
+    //join the two parts into the first possible trimline to keep:
+    val line1 = line1B ++ line1A
 
 
-      /*
-  END x    0
-          *TP
-                1
-     -*---------*--- GuideLine
-     3|         |
-      *---------*
-           2
-      */
+    //construct the line from INT1 to INT2:
+    //get the untrimmed segments
+    println("trimVertices: "+trimVertices)
+    println("int1ID: "+int1.get._1)
+      //1 - 3
+    val line2A = trimVertices.slice(int2.get._1,int1.get._1)
+    // add the first trimPoint
+    val line2B = line2A.+:(int1.get)
+    //add the second trimPoint
+    val line2 = line2B :+ int2.get
+
+    println("line2A: "+line2A)
+    println("line2: "+line2)
+
+    var pIsOnLine1 = false
+    var pIsOnLine2 = false
+
+    //find out on which part P is. Use the trimmedLine OPPOSITE the trim Point. (the clicked part of the polyline is removed)
+    line1.foreach(s => {
+      if((s._1 - 1 == trimSegmentInt)) pIsOnLine1 = true
+    })
+    line2.foreach(s => {
+      if((s._1 - 1 == trimSegmentInt)) pIsOnLine2 = true
+    })
+
+    if (pIsOnLine1) trimmedLine = Some(line2)
+    if (pIsOnLine2) trimmedLine = Some(line1)
 
     }
     trimmedLine
