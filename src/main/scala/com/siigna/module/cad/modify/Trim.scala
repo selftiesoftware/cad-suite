@@ -95,7 +95,6 @@ class Trim extends Module {
           tl match {
             //TRIM LINE
             case l : LineShape => {
-              println("GOT L: "+l)
               Siigna display ("trimming of lineSegments under construction!")
 
             }
