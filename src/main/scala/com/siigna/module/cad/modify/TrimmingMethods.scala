@@ -318,30 +318,22 @@ object TrimmingMethods {
   p = trim point (the part of ts which should be deleted)
 
   returns:
-  two list of Option[Segment2D] (because one or both trim lines may or may not exist)
+  two lists of Option[Segment2D] (because one or both trim lines may or may not exist)
   */
 
   def trimLine(guides : Map[Int,Shape], shape : Shape, p : Vector2D) : (Option[Segment2D],Option[Segment2D]) = {
     val trimLine = shape.asInstanceOf[LineShape]
+    val startPoint = trimLine.start //get the startPoint of the LineShape
+    val endPoint = trimLine.end //get the endPoint of the LineShape
 
-    //get the startPoint of the LineShape
-    val startPoint = trimLine.start
-
-    //get the endPoint of the LineShape
-    val endPoint = trimLine.end
-
-    //find all intersections between the line segment and the guide shapes.
+    //make an empty list...
     var intersections = List[Vector2D]()
 
+    //... and populate it with intersections between the guides and the line to trim.
     guides.foreach(g => {
       val pt = g._2.geometry.intersections(trimLine.geometry)
-      if(!pt.isEmpty) {
-        println(pt.toList)
-        intersections = intersections ::: pt.toList
-      }
+      if(!pt.isEmpty) intersections = intersections ::: pt.toList
     })
-
-    println("trimPoint; "+p)
 
     //find the intersections which lie between the trimPoint and startPoint:
     val intsTowardsStart = intersections.filterNot(v => v.distanceTo(startPoint)>p.distanceTo(startPoint))
@@ -362,7 +354,6 @@ object TrimmingMethods {
     }
 
     //return the trimmed line(s) as a new segment from Start/End to startInt/endInt:
-
     (startSegment,endSegment)
   }
 
@@ -443,11 +434,12 @@ object TrimmingMethods {
       // get the ID for the segment on which p lies.
       val (trimSegmentInt, trimGeom) = findIntSegNrAtPoint(trimLine, p).get
 
-
       //find intersections in the positive direction.
       //construct and return the first trimline, if any
       val int1 = findIntersectionClosed(trimLine, intIDs, trimSegmentInt, true, Some(p))
+
       val id1 = int1.get._1
+
       //find intersections in the negative direction
       //construct and return the first trimline, if any
       val int2 = findIntersectionClosed(trimLine, intIDs, trimSegmentInt, false, Some(p))
@@ -461,6 +453,8 @@ object TrimmingMethods {
         else (trimVertices.take(id2 + 1) :+ int2.get).drop(1)
       }
 
+      println("line1A: "+line1A)
+
       //construct the line from INT2 to END:
             //drop: Selects all elements except first n ones
       val line1B = {
@@ -470,7 +464,6 @@ object TrimmingMethods {
 
       //join the two parts into the first possible trimline to keep:
       val line1 = line1B ++ line1A
-
 
       //construct the line from INT1 to INT2: (taking into account that sometimes id1>id2
 
@@ -505,12 +498,15 @@ object TrimmingMethods {
       val pIsOnLine1 = line1.exists(_._2 == p1.get) && line1.exists(_._2 == p2.get)
       val pIsOnLine2 = line2.exists(_._2 == p1.get) && line2.exists(_._2 == p2.get)
 
+      //TODO: implement trimming of closed PLs when TrimPoint is on same segment as int!
+      println(pIsOnLine1)
+      println(pIsOnLine2)
+
       if (pIsOnLine1) trimmedLine =  Some(line2)
       if (pIsOnLine2) trimmedLine = Some(line1)
 
       //end of if(ints > 1) evaluation
     }
-    println("trimmedLine; "+trimmedLine)
     trimmedLine
   }
 }

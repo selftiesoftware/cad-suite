@@ -152,7 +152,9 @@ class Trim extends Module {
             //TRIM RECTANGLES
             case r : RectangleShape => {
               //val rec = PolylineShapeClosed(PolylineLineShape(r.p1,r.p2,r.p3,r))
-              val rec = PolylineShapeClosed(r.p0,List(PolylineLineShape(r.p1)),Attributes())
+
+              //convert the rectangle to a closed Polyline:
+              val rec = PolylineShapeClosed(r.p0,List(PolylineLineShape(r.p1),PolylineLineShape(r.p2),PolylineLineShape(r.p3)),Attributes())
               val trimmedShapes = TrimmingMethods.trimPolylineClosed(Drawing.selection.shapes,rec,point)
 
               //if at least one trimmedShapes is defined, delete the original shape:
@@ -161,8 +163,8 @@ class Trim extends Module {
 
                 //construct new shape
                 if(trimmedShapes.isDefined) {
-                  Siigna display ("trimming of rectangles is right around the corner!!")
-                  //Create(PolylineShape(trimmedShapes.get.map(_._2)))
+                  //Siigna display ("trimming of rectangles is right around the corner!!")
+                  Create(PolylineShape(trimmedShapes.get.map(_._2)))
                 }
               }
             }
