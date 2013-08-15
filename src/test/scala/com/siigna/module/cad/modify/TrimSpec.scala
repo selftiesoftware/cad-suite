@@ -24,32 +24,42 @@ import com.siigna.app.model.shape.PolylineShape.{PolylineShapeClosed, PolylineSh
 
 class TrimSpec extends FunSpec with ShouldMatchers {
 
-  val attr = Attributes()
-  val gs1 = PolylineShape(List(Vector2D(-45,20),Vector2D(-45,-30)))
-  val gs2 = PolylineShape(List(Vector2D(-10,20),Vector2D(-15,-30)))
-  val gs3 = PolylineShape(List(Vector2D(10,20),Vector2D(10,-30)))
-  val gs4 = PolylineShape(List(Vector2D(20,20),Vector2D(20,-30)))
-  val gs5 = PolylineShape(List(Vector2D(30,20),Vector2D(40,-30)))
-  val gs6 = PolylineShape(List(Vector2D(60,20),Vector2D(60,-30)))
-  val gs7 = PolylineShape(List(Vector2D(70,20),Vector2D(70,-30)))
-  val trimLine = PolylineShape(List(Vector2D(-200,-30),Vector2D(-100,0),Vector2D(10,10), Vector2D(100,0),Vector2D(200,30)))
-  val twoGuides = List(gs1, gs2) //both guides on a segment
-  val twoGuidesOnSegment = List(gs2, gs3) //one of the guides sits on a segment's endVertex
-  val sevenGuides = List(gs1, gs2, gs3, gs4, gs5, gs6, gs7)
 
-  val p1 = Vector2D(55,5)
-  val p2 = Vector2D(0,9.09175)
-  val p3 = Vector2D(-50,4.54321)
-  val p4 = Vector2D(-200,-30) //point at far left
-  val p5 = Vector2D(0,-50) // a point not on the trimLine
-  val p6 = Vector2D(10,10) // a point on an endVertex and a guideShape
-  val p7 = Vector2D(200,30) // point at far right
+  describe("lineShapes... ") {
+    it("can be trimmed with one or two intersection(s)") {
+      val trimLine = LineShape(Vector2D(-20,0),Vector2D(20,0))
+      val gs = Map(-1 -> PolylineShapeOpen(Vector2D(0,-10),List(PolylineLineShape(Vector2D(0,10))),Attributes()),-2 -> PolylineShapeOpen(Vector2D(-10,-10),List(PolylineLineShape(Vector2D(-10,10))),Attributes()))
+      val tp = Vector2D(10,0)
+      val tp2 = Vector2D(-8,0)
 
-  //TODO: test trimming of a rotated rect inside a larger rect, creating four intersections:
-
-  /*
+      TrimmingMethods.trimLine(gs,trimLine,tp)._1 should equal(Some(Segment2D(Vector2D(-20.0,0.0),Vector2D(0.0,0.0))))
+      TrimmingMethods.trimLine(gs,trimLine,tp2)._1 should equal(Some(Segment2D(Vector2D(-20.0,0.0),Vector2D(-10.0,0.0))))
+      TrimmingMethods.trimLine(gs,trimLine,tp2)._2 should equal(Some(Segment2D(Vector2D(20.0,0.0),Vector2D(0.0,0.0))))
+    }
+  }
 
   describe("polylines... ") {
+
+    val attr = Attributes()
+    val gs1 = PolylineShape(List(Vector2D(-45,20),Vector2D(-45,-30)))
+    val gs2 = PolylineShape(List(Vector2D(-10,20),Vector2D(-15,-30)))
+    val gs3 = PolylineShape(List(Vector2D(10,20),Vector2D(10,-30)))
+    val gs4 = PolylineShape(List(Vector2D(20,20),Vector2D(20,-30)))
+    val gs5 = PolylineShape(List(Vector2D(30,20),Vector2D(40,-30)))
+    val gs6 = PolylineShape(List(Vector2D(60,20),Vector2D(60,-30)))
+    val gs7 = PolylineShape(List(Vector2D(70,20),Vector2D(70,-30)))
+    val trimLine = PolylineShape(List(Vector2D(-200,-30),Vector2D(-100,0),Vector2D(10,10), Vector2D(100,0),Vector2D(200,30)))
+    val twoGuides = List(gs1, gs2) //both guides on a segment
+    val twoGuidesOnSegment = List(gs2, gs3) //one of the guides sits on a segment's endVertex
+    val sevenGuides = List(gs1, gs2, gs3, gs4, gs5, gs6, gs7)
+
+    val p1 = Vector2D(55,5)
+    val p2 = Vector2D(0,9.09175)
+    val p3 = Vector2D(-50,4.54321)
+    val p4 = Vector2D(-200,-30) //point at far left
+    val p5 = Vector2D(0,-50) // a point not on the trimLine
+    val p6 = Vector2D(10,10) // a point on an endVertex and a guideShape
+    val p7 = Vector2D(200,30) // point at far right
 
     it("intersections can be found with another PL") {
       val trimLine2 = PolylineShape(List(Vector2D(0,-10),Vector2D(0,0),Vector2D(10,0), Vector2D(10,-10)))
@@ -150,9 +160,8 @@ class TrimSpec extends FunSpec with ShouldMatchers {
       TrimmingMethods.trimPolylineOpen(gs,trimLine,tp)._2 should equal(Some(List(Vector2D(-20.0,00.0), Vector2D(-20.0,20.0), Vector2D(-10.0,20.0))))
     }
   }
-  */
 
-  //TODO: implement trimming of closed polylines
+
   describe("closed polylines... ") {
 
     it("should find the correct two intersections on a closed PL intersecting a line twice, regardless of draw order and segment ID locadion relative to the trim point") {

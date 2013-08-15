@@ -95,8 +95,22 @@ class Trim extends Module {
           tl match {
             //TRIM LINE
             case l : LineShape => {
-              Siigna display ("trimming of lineSegments under construction!")
+              val trimmedShapes = TrimmingMethods.trimLine(Drawing.selection.shapes,l,point)
 
+              //if at least one trimmedShapes is defined, delete the original shape:
+              if(trimmedShapes._1.isDefined || trimmedShapes._2.isDefined) {
+                Delete(nearest._1)
+
+                //construct new shapes
+                if(trimmedShapes._1.isDefined) {
+                  //println("t1; "+trimmedShapes._1.get)
+                  Create(LineShape(trimmedShapes._1.get))
+                }
+                if(trimmedShapes._2.isDefined) {
+                  //println("t2; "+trimmedShapes._2.get)
+                  Create(LineShape(trimmedShapes._2.get))
+                }
+              }
             }
 
             //TRIM CLOSED POLYLINES

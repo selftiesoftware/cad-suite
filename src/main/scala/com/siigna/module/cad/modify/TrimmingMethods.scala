@@ -308,6 +308,65 @@ object TrimmingMethods {
     }
   }
 
+
+  /*
+  a function to trim a LineShape
+
+  input:
+  gs = the trimGuideShape(s)
+  ts = the shape to be trimmed
+  p = trim point (the part of ts which should be deleted)
+
+  returns:
+  two list of Option[Segment2D] (because one or both trim lines may or may not exist)
+  */
+
+  def trimLine(guides : Map[Int,Shape], shape : Shape, p : Vector2D) : (Option[Segment2D],Option[Segment2D]) = {
+    val trimLine = shape.asInstanceOf[LineShape]
+
+    //get the startPoint of the LineShape
+    val startPoint = trimLine.start
+
+    //get the endPoint of the LineShape
+    val endPoint = trimLine.end
+
+    //find all intersections between the line segment and the guide shapes.
+    var intersections = List[Vector2D]()
+
+    guides.foreach(g => {
+      val pt = g._2.geometry.intersections(trimLine.geometry)
+      if(!pt.isEmpty) {
+        println(pt.toList)
+        intersections = intersections ::: pt.toList
+      }
+    })
+
+    println("trimPoint; "+p)
+
+    //find the intersections which lie between the trimPoint and startPoint:
+    val intsTowardsStart = intersections.filterNot(v => v.distanceTo(startPoint)>p.distanceTo(startPoint))
+
+    //find the intersections which lie between the trimPoint and endPoint:
+    val intsTowardsEnd = intersections.filterNot(v => v.distanceTo(endPoint)>p.distanceTo(endPoint))
+
+    //DIR. START: find the intersection closest to the trim point, and create the relevant trimmed segment if any:
+    val startSegment = {
+      if(!intsTowardsStart.isEmpty) Some(Segment2D(startPoint,intsTowardsStart.reduceLeft((a,b) => if(a.distanceTo(p) < b.distanceTo(p)) a else b)))
+      else None
+    }
+
+    //DIR. END: find the intersection closest to the trim point, and create the relevant trimmed segment if any:
+    val endSegment = {
+      if(!intsTowardsEnd.isEmpty) Some(Segment2D(endPoint,intsTowardsEnd.reduceLeft((a,b) => if(a.distanceTo(p) < b.distanceTo(p)) a else b)))
+      else None
+    }
+
+    //return the trimmed line(s) as a new segment from Start/End to startInt/endInt:
+
+    (startSegment,endSegment)
+  }
+
+
   /*
   a function to trim an open polylineShape
 
@@ -317,7 +376,7 @@ object TrimmingMethods {
   p = trim point (the part of ts which should be deleted)
 
   returns:
-  a list of Option[Shape] (because one or both trim lines may or may not exist)
+  two lists of Option[Shape] (because one or both trim lines may or may not exist)
   */
 
   def trimPolylineOpen(guides : Map[Int,Shape], shape : Shape, p : Vector2D) : (Option[List[Vector2D]],Option[List[Vector2D]]) = {
@@ -446,15 +505,9 @@ object TrimmingMethods {
       val pIsOnLine1 = line1.exists(_._2 == p1.get) && line1.exists(_._2 == p2.get)
       val pIsOnLine2 = line2.exists(_._2 == p1.get) && line2.exists(_._2 == p2.get)
 
+      if (pIsOnLine1) trimmedLine =  Some(line2)
+      if (pIsOnLine2) trimmedLine = Some(line1)
 
-      if (pIsOnLine1) trimmedLine = {
-        println("RETURN BOTTOM")
-        Some(line2)
-      }
-      if (pIsOnLine2) trimmedLine = {
-        println("RETURN TOP")
-        Some(line1)
-      }
       //end of if(ints > 1) evaluation
     }
     println("trimmedLine; "+trimmedLine)
