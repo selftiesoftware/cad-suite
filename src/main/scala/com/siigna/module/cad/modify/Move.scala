@@ -105,8 +105,32 @@ class Move extends Module {
 
       case End :: tail => End
 
+      case Start (_,_) :: End(_) :: MouseDrag(_, _, mod) :: MouseDown(p, _, _) :: tail => {
+        //set the startpoint for the move operation (if not already set)
+        println("DragMove begins in move")
+        startPoint = Some(p.transform(View.deviceTransformation))
+        //definition of a shape guide that is used to send the selected shapes to the 'Point module
+        // where they are drawn dynamically
+        val vector2DGuide = Vector2DGuideNew((v: Vector2D) => {
+          Drawing.selection.transformation = origin
+          val t : TransformationMatrix = if (startPoint.isDefined) {
+            TransformationMatrix(v - startPoint.get, 1)
+            // If no startPoint has been defined - create an empty matrix
+          } else TransformationMatrix()
+          // Return the shape, transformed TODO: if else here is a hack to prevent none.get error if selection is empty
+          if(!Drawing.selection.isEmpty) Drawing.selection.transform(t).shapes.values else Traversable(LineShape(Vector2D(0,0),Vector2D(10,10)))
+        })
+        val inputRequest = InputRequestNew(8,None,vector2DGuide)
+        Start('cad, "create.InputNew", inputRequest)
+        //9 : Input type = KeyUp as input metod,
+        //so the coordinates will be returned on key up
+        //forward to the Input module with the shape guide.
+      }
+
+
       //on first entry, send input request to input to get the start point for the move operations.
-      case _ => {
+      case x => {
+        println(x)
         if (!Drawing.selection.isEmpty) {
           val vector2DGuide = Vector2DGuideKeysNew((v: Vector2D) => {
             Drawing.selection.transformation = origin
