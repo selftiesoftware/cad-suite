@@ -20,12 +20,16 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
+import com.siigna.app.model.shape.RectangleShape
 
 class Offset extends Module {
   private var attr = Attributes()
   private var done = false
   private var isClosed = false
-  
+  private val shape = Drawing.selection.shapes.head._2
+  private val isRect = shape.isInstanceOf[RectangleShape]
+
+
   //a function to offset a line segment
   def calcOffset(s : LineShape, dist : Double) : LineShape = {
     val lT = s.transform(TransformationMatrix(-s.p1,1)) //move the segment to 0,0
@@ -39,9 +43,8 @@ class Offset extends Module {
   }
   //a function to generate a PolylineShape from the result of the offsetLines function
   def generateOffsetLine(s: Any) : PolylineShape = {
-    val shape = Drawing.selection.shapes.head._2
-    if(shape.geometry.vertices.head == shape.geometry.vertices.last) isClosed = true
-    
+    //check if the shape to offset is closed (closed Polyline of ComplexRectangle)
+    if(shape.geometry.vertices.head == shape.geometry.vertices.last ||isRect) isClosed = true
     var newLines: Option[List[LineShape]] = None 
     
     s match {
@@ -49,22 +52,23 @@ class Offset extends Module {
       case d: Double => newLines = Some(offsetLines(shape, d))    //offset the lines by the returned point
       case _ =>
     }
-        var knots = List[Vector2D]()
-        knots = knots :+ newLines.get.head.p1 //add the first point to the list
 
-        getKnots(newLines.get).foreach(s => knots = knots :+ s) //add the intersections to the knots list
+    var knots = List[Vector2D]()
+    knots = knots :+ newLines.get.head.p1 //add the first point to the list
 
-        knots = knots :+ newLines.get.reverse.head.p2 //add the last point to the list
+    getKnots(newLines.get).foreach(s => knots = knots :+ s) //add the intersections to the knots list
 
-        //if the polyline is closed, calculate the offset of the closing point and add it to the start and end of the list
-        if(isClosed == true) {
-          val closedPt = getClosedOffsetPoint(newLines.get)
-          knots = knots.tail.take(knots.size - 2) //remove the first and last element
-          knots = knots :+ closedPt //prepend the closed offset point to the list
-          knots = knots.reverse :+ closedPt //append the closed offset point to the list
-          knots = knots.reverse
-        }
-        PolylineShape(knots)
+    knots = knots :+ newLines.get.reverse.head.p2 //add the last point to the list
+
+    //if the polyline is closed, calculate the offset of the closing point and add it to the start and end of the list
+    if(isClosed == true) {
+      val closedPt = getClosedOffsetPoint(newLines.get)
+      knots = knots.tail.take(knots.size - 2) //remove the first and last element
+      knots = knots :+ closedPt //prepend the closed offset point to the list
+      knots = knots.reverse :+ closedPt //append the closed offset point to the list
+      knots = knots.reverse
+    }
+    PolylineShape(knots)
   }
 
   //returns the intersecting points of a series of line segments.
@@ -118,7 +122,9 @@ class Offset extends Module {
   //calculates the distance to offset shapes by, then calls the offset function to returns offset shapes as a list
   def offsetLines(s : Shape, m : Vector2D) : List[LineShape] = {
     var l = List[LineShape]()
-    val v = s.geometry.vertices
+    var v = s.geometry.vertices
+    //add a vertex if the shape is a ComplexRect
+    if(isRect) v = v :+ v(0)
     //iterate through the shapes to find the shape closest to the mouse
     def calcNearest : Double = {
       var nearestDist : Double = LineShape(v(0), v(1)).distanceTo(m)
