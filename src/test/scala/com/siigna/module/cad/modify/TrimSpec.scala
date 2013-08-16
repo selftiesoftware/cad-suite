@@ -157,7 +157,7 @@ class TrimSpec extends FunSpec with ShouldMatchers {
       val tp = Vector2D(0,20)
 
       TrimmingMethods.trimPolylineOpen(gs,trimLine,tp)._1 should equal(Some(List(Vector2D(10.0,20.0), Vector2D(20.0,20.0), Vector2D(20.0,0.0))))
-      TrimmingMethods.trimPolylineOpen(gs,trimLine,tp)._2 should equal(Some(List(Vector2D(-20.0,00.0), Vector2D(-20.0,20.0), Vector2D(-10.0,20.0))))
+      TrimmingMethods.trimPolylineOpen(gs,trimLine,tp)._2 should equal(Some(List(Vector2D(-20.0,0.0), Vector2D(-20.0,20.0), Vector2D(-10.0,20.0))))
     }
   }
 

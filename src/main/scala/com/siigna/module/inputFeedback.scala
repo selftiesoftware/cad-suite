@@ -70,7 +70,7 @@ class inputFeedback {
       }
       case "h" => {
         category = Some("helpers")
-        suggestions = List ("D - distance", "S - snap on/off", "T - track on/off")
+        suggestions = List ("D - distance", "S - snap on/off", "T - track on/off", "Z - zoom extends")
 
       }
       case "m" => {

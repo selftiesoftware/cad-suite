@@ -9,6 +9,7 @@ class ZoomExtends extends Module {
     'Start-> {
       case _ => {
         View.zoomExtends
+        Siigna display "Zooming to extends"
         End
       }
     }
