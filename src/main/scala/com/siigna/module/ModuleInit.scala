@@ -103,8 +103,6 @@ class ModuleInit extends Module {
 
   def startPrevious = {
     if (lastModule.isDefined) {
-      println("Space")
-      println("Last module: " + lastModule.get)
       shortcut = ""
       textFeedback.inputFeedback("EMPTY") //clear any active tooltips
       textFeedback.inputFeedback("GETPREVIOUS") //send a command to inputFeedback to display the last module name
@@ -160,6 +158,7 @@ class ModuleInit extends Module {
         if (shortcutKey == 'd') shortcutProcess("d", "helpers.Distance", 'cad)
         else if (shortcutKey == 's') shortcutProcess("s", "helpers.SnapToggle", 'cad)
         else if (shortcutKey == 't') shortcutProcess("t", "helpers.TrackToggle", 'cad)
+        else if (shortcutKey == 'z') shortcutProcess("z", "helpers.ZoomExtends", 'cad)
       } else if (shortcut == "m") {
         if (shortcutKey == 'm') shortcutProcess("m", "modify.Move", 'cad)
         else if (shortcutKey == 'r') shortcutProcess("r", "modify.Rotate", 'cad)
