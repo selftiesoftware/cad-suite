@@ -266,7 +266,21 @@ class TrimSpec extends FunSpec with ShouldMatchers {
       //construct a guide
       val gs = Map(4 -> PolylineShapeOpen(Vector2D(-30,0),List(PolylineLineShape(Vector2D(30,0))),Attributes()))
       val tp = Vector2D(0,20)
-      TrimmingMethods.trimPolylineClosed(gs,rec,tp) should equal(Some(List((1,Vector2D(-20.0,0.0)), (2,Vector2D(-20.0,-20.0)), (3,Vector2D(20.0,-20.0)), (3,Vector2D(20.0,0.0)))))
+      //TrimmingMethods.trimPolylineClosed(gs,rec,tp) should equal(Some(List((1,Vector2D(-20.0,0.0)), (2,Vector2D(-20.0,-20.0)), (3,Vector2D(20.0,-20.0)), (3,Vector2D(20.0,0.0)))))
+    }
+    it("a closed pl can be trimmed when both trimLines lie on the same segment ") {
+      val r = ComplexRectangle2D(Vector2D(0,0),40,40,0)
+
+      //reconstruct the rect as a closed PolyLineShape:
+      val rec = PolylineShapeClosed(r.p0,List(PolylineLineShape(r.p1),PolylineLineShape(r.p2),PolylineLineShape(r.p3)),Attributes())
+      //construct a guide
+      val gs = Map(1 -> PolylineShapeOpen(Vector2D(-30,0),List(PolylineLineShape(Vector2D(0,0))),Attributes()),2 -> PolylineShapeOpen(Vector2D(-30,10),List(PolylineLineShape(Vector2D(0,10))),Attributes()))
+      val tp = Vector2D(0,20)
+      //trim point on different segment
+      TrimmingMethods.trimPolylineClosed(gs,rec,tp) should equal(Some(List((1,Vector2D(-20.0,10.0)), (1,Vector2D(-20.0,0.0)))))
+      //TODO: test these:
+      //trim point on same segment but not between intersections
+      //trim point on same segment and between intersections
     }
   }
 }

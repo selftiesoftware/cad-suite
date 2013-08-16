@@ -23,6 +23,7 @@ import com.siigna.util.geom._
 import com.siigna.app.model.shape._
 import com.siigna.app.Siigna
 import com.siigna.app.model.shape.PolylineShape.PolylineShapeClosed
+import com.siigna.app.view.View
 
 object TrimmingMethods {
 
@@ -426,10 +427,12 @@ object TrimmingMethods {
     var trimmedLine : Option[List[(Int,Vector2D)]] = None
 
     val intIDs = getIntersectSegmentNumbers(guides.map(_._2).toList,trimLine)
-    val ints = intIDs.count(!_._2.isEmpty)
+    //calculate the number of intersections
+    val ints = intIDs.values.flatten
+    //val ints = intIDs.values.filter(a => !a.isEmpty)
 
     //if there are less than two intersections, the polyline should not be trimmed.
-    if(ints > 1) {
+    if(ints.size > 1) {
 
       // get the ID for the segment on which p lies.
       val (trimSegmentInt, trimGeom) = findIntSegNrAtPoint(trimLine, p).get
@@ -445,43 +448,6 @@ object TrimmingMethods {
       val int2 = findIntersectionClosed(trimLine, intIDs, trimSegmentInt, false, Some(p))
       val id2 = int2.get._1
 
-      //construct the line from START to INT1:
-      //take: take the first elements until INT1. Then remove the first point (drop(1)), as it will be added with line 1B.
-
-      val line1A = {
-        if(id1<id2) (trimVertices.take(id1 + 1) :+ int1.get).drop(1)
-        else (trimVertices.take(id2 + 1) :+ int2.get).drop(1)
-      }
-
-      println("line1A: "+line1A)
-
-      //construct the line from INT2 to END:
-            //drop: Selects all elements except first n ones
-      val line1B = {
-        if(id1<id2) trimVertices.drop(id2 + 1).+:(int2.get)
-        else trimVertices.drop(id1 + 1).+:(int1.get)
-      }
-
-      //join the two parts into the first possible trimline to keep:
-      val line1 = line1B ++ line1A
-
-      //construct the line from INT1 to INT2: (taking into account that sometimes id1>id2
-
-      val line2A = {
-        if(id1<id2)trimVertices.slice(int1.get._1 + 1,int2.get._1 + 1)
-        else trimVertices.slice(int2.get._1 + 1,int1.get._1 + 1)
-      }
-      // add the first trimPoint
-      val line2B = {
-        if(id1<id2)line2A.+:(int1.get)
-        else line2A.+:(int2.get)
-      }
-      //add the second trimPoint
-      val line2 = {
-        if(id1>id2)line2B :+ int1.get
-        else line2B :+ int2.get
-      }
-
       var p1 : Option[Vector2D] = None
       var p2 : Option[Vector2D] = None
 
@@ -494,17 +460,102 @@ object TrimmingMethods {
         case _ => println("unsupported trimSegment"+trimGeom)
       }
 
+      //OR: when both trim lines lie on the same segment.
+
+      //a boolean telling if the two ints are on the segment and mouse is clicked between them
+      var trimPisBetweenInts = false
+
+      //special evaluation if id(1) == id(p) and/or id(2) == id(p)
+      //in this case the correct int must be found by finding the ints dist  to p.
+      //    *---------x-----X-----x-------*
+      //  p1(id-1)   int1  (p)   int2    p2(id)
+      //if dist(p1,int1) < dist(p1,p) - use int1.
+      //if dist(p1,int1) > dist(p1,p) - use int2.
+      //returns the intersection (Vector2D) which should be used to create the trimmed line in any given case.
+
+      val sameSegInt : List[(Int,Vector2D)] = {
+        val dist1 = p1.get.distanceTo(int1.get._2)
+        val dist2 = p1.get.distanceTo(int2.get._2)
+        val dist3 = p1.get.distanceTo(p)
+
+
+        //test if the mouse is clicked on the same segment as the intersections.
+        //if so, we need to find out where the mouse is clicked in order to establish to which side int1 and int2 lie.
+        if(id1 == trimSegmentInt){
+          //see if the trimPisBetweenInts flag should be updated;
+          val lineBetweenInts = Segment2D(int1.get._2,int2.get._2)
+          if(p.distanceTo(lineBetweenInts)< Siigna.selectionDistance) {
+            trimPisBetweenInts = true
+          }
+
+          //return int1 or int2
+          if(dist1<dist3)List((id1,int1.get._2),(id1,int2.get._2))
+          else List((id1,int2.get._2),(id1,int1.get._2))
+        //if not, the distance from the segment endpoints to the two intersections will determine which is int and which is int2
+        } else {
+          //return int1 or int2
+          if(dist1<dist2)List((id1,int1.get._2),(id1,int2.get._2))
+          else List((id1,int2.get._2),(id1,int1.get._2))
+        }
+      }
+
+      //construct the line from START to INT1:
+      //take: take the first elements until INT1. Then remove the first point (drop(1)), as it will be added with line 1B.
+      val line1A = {
+        if(id1<id2) (trimVertices.take(id1 + 1) :+ int1.get).drop(1)
+        //if the mouse is clicked on the same segment as the intersections, calculate which intersection to add to the line.
+        else if(id1==id2) {
+          val l = (trimVertices.take(id1 + 1) :+ sameSegInt(0)).drop(1)
+          l
+        }
+        else (trimVertices.take(id2 + 1) :+ int2.get).drop(1)
+      }
+
+      //construct the line from INT2 to END:
+            //drop: Selects all elements except first n ones
+      val line1B = {
+        if(id1<id2) trimVertices.drop(id2 + 1).+:(int2.get)
+        else if(id1==id2) {
+          val l = trimVertices.drop(id1 + 1).+: (sameSegInt(1))
+          l
+        }
+        else trimVertices.drop(id1 + 1).+:(int1.get)
+      }
+
+      //join the two parts into the first possible trimline to keep:
+      val line1 = line1B ++ line1A
+
+      //construct the line from INT1 to INT2: (taking into account that sometimes id1>id2)
+      //if id1 == id2, the list should be empty. (there are no other segments than the one with the ints.
+      val line2A = {
+        if(id1<id2)trimVertices.slice(int1.get._1 + 1,int2.get._1 + 1)
+        else trimVertices.slice(int2.get._1 + 1,int1.get._1 + 1)
+      }
+
+      // add the first trimPoint
+      val line2B = {
+        if(id1<id2)line2A.+:(int1.get)
+        else if(id1==id2) List(sameSegInt(0))
+        else line2A.+:(int2.get)
+      }
+      //add the second trimPoint
+
+      val line2 = {
+        if(id1>id2)line2B :+ int1.get
+        else if(id1==id2)line2B :+ sameSegInt(1)
+        else line2B :+ int2.get
+      }
+
       //evaluate if the two Vectors of the trimPoint segment exists in the list. If so, the line should not be used.
       val pIsOnLine1 = line1.exists(_._2 == p1.get) && line1.exists(_._2 == p2.get)
       val pIsOnLine2 = line2.exists(_._2 == p1.get) && line2.exists(_._2 == p2.get)
 
-      //TODO: implement trimming of closed PLs when TrimPoint is on same segment as int!
-      println(pIsOnLine1)
-      println(pIsOnLine2)
+      if (pIsOnLine1 && !trimPisBetweenInts) trimmedLine = Some(line2)
+      if (pIsOnLine2 && !trimPisBetweenInts) trimmedLine = Some(line1)
 
-      if (pIsOnLine1) trimmedLine =  Some(line2)
-      if (pIsOnLine2) trimmedLine = Some(line1)
+      println("trim between; "+trimPisBetweenInts)
 
+      if (trimPisBetweenInts) trimmedLine = Some(line1)
       //end of if(ints > 1) evaluation
     }
     trimmedLine
