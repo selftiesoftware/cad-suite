@@ -53,7 +53,6 @@ class Selection extends Module {
     //If started with a Vector2D:
     case Start(_ , v: Vector2D) :: tail => {
 
-
     }
 
     // If we immediately receive a mouse-up we select nearby shapes

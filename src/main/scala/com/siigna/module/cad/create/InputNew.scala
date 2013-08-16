@@ -219,7 +219,7 @@ class InputNew extends Module {
           guide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
         }
         case DoubleGuideNew(guide) =>
-        case x => println("Unknown guide in input: " + x)// No known guide
+        case _ =>
       } )
     }
   }
