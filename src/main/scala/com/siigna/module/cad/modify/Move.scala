@@ -129,8 +129,7 @@ class Move extends Module {
 
 
       //on first entry, send input request to input to get the start point for the move operations.
-      case x => {
-        println(x)
+      case _ => {
         if (!Drawing.selection.isEmpty) {
           val vector2DGuide = Vector2DGuideKeysNew((v: Vector2D) => {
             Drawing.selection.transformation = origin
