@@ -512,7 +512,7 @@ object TrimmingMethods {
       }
 
       //construct the line from INT2 to END:
-            //drop: Selects all elements except first n ones
+      //drop: Selects all elements except first n ones
       val line1B = {
         if(id1<id2) trimVertices.drop(id2 + 1).+:(int2.get)
         else if(id1==id2) {
