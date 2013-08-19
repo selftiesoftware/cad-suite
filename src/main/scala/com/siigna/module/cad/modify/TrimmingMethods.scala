@@ -546,9 +546,25 @@ object TrimmingMethods {
         else line2B :+ int2.get
       }
 
+      println("trim Segment ID: "+trimSegmentInt)
+      println("trim geom: "+trimGeom)
+      println("int1: "+int1.get._1)
+      println("int2: "+int2.get._1)
+      println("AAAA")
+
+      //a flag to determine which line to use in cases one int is on the same segment as the trim line, and the other is not.
+      val trimOnp1Segment = (trimVertices(trimSegmentInt)._1 == int1.get._1)
+
+      if (p1.isDefined && p2.isDefined) println("id is low"+ (p1.get == trimVertices(trimSegmentInt)._2))
+      if (p1.isDefined && p2.isDefined) println("id is high"+ (p2.get == trimVertices(trimSegmentInt)._2))
+
       //evaluate if the two Vectors of the trimPoint segment exists in the list. If so, the line should not be used.
-      val pIsOnLine1 = line1.exists(_._2 == p1.get) && line1.exists(_._2 == p2.get)
-      val pIsOnLine2 = line2.exists(_._2 == p1.get) && line2.exists(_._2 == p2.get)
+      val pIsOnLine1 = {
+        if(trimOnp1Segment) line1.exists(_._2 == p1.get) else line1.exists(_._2 == p2.get)
+      }
+      val pIsOnLine2 = {
+        if(trimOnp1Segment) line2.exists(_._2 == p1.get) else line2.exists(_._2 == p2.get)
+      }
 
       if (pIsOnLine1 && !trimPisBetweenInts) trimmedLine = Some(line2)
       if (pIsOnLine2 && !trimPisBetweenInts) trimmedLine = Some(line1)
