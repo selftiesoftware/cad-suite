@@ -125,6 +125,9 @@ class Rotate extends Module {
         End
       }
 
+      // Stops an infinite loop between InputNew and Rotate
+      case End :: tail =>
+
       case _ => {
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         val l = new ModuleInit
