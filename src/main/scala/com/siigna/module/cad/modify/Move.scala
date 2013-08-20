@@ -14,7 +14,6 @@ package com.siigna.module.cad.modify
 import com.siigna._
 import app.Siigna
 import com.siigna.module.cad.create._
-import module.ModuleInit
 
 class Move extends Module {
   val origin = Drawing.selection.transformation

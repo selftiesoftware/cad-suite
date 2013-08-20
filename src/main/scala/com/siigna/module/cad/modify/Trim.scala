@@ -57,12 +57,10 @@ class Trim extends Module {
 
       case _ => {
         //Go to trim - state only if there is a selection
-        println("Underscore")
         if(Drawing.selection.isEmpty) {
           Siigna display "No shapes selected - select shapes to trim"
           Start('cad, "Selection")
         } else {
-          println(" selection")
           'Trim
         }
       }
@@ -93,6 +91,12 @@ class Trim extends Module {
 
           val tl = trimLine.get._2
           tl match {
+
+            //TRIM ARCS
+            case a : ArcShape => {
+              Siigna display("We are sorry - trimming of arcs not yet implemented.")
+            }
+
             //TRIM LINE
             case l : LineShape => {
               val trimmedShapes = TrimmingMethods.trimLine(Drawing.selection.shapes,l,point)

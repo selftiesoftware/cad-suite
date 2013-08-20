@@ -1,7 +1,3 @@
-
-
-
-
 /*
  * Copyright (c) 2008-2013, Selftie Software. Siigna is released under the
  * creative common license by-nc-sa. You are free
@@ -187,6 +183,7 @@ class Scale extends Module {
           Siigna display "Select objects to scale"
           Start('cad, "Selection")
         }
-      } }
+      }
+    }
   )
 }
