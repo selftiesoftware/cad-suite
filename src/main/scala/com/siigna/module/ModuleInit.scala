@@ -96,11 +96,6 @@ class ModuleInit extends Module {
     } else Start('base, "Menu")
   }
 
-  def startSelection(p: Vector2D) = {
-    textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
-    Start('cad, "Selection", p)
-  }
-
   def startPrevious = {
     if (lastModule.isDefined) {
       shortcut = ""
@@ -186,8 +181,18 @@ class ModuleInit extends Module {
       case End(MouseDown(p, MouseButtonRight, modifier)) :: tail => startMenu
 
       // Selection
-      case End(p: Vector2D) :: tail => startSelection(p)
-      case MouseDown(p: Vector2D, _, _) :: tail => startSelection(p)
+      case End(p: Vector2D) :: tail => {
+        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
+        Start('cad, "Selection", p)
+      }
+      case MouseDown(p: Vector2D, _, _) :: tail => {
+        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
+        Start('cad, "Selection", p)
+      }
+      case MouseDrag(p: Vector2D, MouseButtonLeft, m1) :: tail => {
+        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
+        Start('cad, "Selection", MouseDrag(p,MouseButtonLeft,m1))
+      }
 
       // Start previous
       case KeyDown(Key.Space, _) :: tail => startPrevious
@@ -202,7 +207,7 @@ class ModuleInit extends Module {
       case End :: tail =>
 
       case y => {
-        println(y)
+        println("Mod init forwarding" + y)
         Start('cad, "create.InputNew", InputRequestNew(14, None))
       }
     }
