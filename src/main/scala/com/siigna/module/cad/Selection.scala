@@ -69,8 +69,8 @@ class Selection extends Module {
     case MouseDown(p, MouseButtonRight,m) :: tail => End(MouseDown(p,MouseButtonRight,m))
 
     //Mouse up, after mouse down - possible double click:
-    case MouseUp(p1, _, m1) :: Start(_ , p2: Vector2D) :: MouseDown(p3,MouseButtonLeft,m3) :: MouseUp(p4, _, m4) :: tail
-      if (p1 == p4) => {
+    case MouseUp(p1, _, m1) :: Start(_ , p2: Vector2D) :: MouseDown(p3,MouseButtonLeft,m3) :: MouseUp(p4, _, m4) :: MouseDown(p5,MouseButtonLeft,m5) :: tail
+      if (p1 == p5) => {
       println("0: " + tail)
       if(!m1.shift) {
         //If shift is not down, and clicking away from shape: Deselect any selections.
@@ -84,7 +84,7 @@ class Selection extends Module {
           End
         }
       } else {
-        //If shift is not down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
+        //If shift is down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
         val (id, shape) = nearestShape.get
         SelectToggle(id)
         End
@@ -101,8 +101,13 @@ class Selection extends Module {
         if (nearestShape.isDefined) {
           val (id, shape) = nearestShape.get
           val selector = shape.getSelector(m)
-          //If shift is down, toggle selection of nearest shape part:
-          if (m2.shift) SelectToggle(id,selector)
+          //If shift is down, toggle selection of nearest shape part (RESTORE THIS WHEN SHIFT REPEAT IS GOne froM EVENTSTREAM):
+          //if (m2.shift) SelectToggle(id,selector)
+          //If shift is down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
+          //This is for using single click + shift as doubleclick, since shift repeats and corrupts eventstream, and doesnt work for now...
+          if (m2.shift) {
+          SelectToggle(id)
+          End}
           //If shift is not down, deselect anything that might be selected, and select nearest shape part:
           else {
             Deselect()
