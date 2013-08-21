@@ -28,6 +28,7 @@ import util.collection.Attributes
 class Trim extends Module {
 
   private var attr = Attributes()
+  private var selection : Option[Selection] = None
 
   val stateMap: StateMap = Map(
     //check if shapes are selected. If not, allow the user to do so.
@@ -62,7 +63,8 @@ class Trim extends Module {
           Siigna display "No shapes selected - select shapes to trim"
           Start('cad, "Selection")
         } else {
-          println(" selection")
+          //save the selection and go to the Trim state
+          selection = Some(Drawing.selection)
           'Trim
         }
       }
@@ -72,10 +74,26 @@ class Trim extends Module {
     'Trim -> {
 
       //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
-      case MouseDown(p, MouseButtonRight, _) :: tail => End
-      case End(KeyDown(Key.Esc, _)) :: tail => End
-      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
+      case KeyDown(Key.Esc, _) :: tail => {
+        if(selection.isDefined) Drawing.deselect()
+        End
+      }
+      case KeyDown(Key.Enter, _) :: tail => {
+        if(selection.isDefined) Drawing.deselect()
+        End
+      }
+      case MouseDown(p, MouseButtonRight, _) :: tail => {
+        if(selection.isDefined) Drawing.deselect()
+        End
+      }
+      case End(KeyDown(Key.Esc, _)) :: tail => {
+        if(selection.isDefined) Drawing.deselect()
+        End
+      }
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
+        if(selection.isDefined) Drawing.deselect()
+        End
+      }
 
 
       case End(p : Vector2D) :: tail =>
@@ -86,7 +104,7 @@ class Trim extends Module {
         val trimLine = if (nearest._2.distanceTo(point) < Siigna.selectionDistance) Some(nearest) else None
         //attr = trimLine.get.attributes
 
-        if(trimLine.isDefined) {
+        if(trimLine.isDefined && selection.isDefined) {
           //remove the trimline from the selection to prevent false intersections.
           //TODO: enable trimming of shapes with themselves.
           Drawing.deselect(trimLine.get._1)
@@ -103,12 +121,16 @@ class Trim extends Module {
 
                 //construct new shapes
                 if(trimmedShapes._1.isDefined) {
-                  //println("t1; "+trimmedShapes._1.get)
-                  Create(LineShape(trimmedShapes._1.get))
+                  val line1 = LineShape(trimmedShapes._1.get)
+                  Create(line1)
+                  //add the line to the selection
+                  //selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(line1,FullShapeSelector)))
                 }
                 if(trimmedShapes._2.isDefined) {
-                  //println("t2; "+trimmedShapes._2.get)
-                  Create(LineShape(trimmedShapes._2.get))
+                  val line2 = LineShape(trimmedShapes._2.get)
+                  Create(line2)
+                  //add the line to the selection
+                  //selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(line2,FullShapeSelector)))
                 }
               }
             }
@@ -120,12 +142,15 @@ class Trim extends Module {
               //if at least one trimmedShapes is defined, delete the original shape:
               if(trimmedShapes.isDefined) {
                 Delete(nearest._1)
-
                 //construct new shape
-                if(trimmedShapes.isDefined) {
-                  //Siigna display ("trimming of closed polylines is right around the corner!!")
-                  Create(PolylineShape(trimmedShapes.get.map(_._2)))
-                }
+
+                val line = PolylineShape(trimmedShapes.get.map(_._2))
+                Create(line)
+                //add the polyline to the selection
+                println("ID: "+com.siigna.app.Siigna.latestID)
+                //TODO: the new open polyline is not getting an ID?!
+                //selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(line,FullShapeSelector)))
+
               }
             }
 
@@ -139,12 +164,17 @@ class Trim extends Module {
 
                 //construct new shapes
                 if(trimmedShapes._1.isDefined) {
-                  //println("t1; "+trimmedShapes._1.get)
-                  Create(PolylineShape(trimmedShapes._1.get))
+                  val line1 = PolylineShape(trimmedShapes._1.get)
+                  Create(line1)
+                  //add the polyline to the selection
+                  //selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(line1,FullShapeSelector)))
+
                 }
                 if(trimmedShapes._2.isDefined) {
-                  //println("t2; "+trimmedShapes._2.get)
-                  Create(PolylineShape(trimmedShapes._2.get))
+                  val line2 = PolylineShape(trimmedShapes._2.get)
+                  Create(line2)
+                  //add the polyline to the selection
+                  //selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(line2,FullShapeSelector)))
                 }
               }
             }
@@ -173,14 +203,20 @@ class Trim extends Module {
             case e => Siigna display ("sorry, Siigna can not trim " + e.toString.takeWhile(_ != '(') + "s yet!")
           }
         }
-        End
+        if(selection.isDefined && trimLine.isDefined) {
+          //remove the original trimline from the selection
+          selection = Some(Selection(selection.get - trimLine.get._1))
+          //and select the new selection
+          Drawing.select(selection.get)
+        }
+        //start again
+        'Trim
       }
 
       case e => {
-        println("error: "+e)
         Siigna display "Click shapes to trim"
         //Requests mouse-down input
-        Start('cad,"create.InputNew",InputRequestNew(6,None))
+        //Start('cad,"create.InputNew",InputRequestNew(6,None))
       }
     }
   )
