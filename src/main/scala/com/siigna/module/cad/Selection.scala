@@ -138,6 +138,31 @@ class Selection extends Module {
       } else if (!m2.shift) Deselect()
     }
 
+    //If started without a point, catch mouse down:
+    case MouseDown(p1,MouseButtonLeft,m1) :: tail => {
+      println("4: " + tail)
+      if (shapeWithinSelectionDistance) {
+        //If near shape part: Toggle, if shift is down, select if shift is not down
+        //If not near shape part: Do nothing (before the mouse button is released again)
+        if (nearestShape.isDefined) {
+          val (id, shape) = nearestShape.get
+          val selector = shape.getSelector(m)
+          //If shift is down, toggle selection of nearest shape part (RESTORE THIS WHEN SHIFT REPEAT IS GOne froM EVENTSTREAM):
+          //if (m2.shift) SelectToggle(id,selector)
+          //If shift is down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
+          //This is for using single click + shift as doubleclick, since shift repeats and corrupts eventstream, and doesnt work for now...
+          if (m1.shift) {
+            SelectToggle(id)
+            End}
+          //If shift is not down, deselect anything that might be selected, and select nearest shape part:
+          else {
+            Deselect()
+            Select(id,selector)
+          }
+        }
+      } else if (!m1.shift) Deselect()
+    }
+
     //Click, then drag:
     case MouseDrag(p1,MouseButtonLeft,m1) :: tail
       //Shift down: Box selUect, toggle:
@@ -292,6 +317,12 @@ class Selection extends Module {
 
     // Do nothing if shift is pressed, since it repeats when held down - ignore that...
     case KeyDown(Key.Shift, _) :: tail =>
+
+    //Do not exit when starting without point:
+    case Start(_, _) :: tail =>
+
+    //Also do not exit on mouse move - it can cause endless loops and hang the programme
+    case MouseMove(_,_,_) :: tail =>
 
     case x => {
       println("99: " + x)
