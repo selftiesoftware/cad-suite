@@ -147,7 +147,7 @@ class Trim extends Module {
                 val line = PolylineShape(trimmedShapes.get.map(_._2))
                 Create(line)
                 //add the polyline to the selection
-                println("ID: "+com.siigna.app.Siigna.latestID)
+                //println("ID: "+com.siigna.app.Siigna.latestID)
                 //TODO: the new open polyline is not getting an ID?!
                 //selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(line,FullShapeSelector)))
 

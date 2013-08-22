@@ -107,8 +107,10 @@ class Selection extends Module {
         //If shift is down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
         //This is for using single click + shift as doubleclick, since shift repeats and corrupts eventstream, and doesnt work for now...
         if (m2.shift) {
-        SelectToggle(id)
-        End}
+          println("a")
+          SelectToggle(id)
+          End
+        }
         //If shift is not down, deselect anything that might be selected, and select nearest shape part:
         else {
           //If the nearest shape is fully selected, or a click would select the same shape-part,
@@ -135,7 +137,10 @@ class Selection extends Module {
           val (id, shape) = nearestShape.get
           val selector = shape.getSelector(m)
           //If shift is down, toggle selection of nearest shape part:
-          if (m2.shift) SelectToggle(id,selector)
+          if (m2.shift) {
+            println("b")
+            SelectToggle(id,selector)
+          }
           //If shift is not down, deselect anything that might be selected, and select nearest shape part:
           else {
             //If the nearest shape is fully selected, or a click would select the same shape-part,
