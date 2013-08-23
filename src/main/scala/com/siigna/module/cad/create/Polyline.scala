@@ -61,7 +61,6 @@ class Polyline extends Module {
             Array(PolylineShape(points :+ v).addAttributes(attributes))
           })
           val inputRequest = InputRequestNew(7,startPoint,vector2DGuide)
-          println("JJ")
           Start('cad,"create.InputNew", inputRequest)
         } else {
 
@@ -111,7 +110,6 @@ class Polyline extends Module {
         // If the key is backspace without modification (shift etc), the last bit of line is deleted:
         if (k == KeyDown(Key.Backspace,ModifierKeys(false,false,false))) {
           if (points.length > 1) {
-            println("Points - wil be shortened: " + points)
             points = points.dropRight(1)
           }
           //And if there is a start point, a new guide is returned
@@ -136,6 +134,8 @@ class Polyline extends Module {
         //If there are two or more points in the polyline, it can be saved to the Siigna universe.
         if (points.length > 1) {
           val polyline = PolylineShape(points).addAttributes(attributes)
+          println("ACTIVE ATTR2; "+attributes)
+
           Create(polyline)
           points = List[Vector2D]()
         }

@@ -121,7 +121,6 @@ class Stroke extends Module {
         Drawing.selection.addAttribute("StrokeWidth" -> activeLine.get)
         Drawing.deselect()
       }
-
       //clear values and reactivate navigation
       eventParser.enable()
       Siigna.navigation = true

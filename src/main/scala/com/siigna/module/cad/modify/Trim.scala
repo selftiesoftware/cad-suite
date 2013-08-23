@@ -101,7 +101,7 @@ class Trim extends Module {
         val point = p.transform(t)
         val nearest = Drawing(point).reduceLeft((a, b) => if (a._2.geometry.distanceTo(point) < b._2.geometry.distanceTo(point)) a else b)
         val trimLine = if (nearest._2.distanceTo(point) < Siigna.selectionDistance) Some(nearest) else None
-        //attr = trimLine.get.attributes
+        if(trimLine.isDefined) attr = trimLine.get._2.attributes
 
         if(trimLine.isDefined && selection.isDefined) {
           //remove the trimline from the selection to prevent false intersections.
@@ -126,13 +126,13 @@ class Trim extends Module {
 
                 //construct new shapes
                 if(trimmedShapes._1.isDefined) {
-                  val line1 = LineShape(trimmedShapes._1.get)
+                  val line1 = LineShape(trimmedShapes._1.get).addAttributes(attr)
                   Create(line1)
                   //add the line to the selection
                   //selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(line1,FullShapeSelector)))
                 }
                 if(trimmedShapes._2.isDefined) {
-                  val line2 = LineShape(trimmedShapes._2.get)
+                  val line2 = LineShape(trimmedShapes._2.get).addAttributes(attr)
                   Create(line2)
                   //add the line to the selection
                   //selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(line2,FullShapeSelector)))
@@ -149,13 +149,12 @@ class Trim extends Module {
                 Delete(nearest._1)
                 //construct new shape
 
-                val line = PolylineShape(trimmedShapes.get.map(_._2))
+                val line = PolylineShape(trimmedShapes.get.map(_._2)).addAttributes(attr)
                 Create(line)
                 //add the polyline to the selection
-                println("ID: "+com.siigna.app.Siigna.latestID)
+                //println("ID: "+com.siigna.app.Siigna.latestID)
                 //TODO: the new open polyline is not getting an ID?!
                 //selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(line,FullShapeSelector)))
-
               }
             }
 
@@ -169,14 +168,14 @@ class Trim extends Module {
 
                 //construct new shapes
                 if(trimmedShapes._1.isDefined) {
-                  val line1 = PolylineShape(trimmedShapes._1.get)
+                  val line1 = PolylineShape(trimmedShapes._1.get).addAttributes(attr)
                   Create(line1)
                   //add the polyline to the selection
                   //selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(line1,FullShapeSelector)))
 
                 }
                 if(trimmedShapes._2.isDefined) {
-                  val line2 = PolylineShape(trimmedShapes._2.get)
+                  val line2 = PolylineShape(trimmedShapes._2.get).addAttributes(attr)
                   Create(line2)
                   //add the polyline to the selection
                   //selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(line2,FullShapeSelector)))
@@ -199,7 +198,7 @@ class Trim extends Module {
                 //construct new shape
                 if(trimmedShapes.isDefined) {
                   //Siigna display ("trimming of rectangles is right around the corner!!")
-                  Create(PolylineShape(trimmedShapes.get.map(_._2)))
+                  Create(PolylineShape(trimmedShapes.get.map(_._2)).addAttributes(attr))
                 }
               }
             }
