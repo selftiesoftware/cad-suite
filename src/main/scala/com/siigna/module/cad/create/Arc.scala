@@ -35,7 +35,7 @@ class Arc extends Module {
   val attributes = {
     val color = Siigna.color("activeColor")
     val lineWidth = Siigna.double("activeLineWidth")
-    Attributes(Seq(color.map(c => "Color" -> c), lineWidth.map(w => "StrokeWidth" -> lineWidth)).flatten)
+    Attributes(Seq(color.map(c => "Color" -> color.getOrElse(None)), lineWidth.map(w => "StrokeWidth" -> lineWidth.getOrElse(None))).flatten)
   }
 
   def middlePointForDoubleGuide (d: Double) : Vector2D  = {
