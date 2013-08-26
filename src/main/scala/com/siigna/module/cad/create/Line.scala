@@ -51,6 +51,7 @@ class Line extends Module {
           Start('cad,"create.InputNew", inputRequest)
         } else {
           val line = LineShape(startPoint.get,v).addAttributes(attributes)
+          println("ATTR; "+attributes)
           Create(line)
           startPoint = None
           End

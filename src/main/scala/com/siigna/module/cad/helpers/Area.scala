@@ -42,8 +42,6 @@ class Area extends Module {
     var area : Double = 0
     var i : Int = 0
 
-    //TODO: Add the first element to the end to close the polygon
-
     while (i < points.length - 1) {
       var pointX1 = points(i).x
       var pointY1 = points(i).y
@@ -54,8 +52,9 @@ class Area extends Module {
       area += pointX1 * pointY2 - pointX2 * pointY1
       i += 1
     }
-    area = scala.math.abs(area * 0.5)
-    area.toInt
+    val r = scala.math.round(area*100)
+    val f = (r / 100.0) *0.5
+    f.toInt
   }
 
   //change display different units based on area size
@@ -67,7 +66,7 @@ class Area extends Module {
 
 
   var color = new Color(1.00f, 0.75f, 0.30f, 0.60f)
-  val lineWidth = 4.0
+  val lineWidth = 2.0
   private var points   = List[Vector2D]()
   var startPoint: Option[Vector2D] = None
 
@@ -79,8 +78,8 @@ class Area extends Module {
       case End(KeyDown(Key.Esc, _)) :: tail => End
       case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
         if (points.length > 2) {
-          //a function to calculate the center of the area
-          Siigna.display("Area: "+units(area(points :+ points(0))))
+          val pts = points :+ points(0)
+          Siigna.display("Area: "+units(area(pts)))
           //TODO: calculate the weighted center of the polygon and place a TextShape with the area there.
           //Create(TextShape(units(area(points :+ points(0))),position(points) ,3 * Siigna.paperScale))
           points = List()
@@ -104,10 +103,10 @@ class Area extends Module {
           val vector2DGuide = Vector2DGuideNew((v: Vector2D) => {
             var closedPl = points :+ v
             closedPl = closedPl :+ points(0)
-            var pts = points :+ v.transform(View.deviceTransformation)
+            var pts = points :+ v
             pts = pts :+ points(0)
             Siigna.display("Area: "+units(area(pts)))
-            pts = List()
+            //pts = List()
             Traversable(PolylineShape(closedPl).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth))
           })
           //a message which display the current area, to be send to the Input module

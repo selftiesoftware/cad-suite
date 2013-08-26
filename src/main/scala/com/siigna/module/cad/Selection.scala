@@ -107,7 +107,6 @@ class Selection extends Module {
         //If shift is down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
         //This is for using single click + shift as doubleclick, since shift repeats and corrupts eventstream, and doesnt work for now...
         if (m2.shift) {
-          println("a")
           SelectToggle(id)
           End
         }
@@ -138,7 +137,6 @@ class Selection extends Module {
           val selector = shape.getSelector(m)
           //If shift is down, toggle selection of nearest shape part:
           if (m2.shift) {
-            println("b")
             SelectToggle(id,selector)
           }
           //If shift is not down, deselect anything that might be selected, and select nearest shape part:
@@ -370,6 +368,7 @@ class Selection extends Module {
     case KeyDown(Key.Shift, _) :: tail =>
 
     case MouseDrag(p, _, _) :: tail => {
+
       val rectangle = Rectangle2D(startPoint.get, p)
       box = Some(rectangle)
       val transformedRectangle = rectangle.transform(View.deviceTransformation)

@@ -123,7 +123,6 @@ class ModuleInit extends Module {
     // Letters or numbers:
     if (code.toChar.isLetterOrDigit) {
       val shortcutKey: Char = code.toChar
-      println("shortcutKey" + shortcutKey)
 
       //Modified keys: Control:
       if (modifier.ctrl) {
@@ -207,7 +206,6 @@ class ModuleInit extends Module {
       case End :: tail =>
 
       case y => {
-        println("Mod init forwarding" + y)
         Start('cad, "create.InputNew", InputRequestNew(14, None))
       }
     }

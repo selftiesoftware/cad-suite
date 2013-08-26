@@ -26,6 +26,7 @@ class Polyline extends Module {
 
   val attributes = {
     val color = Siigna.color("activeColor")
+    println("ACTIVECOLOR; "+color)
     val lineWidth = Siigna.double("activeLineWidth")
     Attributes(Seq(color.map(c => "Color" -> color.getOrElse(None)), lineWidth.map(w => "StrokeWidth" -> lineWidth.getOrElse(None))).flatten)
   }
@@ -42,6 +43,8 @@ class Polyline extends Module {
       case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
         if (points.length > 1) {
           val polyline = PolylineShape(points).addAttributes(attributes)
+          println("first point; "+points.head)
+          println("last point; "+points.last)
           Create(polyline)
         }
         End
@@ -134,7 +137,6 @@ class Polyline extends Module {
         //If there are two or more points in the polyline, it can be saved to the Siigna universe.
         if (points.length > 1) {
           val polyline = PolylineShape(points).addAttributes(attributes)
-          println("ACTIVE ATTR2; "+attributes)
 
           Create(polyline)
           points = List[Vector2D]()
