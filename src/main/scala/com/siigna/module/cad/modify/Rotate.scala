@@ -46,6 +46,7 @@ class Rotate extends Module {
         if(!centerPoint.isDefined) {
           //Request mouse down - it might be a rotation start point, or the start of a rotation angle:
           centerPoint = Some(p)
+          Siigna display "TÆST"
           Siigna display "click to set rotation start point, or type a rotation angle"
           val doubleGuide = DoubleGuideNew((d: Double) => {
             Drawing.selection.transformation = origin
@@ -76,6 +77,7 @@ class Rotate extends Module {
             //Else its the start vector:
             startVector = Some(p)
             startVectorSet = true
+            Siigna display "TÆST2"
             Siigna display "click to finish rotation, or type a rotation angle"
             val doubleGuide = DoubleGuideNew((d: Double) => {
               val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
