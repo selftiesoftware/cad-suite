@@ -36,9 +36,9 @@ class Rectangle extends Module {
         //use the first point
         if (points.length == 0){
           points = points :+ v
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points(0)),None,None,Some(112))
-          Start('cad, "create.Input", inputRequest)
+          val vector2DGuide = Vector2DGuideNew((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))
+          val inputRequest = InputRequestNew(7,Some(v),vector2DGuide)
+          Start('cad, "create.InputNew", inputRequest)
         }
         //use second point
         else if (points.length == 1) {
@@ -51,26 +51,16 @@ class Rectangle extends Module {
         }
       }
 
-      case End("no point returned") :: tail => {
-        if (points.length == 0) {
-          Start('cad, "create.Input", 111)
-        } else {
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points(0)),None,None,Some(112))
-          Start('cad, "create.Input", inputRequest)
-        }
-      }
-
       //If End with no point: End module without drawing anything.
       case End :: tail => End
       //get the first point
       case _ => {
         if (points.length == 0) {
-          Start('cad, "create.Input", 111)
+          Start('cad, "create.InputNew", InputRequestNew(6,None))
         } else {
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points(0)),None,None,Some(112))
-          Start('cad, "create.Input", inputRequest)
+          val vector2DGuide = Vector2DGuideNew((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))
+          val inputRequest = InputRequestNew(7,Some(points.head),vector2DGuide)
+          Start('cad, "create.InputNew", inputRequest)
         }
       }
     }
