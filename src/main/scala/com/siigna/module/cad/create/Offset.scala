@@ -149,8 +149,10 @@ class Offset extends Module {
 
   def offsetLines(s : Shape, d : Double) = {
     var l = List[LineShape]()
-    val v = s.geometry.vertices
+    var v = s.geometry.vertices
     val m = mousePosition.transform(View.deviceTransformation)
+    //add a vertex if the shape is a ComplexRect
+    if(isRect) v = v :+ v(0)
     //iterate through the shapes to find the shape closest to the mouse
     def calcNearest : Double = {
       var nearestDist : Double = LineShape(v(0), v(1)).distanceTo(m)
@@ -193,7 +195,6 @@ class Offset extends Module {
     }
 
     case End(d : Double) :: tail => {
-
       done = true
       Create(generateOffsetLine(d).addAttributes(attr))//create a polylineShape from the offset knots:
       End
