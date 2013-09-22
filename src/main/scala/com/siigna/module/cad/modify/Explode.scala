@@ -23,7 +23,7 @@ package com.siigna.module.cad.modify
 
 
 import com.siigna._
-import app.model.shape.RectangleShape
+import app.model.shape.{InnerPolylineShape, RectangleShape}
 
 /**
  * Created by IntelliJ IDEA.
@@ -71,18 +71,50 @@ class Explode extends Module{
                     }
                     //If only part of the shape has been selected:
                     case BitSetShapeSelector(x) => {
-                      println("Bitset x: " + x)
+                      var exploded: Boolean = false
+                      var lastBitSet: Int = 0
+                      var leftover: Seq[InnerPolylineShape] = p.innerShapes
                       x.foreach((bitset) => {
                         //Exclude the endpoints of the polyline:
-                        var usefulSplitPoints: Int = 0
-                        if (bitset != 0 && bitset != p.size) {
-                          usefulSplitPoints = usefulSplitPoints + 1
-                          println ("bitset " + bitset )
-                          //For now, the splitting only at selected points is not implemented...
-
-
+                        if (bitset != 0 && bitset != p.size && p.size > 1) {
+                          exploded = true
+                          if (bitset == 1) {
+                            Create(LineShape(p.startPoint,p.innerShapes(bitset-1).point))
+                            leftover = p.innerShapes.splitAt(bitset-1)._2
+                            lastBitSet = bitset
+                          } else {
+                            if (bitset - lastBitSet == 1) { //The neighbouring point is selected - make a line and a leftover...
+                              Create(LineShape(p.innerShapes(bitset-2).point,p.innerShapes(bitset-1).point))
+                              leftover = p.innerShapes.splitAt(bitset-1)._2
+                              lastBitSet = bitset
+                            } else { //The neighbour isn't selected - make a polyline and if there is enough left, a leftover, else a line...
+                              var firstPart: Seq[Vector2D] = Seq()
+                              if(leftover.length > 2) { //If there's enough left, make a new leftower,
+                                if (lastBitSet == 0) {
+                                  firstPart = firstPart :+ p.startPoint
+                                  leftover.splitAt(bitset - lastBitSet)._1.foreach(innerShape => firstPart = firstPart :+ innerShape.point)
+                                } else leftover.splitAt((bitset + 1) - lastBitSet)._1.foreach(innerShape => firstPart = firstPart :+ innerShape.point)
+                                leftover = p.innerShapes.splitAt(bitset-1)._2
+                                lastBitSet = bitset
+                                Create(PolylineShape(firstPart))
+                              } else { //Otherwise make it into a line...
+                                Create(LineShape(p.innerShapes(bitset-1).point, p.innerShapes(bitset).point))
+                              }
+                            }
+                          }
                         }
                       })
+                      if (exploded == true) {
+                        var firstPart: Seq[Vector2D] = Seq()
+                        if(leftover.length > 2) { //If there's enough left, make a new leftower,
+                          leftover.foreach(innerShape => firstPart = firstPart :+ innerShape.point)
+                          Create(PolylineShape(firstPart))
+                        } else if (leftover.length == 2) { //Otherwise make it into a line...
+                          Create(LineShape(p.innerShapes(p.innerShapes.length - 2).point, p.innerShapes(p.innerShapes.length-1).point))
+                        }
+                        idsForShapesToExplode = idsForShapesToExplode :+ id
+                        somethingExploded = true
+                      }
                     }
                     case _ =>
                   }
@@ -90,7 +122,6 @@ class Explode extends Module{
                 case p : RectangleShape => {
                   selector match {
                     case FullShapeSelector => {
-                      println("Her1")
                       Create(LineShape(p.p0,p.p1).addAttributes(p.attributes))
                       Create(LineShape(p.p1,p.p2).addAttributes(p.attributes))
                       Create(LineShape(p.p2,p.p3).addAttributes(p.attributes))
