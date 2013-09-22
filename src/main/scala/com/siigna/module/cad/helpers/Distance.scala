@@ -50,14 +50,14 @@ class Distance extends Module {
           Start('cad, "create.Input", InputRequest(6,startPoint,vector2DGuide))
 
         } else if (startPoint.isDefined) {
-          var length : Int = ((startPoint.get - v).length).toInt
+          var length = ((startPoint.get - v).length).round
           Siigna display "length: " + length
           End
         }
       }
       case _ => {
         Siigna display "set two points to measure the distance between them."
-        Start('cad, "create.Input", InputRequest(6,None))
+        Start('cad, "create.Input", InputRequest(6,None,Vector2DGuide(p => Traversable(LineShape(Vector2D(0,0), p)))))
       }
       //if
 
