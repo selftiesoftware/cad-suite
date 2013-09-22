@@ -75,11 +75,11 @@ class Input extends Module {
         if(inputType == Some(2) || inputType == Some(8) || inputType == Some(15)) Siigna("track") = false
         'ReceiveUserInput
       }
-      case x => {
-        println("No input request received in input (line 79): " + x)
-        if (!Siigna.isTrackEnabled) Siigna("track") = true
-        End
-      }
+      //case x => {
+      //  println("No input request received in input (line 79): " + x)
+      //  if (!Siigna.isTrackEnabled) Siigna("track") = true
+      //  End
+      //}
     },
 
   'ReceiveUserInput -> {
