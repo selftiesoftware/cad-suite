@@ -206,6 +206,7 @@ class ModuleInit extends Module {
       case End :: tail =>
 
       case y => {
+        println("ModuleInit kalder Input med en type 14...")
         Start('cad, "create.Input", InputRequest(14, None))
       }
     }
