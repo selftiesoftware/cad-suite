@@ -40,7 +40,10 @@ class InputCharacterByKey extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
-      case MouseDown(p,MouseButtonRight,modifier) :: tail => End(MouseDown(p,MouseButtonRight,modifier))
+
+      //exit mechanisms
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => End
+      case KeyDown(Key.escape,modifier) :: tail => End
 
       case Start(_ ,i: InputRequest) :: KeyDown(code, modifier) :: tail => {
         inputRequest = Some(i)
@@ -63,7 +66,7 @@ class InputCharacterByKey extends Module {
       }
 
       case _ => {
-        println("Stuck in InputChar")
+        End
       }
     })
 

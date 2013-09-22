@@ -132,9 +132,7 @@ class InputDualValuesByKey extends Module {
           if (code.toChar.isDigit) coordinateValue += code.toChar
           if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
           //if a comma or enter is the first thing entered, it is interpreted as zero:
-          if ((code.toChar.toString == "," || code == Key.enter) && coordinateValue.length() == 0) {
-            coordinateX = Some(0.0)
-          }
+          if ((code.toChar.toString == "," || code == Key.enter) && coordinateValue.length() == 0) coordinateX = Some(0.0)
           Siigna display message(coordinateValue, coordinateX, coordinateY)
           'ReceiveUserInput
         }
@@ -145,15 +143,17 @@ class InputDualValuesByKey extends Module {
 
     'ReceiveUserInput -> {
 
+      //exit mechanisms
+      case KeyDown(Key.escape,modifier) :: tail => End
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => End
+
       //Read numbers and minus, "," and enter as first entry if no guide is provided:
       case Start(_,_) :: KeyDown(code, _) :: tail => {
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
         if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
         //if a comma or enter is the first thing entered, it is interpreted as zero:
-        if ((code.toChar.toString == "," || code == Key.enter) && coordinateValue.length() == 0) {
-          coordinateX = Some(0.0)
-        }
+        if ((code.toChar.toString == "," || code == Key.enter) && coordinateValue.length() == 0) coordinateX = Some(0.0)
         Siigna display message(coordinateValue, coordinateX, coordinateY)
       }
 
@@ -205,8 +205,6 @@ class InputDualValuesByKey extends Module {
       }
       //if point returns a keyDown - that is not previously intercepted
       case KeyDown(code, modifier) :: tail => {
-        if (code == Key.escape)
-          End(KeyDown(code,modifier))
         //get the input from the keyboard if it is numbers, (-) or (.)
         val char = code.toChar
         if (char.isDigit)
@@ -219,8 +217,11 @@ class InputDualValuesByKey extends Module {
         //Display the message
         Siigna display message(coordinateValue, coordinateX, coordinateY)
       }
-      case _ => {
 
+
+      case x => {
+
+        if (coordinateX.isEmpty && coordinateValue.length() == 0) End
       }
     })
 

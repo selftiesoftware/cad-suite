@@ -45,6 +45,10 @@ class InputSingleValueByKey extends Module {
 
     'Start -> {
 
+      //exit mechanisms
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => End
+      case KeyDown(Key.escape,modifier) :: tail => End
+
       case MouseDown(p,MouseButtonRight,modifier) :: tail => End(MouseDown(p,MouseButtonRight,modifier))
 
       //If left mouse is clicked, the module ends - if there is useful double input, it is returned, if not, the module just ends.
@@ -105,8 +109,6 @@ class InputSingleValueByKey extends Module {
       //if point returns a keyDown - that is not previously intercepted
       case KeyDown(code, modifier) :: tail => {
         //get the input from the keyboard if it is numbers, (-) or (.)
-        if (code == Key.escape)
-          End(KeyDown(code,modifier))
         val char = code.toChar
         if (char.isDigit)
           coordinateValue += char
@@ -123,6 +125,7 @@ class InputSingleValueByKey extends Module {
         Siigna display coordinateValue
       }
       case _ => {
+        if (coordinateValue.length() == 0) End
       }
     })
 

@@ -41,7 +41,9 @@ class InputTextByKey extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
-      case MouseDown(p,MouseButtonRight,modifier) :: tail => End(MouseDown(p,MouseButtonRight,modifier))
+      //exit mechanisms
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => End
+      case KeyDown(Key.escape,modifier) :: tail => End
 
       case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
         inputRequest = Some(i)
@@ -74,8 +76,6 @@ class InputTextByKey extends Module {
 
       //if point returns a keyDown - that is not previously intercepted
       case KeyDown(code, modifier) :: tail => {
-        if (code == Key.escape)
-          End(KeyDown(code,modifier))
         //get the input from the keyboard if it is numbers, (-) or (.)
         val char = code.toChar
         if (char.isValidChar)
@@ -83,6 +83,7 @@ class InputTextByKey extends Module {
 
       }
       case _ => {
+        if (text.length == 0) End
       }
     })
 
