@@ -23,6 +23,7 @@ package com.siigna.module.cad.create
 
 
 import com.siigna._
+import app.model.shape.RectangleShape
 
 /**
  * Created by IntelliJ IDEA.
@@ -62,10 +63,11 @@ class Explode extends Module{
                   selector match {
                     case FullShapeSelector => {
                       //If the whole shape has been selected, explode it!
-                      polylinesToExplode = polylinesToExplode :+ p
                       idsForShapesToExplode = idsForShapesToExplode :+ id
                       somethingExploded = true
-                      explodedPolylines += 1
+                      p.shapes.foreach((shape) => {
+                        Create(shape)
+                      })
                     }
                     //If only part of the shape has been selected:
                     case BitSetShapeSelector(x) => {
@@ -85,20 +87,29 @@ class Explode extends Module{
                     case _ =>
                   }
                 }
-                case _ =>
+                case p : RectangleShape => {
+                  selector match {
+                    case FullShapeSelector => {
+                      println("Her1")
+                      Create(LineShape(p.p0,p.p1).addAttributes(p.attributes))
+                      Create(LineShape(p.p1,p.p2).addAttributes(p.attributes))
+                      Create(LineShape(p.p2,p.p3).addAttributes(p.attributes))
+                      Create(LineShape(p.p3,p.p0).addAttributes(p.attributes))
+                      idsForShapesToExplode = idsForShapesToExplode :+ id
+                      somethingExploded = true
+                    }
+                  }
+                }
+                case x => println(x)
               }
             })
           if (somethingExploded == true) {
-            println("Polylines to explode: " + polylinesToExplode)
-            polylinesToExplode.foreach((shape) => {
-              Create(shape.shapes)
-            })
-            println("Ids to delete: " + idsForShapesToExplode)
+            //Delete the exploded shapes now - when we're finished manipulating them...
             idsForShapesToExplode.foreach((id) => {
               Delete(id)
             })
             
-            Siigna display "polylines in selection exploded"
+            Siigna display "explodable shapes in selection exploded"
           } else {
             Siigna display "none of the selected shapes can be exploded"
           }

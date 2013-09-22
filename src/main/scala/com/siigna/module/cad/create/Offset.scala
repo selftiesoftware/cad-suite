@@ -26,7 +26,7 @@ class Offset extends Module {
   private var attr = Attributes()
   private var done = false
   private var isClosed = false
-  private val shape = Drawing.selection.shapes.head._2
+  private val shape: Option[Shape] = if (Drawing.selection.isDefined) Some(Drawing.selection.shapes.head._2) else None
   private val isRect = shape.isInstanceOf[RectangleShape]
 
 
@@ -44,12 +44,12 @@ class Offset extends Module {
   //a function to generate a PolylineShape from the result of the offsetLines function
   def generateOffsetLine(s: Any) : PolylineShape = {
     //check if the shape to offset is closed (closed Polyline of ComplexRectangle)
-    if(shape.geometry.vertices.head == shape.geometry.vertices.last ||isRect) isClosed = true
+    if(shape.get.geometry.vertices.head == shape.get.geometry.vertices.last ||isRect) isClosed = true
     var newLines: Option[List[LineShape]] = None 
     
     s match {
-      case v: Vector2D => newLines = Some(offsetLines(shape, v))  //offset the lines by the returned point
-      case d: Double => newLines = Some(offsetLines(shape, d))    //offset the lines by the returned point
+      case v: Vector2D => newLines = Some(offsetLines(shape.get, v))  //offset the lines by the returned point
+      case d: Double => newLines = Some(offsetLines(shape.get, d))    //offset the lines by the returned point
       case _ =>
     }
 
