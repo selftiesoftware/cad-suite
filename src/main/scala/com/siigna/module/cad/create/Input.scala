@@ -76,7 +76,7 @@ class Input extends Module {
         'ReceiveUserInput
       }
       case x => {
-        println(x)
+        println("No input request received in input (line 79): " + x)
         if (!Siigna.isTrackEnabled) Siigna("track") = true
         End
       }
@@ -205,7 +205,8 @@ class Input extends Module {
       End(KeyDown(code: Int,modifier: ModifierKeys))
     }
 
-    case _ => {
+    case x => {
+      println("Input enden (line 209): " + x)
 
     }
   })
