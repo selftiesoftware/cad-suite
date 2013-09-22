@@ -142,7 +142,6 @@ class ModuleInit extends Module {
         if (shortcutKey == 'a') shortcutProcess("a", "create.Arc", 'cad)
         else if (shortcutKey == 'c') shortcutProcess("c", "create.Circle", 'cad)
         else if (shortcutKey == 'd') shortcutProcess("d", "create.Lineardim", 'cad)
-        else if (shortcutKey == 'e') shortcutProcess("e", "create.Explode", 'cad)
         else if (shortcutKey == 'l') shortcutProcess("l", "create.Line", 'cad)
         else if (shortcutKey == 'o') shortcutProcess("o", "create.Offset", 'cad)
         else if (shortcutKey == 'p') shortcutProcess("p", "create.Polyline", 'cad)
@@ -158,6 +157,7 @@ class ModuleInit extends Module {
         else if (shortcutKey == 'r') shortcutProcess("r", "modify.Rotate", 'cad)
         else if (shortcutKey == 's') shortcutProcess("s", "modify.Scale", 'cad)
         else if (shortcutKey == 't') shortcutProcess("t", "modify.Trim", 'cad)
+        else if (shortcutKey == 'e') shortcutProcess("e", "modify.Explode", 'cad)
       } else if (shortcut == "p") {
         if (shortcutKey == 'c') shortcutProcess("c", "properties.Colors", 'cad)
         else if (shortcutKey == 's') shortcutProcess("s", "properties.Stroke", 'cad)
