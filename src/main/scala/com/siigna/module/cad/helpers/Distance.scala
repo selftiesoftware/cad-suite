@@ -57,7 +57,7 @@ class Distance extends Module {
       }
       case _ => {
         Siigna display "set two points to measure the distance between them."
-        Start('cad, "create.Input", InputRequest(6,None,Vector2DGuide(p => Traversable(LineShape(Vector2D(0,0), p)))))
+        Start('cad, "create.Input", InputRequest(6,None))
       }
       //if
 
