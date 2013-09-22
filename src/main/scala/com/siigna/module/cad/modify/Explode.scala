@@ -17,7 +17,7 @@
  * Read more at http://siigna.com and https://github.com/siigna/main
  */
 
-package com.siigna.module.cad.create
+package com.siigna.module.cad.modify
 
 /* 2010 (C) Copyright by Siigna, all rights reserved. */
 
