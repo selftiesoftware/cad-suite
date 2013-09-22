@@ -206,8 +206,7 @@ class Input extends Module {
       End(KeyDown(code: Int,modifier: ModifierKeys))
     }
 
-    case x => {
-      println("Input enden (line 209): " + x)
+    case _ => {
 
     }
   })
