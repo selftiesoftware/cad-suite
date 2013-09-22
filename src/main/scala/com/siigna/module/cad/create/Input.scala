@@ -56,25 +56,32 @@ class Input extends Module {
 
   val stateMap: StateMap = Map(
     'Start -> {
-      case Start(_ , i: InputRequest) :: tail => {
-        inputRequest = Some(i)
-        inputType = Some(i.inputType)
-        guides = i.guides
-        referencePoint = i.referencePoint
-        //Turn off snap to shapes in the making, if required
-        if (inputType != Some(5) && inputType != Some(8) && inputType != Some(15) ) {
-          guides.foreach(_ match {
-            case Vector2DGuide(guide) => {
-              val snapFunction = () => guide(mousePosition)
-              eventParser.snapTo(snapFunction)
-            }
-            case _ => // No known guide
-          } )
+      case x :: tail => {
+        try {
+          val i = x.asInstanceOf[Start].message.asInstanceOf[InputRequest]
+          inputRequest = Some(i)
+          inputType = Some(i.inputType)
+          guides = i.guides
+          referencePoint = i.referencePoint
+          //Turn off snap to shapes in the making, if required
+          if (inputType != Some(5) && inputType != Some(8) && inputType != Some(15) ) {
+            guides.foreach(_ match {
+              case Vector2DGuide(guide) => {
+                val snapFunction = () => guide(mousePosition)
+                eventParser.snapTo(snapFunction)
+              }
+              case _ => // No known guide
+            } )
+          }
+          //Turn off track,if required
+          if(inputType == Some(2) || inputType == Some(8) || inputType == Some(15)) Siigna("track") = false
+          'ReceiveUserInput
+        } catch {
+          case y : Throwable => println("Got input: y")
         }
-        //Turn off track,if required
-        if(inputType == Some(2) || inputType == Some(8) || inputType == Some(15)) Siigna("track") = false
-        'ReceiveUserInput
       }
+
+      case Start(f,g) :: tail => println(f + " , " + g)
       //case x => {
       //  println("No input request received in input (line 79): " + x)
       //  if (!Siigna.isTrackEnabled) Siigna("track") = true
