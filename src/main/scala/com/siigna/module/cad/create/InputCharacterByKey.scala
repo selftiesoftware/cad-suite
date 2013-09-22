@@ -31,7 +31,7 @@ class InputCharacterByKey extends Module {
   private var text : String = ""  //input string
 
   //Information received from calling module
-  var inputRequest: Option[InputRequestNew] = None
+  var inputRequest: Option[InputRequest] = None
   var inputType: Option[Int] = None
   var guides: Seq[Guide] = Seq()
   var referencePoint: Option[Vector2D] = None
@@ -42,7 +42,7 @@ class InputCharacterByKey extends Module {
     'Start -> {
       case MouseDown(p,MouseButtonRight,modifier) :: tail => End(MouseDown(p,MouseButtonRight,modifier))
 
-      case Start(_ ,i: InputRequestNew) :: KeyDown(code, modifier) :: tail => {
+      case Start(_ ,i: InputRequest) :: KeyDown(code, modifier) :: tail => {
         inputRequest = Some(i)
         inputType = Some(i.inputType)
         guides = i.guides
