@@ -51,7 +51,7 @@ class Selection extends Module {
   def nearestShape : Option[(Int, Shape)] = {
     val drawing = Drawing(m)
     if (!drawing.isEmpty) {
-      Some(drawing.reduceLeft((a, b) => if (a._2.distanceTo(m) < a._2.distanceTo(m)) a else b))
+      Some(drawing.reduceLeft((a, b) => if (a._2.distanceTo(m) < b._2.distanceTo(m)) a else b))
     } else None
   }
 
