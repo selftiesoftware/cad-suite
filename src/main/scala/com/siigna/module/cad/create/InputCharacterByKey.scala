@@ -26,7 +26,7 @@ import com.siigna._
  * Used by modules that need eg. an X and Y coordinate to define a point.
  */
 
-class InputCharacter extends Module {
+class InputCharacterByKey extends Module {
 
   private var text : String = ""  //input string
 

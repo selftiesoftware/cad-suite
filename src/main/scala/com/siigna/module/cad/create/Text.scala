@@ -54,12 +54,12 @@ class Text extends Module {
       case End(KeyDown(Key.escape,modifier)) :: tail => End
       case End(p : Vector2D) :: tail => {
         position = Some(p)
-        val textGuide: TextGuideNew = TextGuideNew((s: String) => Traversable(TextShape(s + " ", p,  scale * (Siigna.paperScale + 1))))
+        val textGuide: TextGuide = TextGuide((s: String) => Traversable(TextShape(s + " ", p,  scale * (Siigna.paperScale + 1))))
         //val inputRequest = InputRequest(None,None,Some(textGuide),None,None,None,position,None,None,Some(14))
         //Start('cad,"create.Input", inputRequest)
-        val inputRequest = InputRequestNew(12,None,textGuide)
+        val inputRequest = InputRequest(12,None,textGuide)
         Siigna.display("type text")
-        Start('cad,"create.InputNew", inputRequest)
+        Start('cad,"create.Input", inputRequest)
       }
 
       case End(s : String) :: tail => {
@@ -74,7 +74,7 @@ class Text extends Module {
 
       case _ => {
         Siigna.display("click to set text")
-        Start('cad, "create.InputNew", InputRequestNew(6,None))
+        Start('cad, "create.Input", InputRequest(6,None))
       }
     }
   )

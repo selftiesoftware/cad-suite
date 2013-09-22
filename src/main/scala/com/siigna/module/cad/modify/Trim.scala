@@ -22,7 +22,7 @@ package com.siigna.module.cad.modify
 import com.siigna._
 import app.model.shape.PolylineShape.{PolylineShapeClosed, PolylineShapeOpen}
 import app.model.shape.{PolylineLineShape, PolylineShape, RectangleShape}
-import module.cad.create.InputRequestNew
+import module.cad.create.InputRequest
 import util.collection.Attributes
 
 class Trim extends Module {
@@ -220,7 +220,7 @@ class Trim extends Module {
       case e => {
         Siigna display "Click shapes to trim"
         //Requests mouse-down input
-        //Start('cad,"create.InputNew",InputRequestNew(6,None))
+        //Start('cad,"create.Input",InputRequest(6,None))
       }
     }
   )

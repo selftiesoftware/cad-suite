@@ -177,10 +177,10 @@ class Offset extends Module {
   }
 
   //guides to get Point to draw the shape(s) dynamically
-  val doubleGuide: DoubleGuideNew = DoubleGuideNew((s : Double) => {
+  val doubleGuide: DoubleGuide = DoubleGuide((s : Double) => {
     Array(generateOffsetLine(s).addAttributes(attr))//run a function to generate the offset shape dynamically
   })
-  val vector2DGuide: Vector2DGuideNew = Vector2DGuideNew((v : Vector2D) => {
+  val vector2DGuide: Vector2DGuide = Vector2DGuide((v : Vector2D) => {
     Array(generateOffsetLine(v).addAttributes(attr))//run a function to generate the offset shape dynamically
   })
 
@@ -220,8 +220,8 @@ class Offset extends Module {
         // 13: MouseDown or typed length
         //Start('cad, "create.Input", inputRequest)
 
-        val inputRequest = InputRequestNew(9,None,vector2DGuide, doubleGuide)
-        Start('cad,"create.InputNew", inputRequest)
+        val inputRequest = InputRequest(9,None,vector2DGuide, doubleGuide)
+        Start('cad,"create.Input", inputRequest)
       } else if (done) End
       else {
         Siigna display "please select one shape to offset"

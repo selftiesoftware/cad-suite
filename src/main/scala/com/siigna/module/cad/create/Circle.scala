@@ -46,10 +46,10 @@ class Circle extends Module {
           case End(p : Vector2D) :: tail => {
             center = Some(p)
             //Send guides, and ask for one-coordinate input: Radius - from point by click, or by key-entry.
-            val doubleGuide = DoubleGuideNew((r: Double) => Traversable(CircleShape(p, math.abs(r)).addAttributes(attributes)))
-            val vector2DGuide = Vector2DGuideNew((p: Vector2D) => Traversable(CircleShape(center.get, math.sqrt(( (center.get.x-p.x) * (center.get.x-p.x)) + ( (center.get.y-p.y) * (center.get.y-p.y)) )).addAttributes(attributes)))
-            val inputRequest = InputRequestNew(10,center,vector2DGuide, doubleGuide)
-            Start('cad,"create.InputNew", inputRequest)
+            val doubleGuide = DoubleGuide((r: Double) => Traversable(CircleShape(p, math.abs(r)).addAttributes(attributes)))
+            val vector2DGuide = Vector2DGuide((p: Vector2D) => Traversable(CircleShape(center.get, math.sqrt(( (center.get.x-p.x) * (center.get.x-p.x)) + ( (center.get.y-p.y) * (center.get.y-p.y)) )).addAttributes(attributes)))
+            val inputRequest = InputRequest(10,center,vector2DGuide, doubleGuide)
+            Start('cad,"create.Input", inputRequest)
 
             //val inputRequest = InputRequest(Some(vector2DGuide),Some(doubleGuide),None,None,None,None,center,None,None,Some(3))
             //Start('cad, "create.Input", inputRequest)
@@ -66,7 +66,7 @@ class Circle extends Module {
 
           //Starts point, asks for two-value-input (center):
           case _ => {
-            Start('cad, "create.InputNew", InputRequestNew(6,None))
+            Start('cad, "create.Input", InputRequest(6,None))
           }
         }
       }

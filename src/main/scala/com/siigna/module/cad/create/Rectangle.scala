@@ -36,9 +36,9 @@ class Rectangle extends Module {
         //use the first point
         if (points.length == 0){
           points = points :+ v
-          val vector2DGuide = Vector2DGuideNew((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))
-          val inputRequest = InputRequestNew(7,Some(v),vector2DGuide)
-          Start('cad, "create.InputNew", inputRequest)
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))
+          val inputRequest = InputRequest(7,Some(v),vector2DGuide)
+          Start('cad, "create.Input", inputRequest)
         }
         //use second point
         else if (points.length == 1) {
@@ -56,11 +56,11 @@ class Rectangle extends Module {
       //get the first point
       case _ => {
         if (points.length == 0) {
-          Start('cad, "create.InputNew", InputRequestNew(6,None))
+          Start('cad, "create.Input", InputRequest(6,None))
         } else {
-          val vector2DGuide = Vector2DGuideNew((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))
-          val inputRequest = InputRequestNew(7,Some(points.head),vector2DGuide)
-          Start('cad, "create.InputNew", inputRequest)
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))
+          val inputRequest = InputRequest(7,Some(points.head),vector2DGuide)
+          Start('cad, "create.Input", inputRequest)
         }
       }
     }

@@ -27,23 +27,17 @@ import app.Siigna
  * Used by modules that need eg. an X and Y coordinate to define a point.
  */
 
-class InputOneValue extends Module {
+class InputSingleValueByKey extends Module {
 
   private var coordinateValue : String = ""  //input string for distances
 
   var relativeX : Double = 0.0
 
+  //Information received from calling module
   var inputRequest: Option[InputRequest] = None
-  var vector2DGuide: Option[Vector2DGuide] = None
-  var doubleGuide: Option[DoubleGuide] = None
-  var textGuide: Option[TextGuide] = None
-  var vector2DMessageGuide: Option[Vector2DMessageGuide] = None
-  var doubleMessageGuide: Option[DoubleMessageGuide] = None
-  var textMessageGuide: Option[TextMessageGuide] = None
-  var referencePoint1: Option[Vector2D] = None
-  var referencePoint2: Option[Vector2D] = None
-  var referenceDouble: Option[Double] = None
   var inputType: Option[Int] = None
+  var guides: Seq[Guide] = Seq()
+  var referencePoint: Option[Vector2D] = None
 
   var startPoint : Option[Vector2D] = None
 
@@ -71,19 +65,12 @@ class InputOneValue extends Module {
           Siigna display coordinateValue
         }
         inputRequest = Some(i)
-        if (!i.vector2DGuide.isEmpty) vector2DGuide = i.vector2DGuide
-        if (!i.doubleGuide.isEmpty) doubleGuide = i.doubleGuide
-        if (!i.textGuide.isEmpty) textGuide = i.textGuide
-        if (!i.vector2DMessageGuide.isEmpty) vector2DMessageGuide = i.vector2DMessageGuide
-        if (!i.doubleMessageGuide.isEmpty) doubleMessageGuide = i.doubleMessageGuide
-        if (!i.textMessageGuide.isEmpty) textMessageGuide = i.textMessageGuide
-        if (!i.referencePoint1.isEmpty) referencePoint1 = i.referencePoint1
-        if (!i.referencePoint2.isEmpty) referencePoint2 = i.referencePoint2
-        if (!i.referenceDouble.isEmpty) referenceDouble = i.referenceDouble
-        if (!i.inputType.isEmpty) inputType = i.inputType
+        inputType = Some(i.inputType)
+        guides = i.guides
+        referencePoint = i.referencePoint
       }
 
-      //Read numbers and minus, "," and enter as first entry if no guide is provided:
+      //Read numbers and minus, "." and enter as first entry if no guide is provided:
       case Start(_,_) :: KeyDown(code, _) :: tail => {
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
@@ -94,13 +81,18 @@ class InputOneValue extends Module {
 
       }
 
-      //Ends on return, komma, TAB - returning value:
-      case KeyDown(Key.Enter | Key.Tab | (','), _) :: tail => {
+      //Ends on return, TAB - returning value:
+      case KeyDown(Key.Enter | Key.Tab , _) :: tail => {
         if (coordinateValue.length > 0) {
             var value = Some(java.lang.Double.parseDouble(coordinateValue))
             End(value.get)
           } else End(0.0)
         }
+
+      //Hints, that "," is not a decimal separator - "." should be used
+      case KeyDown(',', _) :: tail => {
+        Siigna display "Use . for decimal separation"
+      }
 
       case KeyDown(Key.Backspace, _) :: tail => {
         if (coordinateValue.length > 0) coordinateValue = coordinateValue.substring(0, coordinateValue.length-1)
@@ -143,16 +135,19 @@ class InputOneValue extends Module {
       if (coordinateValue.length > 0 && coordinateValue != " " && coordinateValue != "-" && coordinateValue != "." && coordinateValue != "-.") {
         input = Some(java.lang.Double.parseDouble(coordinateValue))   
         true
-      } else
+      } else {
         false
-    if((inputType == Some(111) || inputType == Some(112)) && usefulDoubleAsInput == true){
-      //For these input types: Draw pointguide on the base of point obtained from the distance to the tracked point: 
-      if (input.get != 0) vector2DGuide.get.vector2DGuide(Track.getPointFromDistance(input.get).get).foreach(s => g.draw(s.transform(t)))
-      //For other input types, which have a double guide, draw the guides on the basis of the double guide:
-    } else if(doubleGuide.isDefined && usefulDoubleAsInput == true){
-      if (input.get != 0) doubleGuide.get.doubleGuide(input.get).foreach(s => g.draw(s.transform(t)))
-    } else if(!doubleGuide.isEmpty && !referenceDouble.isEmpty){
-      doubleGuide.get.doubleGuide(referenceDouble.get).foreach(s => g.draw(s.transform(t)))
-    }
+      }
+
+    //There will be issues with points typed as offsets on track-guides. This was solved in the old module here - look there for information/inspiration...
+
+    guides.foreach(_ match {
+      case DoubleGuide(guide) => {
+        if (usefulDoubleAsInput == true && input.get != 0) {
+          guide(input.get).foreach(s => g.draw(s.transform(t)))
+        }
+      }
+      case _ => // No double guide
+    } )
   }
 }

@@ -23,7 +23,7 @@ import base.{PaperHeader, Menu}
 import com.siigna.module.cad.radialmenu.category.{ModifyCategory, StartCategory}
 import com.siigna._
 import com.siigna.app.model.selection.EmptySelection
-import module.cad.create.InputRequestNew
+import module.cad.create.InputRequest
 
 /**
  * An init module for the cad-suite.
@@ -206,7 +206,7 @@ class ModuleInit extends Module {
       case End :: tail =>
 
       case y => {
-        Start('cad, "create.InputNew", InputRequestNew(14, None))
+        Start('cad, "create.Input", InputRequest(14, None))
       }
     }
   )

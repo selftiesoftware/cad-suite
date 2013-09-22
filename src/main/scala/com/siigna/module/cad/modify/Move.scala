@@ -37,7 +37,7 @@ class Move extends Module {
         startPoint = Some(p.transform(View.deviceTransformation))
         //definition of a shape guide that is used to send the selected shapes to the 'Point module
         // where they are drawn dynamically
-        val vector2DGuide = Vector2DGuideNew((v: Vector2D) => {
+        val vector2DGuide = Vector2DGuide((v: Vector2D) => {
           Drawing.selection.transformation = origin
           val t : TransformationMatrix = if (startPoint.isDefined) {
             TransformationMatrix(v - startPoint.get, 1)
@@ -46,8 +46,8 @@ class Move extends Module {
           // Return the shape, transformed TODO: if else here is a hack to prevent none.get error if selection is empty
           if(!Drawing.selection.isEmpty) Drawing.selection.transform(t).shapes.values else Traversable(LineShape(Vector2D(0,0),Vector2D(10,10)))
         })
-        val inputRequest = InputRequestNew(8,None,vector2DGuide)
-        Start('cad, "create.InputNew", inputRequest)
+        val inputRequest = InputRequest(8,None,vector2DGuide)
+        Start('cad, "create.Input", inputRequest)
         //9 : Input type = KeyUp as input metod,
         //so the coordinates will be returned on key up
         //forward to the Input module with the shape guide.
@@ -63,25 +63,25 @@ class Move extends Module {
           // That depends on whether the mouse is released at the same, or a different point.
           // So, the input-request is only for a mouse-up (input type 9)
           startPoint = Some(v)
-          val vector2DGuide = Vector2DGuideNew((v: Vector2D) => {
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
             Drawing.selection.transformation = origin
             val t : TransformationMatrix = TransformationMatrix(v - startPoint.get, 1)
             // Return the shape, transformed
             Drawing.selection.transform(t).shapes.values
           })
-          val inputRequest = InputRequestNew(8,None,vector2DGuide)
-          Start('cad, "create.InputNew", inputRequest)
+          val inputRequest = InputRequest(8,None,vector2DGuide)
+          Start('cad, "create.Input", inputRequest)
         } else if (!startPoint.isEmpty && v == startPoint.get) {
           //If the received point, when there is a start point, is the same as the start point, it is the start-point for the move
           //(since mouse-up happened on the same spot as mouse-down). Send an input-request for an end-point:
-          val vector2DGuide = Vector2DGuideNew((v: Vector2D) => {
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
             Drawing.selection.transformation = origin
             val t : TransformationMatrix = TransformationMatrix(v - startPoint.get, 1)
             // Return the shape, transformed
             Drawing.selection.transform(t).shapes.values
           })
-          val inputRequest = InputRequestNew(5,None,vector2DGuide)
-          Start('cad, "create.InputNew", inputRequest)
+          val inputRequest = InputRequest(5,None,vector2DGuide)
+          Start('cad, "create.Input", inputRequest)
         } else if (!startPoint.isEmpty) {
           //If the received point, when there is a start point, is NOT the same as the start point, it is the end-point for the move
           //(since mouse-up, or mouse down, happened on a different spot than the start point). Do the move:
@@ -110,7 +110,7 @@ class Move extends Module {
         startPoint = Some(p.transform(View.deviceTransformation))
         //definition of a shape guide that is used to send the selected shapes to the 'Point module
         // where they are drawn dynamically
-        val vector2DGuide = Vector2DGuideNew((v: Vector2D) => {
+        val vector2DGuide = Vector2DGuide((v: Vector2D) => {
           Drawing.selection.transformation = origin
           val t : TransformationMatrix = if (startPoint.isDefined) {
             TransformationMatrix(v - startPoint.get, 1)
@@ -119,8 +119,8 @@ class Move extends Module {
           // Return the shape, transformed TODO: if else here is a hack to prevent none.get error if selection is empty
           if(!Drawing.selection.isEmpty) Drawing.selection.transform(t).shapes.values else Traversable(LineShape(Vector2D(0,0),Vector2D(10,10)))
         })
-        val inputRequest = InputRequestNew(8,None,vector2DGuide)
-        Start('cad, "create.InputNew", inputRequest)
+        val inputRequest = InputRequest(8,None,vector2DGuide)
+        Start('cad, "create.Input", inputRequest)
         //9 : Input type = KeyUp as input metod,
         //so the coordinates will be returned on key up
         //forward to the Input module with the shape guide.
@@ -130,13 +130,13 @@ class Move extends Module {
       //on first entry, send input request to input to get the start point for the move operations.
       case _ => {
         if (!Drawing.selection.isEmpty) {
-          val vector2DGuide = Vector2DGuideKeysNew((v: Vector2D) => {
+          val vector2DGuide = Vector2DGuideKeys((v: Vector2D) => {
             Drawing.selection.transformation = origin
             val t : TransformationMatrix = TransformationMatrix(v, 1)
             // Return the shape, transformed
             Drawing.selection.transform(t).shapes.values
           })
-          Start('cad, "create.InputNew", InputRequestNew(16,None,vector2DGuide))
+          Start('cad, "create.Input", InputRequest(16,None,vector2DGuide))
         } else {
           Siigna display "Select objects to move"
           Start('cad, "Selection")

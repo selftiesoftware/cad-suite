@@ -27,12 +27,12 @@ import app.Siigna
  * Used by modules that need eg. an X and Y coordinate to define a point.
  */
 
-class InputText extends Module {
+class InputTextByKey extends Module {
 
   private var text : String = ""  //input string
 
   //Information received from calling module
-  var inputRequest: Option[InputRequestNew] = None
+  var inputRequest: Option[InputRequest] = None
   var inputType: Option[Int] = None
   var guides: Seq[Guide] = Seq()
   var referencePoint: Option[Vector2D] = None
@@ -43,7 +43,7 @@ class InputText extends Module {
     'Start -> {
       case MouseDown(p,MouseButtonRight,modifier) :: tail => End(MouseDown(p,MouseButtonRight,modifier))
 
-      case Start(_ ,i: InputRequestNew) :: KeyDown(code, _) :: tail => {
+      case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
         inputRequest = Some(i)
         inputType = Some(i.inputType)
         guides = i.guides
@@ -91,7 +91,7 @@ class InputText extends Module {
     if (text.length > 0) {
     guides.foreach(_ match {
 
-      case TextGuideNew(guide) => {
+      case TextGuide(guide) => {
         guide(text).foreach(s => g.draw(s.transform(t)))
       }
       case _ => // No known guide

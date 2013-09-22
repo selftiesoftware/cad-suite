@@ -60,11 +60,11 @@ class Polyline extends Module {
           //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,startPoint,None,None,Some(112))
           //Start('cad, "create.Input", inputRequest)
 
-          val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
+          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
             Array(PolylineShape(points :+ v).addAttributes(attributes))
           })
-          val inputRequest = InputRequestNew(7,startPoint,vector2DGuide)
-          Start('cad,"create.InputNew", inputRequest)
+          val inputRequest = InputRequest(7,startPoint,vector2DGuide)
+          Start('cad,"create.Input", inputRequest)
         } else {
 
           //If the start point is set, the first segment is made and points should be added.
@@ -72,16 +72,16 @@ class Polyline extends Module {
           //val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
           //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
           //Start('cad, "create.Input", inputRequest)
-          val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
+          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
             Array(PolylineShape(points :+ v).addAttributes(attributes))
           })
-          val inputRequest = InputRequestNew(7,Some(points.last),vector2DGuide)
-          Start('cad,"create.InputNew", inputRequest)
+          val inputRequest = InputRequest(7,Some(points.last),vector2DGuide)
+          Start('cad,"create.Input", inputRequest)
         }
       }
 
       //If input module does not return any input:
-      case End("no point returned") :: tail => {
+      case End("no point Input") :: tail => {
         //If there only is the start point:
         if (points.length == 1){
           //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
@@ -90,21 +90,21 @@ class Polyline extends Module {
           //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,startPoint,None,None,Some(112))
           //Start('cad, "create.Input", inputRequest)
 
-          val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
+          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
             Array(PolylineShape(points :+ v).addAttributes(attributes))
           })
-          val inputRequest = InputRequestNew(7,startPoint,vector2DGuide)
-          Start('cad,"create.InputNew", inputRequest)
+          val inputRequest = InputRequest(7,startPoint,vector2DGuide)
+          Start('cad,"create.Input", inputRequest)
         } else {
           //val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
           //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
           //Start('cad, "create.Input", inputRequest)
 
-          val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
+          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
             Array(PolylineShape(points :+ v).addAttributes(attributes))
           })
-          val inputRequest = InputRequestNew(7,Some(points.last),vector2DGuide)
-          Start('cad,"create.InputNew", inputRequest)
+          val inputRequest = InputRequest(7,Some(points.last),vector2DGuide)
+          Start('cad,"create.Input", inputRequest)
         }
       }
 
@@ -121,15 +121,15 @@ class Polyline extends Module {
            // val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
             //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
             //Start('cad, "create.Input", inputRequest)
-            val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
+            val vector2DGuide = Vector2DGuide((v : Vector2D) => {
               Array(PolylineShape(points :+ v).addAttributes(attributes))
             })
-            val inputRequest = InputRequestNew(7,Some(points.last),vector2DGuide)
-            Start('cad,"create.InputNew", inputRequest)
+            val inputRequest = InputRequest(7,Some(points.last),vector2DGuide)
+            Start('cad,"create.Input", inputRequest)
 
           } else {
             //If not, input is started without guide.
-            Start('cad, "create.InputNew", InputRequestNew(6,None))
+            Start('cad, "create.Input", InputRequest(6,None))
           }
         }}
 
@@ -148,7 +148,7 @@ class Polyline extends Module {
       }
       case x => {
         points = List[Vector2D]()
-        Start('cad, "create.InputNew", InputRequestNew(6,None))
+        Start('cad, "create.Input", InputRequest(6,None))
         //Start('cad, "create.Input", 111)
       }
     }
