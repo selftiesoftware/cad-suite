@@ -170,13 +170,15 @@ class ModuleInit extends Module {
     'Start -> {
 
       // Match for modules to forward to
-      case End(module: Module) :: tail => {
+      case End(module: Module) :: tail
+        if (ModuleLoader.modulesLoaded == true) => {
         lastModule = Some(module) // Store it as a last module
         Start(module) // Forward
       }
 
       // Menu
-      case MouseDown(p, MouseButtonRight, modifier) :: tail => startMenu
+      case MouseDown(p, MouseButtonRight, modifier) :: tail
+        if (ModuleLoader.modulesLoaded == true) => startMenu
       case End(MouseDown(p, MouseButtonRight, modifier)) :: tail => startMenu
 
       // Selection
@@ -184,20 +186,24 @@ class ModuleInit extends Module {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         Start('cad, "Selection", p)
       }
-      case MouseDown(p: Vector2D, _, _) :: tail => {
+      case MouseDown(p: Vector2D, _, _) :: tail
+        if (ModuleLoader.modulesLoaded == true) => {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         Start('cad, "Selection", p)
       }
-      case MouseDrag(p: Vector2D, MouseButtonLeft, m1) :: tail => {
+      case MouseDrag(p: Vector2D, MouseButtonLeft, m1) :: tail
+        if (ModuleLoader.modulesLoaded == true) => {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         Start('cad, "Selection", MouseDrag(p,MouseButtonLeft,m1))
       }
 
       // Start previous
-      case KeyDown(Key.Space, _) :: tail => startPrevious
+      case KeyDown(Key.Space, _) :: tail
+        if (ModuleLoader.modulesLoaded == true) => startPrevious
       case End(KeyDown(Key.Space, _)) :: tail => startPrevious
 
-      case KeyDown(code: Int, modifier: ModifierKeys) :: tail => handleKeyDown(code, modifier)
+      case KeyDown(code: Int, modifier: ModifierKeys) :: tail
+        if (ModuleLoader.modulesLoaded == true) => handleKeyDown(code, modifier)
       case End(KeyDown(code: Int, modifier: ModifierKeys)) :: tail => handleKeyDown(code, modifier)
 
       // When the modules are loaded, the eventstream is shaped so that the InputRequest is not sent in the correct
