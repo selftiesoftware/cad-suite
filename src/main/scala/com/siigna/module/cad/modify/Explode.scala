@@ -24,6 +24,7 @@ package com.siigna.module.cad.modify
 
 import com.siigna._
 import app.model.shape.{InnerPolylineShape, RectangleShape}
+import java.util
 
 /**
  * Created by IntelliJ IDEA.
@@ -129,6 +130,15 @@ class Explode extends Module{
                       idsForShapesToExplode = idsForShapesToExplode :+ id
                       somethingExploded = true
                     }
+                    case BitSetShapeSelector(x) => {
+                      Create(LineShape(p.p0,p.p1).addAttributes(p.attributes))
+                      Create(LineShape(p.p1,p.p2).addAttributes(p.attributes))
+                      Create(LineShape(p.p2,p.p3).addAttributes(p.attributes))
+                      Create(LineShape(p.p3,p.p0).addAttributes(p.attributes))
+                      idsForShapesToExplode = idsForShapesToExplode :+ id
+                      somethingExploded = true
+                    }
+                    case x => println(x)
                   }
                 }
                 case x => println(x)

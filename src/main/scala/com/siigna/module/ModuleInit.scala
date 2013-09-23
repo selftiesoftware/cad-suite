@@ -212,9 +212,7 @@ class ModuleInit extends Module {
       case End :: tail =>
 
       case y => {
-        println("ModuleInit kalder Input. Event stream: " + y)
         if (ModuleLoader.modulesLoaded == true) {
-          println("Modules loaded, so Input is started")
           Start('cad, "create.Input", InputRequest(14, None))
         }
       }
