@@ -77,7 +77,7 @@ class Input extends Module {
       }
 
       case x => {
-        println("No input request caught in input (line 79). Event-stream: " + x)
+        println("Input was started, but no input request was sent, or the match on input request failed. Input ends. Event-stream: " + x)
         if (!Siigna.isTrackEnabled) Siigna("track") = true
         End
       }

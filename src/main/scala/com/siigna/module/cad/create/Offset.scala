@@ -27,7 +27,7 @@ class Offset extends Module {
   private var done = false
   private var isClosed = false
   private val shape: Option[Shape] = if (Drawing.selection.isDefined) Some(Drawing.selection.shapes.head._2) else None
-  private val isRect = shape.isInstanceOf[RectangleShape]
+  private val isRect = if(shape.isDefined) shape.get.isInstanceOf[RectangleShape] else false
 
 
   //a function to offset a line segment
@@ -216,10 +216,6 @@ class Offset extends Module {
       else if (Drawing.selection.size == 1 ){
         attr = Drawing.selection.shapes.head._2.attributes
         Siigna display "click to set the offset distance, or type offset distance"
-        //val inputRequest = InputRequest(Some(vector2DGuide), Some(doubleGuide), None, None, None, None, None, None, None, Some(13))
-        // 13: MouseDown or typed length
-        //Start('cad, "create.Input", inputRequest)
-
         val inputRequest = InputRequest(9,None,vector2DGuide, doubleGuide)
         Start('cad,"create.Input", inputRequest)
       } else if (done) End
