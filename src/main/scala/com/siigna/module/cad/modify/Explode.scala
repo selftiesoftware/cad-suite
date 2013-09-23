@@ -67,7 +67,7 @@ class Explode extends Module{
                       idsForShapesToExplode = idsForShapesToExplode :+ id
                       somethingExploded = true
                       p.shapes.foreach((shape) => {
-                        Create(shape)
+                        Create(shape.addAttributes(p.attributes))
                       })
                     }
                     //If only part of the shape has been selected:
@@ -80,12 +80,12 @@ class Explode extends Module{
                         if (bitset != 0 && bitset != p.size && p.size > 1) {
                           exploded = true
                           if (bitset == 1) {
-                            Create(LineShape(p.startPoint,p.innerShapes(bitset-1).point))
+                            Create(LineShape(p.startPoint,p.innerShapes(bitset-1).point).addAttributes(p.attributes))
                             leftover = p.innerShapes.splitAt(bitset-1)._2
                             lastBitSet = bitset
                           } else {
                             if (bitset - lastBitSet == 1) { //The neighbouring point is selected - make a line and a leftover...
-                              Create(LineShape(p.innerShapes(bitset-2).point,p.innerShapes(bitset-1).point))
+                              Create(LineShape(p.innerShapes(bitset-2).point,p.innerShapes(bitset-1).point).addAttributes(p.attributes))
                               leftover = p.innerShapes.splitAt(bitset-1)._2
                               lastBitSet = bitset
                             } else { //The neighbour isn't selected - make a polyline and if there is enough left, a leftover, else a line...
@@ -97,9 +97,9 @@ class Explode extends Module{
                                 } else leftover.splitAt((bitset + 1) - lastBitSet)._1.foreach(innerShape => firstPart = firstPart :+ innerShape.point)
                                 leftover = p.innerShapes.splitAt(bitset-1)._2
                                 lastBitSet = bitset
-                                Create(PolylineShape(firstPart))
+                                Create(PolylineShape(firstPart).addAttributes(p.attributes))
                               } else { //Otherwise make it into a line...
-                                Create(LineShape(p.innerShapes(bitset-1).point, p.innerShapes(bitset).point))
+                                Create(LineShape(p.innerShapes(bitset-1).point, p.innerShapes(bitset).point).addAttributes(p.attributes))
                               }
                             }
                           }
@@ -109,9 +109,9 @@ class Explode extends Module{
                         var firstPart: Seq[Vector2D] = Seq()
                         if(leftover.length > 2) { //If there's enough left, make a new leftower,
                           leftover.foreach(innerShape => firstPart = firstPart :+ innerShape.point)
-                          Create(PolylineShape(firstPart))
+                          Create(PolylineShape(firstPart).addAttributes(p.attributes))
                         } else if (leftover.length == 2) { //Otherwise make it into a line...
-                          Create(LineShape(p.innerShapes(p.innerShapes.length - 2).point, p.innerShapes(p.innerShapes.length-1).point))
+                          Create(LineShape(p.innerShapes(p.innerShapes.length - 2).point, p.innerShapes(p.innerShapes.length-1).point).addAttributes(p.attributes))
                         }
                         idsForShapesToExplode = idsForShapesToExplode :+ id
                         somethingExploded = true
@@ -131,6 +131,13 @@ class Explode extends Module{
                       somethingExploded = true
                     }
                     case BitSetShapeSelector(x) => {
+                      var firstBitSet: Option[Int] = None
+                      x.foreach(bitSet => {
+                        if (firstBitSet.isEmpty) firstBitSet = Some(bitSet)
+                        if (x.size == 1) {
+                          if (firstBitSet.get == 0) Create(PolylineShape(p.p0,p.p1,p.p2,p.p3,p.p0))
+                        }
+                      })
                       Create(LineShape(p.p0,p.p1).addAttributes(p.attributes))
                       Create(LineShape(p.p1,p.p2).addAttributes(p.attributes))
                       Create(LineShape(p.p2,p.p3).addAttributes(p.attributes))
