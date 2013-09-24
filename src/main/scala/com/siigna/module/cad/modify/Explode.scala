@@ -23,6 +23,7 @@ package com.siigna.module.cad.modify
 
 
 import com.siigna._
+import app.model.shape.PolylineShape.{PolylineShapeOpen, PolylineShapeClosed}
 import app.model.shape.{InnerPolylineShape, RectangleShape}
 import java.util
 
@@ -51,7 +52,6 @@ class Explode extends Module{
         //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
         var somethingExploded: Boolean = false
         if (Drawing.selection.isDefined) {
-            println("Drawing.selection.get.self: " + Drawing.selection)
             //Match on shapes in the selection to check for polylines:
             Drawing.selection.foreach((t) => {
               println("Explode begins")
@@ -59,7 +59,7 @@ class Explode extends Module{
               val shape = t._2._1
               val selector = t._2._2
               shape match {
-                case p : PolylineShape => {
+                case p : PolylineShapeOpen => {
                   //Check if some of, or the whole shape has been selected:
                   selector match {
                     case FullShapeSelector => {
@@ -132,17 +132,78 @@ class Explode extends Module{
                     }
                     case BitSetShapeSelector(x) => {
                       var firstBitSet: Option[Int] = None
-                      x.foreach(bitSet => {
-                        if (firstBitSet.isEmpty) firstBitSet = Some(bitSet)
-                        if (x.size == 1) {
-                          if (firstBitSet.get == 0) Create(PolylineShape(p.p0,p.p1,p.p2,p.p3,p.p0))
-                        }
-                      })
-                      Create(LineShape(p.p0,p.p1).addAttributes(p.attributes))
-                      Create(LineShape(p.p1,p.p2).addAttributes(p.attributes))
-                      Create(LineShape(p.p2,p.p3).addAttributes(p.attributes))
-                      Create(LineShape(p.p3,p.p0).addAttributes(p.attributes))
-                      idsForShapesToExplode = idsForShapesToExplode :+ id
+                      if (x.size == 1) {
+                        if (x(0) == true) Create(PolylineShape.createOpen(p.p0,p.p1,p.p2,p.p3,p.p0).addAttributes(p.attributes))
+                        if (x(1) == true) Create(PolylineShape.createOpen(p.p1,p.p2,p.p3,p.p0,p.p1).addAttributes(p.attributes))
+                        if (x(2) == true) Create(PolylineShape.createOpen(p.p2,p.p3,p.p0,p.p1,p.p2).addAttributes(p.attributes))
+                        if (x(3) == true) Create(PolylineShape.createOpen(p.p3,p.p0,p.p1,p.p2,p.p3).addAttributes(p.attributes))
+                        idsForShapesToExplode = idsForShapesToExplode :+ id
+                      } else if (x.size == 2) {
+                        x.foreach(bitSet => {
+                          if (firstBitSet.isEmpty) firstBitSet = Some(bitSet)
+                          if (bitSet != firstBitSet.get){
+                            //Next to each other: A line and a polyline.
+                            if (bitSet - firstBitSet.get == 1 || bitSet - firstBitSet.get == 3 ) {
+                              if (firstBitSet.get == 0) {
+                                Create(LineShape(p.p3,p.p0).addAttributes(p.attributes))
+                                Create(PolylineShape(p.p0,p.p1,p.p2,p.p3).addAttributes(p.attributes))
+                              } else if (firstBitSet.get == 1) {
+                                Create(LineShape(p.p0,p.p1).addAttributes(p.attributes))
+                                Create(PolylineShape(p.p1,p.p2,p.p3,p.p0).addAttributes(p.attributes))
+                              } else if (firstBitSet.get == 2) {
+                                Create(LineShape(p.p1,p.p2).addAttributes(p.attributes))
+                                Create(PolylineShape(p.p2,p.p3,p.p0,p.p1).addAttributes(p.attributes))
+                              } else if (firstBitSet.get == 3) {
+                                Create(LineShape(p.p2,p.p3).addAttributes(p.attributes))
+                                Create(PolylineShape(p.p3,p.p0,p.p1,p.p2).addAttributes(p.attributes))
+                              }
+                            } else { //Not next to each others: Two polylines.
+                              if (firstBitSet.get == 0) {
+                                Create(PolylineShape(p.p0,p.p1,p.p2).addAttributes(p.attributes))
+                                Create(PolylineShape(p.p2,p.p3,p.p0).addAttributes(p.attributes))
+                              } else if (firstBitSet.get == 1) {
+                                Create(PolylineShape(p.p1,p.p2,p.p3).addAttributes(p.attributes))
+                                Create(PolylineShape(p.p3,p.p0,p.p1).addAttributes(p.attributes))
+                              }
+                            }
+                          }
+                        })
+                        idsForShapesToExplode = idsForShapesToExplode :+ id
+                      } else if (x.size == 3) { //Two lines and a polyline.
+                        x.foreach(bitSet => {
+                          if (firstBitSet.isEmpty) {
+                            firstBitSet = Some(bitSet)
+                            if (bitSet == 1) { //bitSet 0 is not selected
+                              Create(LineShape(p.p1,p.p2).addAttributes(p.attributes))
+                              Create(LineShape(p.p2,p.p3).addAttributes(p.attributes))
+                              Create(PolylineShape(p.p3,p.p0,p.p1).addAttributes(p.attributes))
+                            }
+                          } else if (firstBitSet.get == 0) {
+                            if (bitSet - firstBitSet.get == 2) { //bitset 1 or 2 is not selected
+                              if (bitSet == 2 ) {
+                                Create(LineShape(p.p2,p.p3).addAttributes(p.attributes))
+                                Create(LineShape(p.p3,p.p0).addAttributes(p.attributes))
+                                Create(PolylineShape(p.p0,p.p1,p.p2).addAttributes(p.attributes))
+                              } else {
+                                Create(LineShape(p.p3,p.p0).addAttributes(p.attributes))
+                                Create(LineShape(p.p0,p.p1).addAttributes(p.attributes))
+                                Create(PolylineShape(p.p1,p.p2,p.p3).addAttributes(p.attributes))
+                              }
+                            } else if (bitSet == 3){ //bitset 3 is not selected
+                              Create(LineShape(p.p0,p.p1).addAttributes(p.attributes))
+                              Create(LineShape(p.p1,p.p2).addAttributes(p.attributes))
+                              Create(PolylineShape(p.p2,p.p3,p.p0).addAttributes(p.attributes))
+                            }
+                          }
+                        })
+                        idsForShapesToExplode = idsForShapesToExplode :+ id
+                      } else  if (x.size == 4) { //Four lines.
+                        Create(LineShape(p.p0,p.p1).addAttributes(p.attributes))
+                        Create(LineShape(p.p1,p.p2).addAttributes(p.attributes))
+                        Create(LineShape(p.p2,p.p3).addAttributes(p.attributes))
+                        Create(LineShape(p.p3,p.p0).addAttributes(p.attributes))
+                        idsForShapesToExplode = idsForShapesToExplode :+ id
+                      } else println("BitSetShapeSelector has 0 bit-sets. This is currently believed not to happen, so explode has not been made able to handle that. Nothing exploded.")
                       somethingExploded = true
                     }
                     case x => println(x)
