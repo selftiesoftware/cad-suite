@@ -24,7 +24,7 @@ package com.siigna.module.cad.modify
 
 import com.siigna._
 import app.model.shape.PolylineShape.{PolylineShapeOpen, PolylineShapeClosed}
-import app.model.shape.{InnerPolylineShape, RectangleShape}
+import app.model.shape.{PolylineLineShape, InnerPolylineShape, RectangleShape}
 import java.util
 
 /**
@@ -59,6 +59,72 @@ class Explode extends Module{
               val shape = t._2._1
               val selector = t._2._2
               shape match {
+                case s : PolylineShapeClosed => {
+                  selector match {
+                    case FullShapeSelector => {
+                      //If the whole shape has been selected, explode it!
+                      idsForShapesToExplode = idsForShapesToExplode :+ id
+                      somethingExploded = true
+                      s.shapes.foreach((shape) => {
+                        Create(shape.addAttributes(s.attributes))
+                      })
+                    }
+                    //If only part of the shape has been selected:
+                    case BitSetShapeSelector(x) => {
+                      var exploded: Boolean = false
+                      var firstBitSet: Option[Int] = None
+                      var lastBitSet: Int = 0
+                      println ("Shape: " + s)
+                      var partOfShapeBeforeFirstBit: Seq[InnerPolylineShape] = Seq()
+                      var leftover: Seq[InnerPolylineShape] = Seq()
+                      x.foreach((bitset) => { //The selected part of the shape from the first bitset onwards:
+                        println("Bitset: " + bitset )
+                        exploded = true
+                        if(firstBitSet.isEmpty) { //First bitset. Just store it; we dont know what comes before it...
+                          firstBitSet = Some(bitset)
+                          lastBitSet = bitset
+                          if (bitset == 0) {
+                            partOfShapeBeforeFirstBit = Seq(PolylineLineShape(s.startPoint))
+                            leftover = Seq(PolylineLineShape(s.startPoint)) ++ s.innerShapes ++ partOfShapeBeforeFirstBit
+                          }
+                          else {
+                            partOfShapeBeforeFirstBit = Seq(PolylineLineShape(s.startPoint))  ++ s.innerShapes.splitAt(bitset)._1
+                            leftover = s.innerShapes.splitAt(bitset-1)._2 ++ partOfShapeBeforeFirstBit
+                          }
+                          println("Part before first: " + partOfShapeBeforeFirstBit)
+                        } else { //Next sets: Process and explode as required
+                          if (bitset - lastBitSet == 1) { //The neighbouring point is selected - make a line and a leftover...
+                            Create(LineShape(if (bitset == 1) s.startPoint else s.innerShapes(bitset-2).point,s.innerShapes(bitset-1).point).addAttributes(s.attributes))
+                            leftover = s.innerShapes.splitAt(bitset-1)._2 ++ partOfShapeBeforeFirstBit
+                            lastBitSet = bitset
+                          } else { //The neighbour isn't selected - make a polyline and if there is enough left, a leftover...
+                            var firstPart: Seq[Vector2D] = Seq()
+                            if(leftover.length > 2) { //If there's enough left, make a new leftower,
+                              leftover.splitAt((bitset + 1) - lastBitSet)._1.foreach(innerShape => firstPart = firstPart :+ innerShape.point)
+                              leftover = s.innerShapes.splitAt(bitset-1)._2 ++ partOfShapeBeforeFirstBit
+                              lastBitSet = bitset
+                              Create(PolylineShape(firstPart).addAttributes(s.attributes))
+                            } //else { //Otherwise connect it to the first bitset - with a line or polyline as required...
+
+                             // Create(LineShape(s.innerShapes(bitset-1).point, s.innerShapes(bitset).point).addAttributes(s.attributes))
+                            //}
+                          }
+                        }
+
+                        if (bitset == s.size) println("Last bitset: " + bitset)
+                      })
+                      if (exploded == true) {
+                        if(leftover.length > 2) { //If there's enough left, make a polyline,
+                          Create(PolylineShapeOpen(leftover.head.point,leftover.tail,s.attributes))
+                        } else if (leftover.length == 2) { //Otherwise make it into a line...
+                          Create(LineShape(leftover(0).point, leftover(1).point).addAttributes(s.attributes))
+                        }
+                        idsForShapesToExplode = idsForShapesToExplode :+ id
+                        somethingExploded = true
+                      }
+                    }
+                  }
+                }
                 case p : PolylineShapeOpen => {
                   //Check if some of, or the whole shape has been selected:
                   selector match {
@@ -76,6 +142,7 @@ class Explode extends Module{
                       var lastBitSet: Int = 0
                       var leftover: Seq[InnerPolylineShape] = p.innerShapes
                       x.foreach((bitset) => {
+                        println("Bitset: " + bitset )
                         //Exclude the endpoints of the polyline:
                         if (bitset != 0 && bitset != p.size && p.size > 1) {
                           exploded = true
@@ -206,10 +273,10 @@ class Explode extends Module{
                       } else println("BitSetShapeSelector has 0 bit-sets. This is currently believed not to happen, so explode has not been made able to handle that. Nothing exploded.")
                       somethingExploded = true
                     }
-                    case x => println(x)
+                    case x => println("An other kind of selector in Explode module: " + x)
                   }
                 }
-                case x => println(x)
+                case x => println("This shape type cannot be exploded: " + x)
               }
             })
           if (somethingExploded == true) {
