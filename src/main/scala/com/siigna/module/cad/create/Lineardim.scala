@@ -22,7 +22,7 @@ package com.siigna.module.cad.create
 /* 2011 (C) Copyright by Siigna, all rights reserved. */
 
 import com.siigna._
-import com.siigna.module.ModuleInit
+import module.{Tooltip, ModuleInit}
 import java.awt.Color
 
 class Lineardim extends Module {
@@ -176,6 +176,7 @@ class Lineardim extends Module {
       case _ => {
       //get the current paperScale
       scale = Siigna.paperScale
+        Tooltip.updateTooltip("Linear Dimension tool active")
         Start('cad, "create.Input", InputRequest(6,None))
       }
       

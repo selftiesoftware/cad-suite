@@ -22,6 +22,7 @@ package com.siigna.module.cad.helpers
 import com.siigna._
 import com.siigna.module.cad.create._
 import app.Siigna
+import module.Tooltip
 
 /**
  * A line module (draws one line-segment)
@@ -52,10 +53,12 @@ class Distance extends Module {
         } else if (startPoint.isDefined) {
           var length = ((startPoint.get - v).length).round
           Siigna display "length: " + length
+          Tooltip.delayUpdate(3500)
           End
         }
       }
       case _ => {
+        Tooltip.updateTooltip("Distance measure tool active")
         Siigna display "set two points to measure the distance between them."
         Start('cad, "create.Input", InputRequest(6,None))
       }

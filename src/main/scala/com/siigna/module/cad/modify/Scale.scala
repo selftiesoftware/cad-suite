@@ -22,7 +22,7 @@ package com.siigna.module.cad.modify
 import com.siigna._
 import app.Siigna
 import com.siigna.module.cad.create._
-import module.ModuleInit
+import module.{Tooltip, ModuleInit}
 
 class Scale extends Module {
 
@@ -165,8 +165,7 @@ class Scale extends Module {
       }
 
       case _ => {
-        //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
-        val l = new ModuleInit
+        Tooltip.updateTooltip("Scale tool active")
         if (Drawing.selection.isDefined) {
           Siigna display "set fix-point for scaling, drag to scale or type a scaling factor"
           val doubleGuide = DoubleGuide((s : Double) => {

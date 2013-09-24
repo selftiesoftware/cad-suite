@@ -13,6 +13,7 @@ package com.siigna.module.cad.create
 
 import com.siigna._
 import com.siigna.app.model.shape.RectangleShape
+import module.Tooltip
 
 class Rectangle extends Module {
 
@@ -56,6 +57,7 @@ class Rectangle extends Module {
       //get the first point
       case _ => {
         if (points.length == 0) {
+          Tooltip.updateTooltip("Rectangle tool active")
           Start('cad, "create.Input", InputRequest(6,None))
         } else {
           val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))

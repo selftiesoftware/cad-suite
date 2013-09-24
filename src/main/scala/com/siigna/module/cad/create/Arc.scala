@@ -24,6 +24,7 @@ package com.siigna.module.cad.create
 import com.siigna._
 import app.Siigna
 import java.awt.Color
+import module.Tooltip
 
 class Arc extends Module {
 
@@ -161,6 +162,7 @@ class Arc extends Module {
                 //Guide(v => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
               )*/
             } else {
+              Tooltip.updateTooltip("Arc tool active")
               Start('cad, "create.Input", InputRequest(6,None))
             }
           }

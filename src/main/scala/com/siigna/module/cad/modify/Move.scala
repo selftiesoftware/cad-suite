@@ -14,6 +14,7 @@ package com.siigna.module.cad.modify
 import com.siigna._
 import app.Siigna
 import com.siigna.module.cad.create._
+import module.Tooltip
 
 class Move extends Module {
   val origin = Drawing.selection.transformation
@@ -129,6 +130,7 @@ class Move extends Module {
 
       //on first entry, send input request to input to get the start point for the move operations.
       case _ => {
+        Tooltip.updateTooltip("Move tool active")
         if (!Drawing.selection.isEmpty) {
           val vector2DGuide = Vector2DGuideKeys((v: Vector2D) => {
             Drawing.selection.transformation = origin

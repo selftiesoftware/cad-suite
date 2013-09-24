@@ -21,6 +21,7 @@ package com.siigna.module.cad.create
 
 import com.siigna._
 import app.Siigna
+import module.Tooltip
 
 /**
  * A module that collect a pair of digits on the basis of key inputs.
@@ -39,6 +40,8 @@ class InputSingleValueByKey extends Module {
   var guides: Seq[Guide] = Seq()
   var referencePoint: Option[Vector2D] = None
 
+  var tooltipAtStart : String = ""
+
   var startPoint : Option[Vector2D] = None
 
   val stateMap: StateMap = Map(
@@ -46,13 +49,23 @@ class InputSingleValueByKey extends Module {
     'Start -> {
 
       //exit mechanisms
-      case MouseDown(p,MouseButtonRight,modifier) :: tail => End
-      case KeyDown(Key.escape,modifier) :: tail => End
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => {
+        Tooltip.updateTooltip(tooltipAtStart)
+        End
+      }
+      case KeyDown(Key.escape,modifier) :: tail => {
+        Tooltip.updateTooltip(tooltipAtStart)
+        End
+      }
 
-      case MouseDown(p,MouseButtonRight,modifier) :: tail => End(MouseDown(p,MouseButtonRight,modifier))
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => {
+        Tooltip.updateTooltip(tooltipAtStart)
+        End(MouseDown(p,MouseButtonRight,modifier))
+      }
 
       //If left mouse is clicked, the module ends - if there is useful double input, it is returned, if not, the module just ends.
       case MouseDown(p,MouseButtonLeft,modifier) :: tail => {
+        Tooltip.updateTooltip(tooltipAtStart)
       if (coordinateValue.length > 0 && coordinateValue != " " && coordinateValue != "-" && coordinateValue != "." && coordinateValue != "-.")
         End(java.lang.Double.parseDouble(coordinateValue))
       else
@@ -68,6 +81,8 @@ class InputSingleValueByKey extends Module {
           coordinateValue += code.toChar
           Siigna display coordinateValue
         }
+        tooltipAtStart = Tooltip.tooltip
+        Tooltip.updateTooltip("Type number")
         inputRequest = Some(i)
         inputType = Some(i.inputType)
         guides = i.guides
@@ -87,6 +102,7 @@ class InputSingleValueByKey extends Module {
 
       //Ends on return, TAB - returning value:
       case KeyDown(Key.Enter | Key.Tab , _) :: tail => {
+        Tooltip.updateTooltip(tooltipAtStart)
         if (coordinateValue.length > 0) {
             var value = Some(java.lang.Double.parseDouble(coordinateValue))
             End(value.get)
@@ -125,7 +141,10 @@ class InputSingleValueByKey extends Module {
         Siigna display coordinateValue
       }
       case _ => {
-        if (coordinateValue.length() == 0) End
+        if (coordinateValue.length() == 0) {
+          Tooltip.updateTooltip(tooltipAtStart)
+          End
+        }
       }
     })
 

@@ -21,6 +21,7 @@ package com.siigna.module.cad.create
 
 import com.siigna._
 import app.Siigna
+import module.Tooltip
 
 /**
  * A line module (draws one line-segment)
@@ -51,7 +52,6 @@ class Line extends Module {
           Start('cad,"create.Input", inputRequest)
         } else {
           val line = LineShape(startPoint.get,v).addAttributes(attributes)
-          println("ATTR; "+attributes)
           Create(line)
           startPoint = None
           End
@@ -83,7 +83,10 @@ class Line extends Module {
           }
         }
       }
-      case _ => Start('cad, "create.Input", InputRequest(6,None))
+      case _ => {
+        Tooltip.updateTooltip("Line tool active")
+        Start('cad, "create.Input", InputRequest(6,None))
+      }
     }
   )
 }

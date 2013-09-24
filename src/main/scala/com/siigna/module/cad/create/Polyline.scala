@@ -21,6 +21,7 @@ package com.siigna.module.cad.create
 
 import com.siigna._
 import app.Siigna
+import module.Tooltip
 
 class Polyline extends Module {
 
@@ -148,6 +149,7 @@ class Polyline extends Module {
       }
       case x => {
         points = List[Vector2D]()
+        Tooltip.updateTooltip("Polyline tool active")
         Start('cad, "create.Input", InputRequest(6,None))
         //Start('cad, "create.Input", 111)
       }

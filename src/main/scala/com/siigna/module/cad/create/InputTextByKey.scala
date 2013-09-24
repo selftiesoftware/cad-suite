@@ -21,6 +21,7 @@ package com.siigna.module.cad.create
 
 import com.siigna._
 import app.Siigna
+import module.Tooltip
 
 /**
  * A module that collect a pair of digits on the basis of key inputs.
@@ -37,15 +38,25 @@ class InputTextByKey extends Module {
   var guides: Seq[Guide] = Seq()
   var referencePoint: Option[Vector2D] = None
 
+  var tooltipAtStart : String = ""
+
 
   val stateMap: StateMap = Map(
 
     'Start -> {
       //exit mechanisms
-      case MouseDown(p,MouseButtonRight,modifier) :: tail => End
-      case KeyDown(Key.escape,modifier) :: tail => End
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => {
+        Tooltip.updateTooltip(tooltipAtStart)
+        End
+      }
+      case KeyDown(Key.escape,modifier) :: tail => {
+        Tooltip.updateTooltip(tooltipAtStart)
+        End
+      }
 
       case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
+        tooltipAtStart = Tooltip.tooltip
+        Tooltip.updateTooltip("Input text")
         inputRequest = Some(i)
         inputType = Some(i.inputType)
         guides = i.guides
@@ -63,6 +74,7 @@ class InputTextByKey extends Module {
       //Ends on return, komma, TAB - returning value:
       case KeyDown(Key.Enter | Key.Tab | (','), _) :: tail => {
         if (text.length > 0) {
+          Tooltip.updateTooltip(tooltipAtStart)
           End(text)
         }
       }
@@ -83,7 +95,10 @@ class InputTextByKey extends Module {
 
       }
       case _ => {
-        if (text.length == 0) End
+        if (text.length == 0) {
+          Tooltip.updateTooltip(tooltipAtStart)
+          End
+        }
       }
     })
 

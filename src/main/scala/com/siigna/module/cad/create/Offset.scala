@@ -21,6 +21,7 @@ package com.siigna.module.cad.create
 
 import com.siigna._
 import com.siigna.app.model.shape.RectangleShape
+import module.Tooltip
 
 class Offset extends Module {
   private var attr = Attributes()
@@ -210,11 +211,13 @@ class Offset extends Module {
 
     case _ => {
       if (Drawing.selection.isDefined == false && done == false) {
+        Tooltip.updateTooltip("Offset tool active")
         Siigna display "select an object to offset"
         Start('cad, "Selection")
       }
       else if (Drawing.selection.size == 1 ){
         attr = Drawing.selection.shapes.head._2.attributes
+        Tooltip.updateTooltip("Offset tool active")
         Siigna display "click to set the offset distance, or type offset distance"
         val inputRequest = InputRequest(9,None,vector2DGuide, doubleGuide)
         Start('cad,"create.Input", inputRequest)

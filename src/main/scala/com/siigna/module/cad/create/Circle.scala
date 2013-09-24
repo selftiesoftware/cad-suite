@@ -21,6 +21,7 @@ package com.siigna.module.cad.create
 
 import com.siigna._
 import app.Siigna
+import module.Tooltip
 
 class Circle extends Module {
 
@@ -66,6 +67,7 @@ class Circle extends Module {
 
           //Starts point, asks for two-value-input (center):
           case _ => {
+            Tooltip.updateTooltip("Circle tool active")
             Start('cad, "create.Input", InputRequest(6,None))
           }
         }

@@ -21,6 +21,7 @@ package com.siigna.module.cad.create
 
 import com.siigna._
 import com.siigna.app.Siigna
+import module.Tooltip
 
 /**
  * Created by IntelliJ IDEA.
@@ -97,6 +98,8 @@ class InputDualValuesByKey extends Module {
   var textGuide: Option[TextGuide] = None
   var referenceDouble: Option[Double] = None
 
+  var tooltipAtStart : String = ""
+
   var startPoint : Option[Vector2D] = None
 
   var relativeX : Double = 0.0
@@ -123,6 +126,8 @@ class InputDualValuesByKey extends Module {
 
       //Read numbers and minus, "," and enter as first entry, after drawing of guide, if a guide is provided:
       case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
+          tooltipAtStart = Tooltip.tooltip
+          Tooltip.updateTooltip("Insert x- any y-coordinates")
           inputRequest = Some(i)
           inputType = Some(i.inputType)
           guides = i.guides
@@ -144,8 +149,14 @@ class InputDualValuesByKey extends Module {
     'ReceiveUserInput -> {
 
       //exit mechanisms
-      case KeyDown(Key.escape,modifier) :: tail => End
-      case MouseDown(p,MouseButtonRight,modifier) :: tail => End
+      case KeyDown(Key.escape,modifier) :: tail => {
+        Tooltip.updateTooltip(tooltipAtStart)
+        End
+      }
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => {
+        Tooltip.updateTooltip(tooltipAtStart)
+        End
+      }
 
       //Read numbers and minus, "," and enter as first entry if no guide is provided:
       case Start(_,_) :: KeyDown(code, _) :: tail => {
@@ -181,6 +192,7 @@ class InputDualValuesByKey extends Module {
           } else coordinateY = Some(0.0)
           Siigna display message(coordinateValue, coordinateX, coordinateY)
           //if a full set of coordinates are present, return them to the calling module.
+          Tooltip.updateTooltip(tooltipAtStart)
           End(Vector2D(x,y))
         }
       }
@@ -198,6 +210,7 @@ class InputDualValuesByKey extends Module {
           Siigna display message(coordinateValue, coordinateX, coordinateY)
           //If there is no active string, and also no active coordinate, the module ends:
         } else if (coordinateValue.length == 0 && coordinateX.isEmpty) {
+          Tooltip.updateTooltip(tooltipAtStart)
           End("no point returned")
         }
 
@@ -221,7 +234,10 @@ class InputDualValuesByKey extends Module {
 
       case x => {
 
-        if (coordinateX.isEmpty && coordinateValue.length() == 0) End
+        if (coordinateX.isEmpty && coordinateValue.length() == 0) {
+          Tooltip.updateTooltip(tooltipAtStart)
+          End
+        }
       }
     })
 

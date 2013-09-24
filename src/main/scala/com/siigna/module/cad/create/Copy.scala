@@ -20,6 +20,7 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
+import module.Tooltip
 
 class Copy extends Module {
 
@@ -117,10 +118,12 @@ class Copy extends Module {
             Create(transform(transformation))
             End
           } else {
+            Tooltip.updateTooltip("Copy tool active")
             Siigna display "set origin of copy"
             Start('cad,"create.Input",InputRequest(6,None))
           }
         } else {
+          Tooltip.updateTooltip("Copy tool active")
           Siigna display "Select objects to copy"
           Start('cad, "Selection")
         }

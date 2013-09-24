@@ -18,7 +18,7 @@ package com.siigna.module.cad.modify
 import com.siigna._
 import app.Siigna
 import com.siigna.module.cad.create._
-import com.siigna.module.ModuleInit
+import module.{Tooltip, ModuleInit}
 
 class Rotate extends Module {
 
@@ -129,8 +129,7 @@ class Rotate extends Module {
       case End :: tail =>
 
       case _ => {
-        //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
-        val l = new ModuleInit
+        Tooltip.updateTooltip("Rotate tool active")
         if (!Drawing.selection.isEmpty) {
           Siigna display "set centre point for rotation"
           Start('cad, "create.Input", InputRequest(6,None))

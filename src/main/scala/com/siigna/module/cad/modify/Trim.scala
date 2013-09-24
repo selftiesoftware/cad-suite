@@ -23,6 +23,7 @@ import com.siigna._
 import app.model.shape.PolylineShape.{PolylineShapeClosed, PolylineShapeOpen}
 import app.model.shape.{PolylineLineShape, PolylineShape, RectangleShape}
 import module.cad.create.InputRequest
+import module.Tooltip
 import util.collection.Attributes
 
 class Trim extends Module {
@@ -57,6 +58,7 @@ class Trim extends Module {
       }
 
       case _ => {
+        Tooltip.updateTooltip("Trim tool active")
         //Go to trim - state only if there is a selection
         if(Drawing.selection.isEmpty) {
           Siigna display "No shapes selected - select shapes to trim"

@@ -56,6 +56,10 @@ class ModuleInit extends Module {
 
   val header = com.siigna.module.base.PaperHeader
 
+  var tooltip: String = "Right click to open menu"
+
+  Siigna tooltip(tooltip)
+
   protected var lastModule: Option[Module] = None
 
   var activeSelection: Selection = EmptySelection
@@ -104,6 +108,7 @@ class ModuleInit extends Module {
       Start(lastModule.get.newInstance)
     }
   }
+
 
   def handleKeyDown(code: Int, modifier: ModifierKeys) = {
     // Special keys:
@@ -178,8 +183,14 @@ class ModuleInit extends Module {
 
       // Menu
       case MouseDown(p, MouseButtonRight, modifier) :: tail
-        if (ModuleLoader.modulesLoaded == true) => startMenu
-      case End(MouseDown(p, MouseButtonRight, modifier)) :: tail => startMenu
+        if (ModuleLoader.modulesLoaded == true) => {
+        Tooltip.updateTooltip("Select tool")
+        startMenu
+      }
+      case End(MouseDown(p, MouseButtonRight, modifier)) :: tail => {
+        Tooltip.updateTooltip("Select tool")
+        startMenu
+      }
 
       // Selection
       case End(p: Vector2D) :: tail => {
@@ -213,6 +224,7 @@ class ModuleInit extends Module {
 
       case y => {
         if (ModuleLoader.modulesLoaded == true) {
+          Tooltip.updateTooltip("Right click to open menu")
           Start('cad, "create.Input", InputRequest(14, None))
         }
       }
@@ -236,5 +248,26 @@ class ModuleInit extends Module {
 
     activeSelection.parts.foreach(s => g draw s.setAttributes(selectionAttributes).transform(t))
     activeSelectionVertices.foreach(v => g draw v.transform(t))
+  }
+}
+
+object Tooltip {
+  var tooltip: String = "Welcome to Siigna"
+  private var baseTime: Long = System.currentTimeMillis()
+  private var delay : Int = 0
+
+  Siigna tooltip(tooltip)
+
+  def delayUpdate(milliseconds: Int) {
+    delay = milliseconds
+    baseTime = System.currentTimeMillis()
+  }
+
+  def updateTooltip(string: String) {
+    tooltip = string
+    while (System.currentTimeMillis() < baseTime + delay) {
+      println("Waiting for message to be displayed before updating tooltip")
+    }
+    Siigna tooltip(tooltip)
   }
 }

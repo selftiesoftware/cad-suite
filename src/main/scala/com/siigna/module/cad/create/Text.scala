@@ -20,7 +20,7 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
-import module.ModuleInit
+import module.{Tooltip, ModuleInit}
 
 //import java.awt.{Font, Color, TextField}
 //import java.awt.font._
@@ -73,6 +73,7 @@ class Text extends Module {
       }
 
       case _ => {
+        Tooltip.updateTooltip("Text tool active")
         Siigna.display("click to set text")
         Start('cad, "create.Input", InputRequest(6,None))
       }
