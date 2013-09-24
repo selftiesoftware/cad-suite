@@ -52,6 +52,7 @@ class Copy extends Module {
         if(!startPoint.isDefined && !Drawing.selection.isEmpty) {
           startPoint = Some(p)
           Siigna display "set destination"
+          Tooltip.blockUpdate(3500)
           val vector2DGuide = Vector2DGuide((v : Vector2D) => {
             transform(TransformationMatrix(v - startPoint.get, 1))
           })
@@ -62,6 +63,7 @@ class Copy extends Module {
           endPoint = Some(p)
           transformation = TransformationMatrix(p - startPoint.get, 1)
           Siigna display "type number of copies or click for one"
+          Tooltip.blockUpdate(3500)
           multiActive = true
 
           val doubleGuide = DoubleGuide((r: Double) => transform(transformation))
@@ -120,11 +122,13 @@ class Copy extends Module {
           } else {
             Tooltip.updateTooltip("Copy tool active")
             Siigna display "set origin of copy"
+            Tooltip.blockUpdate(3500)
             Start('cad,"create.Input",InputRequest(6,None))
           }
         } else {
           Tooltip.updateTooltip("Copy tool active")
           Siigna display "Select objects to copy"
+          Tooltip.blockUpdate(3500)
           Start('cad, "Selection")
         }
       }

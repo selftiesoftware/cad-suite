@@ -47,6 +47,7 @@ class Rotate extends Module {
           //Request mouse down - it might be a rotation start point, or the start of a rotation angle:
           centerPoint = Some(p)
           Siigna display "click to set rotation start point, or type a rotation angle"
+          Tooltip.blockUpdate(3500)
           val doubleGuide = DoubleGuide((d: Double) => {
             Drawing.selection.transformation = origin
             val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
@@ -77,6 +78,7 @@ class Rotate extends Module {
             startVector = Some(p)
             startVectorSet = true
             Siigna display "click to finish rotation, or type a rotation angle"
+            Tooltip.blockUpdate(3500)
             val doubleGuide = DoubleGuide((d: Double) => {
               val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
               Drawing.selection.transformation = origin
@@ -132,9 +134,11 @@ class Rotate extends Module {
         Tooltip.updateTooltip("Rotate tool active")
         if (!Drawing.selection.isEmpty) {
           Siigna display "set centre point for rotation"
+          Tooltip.blockUpdate(3500)
           Start('cad, "create.Input", InputRequest(6,None))
         } else {
           Siigna display "Select objects to rotate"
+          Tooltip.blockUpdate(3500)
           Start('cad, "Selection")
         }
       }

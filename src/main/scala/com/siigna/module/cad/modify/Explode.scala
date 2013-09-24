@@ -26,6 +26,7 @@ import com.siigna._
 import app.model.shape.PolylineShape.{PolylineShapeOpen, PolylineShapeClosed}
 import app.model.shape.{PolylineLineShape, InnerPolylineShape, RectangleShape}
 import java.util
+import module.Tooltip
 
 /**
  * Created by IntelliJ IDEA.
@@ -280,12 +281,15 @@ class Explode extends Module{
             })
             
             Siigna display "explodable shapes in selection exploded"
+            Tooltip.blockUpdate(3500)
           } else {
             Siigna display "none of the selected shapes can be exploded"
+            Tooltip.blockUpdate(3500)
           }
           End
         } else {
           Siigna display "nothing selected"
+          Tooltip.blockUpdate(3500)
           End
         }
       }

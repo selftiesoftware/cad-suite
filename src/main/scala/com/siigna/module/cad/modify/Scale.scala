@@ -70,6 +70,7 @@ class Scale extends Module {
           //If not, it is the end of a drag, defining a scale operation, which is then done:
           val scaleFactor = ((p-startPoint.get).length/100 + 1)
           Siigna display ("scale factor: " + scaleFactor)
+          Tooltip.blockUpdate(3500)
           Drawing.selection.transformation = origin
           transformation = TransformationMatrix().scale(scaleFactor,startPoint.get)
           Drawing.selection.transform(transformation)
@@ -78,6 +79,7 @@ class Scale extends Module {
         } else if (p == startPoint.get && firstPointEntered == false) {
           Drawing.selection.transformation = origin
           Siigna display "set second reference point for scaling, type scale factor or drag to scale"
+          Tooltip.blockUpdate(3500)
           firstPointEntered = true
           //STEP 2b: The base point for scale has been set. Now either request:
           //1: A scaling factor (Double),
@@ -111,6 +113,7 @@ class Scale extends Module {
           // 1) enter the desired distance between the two points to finish the scale, or
           // 2) Leftclick to set scale factor:
           Siigna display "type the distance between the reference points, or move mouse and click to scale"
+          Tooltip.blockUpdate(3500)
           val doubleGuide = DoubleGuide((s : Double) => {
             Drawing.selection.transformation = origin
             //Define a scaling matrix:
@@ -132,6 +135,7 @@ class Scale extends Module {
           // or the mouse has been clicked after the end point has been set, defining a scale factor. Do the scaling:
           val scaleFactor = (startPoint.get.distanceTo(p)/startPoint.get.distanceTo(endPoint.get))
           Siigna display ("scale factor: " + scaleFactor)
+          Tooltip.blockUpdate(3500)
           Drawing.selection.transformation = origin
           transformation =  TransformationMatrix().scale(scaleFactor,startPoint.get)
           Drawing.selection.transform(transformation)
@@ -144,6 +148,7 @@ class Scale extends Module {
         //if a reference length is not set, then scale the shapes by the scale factor.
         if (endPoint.isEmpty) {
           Siigna display ("scale factor: "+l)
+          Tooltip.blockUpdate(3500)
           Drawing.selection.transformation = origin
           if (!startPoint.isEmpty) transformation = TransformationMatrix().scale(l,startPoint.get)
           else transformation = TransformationMatrix().scale(l)
@@ -155,6 +160,7 @@ class Scale extends Module {
           //This is the length between start and endpoints after the scale. Do the scale:          
           val scaleFactor = (l/(startPoint.get.distanceTo(endPoint.get)))
           Siigna display ("scale factor:" + scaleFactor)
+          Tooltip.blockUpdate(3500)
           Drawing.selection.transformation = origin
           transformation = TransformationMatrix().scale(scaleFactor,startPoint.get)
           Drawing.selection.transform(transformation)
@@ -168,6 +174,7 @@ class Scale extends Module {
         Tooltip.updateTooltip("Scale tool active")
         if (Drawing.selection.isDefined) {
           Siigna display "set fix-point for scaling, drag to scale or type a scaling factor"
+          Tooltip.blockUpdate(3500)
           val doubleGuide = DoubleGuide((s : Double) => {
             Drawing.selection.transformation = origin
             //Define a scaling matrix:
@@ -180,6 +187,7 @@ class Scale extends Module {
           Start('cad, "create.Input", InputRequest(9,None,doubleGuide))
         } else {
           Siigna display "Select objects to scale"
+          Tooltip.blockUpdate(3500)
           Start('cad, "Selection")
         }
       }

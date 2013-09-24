@@ -141,6 +141,7 @@ class Move extends Module {
           Start('cad, "create.Input", InputRequest(16,None,vector2DGuide))
         } else {
           Siigna display "Select objects to move"
+          Tooltip.blockUpdate(3500)
           Start('cad, "Selection")
         }
       }

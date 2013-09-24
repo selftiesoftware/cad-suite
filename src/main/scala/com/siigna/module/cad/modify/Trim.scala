@@ -62,6 +62,7 @@ class Trim extends Module {
         //Go to trim - state only if there is a selection
         if(Drawing.selection.isEmpty) {
           Siigna display "No shapes selected - select shapes to trim"
+          Tooltip.blockUpdate(3500)
           Start('cad, "Selection")
         } else {
           //save the selection and go to the Trim state
@@ -116,6 +117,7 @@ class Trim extends Module {
             //TRIM ARCS
             case a : ArcShape => {
               Siigna display("We are sorry - trimming of arcs not yet implemented.")
+              Tooltip.blockUpdate(3500)
             }
 
             //TRIM LINE
@@ -207,6 +209,7 @@ class Trim extends Module {
 
             //UNSUPPORTED SHAPES:
             case e => Siigna display ("sorry, Siigna can not trim " + e.toString.takeWhile(_ != '(') + "s yet!")
+            Tooltip.blockUpdate(3500)
           }
         }
         if(selection.isDefined && trimLine.isDefined) {
@@ -221,6 +224,7 @@ class Trim extends Module {
 
       case e => {
         Siigna display "Click shapes to trim"
+        Tooltip.blockUpdate(3500)
         //Requests mouse-down input
         //Start('cad,"create.Input",InputRequest(6,None))
       }

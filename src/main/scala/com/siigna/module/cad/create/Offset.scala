@@ -213,17 +213,20 @@ class Offset extends Module {
       if (Drawing.selection.isDefined == false && done == false) {
         Tooltip.updateTooltip("Offset tool active")
         Siigna display "select an object to offset"
+        Tooltip.blockUpdate(3500)
         Start('cad, "Selection")
       }
       else if (Drawing.selection.size == 1 ){
         attr = Drawing.selection.shapes.head._2.attributes
         Tooltip.updateTooltip("Offset tool active")
         Siigna display "click to set the offset distance, or type offset distance"
+        Tooltip.blockUpdate(3500)
         val inputRequest = InputRequest(9,None,vector2DGuide, doubleGuide)
         Start('cad,"create.Input", inputRequest)
       } else if (done) End
       else {
         Siigna display "please select one shape to offset"
+        Tooltip.blockUpdate(3500)
         Drawing.deselect()
         End
       }

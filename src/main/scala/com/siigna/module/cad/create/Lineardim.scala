@@ -140,6 +140,7 @@ class Lineardim extends Module {
           else
             offsetSide = true
           Siigna display "click on the side away from the pointers"
+          Tooltip.blockUpdate(3500)
 
           val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(LineShape(points(0), points(1))))
 

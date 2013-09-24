@@ -59,6 +59,7 @@ class Text extends Module {
         //Start('cad,"create.Input", inputRequest)
         val inputRequest = InputRequest(12,None,textGuide)
         Siigna.display("type text")
+        Tooltip.blockUpdate(3500)
         Start('cad,"create.Input", inputRequest)
       }
 
@@ -75,6 +76,7 @@ class Text extends Module {
       case _ => {
         Tooltip.updateTooltip("Text tool active")
         Siigna.display("click to set text")
+        Tooltip.blockUpdate(3500)
         Start('cad, "create.Input", InputRequest(6,None))
       }
     }

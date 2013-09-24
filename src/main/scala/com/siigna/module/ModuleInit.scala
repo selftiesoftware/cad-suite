@@ -217,10 +217,8 @@ class ModuleInit extends Module {
         if (ModuleLoader.modulesLoaded == true) => handleKeyDown(code, modifier)
       case End(KeyDown(code: Int, modifier: ModifierKeys)) :: tail => handleKeyDown(code, modifier)
 
-      // When the modules are loaded, the eventstream is shaped so that the InputRequest is not sent in the correct
-      // place in the event stream, and the Input-module might return end without any return input. If this is caught
-      // by case _ and it forwards to in
-      case End :: tail =>
+        //If the ending module sent a message (fx. measure distance; lines exploded, of whatever, don't overwrite it...
+      case End :: tail => if(Tooltip.lastUpdate +500 > System.currentTimeMillis()) Tooltip.blockUpdate(3500)
 
       case y => {
         if (ModuleLoader.modulesLoaded == true) {
@@ -255,12 +253,20 @@ object Tooltip {
   var tooltip: String = "Welcome to Siigna"
   private var baseTime: Long = System.currentTimeMillis()
   private var delay : Int = 0
+  private var block : Int = 0
+  var lastUpdate: Long = System.currentTimeMillis()
 
   Siigna tooltip(tooltip)
 
-  def delayUpdate(milliseconds: Int) {
-    delay = milliseconds
+  def blockUpdate(milliseconds: Int) {
+    block = milliseconds
     baseTime = System.currentTimeMillis()
+  }
+
+  def refresh() {
+    if (System.currentTimeMillis() > baseTime + block) {
+      Siigna tooltip(tooltip)
+    }
   }
 
   def updateTooltip(string: String) {
@@ -268,6 +274,9 @@ object Tooltip {
     while (System.currentTimeMillis() < baseTime + delay) {
       println("Waiting for message to be displayed before updating tooltip")
     }
-    Siigna tooltip(tooltip)
+    if (System.currentTimeMillis() > baseTime + block) {
+      lastUpdate = System.currentTimeMillis()
+      Siigna tooltip(tooltip)
+    }
   }
 }

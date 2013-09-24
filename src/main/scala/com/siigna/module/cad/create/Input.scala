@@ -20,6 +20,7 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
+import module.Tooltip
 
 /**
  * An input request module.
@@ -207,7 +208,7 @@ class Input extends Module {
     }
 
     case _ => {
-
+      Tooltip.refresh()
     }
   })
 
