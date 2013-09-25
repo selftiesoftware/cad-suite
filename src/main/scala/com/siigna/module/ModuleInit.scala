@@ -222,7 +222,7 @@ class ModuleInit extends Module {
 
       case y => {
         if (ModuleLoader.modulesLoaded == true) {
-          Tooltip.updateTooltip("Right click to open menu, select with mouse or use keyboard shortcuts. Shift to pan.")
+          Tooltip.updateTooltip("Right click to open menu, select with mouse or use keyboard shortcuts. Alt to pan.")
           Start('cad, "create.Input", InputRequest(14, None))
         }
       }
