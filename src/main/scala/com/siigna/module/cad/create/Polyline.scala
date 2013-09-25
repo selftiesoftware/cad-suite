@@ -149,7 +149,7 @@ class Polyline extends Module {
       }
       case x => {
         points = List[Vector2D]()
-        Tooltip.updateTooltip("Polyline tool active")
+        Tooltip.updateTooltip("Polyline tool active. Right click to finish polyline.")
         Start('cad, "create.Input", InputRequest(6,None))
         //Start('cad, "create.Input", 111)
       }
