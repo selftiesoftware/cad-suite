@@ -107,7 +107,7 @@ class Input extends Module {
 
     //Input from keyboard:
       //AngleGizmo
-    case KeyDown(Key.shift, _) :: tail => {
+    case KeyDown(Key.alt, _) :: tail => {
       if (inputType == Some(1) || inputType == Some(2) || inputType == Some(3) || inputType == Some(4) || inputType == Some(5)
         || inputType == Some(6) || inputType == Some(7) || inputType == Some(8) || inputType == Some(9) || inputType == Some(10)
         || inputType == Some(11) || inputType == Some(12) || inputType == Some(15) || inputType == Some(16)) {
