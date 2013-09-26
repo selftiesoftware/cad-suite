@@ -56,7 +56,7 @@ class ModuleInit extends Module {
 
   val header = com.siigna.module.base.PaperHeader
 
-  var tooltip: String = "Right click to open menu"
+  var tooltip: String = "Loading drawing might take time, especially large drawings. Please have patience"
 
   Siigna tooltip(tooltip)
 
