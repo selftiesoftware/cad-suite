@@ -18,7 +18,7 @@ package com.siigna.module.cad.modify
 import com.siigna._
 import app.Siigna
 import com.siigna.module.cad.create._
-import com.siigna.module.ModuleInit
+import module.{Tooltip, ModuleInit}
 
 class Rotate extends Module {
 
@@ -47,24 +47,25 @@ class Rotate extends Module {
           //Request mouse down - it might be a rotation start point, or the start of a rotation angle:
           centerPoint = Some(p)
           Siigna display "click to set rotation start point, or type a rotation angle"
-          val doubleGuide = DoubleGuideNew((d: Double) => {
+          Tooltip.blockUpdate(3500)
+          val doubleGuide = DoubleGuide((d: Double) => {
             Drawing.selection.transformation = origin
             val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
             Drawing.selection.transform(t).shapes.values
           })
-          Start('cad, "create.InputNew", InputRequestNew(15,None,doubleGuide))
+          Start('cad, "create.Input", InputRequest(15,None,doubleGuide))
         } else if (centerPoint.isDefined && firstPoint == true) {
           firstPoint = false
           mouseDownPoint = Some(p)
           //Find out where the mousebutton is released - if it's a start point or an angle that's defined:
-          val vector2DGuide = Vector2DGuideNew((v : Vector2D) => {
+          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
             Drawing.selection.transformation = origin
             val rotateAngle = -((p - centerPoint.get).angle - (v - centerPoint.get).angle)
             val t : TransformationMatrix =
               TransformationMatrix( ).rotate(rotateAngle, centerPoint.get)
             Drawing.selection.transform(t).shapes.values
           })
-          Start('cad, "create.InputNew", InputRequestNew(8,None,vector2DGuide))
+          Start('cad, "create.Input", InputRequest(8,None,vector2DGuide))
           //Where the mouse up is:
         } else if (mouseReleased == true) {
           mouseReleased = false
@@ -77,21 +78,22 @@ class Rotate extends Module {
             startVector = Some(p)
             startVectorSet = true
             Siigna display "click to finish rotation, or type a rotation angle"
-            val doubleGuide = DoubleGuideNew((d: Double) => {
+            Tooltip.blockUpdate(3500)
+            val doubleGuide = DoubleGuide((d: Double) => {
               val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
               Drawing.selection.transformation = origin
               Drawing.selection.transform(t).shapes.values
             })
-            val vector2DGuide = Vector2DGuideNew((v: Vector2D) => {
+            val vector2DGuide = Vector2DGuide((v: Vector2D) => {
               Drawing.selection.transformation = origin
               //Angle of line from reference point to mouse position:
               val d : Double = (-((mousePosition.transform(View.deviceTransformation) - centerPoint.get).angle - (startVector.get - centerPoint.get).angle))
               val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
               Drawing.selection.transform(t).shapes.values
             })
-            val inputRequest = InputRequestNew(15,None,vector2DGuide,doubleGuide)
+            val inputRequest = InputRequest(15,None,vector2DGuide,doubleGuide)
             //9 : Input type = Double from keys, or Vector2D from mouseDown.
-            Start('cad, "create.InputNew", inputRequest)
+            Start('cad, "create.Input", inputRequest)
             //If a rotation-vector is set, do the rotation!
           }
         } else if(startVectorSet == true && centerPoint.isDefined) {
@@ -125,17 +127,18 @@ class Rotate extends Module {
         End
       }
 
-      // Stops an infinite loop between InputNew and Rotate
+      // Stops an infinite loop between Input and Rotate
       case End :: tail =>
 
       case _ => {
-        //Should be done differently, but this is how I can reach this (usableSelectionExists) function just quickly...
-        val l = new ModuleInit
+        Tooltip.updateTooltip("Rotate tool active")
         if (!Drawing.selection.isEmpty) {
           Siigna display "set centre point for rotation"
-          Start('cad, "create.InputNew", InputRequestNew(6,None))
+          Tooltip.blockUpdate(3500)
+          Start('cad, "create.Input", InputRequest(6,None))
         } else {
           Siigna display "Select objects to rotate"
+          Tooltip.blockUpdate(3500)
           Start('cad, "Selection")
         }
       }

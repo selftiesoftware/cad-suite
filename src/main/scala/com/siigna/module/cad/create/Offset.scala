@@ -20,14 +20,17 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
+import app.model.shape.PolylineShape.{PolylineShapeOpen, PolylineShapeClosed}
 import com.siigna.app.model.shape.RectangleShape
+
+import module.Tooltip
 
 class Offset extends Module {
   private var attr = Attributes()
   private var done = false
   private var isClosed = false
-  private val shape = Drawing.selection.shapes.head._2
-  private val isRect = shape.isInstanceOf[RectangleShape]
+  private val shape: Option[Shape] = if (Drawing.selection.isDefined) Some(Drawing.selection.shapes.head._2) else None
+  private val isRect = if(shape.isDefined) shape.get.isInstanceOf[RectangleShape] else false
 
 
   //a function to offset a line segment
@@ -41,35 +44,71 @@ class Offset extends Module {
     val offsetGeom = s.transform(TransformationMatrix(offsetDirection,1))//offset with the current distance
     offsetGeom
   }
-  //a function to generate a PolylineShape from the result of the offsetLines function
-  def generateOffsetLine(s: Any) : PolylineShape = {
-    //check if the shape to offset is closed (closed Polyline of ComplexRectangle)
-    if(shape.geometry.vertices.head == shape.geometry.vertices.last ||isRect) isClosed = true
-    var newLines: Option[List[LineShape]] = None 
-    
-    s match {
-      case v: Vector2D => newLines = Some(offsetLines(shape, v))  //offset the lines by the returned point
-      case d: Double => newLines = Some(offsetLines(shape, d))    //offset the lines by the returned point
-      case _ =>
+  //a function to generate a Shape from the result of the offsetLines function
+  def generateOffsetLine(s: Any) : Option[Shape] = {
+
+    shape.get match {
+      case pso: PolylineShapeOpen => {
+        offsetLinesForLineAndPolylineShapes (s)
+      }
+      case psc: PolylineShapeClosed => {
+        offsetLinesForLineAndPolylineShapes (s)
+      }
+      case ls: LineShape => {
+        offsetLinesForLineAndPolylineShapes (s)
+      }
+      case rs: RectangleShape => {
+        offsetLinesForLineAndPolylineShapes (s)
+      }
+
+      case cs: CircleShape => {
+        s match {
+          case v: Vector2D => {
+            if (cs.center.distanceTo(mousePosition.transform(View.deviceTransformation)) == cs.radius || cs.center.distanceTo(mousePosition.transform(View.deviceTransformation)) == 0) None
+            else Some(CircleShape(cs.center,v))
+          }
+          case d: Double => {
+            if (cs.center.distanceTo(mousePosition.transform(View.deviceTransformation)) > cs.radius) Some(CircleShape(cs.center,cs.radius + d))
+            else if (cs.center.distanceTo(mousePosition.transform(View.deviceTransformation)) < cs.radius && d < cs.radius) Some(CircleShape(cs.center,cs.radius - d))
+            else {
+              Siigna display ("Offset distance inside circle must be less than circle radius")
+              None
+            }
+          }
+          case x => {
+            println("Ununderstandable circle shape: " + x)
+            None
+          }
+        }
+      }
+      case as: ArcShape => {
+        s match {
+          case v: Vector2D => {
+            if (as.center.distanceTo(mousePosition.transform(View.deviceTransformation)) == as.radius || as.center.distanceTo(mousePosition.transform(View.deviceTransformation)) == 0) None
+            else Some(ArcShape(as.center,as.center.distanceTo(mousePosition.transform(View.deviceTransformation)),as.startAngle,as.angle))
+          }
+          case d: Double => {
+            if (as.center.distanceTo(mousePosition.transform(View.deviceTransformation)) > as.radius) Some(ArcShape(as.center,as.radius + d,as.startAngle,as.angle))
+            else if (as.center.distanceTo(mousePosition.transform(View.deviceTransformation)) < as.radius && d < as.radius) Some(ArcShape(as.center,as.radius - d,as.startAngle,as.angle))
+            else {
+              Siigna display ("Offset distance inside arc must be less than arc radius")
+              None
+            }
+          }
+          case x => {
+            println("Ununderstandable arc shape: " + x)
+            None
+          }
+        }
+      }
+
+      case x => {
+        println("Shape not caught: " + x)
+        None
+      }
     }
-
-    var knots = List[Vector2D]()
-    knots = knots :+ newLines.get.head.p1 //add the first point to the list
-
-    getKnots(newLines.get).foreach(s => knots = knots :+ s) //add the intersections to the knots list
-
-    knots = knots :+ newLines.get.reverse.head.p2 //add the last point to the list
-
-    //if the polyline is closed, calculate the offset of the closing point and add it to the start and end of the list
-    if(isClosed == true) {
-      val closedPt = getClosedOffsetPoint(newLines.get)
-      knots = knots.tail.take(knots.size - 2) //remove the first and last element
-      knots = knots :+ closedPt //prepend the closed offset point to the list
-      knots = knots.reverse :+ closedPt //append the closed offset point to the list
-      knots = knots.reverse
-    }
-    PolylineShape(knots)
   }
+
 
   //returns the intersecting points of a series of line segments.
   def getKnots(l : List[LineShape]) = {
@@ -91,7 +130,47 @@ class Offset extends Module {
     val p = segment1.intersections(segment2)
     p.head
   }
-  
+
+  def offsetLinesForLineAndPolylineShapes(s: Any): Option[Shape] = {
+    //check if the shape to offset is closed (closed Polyline of ComplexRectangle)
+    if(shape.get.geometry.vertices.head == shape.get.geometry.vertices.last ||isRect) isClosed = true
+    var newLines: Option[List[LineShape]] = None
+
+    s match {
+      case v: Vector2D => newLines = Some(offsetLines(shape.get, v))  //offset the lines by the returned point
+      case d: Double => newLines = Some(offsetLines(shape.get, d))    //offset the lines by the returned point
+      case _ =>
+    }
+
+    var knots = List[Vector2D]()
+    knots = knots :+ newLines.get.head.p1 //add the first point to the list
+
+    getKnots(newLines.get).foreach(s => knots = knots :+ s) //add the intersections to the knots list
+
+    knots = knots :+ newLines.get.reverse.head.p2 //add the last point to the list
+
+    //if the polyline is closed, calculate the offset of the closing point and add it to the start and end of the list
+    if(isClosed == true) {
+      val closedPt = getClosedOffsetPoint(newLines.get)
+      knots = knots.tail.take(knots.size - 2) //remove the first and last element
+      knots = knots :+ closedPt //prepend the closed offset point to the list
+      knots = knots.reverse :+ closedPt //append the closed offset point to the list
+      knots = knots.reverse
+    }
+
+    shape.get match {
+      case s: PolylineShape => Some(PolylineShape(knots))
+      case s: LineShape => Some(LineShape(knots(0), knots(1)))
+      case s: RectangleShape => {
+        Some(RectangleShape(knots(0), knots(2)))
+      }
+      case x => {
+        println("Shape type not recognised in Offset: " + x )
+        None
+      }
+    }
+  }
+
   //calculate on which side of a given line segment the offset should be.
   def offsetSide (s: LineShape, m : Vector2D) : Boolean = {
     val angleRaw = ((s.p2-s.p1).angle * -1) + 450
@@ -149,8 +228,10 @@ class Offset extends Module {
 
   def offsetLines(s : Shape, d : Double) = {
     var l = List[LineShape]()
-    val v = s.geometry.vertices
+    var v = s.geometry.vertices
     val m = mousePosition.transform(View.deviceTransformation)
+    //add a vertex if the shape is a ComplexRect
+    if(isRect) v = v :+ v(0)
     //iterate through the shapes to find the shape closest to the mouse
     def calcNearest : Double = {
       var nearestDist : Double = LineShape(v(0), v(1)).distanceTo(m)
@@ -175,11 +256,13 @@ class Offset extends Module {
   }
 
   //guides to get Point to draw the shape(s) dynamically
-  val doubleGuide: DoubleGuideNew = DoubleGuideNew((s : Double) => {
-    Array(generateOffsetLine(s).addAttributes(attr))//run a function to generate the offset shape dynamically
+  val doubleGuide: DoubleGuide = DoubleGuide((s : Double) => {
+    if (generateOffsetLine(s).isDefined) Traversable(generateOffsetLine(s).get.addAttributes(attr))//run a function to generate the offset shape dynamically
+    else Drawing.selection.shapes.values
   })
-  val vector2DGuide: Vector2DGuideNew = Vector2DGuideNew((v : Vector2D) => {
-    Array(generateOffsetLine(v).addAttributes(attr))//run a function to generate the offset shape dynamically
+  val vector2DGuide: Vector2DGuide = Vector2DGuide((v : Vector2D) => {
+    if (generateOffsetLine(v).isDefined)Traversable(generateOffsetLine(v).get.addAttributes(attr))//run a function to generate the offset shape dynamically
+    else Drawing.selection.shapes.values
   })
 
   //Select shapes
@@ -188,14 +271,13 @@ class Offset extends Module {
   'Start -> {
     case End(p : Vector2D) :: tail => {
       done = true
-      Create(generateOffsetLine(p).addAttributes(attr))//create a polylineShape from the offset knots:
+      if (generateOffsetLine(p).isDefined) Create(generateOffsetLine(p).get.addAttributes(attr))//create a polylineShape from the offset knots:
       End
     }
 
     case End(d : Double) :: tail => {
-
       done = true
-      Create(generateOffsetLine(d).addAttributes(attr))//create a polylineShape from the offset knots:
+      if (generateOffsetLine(d).isDefined) Create(generateOffsetLine(d).get.addAttributes(attr))//create a polylineShape from the offset knots:
       End
     }
 
@@ -209,21 +291,22 @@ class Offset extends Module {
 
     case _ => {
       if (Drawing.selection.isDefined == false && done == false) {
+        Tooltip.updateTooltip("Offset tool active")
         Siigna display "select an object to offset"
+        Tooltip.blockUpdate(3500)
         Start('cad, "Selection")
       }
       else if (Drawing.selection.size == 1 ){
         attr = Drawing.selection.shapes.head._2.attributes
+        Tooltip.updateTooltip("Offset tool active")
         Siigna display "click to set the offset distance, or type offset distance"
-        //val inputRequest = InputRequest(Some(vector2DGuide), Some(doubleGuide), None, None, None, None, None, None, None, Some(13))
-        // 13: MouseDown or typed length
-        //Start('cad, "create.Input", inputRequest)
-
-        val inputRequest = InputRequestNew(9,None,vector2DGuide, doubleGuide)
-        Start('cad,"create.InputNew", inputRequest)
+        Tooltip.blockUpdate(3500)
+        val inputRequest = InputRequest(9,None,vector2DGuide, doubleGuide)
+        Start('cad,"create.Input", inputRequest)
       } else if (done) End
       else {
         Siigna display "please select one shape to offset"
+        Tooltip.blockUpdate(3500)
         Drawing.deselect()
         End
       }

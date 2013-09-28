@@ -23,7 +23,7 @@ import base.{PaperHeader, Menu}
 import com.siigna.module.cad.radialmenu.category.{ModifyCategory, StartCategory}
 import com.siigna._
 import com.siigna.app.model.selection.EmptySelection
-import module.cad.create.InputRequestNew
+import module.cad.create.InputRequest
 
 /**
  * An init module for the cad-suite.
@@ -55,6 +55,10 @@ class ModuleInit extends Module {
   Menu.startCategory = StartCategory
 
   val header = com.siigna.module.base.PaperHeader
+
+  var tooltip: String = "Loading drawing might take time, especially large drawings. Please have patience"
+
+  Siigna tooltip(tooltip)
 
   protected var lastModule: Option[Module] = None
 
@@ -105,6 +109,7 @@ class ModuleInit extends Module {
     }
   }
 
+
   def handleKeyDown(code: Int, modifier: ModifierKeys) = {
     // Special keys:
     //Delete:
@@ -142,7 +147,6 @@ class ModuleInit extends Module {
         if (shortcutKey == 'a') shortcutProcess("a", "create.Arc", 'cad)
         else if (shortcutKey == 'c') shortcutProcess("c", "create.Circle", 'cad)
         else if (shortcutKey == 'd') shortcutProcess("d", "create.Lineardim", 'cad)
-        else if (shortcutKey == 'e') shortcutProcess("e", "create.Explode", 'cad)
         else if (shortcutKey == 'l') shortcutProcess("l", "create.Line", 'cad)
         else if (shortcutKey == 'o') shortcutProcess("o", "create.Offset", 'cad)
         else if (shortcutKey == 'p') shortcutProcess("p", "create.Polyline", 'cad)
@@ -158,6 +162,7 @@ class ModuleInit extends Module {
         else if (shortcutKey == 'r') shortcutProcess("r", "modify.Rotate", 'cad)
         else if (shortcutKey == 's') shortcutProcess("s", "modify.Scale", 'cad)
         else if (shortcutKey == 't') shortcutProcess("t", "modify.Trim", 'cad)
+        else if (shortcutKey == 'e') shortcutProcess("e", "modify.Explode", 'cad)
       } else if (shortcut == "p") {
         if (shortcutKey == 'c') shortcutProcess("c", "properties.Colors", 'cad)
         else if (shortcutKey == 's') shortcutProcess("s", "properties.Stroke", 'cad)
@@ -170,43 +175,56 @@ class ModuleInit extends Module {
     'Start -> {
 
       // Match for modules to forward to
-      case End(module: Module) :: tail => {
+      case End(module: Module) :: tail
+        if (ModuleLoader.modulesLoaded == true) => {
         lastModule = Some(module) // Store it as a last module
         Start(module) // Forward
       }
 
       // Menu
-      case MouseDown(p, MouseButtonRight, modifier) :: tail => startMenu
-      case End(MouseDown(p, MouseButtonRight, modifier)) :: tail => startMenu
+      case MouseDown(p, MouseButtonRight, modifier) :: tail
+        if (ModuleLoader.modulesLoaded == true) => {
+        Tooltip.updateTooltip("Select tool")
+        startMenu
+      }
+      case End(MouseDown(p, MouseButtonRight, modifier)) :: tail => {
+        Tooltip.updateTooltip("Select tool")
+        startMenu
+      }
 
       // Selection
       case End(p: Vector2D) :: tail => {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         Start('cad, "Selection", p)
       }
-      case MouseDown(p: Vector2D, _, _) :: tail => {
+      case MouseDown(p: Vector2D, _, _) :: tail
+        if (ModuleLoader.modulesLoaded == true) => {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         Start('cad, "Selection", p)
       }
-      case MouseDrag(p: Vector2D, MouseButtonLeft, m1) :: tail => {
+      case MouseDrag(p: Vector2D, MouseButtonLeft, m1) :: tail
+        if (ModuleLoader.modulesLoaded == true) => {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         Start('cad, "Selection", MouseDrag(p,MouseButtonLeft,m1))
       }
 
       // Start previous
-      case KeyDown(Key.Space, _) :: tail => startPrevious
+      case KeyDown(Key.Space, _) :: tail
+        if (ModuleLoader.modulesLoaded == true) => startPrevious
       case End(KeyDown(Key.Space, _)) :: tail => startPrevious
 
-      case KeyDown(code: Int, modifier: ModifierKeys) :: tail => handleKeyDown(code, modifier)
+      case KeyDown(code: Int, modifier: ModifierKeys) :: tail
+        if (ModuleLoader.modulesLoaded == true) => handleKeyDown(code, modifier)
       case End(KeyDown(code: Int, modifier: ModifierKeys)) :: tail => handleKeyDown(code, modifier)
 
-      // When the modules are loaded, the eventstream is shaped so that the InputRequest is not sent in the correct
-      // place in the event stream, and the Input-module might return end without any return input. If this is caught
-      // by case _ and it forwards to in
-      case End :: tail =>
+        //If the ending module sent a message (fx. measure distance; lines exploded, of whatever, don't overwrite it...
+      case End :: tail => if(Tooltip.lastUpdate +500 > System.currentTimeMillis()) Tooltip.blockUpdate(3500)
 
       case y => {
-        Start('cad, "create.InputNew", InputRequestNew(14, None))
+        if (ModuleLoader.modulesLoaded == true) {
+          Tooltip.updateTooltip("Right click to open menu, select with mouse or use keyboard shortcuts. Alt to pan.")
+          Start('cad, "create.Input", InputRequest(14, None))
+        }
       }
     }
   )
@@ -228,5 +246,37 @@ class ModuleInit extends Module {
 
     activeSelection.parts.foreach(s => g draw s.setAttributes(selectionAttributes).transform(t))
     activeSelectionVertices.foreach(v => g draw v.transform(t))
+  }
+}
+
+object Tooltip {
+  var tooltip: String = "Welcome to Siigna"
+  private var baseTime: Long = System.currentTimeMillis()
+  private var delay : Int = 0
+  private var block : Int = 0
+  var lastUpdate: Long = System.currentTimeMillis()
+
+  Siigna tooltip(tooltip)
+
+  def blockUpdate(milliseconds: Int) {
+    block = milliseconds
+    baseTime = System.currentTimeMillis()
+  }
+
+  def refresh() {
+    if (System.currentTimeMillis() > baseTime + block) {
+      Siigna tooltip(tooltip)
+    }
+  }
+
+  def updateTooltip(string: String) {
+    tooltip = string
+    while (System.currentTimeMillis() < baseTime + delay) {
+      println("Waiting for message to be displayed before updating tooltip")
+    }
+    if (System.currentTimeMillis() > baseTime + block) {
+      lastUpdate = System.currentTimeMillis()
+      Siigna tooltip(tooltip)
+    }
   }
 }

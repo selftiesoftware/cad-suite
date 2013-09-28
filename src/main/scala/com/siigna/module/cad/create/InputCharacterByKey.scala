@@ -26,12 +26,12 @@ import com.siigna._
  * Used by modules that need eg. an X and Y coordinate to define a point.
  */
 
-class InputCharacter extends Module {
+class InputCharacterByKey extends Module {
 
   private var text : String = ""  //input string
 
   //Information received from calling module
-  var inputRequest: Option[InputRequestNew] = None
+  var inputRequest: Option[InputRequest] = None
   var inputType: Option[Int] = None
   var guides: Seq[Guide] = Seq()
   var referencePoint: Option[Vector2D] = None
@@ -40,9 +40,12 @@ class InputCharacter extends Module {
   val stateMap: StateMap = Map(
 
     'Start -> {
-      case MouseDown(p,MouseButtonRight,modifier) :: tail => End(MouseDown(p,MouseButtonRight,modifier))
 
-      case Start(_ ,i: InputRequestNew) :: KeyDown(code, modifier) :: tail => {
+      //exit mechanisms
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => End
+      case KeyDown(Key.escape,modifier) :: tail => End
+
+      case Start(_ ,i: InputRequest) :: KeyDown(code, modifier) :: tail => {
         inputRequest = Some(i)
         inputType = Some(i.inputType)
         guides = i.guides
@@ -63,7 +66,7 @@ class InputCharacter extends Module {
       }
 
       case _ => {
-        println("Stuck in InputChar")
+        End
       }
     })
 

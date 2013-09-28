@@ -22,7 +22,7 @@ package com.siigna.module.cad.modify
 import com.siigna.module.{ModuleInit, Module}
 import com.siigna._
 import com.siigna.util.event.{End, MouseDown, KeyDown}
-import com.siigna.module.cad.create.{DoubleGuideNew, InputRequestNew, Vector2DGuideNew}
+import com.siigna.module.cad.create.{DoubleGuide, InputRequest, Vector2DGuide}
 
 class Mirror extends Module {
 
@@ -47,7 +47,7 @@ class Mirror extends Module {
 
       }
       //look for the first point on the mirror line
-      case _ => Start('cad, "create.InputNew", InputRequestNew(6,None))
+      case _ => Start('cad, "create.Input", InputRequest(6,None))
 
 
     },

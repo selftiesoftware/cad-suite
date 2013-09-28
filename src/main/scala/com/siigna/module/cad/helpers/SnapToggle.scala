@@ -20,6 +20,7 @@
 package com.siigna.module.cad.helpers
 
 import com.siigna._
+import module.Tooltip
 
 /**
  * Toggles snap on-off
@@ -38,6 +39,7 @@ class SnapToggle extends Module {
           case _ => "off"
         }
         Siigna display "Snap is " + value
+        Tooltip.blockUpdate(3500)
         End
       }
     }

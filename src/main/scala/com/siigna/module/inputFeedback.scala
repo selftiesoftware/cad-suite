@@ -65,7 +65,7 @@ class inputFeedback {
         if (category == Some("create")) command = Some("circle")
         else {
           category = Some("create")
-          suggestions = List ("A - arc", "C - circle", "D - linear dimension","E - explode","L - line","P - polyline","O - offset","R - rectangle", "T - text")
+          suggestions = List ("A - arc", "C - circle", "D - linear dimension","L - line","P - polyline","O - offset","R - rectangle", "T - text")
         }
       }
       case "h" => {
@@ -77,7 +77,7 @@ class inputFeedback {
         if (category == Some("modify")) command = Some("move")
         else {
           category = Some("modify")
-          suggestions = List ("M - move", "R - rotate", "S - scale", "T - trim")
+          suggestions = List ("E - explode", "M - move", "R - rotate", "S - scale", "T - trim")
         }
       }
       case "p" => {

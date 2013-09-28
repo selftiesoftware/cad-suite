@@ -21,6 +21,7 @@ package com.siigna.module.cad.create
 
 import com.siigna._
 import com.siigna.app.Siigna
+import module.Tooltip
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,7 +31,7 @@ import com.siigna.app.Siigna
  * To change this template use File | Settings | File Templates.
  */
 
-class InputValuesByKey extends Module {
+class InputDualValuesByKey extends Module {
 
   private var coordinateX : Option[Double] = None   //text input for X values
   private var coordinateY : Option[Double] = None   //text input for Y values
@@ -87,7 +88,7 @@ class InputValuesByKey extends Module {
   }
 
   //Information received from calling module
-  var inputRequest: Option[InputRequestNew] = None
+  var inputRequest: Option[InputRequest] = None
   var inputType: Option[Int] = None
   var guides: Seq[Guide] = Seq()
   var referencePoint: Option[Vector2D] = None
@@ -95,11 +96,9 @@ class InputValuesByKey extends Module {
   var vector2DGuide: Option[Vector2DGuide] = None
   var doubleGuide: Option[DoubleGuide] = None
   var textGuide: Option[TextGuide] = None
-  var vector2DMessageGuide: Option[Vector2DMessageGuide] = None
-  var doubleMessageGuide: Option[DoubleMessageGuide] = None
-  var textMessageGuide: Option[TextMessageGuide] = None
-
   var referenceDouble: Option[Double] = None
+
+  var tooltipAtStart : String = ""
 
   var startPoint : Option[Vector2D] = None
 
@@ -126,7 +125,9 @@ class InputValuesByKey extends Module {
       case MouseDown(p,MouseButtonRight,modifier) :: tail => End(MouseDown(p,MouseButtonRight,modifier))
 
       //Read numbers and minus, "," and enter as first entry, after drawing of guide, if a guide is provided:
-      case Start(_ ,i: InputRequestNew) :: KeyDown(code, _) :: tail => {
+      case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
+          tooltipAtStart = Tooltip.tooltip
+          Tooltip.updateTooltip("Insert x- any y-coordinates")
           inputRequest = Some(i)
           inputType = Some(i.inputType)
           guides = i.guides
@@ -136,9 +137,7 @@ class InputValuesByKey extends Module {
           if (code.toChar.isDigit) coordinateValue += code.toChar
           if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
           //if a comma or enter is the first thing entered, it is interpreted as zero:
-          if ((code.toChar.toString == "," || code == Key.enter) && coordinateValue.length() == 0) {
-            coordinateX = Some(0.0)
-          }
+          if ((code.toChar.toString == "," || code == Key.enter) && coordinateValue.length() == 0) coordinateX = Some(0.0)
           Siigna display message(coordinateValue, coordinateX, coordinateY)
           'ReceiveUserInput
         }
@@ -149,15 +148,23 @@ class InputValuesByKey extends Module {
 
     'ReceiveUserInput -> {
 
+      //exit mechanisms
+      case KeyDown(Key.escape,modifier) :: tail => {
+        Tooltip.updateTooltip(tooltipAtStart)
+        End
+      }
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => {
+        Tooltip.updateTooltip(tooltipAtStart)
+        End
+      }
+
       //Read numbers and minus, "," and enter as first entry if no guide is provided:
       case Start(_,_) :: KeyDown(code, _) :: tail => {
         //save the already typed key:
         if (code.toChar.isDigit) coordinateValue += code.toChar
         if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
         //if a comma or enter is the first thing entered, it is interpreted as zero:
-        if ((code.toChar.toString == "," || code == Key.enter) && coordinateValue.length() == 0) {
-          coordinateX = Some(0.0)
-        }
+        if ((code.toChar.toString == "," || code == Key.enter) && coordinateValue.length() == 0) coordinateX = Some(0.0)
         Siigna display message(coordinateValue, coordinateX, coordinateY)
       }
 
@@ -185,6 +192,7 @@ class InputValuesByKey extends Module {
           } else coordinateY = Some(0.0)
           Siigna display message(coordinateValue, coordinateX, coordinateY)
           //if a full set of coordinates are present, return them to the calling module.
+          Tooltip.updateTooltip(tooltipAtStart)
           End(Vector2D(x,y))
         }
       }
@@ -202,6 +210,7 @@ class InputValuesByKey extends Module {
           Siigna display message(coordinateValue, coordinateX, coordinateY)
           //If there is no active string, and also no active coordinate, the module ends:
         } else if (coordinateValue.length == 0 && coordinateX.isEmpty) {
+          Tooltip.updateTooltip(tooltipAtStart)
           End("no point returned")
         }
 
@@ -209,8 +218,6 @@ class InputValuesByKey extends Module {
       }
       //if point returns a keyDown - that is not previously intercepted
       case KeyDown(code, modifier) :: tail => {
-        if (code == Key.escape)
-          End(KeyDown(code,modifier))
         //get the input from the keyboard if it is numbers, (-) or (.)
         val char = code.toChar
         if (char.isDigit)
@@ -223,8 +230,14 @@ class InputValuesByKey extends Module {
         //Display the message
         Siigna display message(coordinateValue, coordinateX, coordinateY)
       }
-      case _ => {
 
+
+      case x => {
+
+        if (coordinateX.isEmpty && coordinateValue.length() == 0) {
+          Tooltip.updateTooltip(tooltipAtStart)
+          End
+        }
       }
     })
 
@@ -232,11 +245,11 @@ class InputValuesByKey extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
 
     guides.foreach(_ match {
-      case Vector2DGuideNew(guide) => {
+      case Vector2DGuide(guide) => {
         guide(Vector2D(referencePoint.get.x + x,referencePoint.get.y + y)).foreach(s => g.draw(s.transform(t)))
       }
       //An extra guide: A Hack, to be able to draw a guide when inputting Vector2D by keys, but not when inputting by mouse
-      case Vector2DGuideKeysNew(guide) => {
+      case Vector2DGuideKeys(guide) => {
         guide(Vector2D(referencePoint.get.x + x,referencePoint.get.y + y)).foreach(s => g.draw(s.transform(t)))
       }
       case _ => // No known guide

@@ -51,7 +51,7 @@ class Selection extends Module {
   def nearestShape : Option[(Int, Shape)] = {
     val drawing = Drawing(m)
     if (!drawing.isEmpty) {
-      Some(drawing.reduceLeft((a, b) => if (a._2.distanceTo(m) < a._2.distanceTo(m)) a else b))
+      Some(drawing.reduceLeft((a, b) => if (a._2.distanceTo(m) < b._2.distanceTo(m)) a else b))
     } else None
   }
 
@@ -74,8 +74,8 @@ class Selection extends Module {
     //Mouse up, after mouse down - possible double click:
     case MouseUp(p1, _, m1) :: Start(_ , p2: Vector2D) :: MouseDown(p3,MouseButtonLeft,m3) :: MouseUp(p4, _, m4) :: MouseDown(p5,MouseButtonLeft,m5) :: tail
       if (p1 == p5) => {
-      if(!m1.shift) {
-        //If shift is not down, and clicking away from shape: Deselect any selections.
+      if(!m1.ctrl) {
+        //If control is not down, and clicking away from shape: Deselect any selections.
         if (!shapeWithinSelectionDistance) Deselect()
         //If clicking near shapes, and on the same point as last mouse up: Select whole shape (Doubleclick)
         //TOTO: Insert time factor
@@ -86,7 +86,7 @@ class Selection extends Module {
           End
         }
       } else {
-        //If shift is down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
+        //If control is down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
         val (id, shape) = nearestShape.get
         SelectToggle(id)
         End
@@ -97,20 +97,20 @@ class Selection extends Module {
     //If started with a Vector2D: It's a MouseDown  .
     //If no event has been received since last mouse up, there is no End in the eventstream
     case Start(_ , p1: Vector2D) :: MouseDown(p2,MouseButtonLeft,m2) :: tail => {
-      //If near shape part: Toggle, if shift is down, select if shift is not down
+      //If near shape part: Toggle, if control is down, select if control is not down
       //If not near shape part: Do nothing (before the mouse button is released again)
       if (shapeWithinSelectionDistance) {
         val (id, shape) = nearestShape.get
         val selector = shape.getSelector(m)
-        //If shift is down, toggle selection of nearest shape part (RESTORE THIS WHEN SHIFT REPEAT IS GOne froM EVENTSTREAM):
-        //if (m2.shift) SelectToggle(id,selector)
-        //If shift is down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
-        //This is for using single click + shift as doubleclick, since shift repeats and corrupts eventstream, and doesnt work for now...
-        if (m2.shift) {
+        //If control is down, toggle selection of nearest shape part (RESTORE THIS WHEN control REPEAT IS GOne froM EVENTSTREAM):
+        //if (m2.control) SelectToggle(id,selector)
+        //If control is down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
+        //This is for using single click + control as doubleclick, since control repeats and corrupts eventstream, and doesnt work for now...
+        if (m2.ctrl) {
           SelectToggle(id)
           End
         }
-        //If shift is not down, deselect anything that might be selected, and select nearest shape part:
+        //If control is not down, deselect anything that might be selected, and select nearest shape part:
         else {
           //If the nearest shape is fully selected, or a click would select the same shape-part,
           // a later drag is intented to move the current selection:
@@ -124,22 +124,22 @@ class Selection extends Module {
           Deselect()
           Select(id,selector)
         }
-      } else if (!m2.shift) Deselect()
+      } else if (!m2.ctrl) Deselect()
     }
 
     //If started with a Vector2D: It's a MouseDown
     //If last event was not a mouse up (on the same spot, otherwise there had been a move event), there is an extra "End"... Otherwise the same as above.
     case Start(_ , p1: Vector2D) :: End(_) :: MouseDown(p2,MouseButtonLeft,m2) :: tail => {
       if (shapeWithinSelectionDistance) {
-        //If near shape part: Toggle, if shift is down, select if shift is not down
+        //If near shape part: Toggle, if control is down, select if control is not down
         //If not near shape part: Do nothing (before the mouse button is released again)
           val (id, shape) = nearestShape.get
           val selector = shape.getSelector(m)
-          //If shift is down, toggle selection of nearest shape part:
-          if (m2.shift) {
+          //If control is down, toggle selection of nearest shape part:
+          if (m2.ctrl) {
             SelectToggle(id,selector)
           }
-          //If shift is not down, deselect anything that might be selected, and select nearest shape part:
+          //If control is not down, deselect anything that might be selected, and select nearest shape part:
           else {
             //If the nearest shape is fully selected, or a click would select the same shape-part,
             // a later drag is intented to move the current selection:
@@ -153,43 +153,43 @@ class Selection extends Module {
             Deselect()
             Select(id,selector)
           }
-      } else if (!m2.shift) Deselect()
+      } else if (!m2.ctrl) Deselect()
     }
 
     //If started without a point, catch mouse down:
     case MouseDown(p1,MouseButtonLeft,m1) :: tail => {
       if (shapeWithinSelectionDistance) {
-        //If near shape part: Toggle, if shift is down, select if shift is not down
+        //If near shape part: Toggle, if control is down, select if control is not down
         //If not near shape part: Do nothing (before the mouse button is released again)
         if (nearestShape.isDefined) {
           val (id, shape) = nearestShape.get
           val selector = shape.getSelector(m)
-          //If shift is down, toggle selection of nearest shape part (RESTORE THIS WHEN SHIFT REPEAT IS GOne froM EVENTSTREAM):
-          //if (m2.shift) SelectToggle(id,selector)
-          //If shift is down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
-          //This is for using single click + shift as doubleclick, since shift repeats and corrupts eventstream, and doesnt work for now...
-          if (m1.shift) {
+          //If contol is down, toggle selection of nearest shape part (RESTORE THIS WHEN contol REPEAT IS GOne froM EVENTSTREAM):
+          //if (m2.contol) SelectToggle(id,selector)
+          //If contol is down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
+          //This is for using single click + contol as doubleclick, since contol repeats and corrupts eventstream, and doesnt work for now...
+          if (m1.ctrl) {
             SelectToggle(id)
             End}
-          //If shift is not down, deselect anything that might be selected, and select nearest shape part:
+          //If contol is not down, deselect anything that might be selected, and select nearest shape part:
           else {
             Deselect()
             Select(id,selector)
           }
         }
-      } else if (!m1.shift) Deselect()
+      } else if (!m1.ctrl) Deselect()
     }
 
     //Click, then drag:
     case MouseDrag(p1,MouseButtonLeft,m1) :: tail
-      //Shift down: Box selUect, toggle:
-      if (m1.shift) => {
+      //contol down: Box selUect, toggle:
+      if (m1.ctrl) => {
         startPoint = Some(p1)
         'Box
       }
     case MouseDrag(p1,MouseButtonLeft,m1) :: tail
-      //Shift up: Drag move if near shape, box select if not near shape:
-      if (!m1.shift) => {
+      //Control up: Drag move if near shape, box select if not near shape:
+      if (!m1.ctrl) => {
       if (shapeWithinSelectionDistance) {
         if (originalSelector.isDefined) {
           Deselect()
@@ -236,7 +236,7 @@ class Selection extends Module {
             Some(drawing.reduceLeft((a, b) => if (a._2.distanceTo(m) < a._2.distanceTo(m)) a else b))
           } else None
         }
-        //If shift is down, toggle shape within selection distance
+        //If contol is down, toggle shape within selection distance
           val nearestShape : Option[(Int, Shape)] = if (Drawing.selection.isDefined) {
             val x = Drawing.selection.reduceLeft((a, b) => if (a._2._1.distanceTo(m) < a._2._1.distanceTo(m)) a else b)
             x._2._1.getSelector(m) match {
@@ -244,7 +244,7 @@ class Selection extends Module {
               case _ => Some(x._1 -> x._2._1)
             }
           } else drawingShape
-          if (modifier1 == Key.Shift) {
+          if (modifier1 == Key.Ctrl) {
             //Toggles selection if there is a neaarest shape.
             nearestShape.map(t => SelectToggle(t._1)).getOrElse(Unit)
           } else {
@@ -266,8 +266,8 @@ class Selection extends Module {
         SelectionTime.firstClick = true
       } else SelectionTime.firstClick = false
       val m = mousePosition.transform(View.deviceTransformation)
-      // If shift is not pressed we should deselect
-      if (!modifier.shift) {
+      // If control is not pressed we should deselect
+      if (!modifier.ctrl) {
         // A lazy value for finding the closes shape in the drawing - might not be used
         lazy val drawingShape : Option[(Int, Shape)] = {
           val drawing = Drawing(m)
@@ -295,12 +295,12 @@ class Selection extends Module {
             case Some((x, y)) if y == selector && y != FullShapeSelector => Select(id)
             // If the old selector differs we simply select the new selection
             case _ if shape.distanceTo(m) < Siigna.selectionDistance => {
-              Deselect() // Deselect the current selection since shift is up
+              Deselect() // Deselect the current selection since control is up
               Select(id, selector)
             }
-            case _ => Deselect() // Deselect the current selection since shift is up
+            case _ => Deselect() // Deselect the current selection since control is up
           }
-        } else Deselect() // Deselect the current selection since shift is up
+        } else Deselect() // Deselect the current selection since control is up
       } else {
         // Select the area
         SelectToggle(m)
@@ -316,7 +316,7 @@ class Selection extends Module {
       activeSelection = Selection(shapes.map(t => t._1 -> (t._2 -> t._2.getSelector(point))))
     }
 
-    // Forward to Move if we start to drag and a selection is active and shift is not down
+    // Forward to Move if we start to drag and a selection is active and control is not down
     case MouseDrag(_, _, mod) :: Start(_, _) :: End(_) :: MouseDown(p, _, _) :: tail => {
       println("caseMouseDrag")
       val mouse = p.transform(View.deviceTransformation)
@@ -340,8 +340,8 @@ class Selection extends Module {
       }                 */
 
 
-    // Do nothing if shift is pressed, since it repeats when held down - ignore that...
-    case KeyDown(Key.Shift, _) :: tail =>
+    // Do nothing if control is pressed, since it repeats when held down - ignore that...
+    case KeyDown(Key.Control, _) :: tail =>
 
     //Do not exit when starting without point:
     case Start(_, _) :: tail =>
@@ -364,8 +364,8 @@ class Selection extends Module {
 
 
 
-    // Do nothing if shift is pressed
-    case KeyDown(Key.Shift, _) :: tail =>
+    // Do nothing if control is pressed
+    case KeyDown(Key.Control, _) :: tail =>
 
     case MouseDrag(p, _, _) :: tail => {
 
@@ -380,8 +380,8 @@ class Selection extends Module {
 
     case MouseUp(p, _, keys) :: tail => {
       if (box.isDefined) {
-        // Toggle the selection if shift is pressed
-        if (keys == Shift) {
+        // Toggle the selection if control is pressed
+        if (keys == Control) {
           SelectToggle(box.get.transform(View.deviceTransformation), isEnclosed)
         } else {
           Drawing.deselect()

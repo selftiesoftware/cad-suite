@@ -46,7 +46,7 @@ class AngleGizmo extends Module {
   private var anglePointJustSet = false
 
 
-  var inputRequest: Option[InputRequestNew] = None
+  var inputRequest: Option[InputRequest] = None
   var inputType: Option[Int] = None
   var guides: Seq[Guide] = Seq()
   var referencePoint: Option[Vector2D] = None
@@ -75,17 +75,17 @@ class AngleGizmo extends Module {
       case KeyDown(Key.Esc, _) :: tail => End
 
       //Check for input request:
-      case Start(_ , i: InputRequestNew) :: tail => {
+      case Start(_ , i: InputRequest) :: tail => {
         inputRequest = Some(i)
         inputType = Some(i.inputType)
         guides = i.guides
         referencePoint = i.referencePoint
 
         //Adds a Vector2D line guide to the input request, so the line can be drawn,
-        val lineGuide : Vector2DGuideNew = Vector2DGuideNew((v: Vector2D) => Traversable(LineShape(referencePoint.get, v).addAttribute(cyan)))
+        val lineGuide : Vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(LineShape(referencePoint.get, v).addAttribute(cyan)))
         guides = inputRequest.get.guides.:+(lineGuide)
         //val newGuides : Seq[Guide] = inputRequest.get.guides.:+(lineGuide)
-        inputRequest = Some(InputRequestNew(inputRequest.get.inputType, inputRequest.get.referencePoint, guides:_*))
+        inputRequest = Some(InputRequest(inputRequest.get.inputType, inputRequest.get.referencePoint, guides:_*))
         //inputRequest = Some(InputRequestNew(inputRequest.get.inputType, inputRequest.get.referencePoint, newGuides:_*))
         //guides = inputRequest.get.guides
 
@@ -150,9 +150,9 @@ class AngleGizmo extends Module {
 
         //A DoubleGuide for a line is sent to InputOneValue, to draw a guide for the segment being drawn:
 
-        var newGuides: Seq[DoubleGuideNew] = if (!anglePointIsSet) {
+        var newGuides: Seq[DoubleGuide] = if (!anglePointIsSet) {
           //If it is the angle being set, first a cyan line from the centre of the angle gizmo:
-          Seq(DoubleGuideNew((d: Double) => {
+          Seq(DoubleGuide((d: Double) => {
             //eventParser.snapTo(AngleSnap(referencePoint.get,d))
 
             //Traversable(LineShape(referencePoint.get, mousePosition.transform(View.deviceTransformation)))
@@ -168,18 +168,18 @@ class AngleGizmo extends Module {
         } else {
           //If it is the distance, use a supplied vector2D-guide, if one is provided:
           guides.collect ({
-            case Vector2DGuideNew(g) => DoubleGuideNew((d: Double) => g(lengthVector(d)))
+            case Vector2DGuide(g) => DoubleGuide((d: Double) => g(lengthVector(d)))
           })
         }
         //If there is no vector2D-guide, just use a line:
-        if(newGuides.length == 0) newGuides = Seq(DoubleGuideNew((d: Double) => Traversable(LineShape(referencePoint.get, referencePoint.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).addAttribute(cyan))))
+        if(newGuides.length == 0) newGuides = Seq(DoubleGuide((d: Double) => Traversable(LineShape(referencePoint.get, referencePoint.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).addAttribute(cyan))))
 
         // Create the new guides and input request
         //val newGuides : Seq[Guide] = inputRequest.get.guides.:+guide)
-        val request: InputRequestNew = InputRequestNew(inputRequest.get.inputType, inputRequest.get.referencePoint, newGuides:_*)
+        val request: InputRequest = InputRequest(inputRequest.get.inputType, inputRequest.get.referencePoint, newGuides:_*)
 
         // Forward to InputOneVAlue
-        Start('cad,"create.InputOneValueByKey", request)
+        Start('cad,"create.InputSingleValueByKey", request)
       }
 
       case End(d : Double) :: tail => {
@@ -259,13 +259,13 @@ class AngleGizmo extends Module {
       //If there is no ongoing key-input, draw the whole guide:
       if(!isForwarding) {
         guides.foreach {
-          case Vector2DGuideNew(guide) => guide(angleSnappedMousePosition.get).foreach(s => g.draw(s.transform( t )))
+          case Vector2DGuide(guide) => guide(angleSnappedMousePosition.get).foreach(s => g.draw(s.transform( t )))
           case _ =>
         }
       } else {
       //If there is key-input, only draw the fixed part of the shape - the last part being created is drawn by InputOneValue
         guides.foreach {
-          case Vector2DGuideNew(guide) => guide(referencePoint.get).foreach(s => g.draw(s.transform(t)))
+          case Vector2DGuide(guide) => guide(referencePoint.get).foreach(s => g.draw(s.transform(t)))
           case _ =>
         }
       }
@@ -277,18 +277,18 @@ class AngleGizmo extends Module {
       //as it is not on the correct radian. Use point based on lengthVector instead, until the mouse is moved:
       if (drawGuide && anglePointJustSet) {
         guides.foreach {
-          case Vector2DGuideNew(guide) => guide(lengthVector(referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).foreach(s => g.draw(s.transform( t )))
+          case Vector2DGuide(guide) => guide(lengthVector(referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).foreach(s => g.draw(s.transform( t )))
           case _ =>
         }
       } else if (drawGuide) {
         guides.foreach {
-          case Vector2DGuideNew(guide) => guide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
+          case Vector2DGuide(guide) => guide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
           case _ =>
         }
       } else if (!vector2DGuide.isEmpty && !drawGuide) {
         //If there is key-input, only draw the fixed part of the shape - the last part being created is drawn by InputOneValue
         guides.foreach {
-          case Vector2DGuideNew(guide) => guide(referencePoint.get).foreach(s => g.draw(s.transform(t)))
+          case Vector2DGuide(guide) => guide(referencePoint.get).foreach(s => g.draw(s.transform(t)))
           case _ =>
         }
       }

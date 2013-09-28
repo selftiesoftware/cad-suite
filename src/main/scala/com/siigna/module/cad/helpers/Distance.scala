@@ -22,6 +22,7 @@ package com.siigna.module.cad.helpers
 import com.siigna._
 import com.siigna.module.cad.create._
 import app.Siigna
+import module.Tooltip
 
 /**
  * A line module (draws one line-segment)
@@ -46,18 +47,21 @@ class Distance extends Module {
       case End(v : Vector2D) :: tail => {
         if (!startPoint.isDefined){
           startPoint = Some(v)
-          val vector2DGuide = Vector2DGuideNew((p: Vector2D) => Traversable(LineShape(startPoint.get, p)))
-          Start('cad, "create.InputNew", InputRequestNew(6,startPoint,vector2DGuide))
+          val vector2DGuide = Vector2DGuide((p: Vector2D) => Traversable(LineShape(startPoint.get, p)))
+          Start('cad, "create.Input", InputRequest(6,startPoint,vector2DGuide))
 
         } else if (startPoint.isDefined) {
-          var length : Int = ((startPoint.get - v).length).toInt
+          var length = ((startPoint.get - v).length).round
           Siigna display "length: " + length
+          Tooltip.blockUpdate(3500)
           End
         }
       }
       case _ => {
+        Tooltip.updateTooltip("Distance measure tool active")
         Siigna display "set two points to measure the distance between them."
-        Start('cad, "create.InputNew", InputRequestNew(6,None))
+        Tooltip.blockUpdate(3500)
+        Start('cad, "create.Input", InputRequest(6,None))
       }
       //if
 

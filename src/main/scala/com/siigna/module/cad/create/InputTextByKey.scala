@@ -21,29 +21,42 @@ package com.siigna.module.cad.create
 
 import com.siigna._
 import app.Siigna
+import module.Tooltip
 
 /**
  * A module that collect a pair of digits on the basis of key inputs.
  * Used by modules that need eg. an X and Y coordinate to define a point.
  */
 
-class InputText extends Module {
+class InputTextByKey extends Module {
 
   private var text : String = ""  //input string
 
   //Information received from calling module
-  var inputRequest: Option[InputRequestNew] = None
+  var inputRequest: Option[InputRequest] = None
   var inputType: Option[Int] = None
   var guides: Seq[Guide] = Seq()
   var referencePoint: Option[Vector2D] = None
+
+  var tooltipAtStart : String = ""
 
 
   val stateMap: StateMap = Map(
 
     'Start -> {
-      case MouseDown(p,MouseButtonRight,modifier) :: tail => End(MouseDown(p,MouseButtonRight,modifier))
+      //exit mechanisms
+      case MouseDown(p,MouseButtonRight,modifier) :: tail => {
+        Tooltip.updateTooltip(tooltipAtStart)
+        End
+      }
+      case KeyDown(Key.escape,modifier) :: tail => {
+        Tooltip.updateTooltip(tooltipAtStart)
+        End
+      }
 
-      case Start(_ ,i: InputRequestNew) :: KeyDown(code, _) :: tail => {
+      case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
+        tooltipAtStart = Tooltip.tooltip
+        Tooltip.updateTooltip("Input text")
         inputRequest = Some(i)
         inputType = Some(i.inputType)
         guides = i.guides
@@ -61,6 +74,7 @@ class InputText extends Module {
       //Ends on return, komma, TAB - returning value:
       case KeyDown(Key.Enter | Key.Tab | (','), _) :: tail => {
         if (text.length > 0) {
+          Tooltip.updateTooltip(tooltipAtStart)
           End(text)
         }
       }
@@ -74,8 +88,6 @@ class InputText extends Module {
 
       //if point returns a keyDown - that is not previously intercepted
       case KeyDown(code, modifier) :: tail => {
-        if (code == Key.escape)
-          End(KeyDown(code,modifier))
         //get the input from the keyboard if it is numbers, (-) or (.)
         val char = code.toChar
         if (char.isValidChar)
@@ -83,6 +95,10 @@ class InputText extends Module {
 
       }
       case _ => {
+        if (text.length == 0) {
+          Tooltip.updateTooltip(tooltipAtStart)
+          End
+        }
       }
     })
 
@@ -91,7 +107,7 @@ class InputText extends Module {
     if (text.length > 0) {
     guides.foreach(_ match {
 
-      case TextGuideNew(guide) => {
+      case TextGuide(guide) => {
         guide(text).foreach(s => g.draw(s.transform(t)))
       }
       case _ => // No known guide

@@ -13,6 +13,7 @@ package com.siigna.module.cad.create
 
 import com.siigna._
 import com.siigna.app.model.shape.RectangleShape
+import module.Tooltip
 
 class Rectangle extends Module {
 
@@ -37,7 +38,7 @@ class Rectangle extends Module {
         if (points.length == 0){
           points = points :+ v
           val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points(0)),None,None,Some(112))
+          val inputRequest = InputRequest(7,Some(v),vector2DGuide)
           Start('cad, "create.Input", inputRequest)
         }
         //use second point
@@ -51,25 +52,16 @@ class Rectangle extends Module {
         }
       }
 
-      case End("no point returned") :: tail => {
-        if (points.length == 0) {
-          Start('cad, "create.Input", 111)
-        } else {
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points(0)),None,None,Some(112))
-          Start('cad, "create.Input", inputRequest)
-        }
-      }
-
       //If End with no point: End module without drawing anything.
       case End :: tail => End
       //get the first point
       case _ => {
         if (points.length == 0) {
-          Start('cad, "create.Input", 111)
+          Tooltip.updateTooltip("Rectangle tool active")
+          Start('cad, "create.Input", InputRequest(6,None))
         } else {
           val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))
-          val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,Some(points(0)),None,None,Some(112))
+          val inputRequest = InputRequest(7,Some(points.head),vector2DGuide)
           Start('cad, "create.Input", inputRequest)
         }
       }

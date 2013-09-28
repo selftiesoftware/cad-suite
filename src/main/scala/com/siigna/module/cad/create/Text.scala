@@ -20,7 +20,7 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
-import module.ModuleInit
+import module.{Tooltip, ModuleInit}
 
 //import java.awt.{Font, Color, TextField}
 //import java.awt.font._
@@ -54,12 +54,13 @@ class Text extends Module {
       case End(KeyDown(Key.escape,modifier)) :: tail => End
       case End(p : Vector2D) :: tail => {
         position = Some(p)
-        val textGuide: TextGuideNew = TextGuideNew((s: String) => Traversable(TextShape(s + " ", p,  scale * (Siigna.paperScale + 1))))
+        val textGuide: TextGuide = TextGuide((s: String) => Traversable(TextShape(s + " ", p,  scale * (Siigna.paperScale + 1))))
         //val inputRequest = InputRequest(None,None,Some(textGuide),None,None,None,position,None,None,Some(14))
         //Start('cad,"create.Input", inputRequest)
-        val inputRequest = InputRequestNew(12,None,textGuide)
+        val inputRequest = InputRequest(12,None,textGuide)
         Siigna.display("type text")
-        Start('cad,"create.InputNew", inputRequest)
+        Tooltip.blockUpdate(3500)
+        Start('cad,"create.Input", inputRequest)
       }
 
       case End(s : String) :: tail => {
@@ -73,8 +74,10 @@ class Text extends Module {
       }
 
       case _ => {
+        Tooltip.updateTooltip("Text tool active")
         Siigna.display("click to set text")
-        Start('cad, "create.InputNew", InputRequestNew(6,None))
+        Tooltip.blockUpdate(3500)
+        Start('cad, "create.Input", InputRequest(6,None))
       }
     }
   )

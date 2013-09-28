@@ -20,6 +20,7 @@
 package com.siigna.module.cad.helpers
 
 import com.siigna._
+import module.Tooltip
 
 class TrackToggle extends Module{
 
@@ -31,6 +32,7 @@ class TrackToggle extends Module{
           case _ => "off"
         }
         Siigna display "Track is " + value
+        Tooltip.blockUpdate(3500)
         End
       }
     }
