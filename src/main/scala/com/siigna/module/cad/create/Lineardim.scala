@@ -29,8 +29,10 @@ class Lineardim extends Module {
 
   var currentMouse : Option[Vector2D] = None
 
-  val color = "Color" -> new Color(0.15f, 0.15f, 0.15f, 1.00f)
+  val color = "Color" -> new Color(0.25f, 0.25f, 0.25f, 1.00f)
   val colorBlack = "Color" -> new Color(0.00f, 0.00f, 0.00f, 1.00f)
+  var dimTextSize = 3
+  private var transformation = TransformationMatrix()
 
   def diaMark(point : Vector2D) = if (hasBothPoints)
       Some(LineShape((diaRotation1.get + point + normalUnitVector2D(points(0),points(1)) * scale * offsetDistance),
@@ -114,9 +116,7 @@ class Lineardim extends Module {
     else
       None
 
-  var dimTextSize = 3
 
-  private var transformation = TransformationMatrix()
 
   def stateMap = Map(
 
@@ -159,13 +159,13 @@ class Lineardim extends Module {
             offsetSide = true
           //Creates a CollectionShape:
           Create(
-            shapeA.get.setAttributes(color, "StrokeWidth" -> 0.25),
-            shapeB.get.setAttributes(color, "StrokeWidth" -> 0.25),
-            normalShape1.get.setAttributes(color, "StrokeWidth" -> 0.25),
-            normalShape2.get.setAttributes(color, "StrokeWidth" -> 0.25),
-            diaMark1.get.setAttributes(colorBlack, "StrokeWidth" -> 1.6),
-            diaMark2.get.setAttributes(colorBlack, "StrokeWidth" -> 1.6),
-            dimText.get.setAttribute(color)
+            shapeA.get.setAttributes(colorBlack, "StrokeWidth" -> 0.09),
+            shapeB.get.setAttributes(colorBlack, "StrokeWidth" -> 0.09),
+            normalShape1.get.setAttributes(colorBlack, "StrokeWidth" -> 0.09),
+            normalShape2.get.setAttributes(colorBlack, "StrokeWidth" -> 0.09),
+            diaMark1.get.setAttributes(color, "StrokeWidth" -> 0.7),
+            diaMark2.get.setAttributes(color, "StrokeWidth" -> 0.7),
+            dimText.get.setAttribute(colorBlack)
           )
          End
         }

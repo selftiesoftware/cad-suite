@@ -27,8 +27,8 @@ case object ModifyCategory extends MenuCategory{
     EventSSE -> MenuModule(Module('cad,"modify.Move"), MenuIcons.move),
     EventSSW -> MenuModule(Module('cad,"modify.Rotate"), MenuIcons.rotate),
     EventWSW -> MenuModule(Module('cad,"modify.Scale"), MenuIcons.scale),
-    EventNNE -> MenuModule(Module('cad,"modify.Trim"), MenuIcons.trim)
-    //EventENE -> MenuModule(Module('cad,"modify.Connect"), MenuIcons.connect)
+    EventNNE -> MenuModule(Module('cad,"modify.Trim"), MenuIcons.trim),
+    EventENE -> MenuModule(Module('cad,"modify.Join"), MenuIcons.connect)
     //EventENE -> MenuModule(Module('cad,"modify.Mirror"), MenuIcons.mirror)
   )
   val color = MenuIcons.modifyColor

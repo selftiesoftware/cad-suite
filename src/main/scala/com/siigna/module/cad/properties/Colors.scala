@@ -68,7 +68,6 @@ class Colors extends Module {
     var activeAngle = 0
     val radian = (mousePosition - startPoint).angle.toInt
     val calculatedAngle = radian + 450
-    println("Cal angle: " + calculatedAngle)
     if (calculatedAngle >= 360)
       activeAngle = calculatedAngle%360
     else activeAngle = calculatedAngle
