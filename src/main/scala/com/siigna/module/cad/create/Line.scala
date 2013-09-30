@@ -28,7 +28,6 @@ import module.Tooltip
  */
 class Line extends Module {
 
-
   val attributes = {
     val color = Siigna.color("activeColor")
     val lineWidth = Siigna.double("activeLineWidth")
@@ -84,6 +83,9 @@ class Line extends Module {
         }
       }
       case _ => {
+        //change cursor to crosshair
+        Siigna.setCursor(Cursors.crosshair)
+
         Tooltip.updateTooltip("Line tool active")
         Start('cad, "create.Input", InputRequest(6,None))
       }

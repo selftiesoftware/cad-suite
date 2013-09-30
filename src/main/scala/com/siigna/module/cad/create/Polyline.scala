@@ -22,6 +22,7 @@ package com.siigna.module.cad.create
 import com.siigna._
 import app.Siigna
 import module.Tooltip
+import java.awt.Cursor
 
 class Polyline extends Module {
 
@@ -145,6 +146,9 @@ class Polyline extends Module {
         End
       }
       case x => {
+        //change cursor to crosshair
+        Siigna.setCursor(Cursors.crosshair)
+
         points = List[Vector2D]()
         Tooltip.updateTooltip("Polyline tool active. Right click to finish polyline.")
         Start('cad, "create.Input", InputRequest(6,None))

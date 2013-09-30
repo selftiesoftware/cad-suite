@@ -35,7 +35,7 @@ class Join extends Module{
     //an optimised list of ids and shape start,end to evaluate for coinsiding points.
     var idsAndEndPoints : Map[Int, List[Vector2D]] = Map()
 
-    //TODO: a recursive function to join all lines with coinsiding points.
+    //TODO: a recursive function to join all (poly)lines with coinsiding endpoints.
 
 
     //shorten long polylines so that the join evaluation uses the first and last point only.
@@ -44,6 +44,10 @@ class Join extends Module{
     s.foreach(s => s._2 match {
         //filter out irrelevant shapes
         case p : PolylineShapeOpen => idsAndEndPoints = idsAndEndPoints + shorten(s._1,p)
+        println("ids and endpoints: "+idsAndEndPoints)
+
+
+
         //TODO: can not add these (i,List(a,b)) to the Map??!?
         //case l : LineShape => idsAndEndPoints = idsAndEndPoints + (s._1,List(l.start,l.end))
         case _ => println("dismissing shape; "+s)
@@ -52,6 +56,9 @@ class Join extends Module{
 
     //evaluate the start and end points of the shapes.
     println("optimised list to evaluate; "+idsAndEndPoints)
+
+    //TODO: write a join algorithm which joins the shapes with coinsiding endpoints...
+
 
     //return
     s

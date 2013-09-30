@@ -297,6 +297,9 @@ class Offset extends Module {
         Start('cad, "Selection")
       }
       else if (Drawing.selection.size == 1 ){
+        //change cursor to crosshair
+        Siigna.setCursor(Cursors.crosshair)
+
         attr = Drawing.selection.shapes.head._2.attributes
         Tooltip.updateTooltip("Offset tool active")
         Siigna display "click to set the offset distance, or type offset distance"

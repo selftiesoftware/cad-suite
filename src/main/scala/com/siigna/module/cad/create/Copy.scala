@@ -116,6 +116,9 @@ class Copy extends Module {
 
       case _ => {
         if (Drawing.selection.isDefined) {
+          //change cursor to crosshair
+          Siigna.setCursor(Cursors.crosshair)
+
           if (multiActive) {
             Create(transform(transformation))
             End

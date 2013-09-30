@@ -67,6 +67,9 @@ class Circle extends Module {
 
           //Starts point, asks for two-value-input (center):
           case _ => {
+            //change cursor to crosshair
+            Siigna.setCursor(Cursors.crosshair)
+
             Tooltip.updateTooltip("Circle tool active")
             Start('cad, "create.Input", InputRequest(6,None))
           }

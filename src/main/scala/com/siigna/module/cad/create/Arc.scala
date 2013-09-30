@@ -151,6 +151,9 @@ class Arc extends Module {
           case End :: tail => End
           //If an unknown command is recieved (could happen if guide fails)
           case _ => {
+            //change cursor to crosshair
+            Siigna.setCursor(Cursors.crosshair)
+
             println("Unknown command in Arc-module: ")
             //If user is drawing something, the guides should still be drawn:
             if ((startPoint.isDefined) && (endPoint.isEmpty)) {

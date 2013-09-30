@@ -24,6 +24,7 @@ import com.siigna.module.cad.radialmenu.category.{ModifyCategory, StartCategory}
 import com.siigna._
 import com.siigna.app.model.selection.EmptySelection
 import module.cad.create.InputRequest
+import java.awt.Cursor
 
 /**
  * An init module for the cad-suite.
@@ -65,6 +66,10 @@ class ModuleInit extends Module {
   var activeSelection: Selection = EmptySelection
   //The nearest shape to the current mouse position.
   var activeSelectionVertices: Traversable[Vector2D] = Set.empty
+
+  //define the default cursor
+  val defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR)
+
   var toolSuggestions = List[String]() //a list of possible tools in a given category. activated by shortcuts
 
   var selectionAlteration = false
@@ -222,6 +227,8 @@ class ModuleInit extends Module {
 
       case y => {
         if (ModuleLoader.modulesLoaded == true) {
+          //revert to the arrow-type cursor
+          Siigna.setCursor(defaultCursor)
           Tooltip.updateTooltip("Right click to open menu, select with mouse or use keyboard shortcuts. Alt to pan.")
           Start('cad, "create.Input", InputRequest(14, None))
         }

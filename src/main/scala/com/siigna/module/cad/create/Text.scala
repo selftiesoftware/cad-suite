@@ -74,6 +74,9 @@ class Text extends Module {
       }
 
       case _ => {
+        //change cursor to crosshair
+        Siigna.setCursor(Cursors.crosshair)
+
         Tooltip.updateTooltip("Text tool active")
         Siigna.display("click to set text")
         Tooltip.blockUpdate(3500)

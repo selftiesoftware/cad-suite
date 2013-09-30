@@ -56,6 +56,9 @@ class Rectangle extends Module {
       case End :: tail => End
       //get the first point
       case _ => {
+        //change cursor to crosshair
+        Siigna.setCursor(Cursors.crosshair)
+
         if (points.length == 0) {
           Tooltip.updateTooltip("Rectangle tool active")
           Start('cad, "create.Input", InputRequest(6,None))

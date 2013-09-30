@@ -175,6 +175,9 @@ class Lineardim extends Module {
       
 
       case _ => {
+        //change cursor to crosshair
+        Siigna.setCursor(Cursors.crosshair)
+
       //get the current paperScale
       scale = Siigna.paperScale
         Tooltip.updateTooltip("Linear Dimension tool active")
