@@ -43,7 +43,7 @@ class Arc extends Module {
     val nv: Vector2D = Vector2D(-(endPoint.get.y - startPoint.get.y)/2,(endPoint.get.x - startPoint.get.x)/2)
     val v: Vector2D = Vector2D((endPoint.get.x - startPoint.get.x)/2,(endPoint.get.y - startPoint.get.y)/2)
     val l: Double = nv.length
-    val sv: Vector2D = startPoint.get + v + ((nv/l)*d)
+    val sv: Vector2D = startPoint.get + v + Vector2D((nv.x/l)*d,(nv.y/l)*d)
     sv
   }
   val doubleGuide = DoubleGuide((d : Double) => Traversable(ArcShape(startPoint.get,middlePointForDoubleGuide(d),endPoint.get).addAttributes(attributes)))
@@ -66,10 +66,6 @@ class Arc extends Module {
               val inputRequest = InputRequest(7,startPoint,vector2DGuide)
               Start('cad,"create.Input", inputRequest)
 
-              //val vector2DGuide = Vector2DGuide((v : Vector2D) => Traversable(LineShape(p,v).addAttributes("Color" -> color , "StrokeWidth" -> stroke)))
-              //val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(1))
-              //Start('cad, "create.Input", inputRequest)
-
             //If the end point is not set, and the point recieved is not the same as the start point,
             //the recieved point is set as the end point, and an arc guide is returned.
             } else if ((endPoint.isEmpty) && (startPoint.get != p)) {
@@ -80,22 +76,16 @@ class Arc extends Module {
                   case _ : Throwable => Traversable.empty
                 }
               })
-              val inputRequest = InputRequest(5,startPoint,vector2DGuide, doubleGuide)
+              val inputRequest = InputRequest(9,startPoint,vector2DGuide, doubleGuide)
               Start('cad,"create.Input", inputRequest)
 
-              //val vector2DGuide = Vector2DGuide((v : Vector2D) => Traversable(ArcShape(startPoint.get,v,endPoint.get).addAttributes("Color" -> color , "StrokeWidth" -> stroke)))
-              //val inputRequest = InputRequest(Some(vector2DGuide),Some(doubleGuide),None,None,None,None,startPoint,None,None,Some(13))
-              //Start('cad, "create.Input", inputRequest)
             //If the end point is set, but the recieved point is the same as the start point,
             //the recieved point is ignored, and a line guide (between point 1 and 2) is returned again.
             } else if ((endPoint.isEmpty) && (startPoint.get == p)){
               val vector2DGuide = Vector2DGuide((v : Vector2D) => Traversable(LineShape(p,v).addAttributes(attributes)))
-              val inputRequest = InputRequest(7,startPoint,vector2DGuide)
+              val inputRequest = InputRequest(9,startPoint,vector2DGuide, doubleGuide)
               Start('cad,"create.Input", inputRequest)
 
-              //val vector2DGuide = Vector2DGuide((v : Vector2D) => Traversable(LineShape(p,v).addAttributes("Color" -> color , "StrokeWidth" -> stroke)))
-              //val inputRequest = InputRequest(Some(vector2DGuide),None,None,None,None,None,startPoint,None,None,Some(1))
-              //Start('cad, "create.Input", inputRequest)
             //If neither start or endpoint is empty, and:
             // the recieved point is not the same as start or endpoint, and
             // the three points are not on a straight line, then
@@ -111,10 +101,6 @@ class Arc extends Module {
               val vector2DGuide = Vector2DGuide((v : Vector2D) => Traversable(ArcShape(startPoint.get,v,endPoint.get).addAttributes(attributes)))
               val inputRequest = InputRequest(9,startPoint,vector2DGuide, doubleGuide)
               Start('cad,"create.Input", inputRequest)
-
-              //val vector2DGuide = Vector2DGuide((v : Vector2D) => Traversable(ArcShape(startPoint.get,v,endPoint.get)))
-              //val inputRequest = InputRequest(Some(vector2DGuide),Some(doubleGuide),None,None,None,None,startPoint,None,None,Some(13))
-              //Start('cad, "create.Input", inputRequest)
             }
           }
 
