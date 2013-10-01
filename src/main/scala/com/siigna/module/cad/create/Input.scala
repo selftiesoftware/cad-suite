@@ -124,11 +124,16 @@ class Input extends Module {
 
 
     //Most key-inputs are not handled directly in Input, but sorted and forwarded to key-input modules.
-    //Some are, however - eg. escape and backspace.
+    //Some are, however - eg. enter, escape and backspace.
     case KeyDown(key,modifier) :: tail => {
       if (trackDoubleRequest) trackDoubleRequest = false
+      //ENTER: Is returned to the asking module as a key-down event:
+      if (key == Key.enter) {
+        Siigna("track") = true
+        End(KeyDown(key,modifier))
+      }
       //ESCAPE: Is returned to the asking module as a key-down event:
-      if (key == Key.escape) {
+      else if (key == Key.escape) {
         Siigna("track") = true
         End(KeyDown(key,modifier))
       }
@@ -167,7 +172,7 @@ class Input extends Module {
       }
     }
 
-    //Input received from other modules (eg. Input OneValue, InputTwoValues, InputText, AngleGizmo):
+    //Input received from other modules (eg. InputSingleValue/DualValue/Text/CharacterByKey, AngleGizmo):
 
     //Vector2D: (Standard: The received Vector2D is returned, un-transformed)
     case End(p : Vector2D) :: tail => {

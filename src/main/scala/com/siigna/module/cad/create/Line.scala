@@ -35,59 +35,77 @@ class Line extends Module {
   }
 
   var startPoint: Option[Vector2D] = None
+
+  val vector2DGuide = Vector2DGuide((v : Vector2D) => {
+    Array(LineShape(startPoint.get, v).addAttributes(attributes))
+  })
+
   val stateMap: StateMap = Map(
 
     'Start -> {
+      //Exit strategy
       case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => End
       case End(KeyDown(Key.escape,modifier)) :: tail => End
 
-      case End(v : Vector2D) :: tail => {
-        if (startPoint.isEmpty) {
-          startPoint = Some(v)
-          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
-            Array(LineShape(startPoint.get, v).addAttributes(attributes))
-          })
-          val inputRequest = InputRequest(7,startPoint,vector2DGuide)
-          Start('cad,"create.Input", inputRequest)
-        } else {
-          val line = LineShape(startPoint.get,v).addAttributes(attributes)
-          Create(line)
-          startPoint = None
-          End
-        }
-      }
-
-      //If input module returns nothing:
-      case End("no point returned") :: tail => {
-        if (startPoint.isEmpty) {
-          Start('cad, "create.Input", InputRequest(6,None))
-        } else {
-          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
-            Array(LineShape(startPoint.get, v).addAttributes(attributes))
-          })
-          val inputRequest = InputRequest(7,startPoint,vector2DGuide)
-          Start('cad,"create.Input", inputRequest)
-      }}
-      case End(k : KeyDown) :: tail => {
-        // If the key is backspace without modification (shift etc), the last point is deleted, if there is any
-        if (k == KeyDown(Key.Backspace,ModifierKeys(false,false,false))) {
-          if (startPoint.isEmpty) {
-            Start('cad, "create.Input", InputRequest(6,None))
-          } else {
-            val vector2DGuide = Vector2DGuide((v : Vector2D) => {
-              Array(LineShape(startPoint.get, v).addAttributes(attributes))
-            })
-            val inputRequest = InputRequest(7,startPoint,vector2DGuide)
-            Start('cad,"create.Input", inputRequest)
-          }
-        }
-      }
       case _ => {
         //change cursor to crosshair
         Siigna.setCursor(Cursors.crosshair)
 
+        //Update tooltip
         Tooltip.updateTooltip("Line tool active")
         Start('cad, "create.Input", InputRequest(6,None))
+        'ReceiveFirstPoint
+      }
+    },
+
+    'ReceiveFirstPoint -> {
+      //Exit strategy
+      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => End
+      case End(KeyDown(Key.escape,modifier)) :: tail => End
+
+      case End(v : Vector2D) :: tail => {
+        startPoint = Some(v)
+        val inputRequest = InputRequest(7,startPoint,vector2DGuide)
+        Start('cad,"create.Input", inputRequest)
+        'ReceiveLastPoint
+      }
+
+      case End(KeyDown(Key.enter,modifier)) :: tail => {
+        Start('cad, "create.Input", InputRequest(6,None))
+      }
+      case End(KeyDown(Key.backspace,modifier)) :: tail => {
+        Start('cad, "create.Input", InputRequest(6,None))
+      }
+      case x => {
+        println("Line module can't interpret this: " + x)
+        Start('cad, "create.Input", InputRequest(6,None))
+      }
+    },
+    'ReceiveLastPoint -> {
+      //Exit strategy
+      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => End
+      case End(KeyDown(Key.escape,modifier)) :: tail => End
+
+      case End(v : Vector2D) :: tail => {
+        val line = LineShape(startPoint.get,v).addAttributes(attributes)
+        Create(line)
+        startPoint = None
+        End
+      }
+
+      case End(KeyDown(Key.enter,modifier)) :: tail => {
+        val inputRequest = InputRequest(7,startPoint,vector2DGuide)
+        Start('cad,"create.Input", inputRequest)
+      }
+      case End(KeyDown(Key.backspace,modifier)) :: tail => {
+        startPoint = None
+        Start('cad, "create.Input", InputRequest(6,None))
+        'ReceiveFirstPoint
+      }
+      case x => {
+        println("Line module can't interpret this: " + x)
+        val inputRequest = InputRequest(7,startPoint,vector2DGuide)
+        Start('cad,"create.Input", inputRequest)
       }
     }
   )

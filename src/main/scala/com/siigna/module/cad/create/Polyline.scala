@@ -130,15 +130,25 @@ class Polyline extends Module {
             //If not, input is started without guide.
             Start('cad, "create.Input", InputRequest(6,None))
           }
-        }}
+        } else if (k == KeyDown(Key.enter,k.keys)) {
+          //If there are two or more points in the polyline, it can be saved to the Siigna universe.
+          if (points.length > 1) {
+            val polyline = PolylineShape(points).addAttributes(attributes)
+            Create(polyline)
+          }
+          //The module closes - even if no polyline was drawn.
+          startPoint = None
+          points = List[Vector2D]()
+          End
+        }
+
+      }
 
       case End :: tail => {
         //If there are two or more points in the polyline, it can be saved to the Siigna universe.
         if (points.length > 1) {
           val polyline = PolylineShape(points).addAttributes(attributes)
-          println("PL: "+polyline)
           Create(polyline)
-          points = List[Vector2D]()
         }
         //The module closes - even if no polyline was drawn.
         startPoint = None

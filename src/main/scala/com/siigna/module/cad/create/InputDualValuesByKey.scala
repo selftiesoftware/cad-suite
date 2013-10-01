@@ -124,24 +124,28 @@ class InputDualValuesByKey extends Module {
     'Start -> {
       case MouseDown(p,MouseButtonRight,modifier) :: tail => End(MouseDown(p,MouseButtonRight,modifier))
 
-      //Read numbers and minus, "," and enter as first entry, after drawing of guide, if a guide is provided:
+      //If Enter is the first entry, end and return keydown event with enter
+      case Start(_,_) :: KeyDown(Key.Enter,modifier) :: tail => End(KeyDown(Key.Enter,modifier))
+
+      //Read numbers, minus, and "," as first entry.
       case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
-          tooltipAtStart = Tooltip.tooltip
-          Tooltip.updateTooltip("Insert x- any y-coordinates")
-          inputRequest = Some(i)
-          inputType = Some(i.inputType)
-          guides = i.guides
-          referencePoint = i.referencePoint
-          if(referencePoint.isEmpty) referencePoint = Some(Vector2D(0,0))
-          //save the already typed key:
-          if (code.toChar.isDigit) coordinateValue += code.toChar
-          if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
-          //if a comma or enter is the first thing entered, it is interpreted as zero:
-          if ((code.toChar.toString == "," || code == Key.enter) && coordinateValue.length() == 0) coordinateX = Some(0.0)
-          Siigna display message(coordinateValue, coordinateX, coordinateY)
-          'ReceiveUserInput
+        tooltipAtStart = Tooltip.tooltip
+        Tooltip.updateTooltip("Insert x- any y-coordinates")
+        inputRequest = Some(i)
+        inputType = Some(i.inputType)
+        guides = i.guides
+        referencePoint = i.referencePoint
+        if(referencePoint.isEmpty) referencePoint = Some(Vector2D(0,0))
+        //save the already typed key:
+        if (code.toChar.isDigit) coordinateValue += code.toChar
+        if (code.toChar.toString == "-" && coordinateValue.length() == 0) coordinateValue += code.toChar
+        //if a comma or enter is the first thing entered, it is interpreted as zero:
+        if ((code.toChar.toString == ",") && coordinateValue.length() == 0) coordinateX = Some(0.0)
+        Siigna display message(coordinateValue, coordinateX, coordinateY)
+        'ReceiveUserInput
         }
-        case _ => {
+        case x => {
+          println("InputDualValuesByKey can't interpret this: " + x)
           End
         }
       },
