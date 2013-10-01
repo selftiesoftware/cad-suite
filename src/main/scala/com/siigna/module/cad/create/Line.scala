@@ -58,8 +58,10 @@ class Line extends Module {
 
     'ReceiveFirstPoint -> {
       //Exit strategy
-      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => End
-      case End(KeyDown(Key.escape,modifier)) :: tail => End
+      case KeyDown(Key.Esc, modifier) :: tail => End
+      case End(KeyDown(Key.escape, modifier)) :: tail => End
+      case MouseDown(p, MouseButtonRight, modifier) :: tail => End
+      case End(MouseDown(p,MouseButtonRight, modifier)) :: tail => End
 
       case End(v : Vector2D) :: tail => {
         startPoint = Some(v)
@@ -80,8 +82,10 @@ class Line extends Module {
     },
     'ReceiveLastPoint -> {
       //Exit strategy
-      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => End
-      case End(KeyDown(Key.escape,modifier)) :: tail => End
+      case KeyDown(Key.Esc, modifier) :: tail => End
+      case End(KeyDown(Key.escape, modifier)) :: tail => End
+      case MouseDown(p, MouseButtonRight, modifier) :: tail => End
+      case End(MouseDown(p,MouseButtonRight, modifier)) :: tail => End
 
       case End(v : Vector2D) :: tail => {
         val line = LineShape(startPoint.get,v).addAttributes(attributes)
