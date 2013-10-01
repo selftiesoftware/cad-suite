@@ -75,6 +75,7 @@ class Line extends Module {
         Start('cad, "create.Input", InputRequest(6,None))
       }
     },
+
     'ReceiveSecondPoint -> {
       //Exit strategy
       case (KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
