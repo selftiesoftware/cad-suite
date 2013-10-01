@@ -40,13 +40,11 @@ class Line extends Module {
     Array(LineShape(startPoint.get, v).addAttributes(attributes))
   })
 
+  val inputRequestForReceiveLastPoint = InputRequest(7,startPoint,vector2DGuide)
+
   val stateMap: StateMap = Map(
 
     'Start -> {
-      //Exit strategy
-      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => End
-      case End(KeyDown(Key.escape,modifier)) :: tail => End
-
       case _ => {
         //change cursor to crosshair
         Siigna.setCursor(Cursors.crosshair)
@@ -65,8 +63,7 @@ class Line extends Module {
 
       case End(v : Vector2D) :: tail => {
         startPoint = Some(v)
-        val inputRequest = InputRequest(7,startPoint,vector2DGuide)
-        Start('cad,"create.Input", inputRequest)
+        Start('cad,"create.Input", inputRequestForReceiveLastPoint)
         'ReceiveLastPoint
       }
 
@@ -94,8 +91,7 @@ class Line extends Module {
       }
 
       case End(KeyDown(Key.enter,modifier)) :: tail => {
-        val inputRequest = InputRequest(7,startPoint,vector2DGuide)
-        Start('cad,"create.Input", inputRequest)
+        Start('cad,"create.Input", inputRequestForReceiveLastPoint)
       }
       case End(KeyDown(Key.backspace,modifier)) :: tail => {
         startPoint = None
@@ -104,8 +100,7 @@ class Line extends Module {
       }
       case x => {
         println("Line module can't interpret this: " + x)
-        val inputRequest = InputRequest(7,startPoint,vector2DGuide)
-        Start('cad,"create.Input", inputRequest)
+        Start('cad,"create.Input", inputRequestForReceiveLastPoint)
       }
     }
   )
