@@ -26,143 +26,72 @@ import java.awt.Cursor
 
 class Polyline extends Module {
 
-  val attributes = {
+  private val attributes = {
     val color = Siigna.color("activeColor")
     val lineWidth = Siigna.double("activeLineWidth")
     Attributes(Seq(color.map(c => "Color" -> color.getOrElse(None)), lineWidth.map(w => "StrokeWidth" -> lineWidth.getOrElse(None))).flatten)
   }
 
-  var startPoint: Option[Vector2D] = None
   private var points   = List[Vector2D]()
+
+  private val vector2DGuide = Vector2DGuide((v : Vector2D) => {
+    Iterable(PolylineShape(points :+ v).addAttributes(attributes))
+  })
+
+  private def finalisePolyline: Boolean = {
+    if (points.length > 1) {
+      val polyline = PolylineShape(points).addAttributes(attributes)
+      Create(polyline)
+      true
+    } else false
+  }
 
   val stateMap: StateMap = Map(
     'Start -> {
-      //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
-      case MouseDown(p, MouseButtonRight, _) :: tail => End
-      case End(KeyDown(Key.Esc, _)) :: tail => End
-      case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
-        if (points.length > 1) {
-          val polyline = PolylineShape(points).addAttributes(attributes)
-          Create(polyline)
-        }
-        End
-      }
-
-      case End(v : Vector2D) :: tail => {
-        //if the point module returns with END and a point, a new point is received.
-        points = points :+ v
-        if (startPoint.isEmpty){
-          //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
-          startPoint = Some(v)
-          //val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
-          //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,startPoint,None,None,Some(112))
-          //Start('cad, "create.Input", inputRequest)
-
-          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes(attributes))
-          })
-          val inputRequest = InputRequest(7,startPoint,vector2DGuide)
-          Start('cad,"create.Input", inputRequest)
-        } else {
-
-          //If the start point is set, the first segment is made and points should be added.
-          points :+ v
-          //val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
-          //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
-          //Start('cad, "create.Input", inputRequest)
-          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes(attributes))
-          })
-          val inputRequest = InputRequest(7,Some(points.last),vector2DGuide)
-          Start('cad,"create.Input", inputRequest)
-        }
-      }
-
-      //If input module does not return any input:
-      case End("no point Input") :: tail => {
-        //If there only is the start point:
-        if (points.length == 1){
-          //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
-          startPoint = Some(points.last)
-          //val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
-          //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,startPoint,None,None,Some(112))
-          //Start('cad, "create.Input", inputRequest)
-
-          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes(attributes))
-          })
-          val inputRequest = InputRequest(7,startPoint,vector2DGuide)
-          Start('cad,"create.Input", inputRequest)
-        } else {
-          //val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
-          //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
-          //Start('cad, "create.Input", inputRequest)
-
-          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
-            Array(PolylineShape(points :+ v).addAttributes(attributes))
-          })
-          val inputRequest = InputRequest(7,Some(points.last),vector2DGuide)
-          Start('cad,"create.Input", inputRequest)
-        }
-      }
-
-      //If point module returns a key-pres at the event when it ends:
-      case End(k : KeyDown) :: tail => {
-        // If the key is backspace without modification (shift etc), the last bit of line is deleted:
-        if (k == KeyDown(Key.Backspace,ModifierKeys(false,false,false))) {
-          if (points.length > 1) {
-            points = points.dropRight(1)
-          }
-          //And if there is a start point, a new guide is returned
-          if (startPoint.isDefined) {
-
-           // val guide = Vector2DGuide((v : Vector2D) => Array(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
-            //val inputRequest = InputRequest(Some(guide),None,None,None,None,None,Some(points.last),None,None,Some(112))
-            //Start('cad, "create.Input", inputRequest)
-            val vector2DGuide = Vector2DGuide((v : Vector2D) => {
-              Array(PolylineShape(points :+ v).addAttributes(attributes))
-            })
-            val inputRequest = InputRequest(7,Some(points.last),vector2DGuide)
-            Start('cad,"create.Input", inputRequest)
-
-          } else {
-            //If not, input is started without guide.
-            Start('cad, "create.Input", InputRequest(6,None))
-          }
-        } else if (k == KeyDown(Key.enter,k.keys)) {
-          //If there are two or more points in the polyline, it can be saved to the Siigna universe.
-          if (points.length > 1) {
-            val polyline = PolylineShape(points).addAttributes(attributes)
-            Create(polyline)
-          }
-          //The module closes - even if no polyline was drawn.
-          startPoint = None
-          points = List[Vector2D]()
-          End
-        }
-
-      }
-
-      case End :: tail => {
-        //If there are two or more points in the polyline, it can be saved to the Siigna universe.
-        if (points.length > 1) {
-          val polyline = PolylineShape(points).addAttributes(attributes)
-          Create(polyline)
-        }
-        //The module closes - even if no polyline was drawn.
-        startPoint = None
-        points = List[Vector2D]()
-        End
-      }
-      case x => {
+      case _ => {
         //change cursor to crosshair
         Siigna.setCursor(Cursors.crosshair)
-
-        points = List[Vector2D]()
+        //Update tooltip
         Tooltip.updateTooltip("Polyline tool active. Right click to finish polyline.")
+        //Request input
         Start('cad, "create.Input", InputRequest(6,None))
-        //Start('cad, "create.Input", 111)
+        //Goto next shape
+        'ReceivePoints
+      }
+    },
+
+    'ReceivePoints -> {
+      //Exit strategy - right click finishes polyline, if it has 2 or more points.
+      case (KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _))) :: tail => End
+      case (MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _))) :: tail => {
+        if (finalisePolyline) End
+        else Start('cad,"create.Input", InputRequest(7,Some(points.last),vector2DGuide))
+      }
+
+      //Handle values returned from input
+      case End(v : Vector2D) :: tail => {
+        points = points :+ v
+        Start('cad,"create.Input", InputRequest(7,Some(points.last),vector2DGuide))
+      }
+
+      //Handle enter, backspace and unexpected events
+      //Enter ends polyline, if there is at least 2 points
+      case End(KeyDown(Key.enter,modifier)) :: tail => {
+        if (finalisePolyline) End
+        else Start('cad,"create.Input", InputRequest(7,Some(points.last),vector2DGuide))
+      }
+      //Backspace removes last point
+      case End(KeyDown(Key.backspace,modifier)) :: tail => {
+        if (points.length > 0) {
+          points = points.dropRight(1)
+        }
+        if (points.length > 0 ) Start('cad,"create.Input", InputRequest(7,Some(points.last),vector2DGuide))
+        else Start('cad, "create.Input", InputRequest(6,None))
+      }
+      case x => {
+        println("Polyline module can't interpret this: " + x)
+        if (points.length > 0 ) Start('cad,"create.Input", InputRequest(7,Some(points.last),vector2DGuide))
+        else Start('cad, "create.Input", InputRequest(6,None))
       }
     }
   )

@@ -28,19 +28,17 @@ import module.Tooltip
  */
 class Line extends Module {
 
-  val attributes = {
+  private val attributes = {
     val color = Siigna.color("activeColor")
     val lineWidth = Siigna.double("activeLineWidth")
     Attributes(Seq(color.map(c => "Color" -> color.getOrElse(None)), lineWidth.map(w => "StrokeWidth" -> lineWidth.getOrElse(None))).flatten)
   }
 
-  var startPoint: Option[Vector2D] = None
+  private var startPoint: Option[Vector2D] = None
 
-  val vector2DGuide = Vector2DGuide((v : Vector2D) => {
+  private val vector2DGuide = Vector2DGuide((v : Vector2D) => {
     Array(LineShape(startPoint.get, v).addAttributes(attributes))
   })
-
-  val inputRequestForReceiveLastPoint = InputRequest(7,startPoint,vector2DGuide)
 
   val stateMap: StateMap = Map(
 
@@ -48,27 +46,27 @@ class Line extends Module {
       case _ => {
         //change cursor to crosshair
         Siigna.setCursor(Cursors.crosshair)
-
         //Update tooltip
         Tooltip.updateTooltip("Line tool active")
+        //Request input
         Start('cad, "create.Input", InputRequest(6,None))
+        //Goto next state
         'ReceiveFirstPoint
       }
     },
 
     'ReceiveFirstPoint -> {
       //Exit strategy
-      case KeyDown(Key.Esc, modifier) :: tail => End
-      case End(KeyDown(Key.escape, modifier)) :: tail => End
-      case MouseDown(p, MouseButtonRight, modifier) :: tail => End
-      case End(MouseDown(p,MouseButtonRight, modifier)) :: tail => End
+      case (KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) |End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
 
+      //Handle values returned from input
       case End(v : Vector2D) :: tail => {
         startPoint = Some(v)
-        Start('cad,"create.Input", inputRequestForReceiveLastPoint)
+        Start('cad,"create.Input", InputRequest(7,startPoint,vector2DGuide))
         'ReceiveLastPoint
       }
 
+      //Handle enter, backspace and unexpected events
       case End(KeyDown(Key.enter,modifier)) :: tail => {
         Start('cad, "create.Input", InputRequest(6,None))
       }
@@ -82,11 +80,9 @@ class Line extends Module {
     },
     'ReceiveLastPoint -> {
       //Exit strategy
-      case KeyDown(Key.Esc, modifier) :: tail => End
-      case End(KeyDown(Key.escape, modifier)) :: tail => End
-      case MouseDown(p, MouseButtonRight, modifier) :: tail => End
-      case End(MouseDown(p,MouseButtonRight, modifier)) :: tail => End
+      case (KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) |End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
 
+      //Handle values returned from input
       case End(v : Vector2D) :: tail => {
         val line = LineShape(startPoint.get,v).addAttributes(attributes)
         Create(line)
@@ -94,8 +90,9 @@ class Line extends Module {
         End
       }
 
+      //Handle enter, backspace and unexpected events
       case End(KeyDown(Key.enter,modifier)) :: tail => {
-        Start('cad,"create.Input", inputRequestForReceiveLastPoint)
+        Start('cad,"create.Input", InputRequest(7,startPoint,vector2DGuide))
       }
       case End(KeyDown(Key.backspace,modifier)) :: tail => {
         startPoint = None
@@ -104,7 +101,7 @@ class Line extends Module {
       }
       case x => {
         println("Line module can't interpret this: " + x)
-        Start('cad,"create.Input", inputRequestForReceiveLastPoint)
+        Start('cad,"create.Input", InputRequest(7,startPoint,vector2DGuide))
       }
     }
   )
