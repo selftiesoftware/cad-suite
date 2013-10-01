@@ -34,10 +34,10 @@ class Line extends Module {
     Attributes(Seq(color.map(c => "Color" -> color.getOrElse(None)), lineWidth.map(w => "StrokeWidth" -> lineWidth.getOrElse(None))).flatten)
   }
 
-  private var startPoint: Option[Vector2D] = None
+  private var firstPoint: Option[Vector2D] = None
 
   private val vector2DGuide = Vector2DGuide((v : Vector2D) => {
-    Traversable(LineShape(startPoint.get, v).addAttributes(attributes))
+    Traversable(LineShape(firstPoint.get, v).addAttributes(attributes))
   })
 
   val stateMap: StateMap = Map(
@@ -61,9 +61,9 @@ class Line extends Module {
 
       //Handle values returned from input
       case End(v : Vector2D) :: tail => {
-        startPoint = Some(v)
-        Start('cad,"create.Input", InputRequest(7,startPoint,vector2DGuide))
-        'ReceiveLastPoint
+        firstPoint = Some(v)
+        Start('cad,"create.Input", InputRequest(7,firstPoint,vector2DGuide))
+        'ReceiveSecondPoint
       }
 
       //Handle enter, backspace and unexpected events
@@ -75,30 +75,30 @@ class Line extends Module {
         Start('cad, "create.Input", InputRequest(6,None))
       }
     },
-    'ReceiveLastPoint -> {
+    'ReceiveSecondPoint -> {
       //Exit strategy
       case (KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
 
       //Handle values returned from input
       case End(v : Vector2D) :: tail => {
-        val line = LineShape(startPoint.get,v).addAttributes(attributes)
+        val line = LineShape(firstPoint.get,v).addAttributes(attributes)
         Create(line)
-        startPoint = None
+        firstPoint = None
         End
       }
 
       //Handle enter, backspace and unexpected events
       case End(KeyDown(Key.enter,modifier)) :: tail => {
-        Start('cad,"create.Input", InputRequest(7,startPoint,vector2DGuide))
+        Start('cad,"create.Input", InputRequest(7,firstPoint,vector2DGuide))
       }
       case End(KeyDown(Key.backspace,modifier)) :: tail => {
-        startPoint = None
+        firstPoint = None
         Start('cad, "create.Input", InputRequest(6,None))
         'ReceiveFirstPoint
       }
       case x => {
         println("Line module can't interpret this: " + x)
-        Start('cad,"create.Input", InputRequest(7,startPoint,vector2DGuide))
+        Start('cad,"create.Input", InputRequest(7,firstPoint,vector2DGuide))
       }
     }
   )
