@@ -35,7 +35,7 @@ class Polyline extends Module {
   private var points   = List[Vector2D]()
 
   private val vector2DGuide = Vector2DGuide((v : Vector2D) => {
-    Iterable(PolylineShape(points :+ v).addAttributes(attributes))
+    Traversable(PolylineShape(points :+ v).addAttributes(attributes))
   })
 
   private def finalisePolyline: Boolean = {

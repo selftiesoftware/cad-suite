@@ -37,7 +37,7 @@ class Line extends Module {
   private var startPoint: Option[Vector2D] = None
 
   private val vector2DGuide = Vector2DGuide((v : Vector2D) => {
-    Array(LineShape(startPoint.get, v).addAttributes(attributes))
+    Traversable(LineShape(startPoint.get, v).addAttributes(attributes))
   })
 
   val stateMap: StateMap = Map(
@@ -57,7 +57,7 @@ class Line extends Module {
 
     'ReceiveFirstPoint -> {
       //Exit strategy
-      case (KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) |End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
+      case (KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
 
       //Handle values returned from input
       case End(v : Vector2D) :: tail => {
@@ -67,10 +67,7 @@ class Line extends Module {
       }
 
       //Handle enter, backspace and unexpected events
-      case End(KeyDown(Key.enter,modifier)) :: tail => {
-        Start('cad, "create.Input", InputRequest(6,None))
-      }
-      case End(KeyDown(Key.backspace,modifier)) :: tail => {
+      case (End(KeyDown(Key.enter,_)) | End(KeyDown(Key.backspace,_))) :: tail => {
         Start('cad, "create.Input", InputRequest(6,None))
       }
       case x => {
@@ -80,7 +77,7 @@ class Line extends Module {
     },
     'ReceiveLastPoint -> {
       //Exit strategy
-      case (KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) |End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
+      case (KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
 
       //Handle values returned from input
       case End(v : Vector2D) :: tail => {
