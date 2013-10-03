@@ -27,17 +27,18 @@ class Move extends Module {
   val vector2DGuideStateOne = Vector2DGuideKeys((v: Vector2D) => {
     transformation = Some(TransformationMatrix(v, 1))
     Drawing.selection.transform(transformation.get)
-    val draw = Drawing.selection.parts
+    val draw = Drawing.selection.shapes.values
     Drawing.selection.transformation = origin //Leave the original for snapping...
     draw
   })
 
   val vector2DGuide = Vector2DGuide((v: Vector2D) => {
+    println("HER")
     transformation = Some(TransformationMatrix((v - firstPoint.get), 1))
     Drawing.selection.transform(transformation.get)
-    val draw = Drawing.selection.parts
+    val draw = Drawing.selection.shapes.values
     Drawing.selection.transformation = origin //Leave the original for snapping...
-     draw
+    draw
   })
 
   val stateMap: StateMap = Map(
