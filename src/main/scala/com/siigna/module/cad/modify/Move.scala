@@ -130,6 +130,9 @@ class Move extends Module {
 
       //on first entry, send input request to input to get the start point for the move operations.
       case _ => {
+        //change cursor to crosshair
+        Siigna.setCursor(Cursors.crosshair)
+
         Tooltip.updateTooltip("Move tool active")
         if (!Drawing.selection.isEmpty) {
           val vector2DGuide = Vector2DGuideKeys((v: Vector2D) => {
