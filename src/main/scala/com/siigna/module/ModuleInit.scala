@@ -185,6 +185,12 @@ class ModuleInit extends Module {
         lastModule = Some(module) // Store it as a last module
         Start(module) // Forward
       }
+      case End(module: Module) :: tail
+        if (ModuleLoader.modulesLoaded == true) => {
+        lastModule = Some(module) // Store it as a last module
+        Start(module) // Forward
+      }
+
 
       // Menu
       case MouseDown(p, MouseButtonRight, modifier) :: tail
