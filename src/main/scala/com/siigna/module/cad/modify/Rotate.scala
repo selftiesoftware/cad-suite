@@ -33,81 +33,90 @@ class Rotate extends Module {
   private var startVector : Option[Vector2D] = Some(Vector2D(0,0))
   var transformation : Option[TransformationMatrix] = None
 
+  val doubleGuide = DoubleGuide((d: Double) => {
+    Drawing.selection.transformation = origin
+    val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
+    Drawing.selection.transform(t).shapes.values
+  })
+
+  val vector2DGuideMouseUp = Vector2DGuide((v : Vector2D) => {
+    Drawing.selection.transformation = origin
+    val rotateAngle = -((centerPoint.get - centerPoint.get).angle - (v - centerPoint.get).angle)
+    val t : TransformationMatrix =
+      TransformationMatrix( ).rotate(rotateAngle, centerPoint.get)
+    Drawing.selection.transform(t).shapes.values
+  })
+
+  val vector2DGuideRotation = Vector2DGuide((v: Vector2D) => {
+    Drawing.selection.transformation = origin
+    //Angle of line from reference point to mouse position:
+    val d : Double = (-((mousePosition.transform(View.deviceTransformation) - centerPoint.get).angle - (startVector.get - centerPoint.get).angle))
+    val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
+    Drawing.selection.transform(t).shapes.values
+  })
+
   val stateMap: StateMap = Map(
 
     'Start -> {
-      //exit mechanisms
-      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => End
-      case End(KeyDown(Key.escape,modifier)) :: tail => End
-      case MouseDown(p,MouseButtonRight,modifier) :: tail => End
-      case KeyDown(Key.escape,modifier) :: tail => End
+      //Exit strategy
+      case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
 
-      case End(p : Vector2D) :: tail => {
-        if(!centerPoint.isDefined) {
-          //Request mouse down - it might be a rotation start point, or the start of a rotation angle:
-          centerPoint = Some(p)
+      //Handle enter, backspace and unexpected events
+      case (End(KeyDown(Key.enter,_)) | End(KeyDown(Key.backspace,_))) :: tail =>
+
+      //If none of the above happens, module should go on like this:
+      case _ => {
+        //If nothing is selected, start select
+        if (Drawing.selection.isEmpty) {
+          Siigna display "Select objects to rotate"
+          Tooltip.blockUpdate(3500)
+          Start('cad, "Selection")
+        } else {
+          //Update tooltip
+          Tooltip.updateTooltip("Rotate tool active")
+          Siigna display "set centre point for rotation"
+          Tooltip.blockUpdate(3500)
+          //Go to next state
+          'StateOne
+        }
+      }
+    },
+
+    'StateOne -> {
+      //Exit strategy
+      case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
+
+      //Handle values returned from input
+      case End(v : Vector2D) :: tail => {
+        if(centerPoint.isEmpty) {
+          centerPoint = Some(v)
           Siigna display "click to set rotation start point, or type a rotation angle"
           Tooltip.blockUpdate(3500)
-          val doubleGuide = DoubleGuide((d: Double) => {
-            Drawing.selection.transformation = origin
-            val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
-            Drawing.selection.transform(t).shapes.values
-          })
+          //Request mouse down - it might be a rotation start point, or the start of a rotation angle:
           Start('cad, "create.Input", InputRequest(15,None,doubleGuide))
         } else if (centerPoint.isDefined && firstPoint == true) {
           firstPoint = false
-          mouseDownPoint = Some(p)
+          mouseDownPoint = Some(v)
           //Find out where the mousebutton is released - if it's a start point or an angle that's defined:
-          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
-            Drawing.selection.transformation = origin
-            val rotateAngle = -((p - centerPoint.get).angle - (v - centerPoint.get).angle)
-            val t : TransformationMatrix =
-              TransformationMatrix( ).rotate(rotateAngle, centerPoint.get)
-            Drawing.selection.transform(t).shapes.values
-          })
-          Start('cad, "create.Input", InputRequest(8,None,vector2DGuide))
+          Start('cad, "create.Input", InputRequest(8,None,vector2DGuideMouseUp))
           //Where the mouse up is:
         } else if (mouseReleased == true) {
           mouseReleased = false
           //If an angle has been defined, the rotation is complete:
-          if (p!= mouseDownPoint.get) {
+          if (v!= mouseDownPoint.get) {
             Drawing.deselect()
             End
           } else {
             //Else its the start vector:
-            startVector = Some(p)
+            startVector = Some(v)
             startVectorSet = true
             Siigna display "click to finish rotation, or type a rotation angle"
             Tooltip.blockUpdate(3500)
-            val doubleGuide = DoubleGuide((d: Double) => {
-              val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
-              Drawing.selection.transformation = origin
-              Drawing.selection.transform(t).shapes.values
-            })
-            val vector2DGuide = Vector2DGuide((v: Vector2D) => {
-              Drawing.selection.transformation = origin
-              //Angle of line from reference point to mouse position:
-              val d : Double = (-((mousePosition.transform(View.deviceTransformation) - centerPoint.get).angle - (startVector.get - centerPoint.get).angle))
-              val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
-              Drawing.selection.transform(t).shapes.values
-            })
-            val inputRequest = InputRequest(15,None,vector2DGuide,doubleGuide)
-            //9 : Input type = Double from keys, or Vector2D from mouseDown.
+            val inputRequest = InputRequest(15,None,vector2DGuideRotation,doubleGuide)
             Start('cad, "create.Input", inputRequest)
             //If a rotation-vector is set, do the rotation!
           }
         } else if(startVectorSet == true && centerPoint.isDefined) {
-          /*endVector = Some(p)
-
-          val t : TransformationMatrix = {
-            if (endVector.isDefined) {
-              val a1 : Double = (startVector.get - centerPoint.get).angle
-              val a2 : Double = (endVector.get - centerPoint.get).angle
-              TransformationMatrix(Vector2D(0,0), 1).rotate(a2 - a1, centerPoint.get)
-            } else TransformationMatrix()
-          }
-          //val t = transformation.get.rotate(rotation,centerPoint.get)
-          Drawing.selection.get.transform(t)*/
           Drawing.deselect()
           End
         }
@@ -127,21 +136,11 @@ class Rotate extends Module {
         End
       }
 
-      // Stops an infinite loop between Input and Rotate
-      case End :: tail =>
+      //Handle enter, backspace and unexpected events
+      case (End(KeyDown(Key.enter,_)) | End(KeyDown(Key.backspace,_))) :: tail => //Does nothing
 
-      case _ => {
-        Tooltip.updateTooltip("Rotate tool active")
-        if (!Drawing.selection.isEmpty) {
-          Siigna display "set centre point for rotation"
-          Tooltip.blockUpdate(3500)
-          Start('cad, "create.Input", InputRequest(6,None))
-        } else {
-          Siigna display "Select objects to rotate"
-          Tooltip.blockUpdate(3500)
-          Start('cad, "Selection")
-        }
-      }
+      //Request input
+      case _ => Start('cad, "create.Input", InputRequest(6,None))
     }
   )
 }
