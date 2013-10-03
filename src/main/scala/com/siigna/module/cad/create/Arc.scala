@@ -65,8 +65,6 @@ class Arc extends Module {
         Siigna.setCursor(Cursors.crosshair)
         //Update tooltip
         Tooltip.updateTooltip("Arc tool active")
-        //Request input
-        Start('cad, "create.Input", InputRequest(6,None))
         //Goto next state
         'ReceiveFirstPoint
       }
@@ -78,19 +76,17 @@ class Arc extends Module {
       //Handle values returned from input
       case End(v : Vector2D) :: tail => {
         firstPoint = Some(v)
-        Start('cad,"create.Input", InputRequest(7,firstPoint,vector2DLineGuide))
         'receiveSecondPoint
       }
 
       //Handle enter, backspace and unexpected events
-      case (End(KeyDown(Key.enter,_)) | End(KeyDown(Key.backspace,_))) :: tail => {
-        Start('cad, "create.Input", InputRequest(6,None))
-      }
-      case x => {
-        println("Arc module can't interpret this: " + x)
+      case (End(KeyDown(Key.enter,_)) | End(KeyDown(Key.backspace,_))) :: tail =>
+      case _ => {
+        //Request input
         Start('cad, "create.Input", InputRequest(6,None))
       }
     },
+
     'receiveSecondPoint -> {
       //Exit strategy
       case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
@@ -99,25 +95,22 @@ class Arc extends Module {
       case End(v : Vector2D) :: tail => {
         if (v != firstPoint.get) {
           secondPoint = Some(v)
-          Start('cad,"create.Input", InputRequest(9,firstPoint,vector2DArcGuide, doubleGuide))
           'receiveThirdPointOrRadius
         } else Start('cad,"create.Input", InputRequest(7,firstPoint,vector2DLineGuide))
       }
 
       //Handle enter, backspace and unexpected events
-      case End(KeyDown(Key.enter,modifier)) :: tail => {
-        Start('cad,"create.Input", InputRequest(7,firstPoint,vector2DLineGuide))
-      }
+      case End(KeyDown(Key.enter,modifier)) :: tail =>
       case End(KeyDown(Key.backspace,modifier)) :: tail => {
         firstPoint = None
-        Start('cad, "create.Input", InputRequest(6,None))
         'ReceiveFirstPoint
       }
-      case x => {
-        println("Arc module can't interpret this: " + x)
-        Start('cad, "create.Input", InputRequest(7,firstPoint,vector2DLineGuide))
+      case _ => {
+        //Request input
+        Start('cad,"create.Input", InputRequest(7,firstPoint,vector2DLineGuide))
       }
     },
+
     'receiveThirdPointOrRadius -> {
       //Exit strategy
       case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) |End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
@@ -133,7 +126,7 @@ class Arc extends Module {
           End
         } else Start('cad,"create.Input", InputRequest(9,firstPoint,vector2DArcGuide, doubleGuide))
       }
-      //A radius is received
+      //A radius is received: Create the arc
       case End(d : Double) :: tail => {
         val arc = ArcShape(firstPoint.get,middlePointForDoubleGuide(d),secondPoint.get).addAttributes(attributes)
         Create(arc)
@@ -141,17 +134,15 @@ class Arc extends Module {
       }
 
       //Handle enter, backspace and unexpected events
-      case End(KeyDown(Key.enter,modifier)) :: tail => {
-        Start('cad,"create.Input", InputRequest(9,firstPoint,vector2DArcGuide, doubleGuide))
-      }
+      case End(KeyDown(Key.enter,modifier)) :: tail =>
       case End(KeyDown(Key.backspace,modifier)) :: tail => {
         secondPoint = None
-        Start('cad, "create.Input", InputRequest(7,firstPoint,vector2DLineGuide))
         'receiveSecondPoint
       }
-      case x => {
-        println("Arc module can't interpret this: " + x)
+      case _ => {
+        //Request input
         Start('cad, "create.Input", InputRequest(9,firstPoint,vector2DArcGuide, doubleGuide))
+
       }
     }
   )
