@@ -111,7 +111,7 @@ class Move extends Module {
         } else if (v == firstPoint.get) {
           //If the received point is the same as the first point, it is the start-point for the move
           //(since mouse-up happened on the same spot as mouse-down). Send an input-request for an end-point:
-          Start('cad, "create.Input", InputRequest(5,None,vector2DGuide))
+          Start('cad, "create.Input", InputRequest(5,Some(firstPoint.get),vector2DGuide))
         } else {
           //If the received point is NOT the same as the start point, it is the end-point for the move
           //(since mouse-up, or mouse down, happened on a different spot than the start point). Do the move:
