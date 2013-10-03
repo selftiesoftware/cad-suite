@@ -33,7 +33,6 @@ class Move extends Module {
   })
 
   val vector2DGuide = Vector2DGuide((v: Vector2D) => {
-    println("HER")
     transformation = Some(TransformationMatrix((v - firstPoint.get), 1))
     Drawing.selection.transform(transformation.get)
     val draw = Drawing.selection.shapes.values
@@ -53,6 +52,8 @@ class Move extends Module {
           Tooltip.blockUpdate(3500)
           Start('cad, "Selection")
         } else {
+          //change cursor to crosshair
+          Siigna.setCursor(Cursors.crosshair)
           //Update tooltip
           Tooltip.updateTooltip("Move tool active")
           //Handle input
