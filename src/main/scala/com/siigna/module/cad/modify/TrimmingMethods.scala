@@ -27,6 +27,9 @@ import com.siigna.app.view.View
 
 object TrimmingMethods {
 
+  //a function to round a number to four decimals
+  def round (d : Double) = math.round(d * 100000)/100000.toDouble
+
   /**
    * Finds the segment number on which there is an intersection, if any.
    * Input:
@@ -354,7 +357,7 @@ object TrimmingMethods {
       else None
     }
 
-    //return the trimmed line(s) as a new segment from Start/End to startInt/endInt:
+    //return the trimmed line(s) as a new segment from Start/End to startInt/endInt.
     (startSegment,endSegment)
   }
 
@@ -393,7 +396,10 @@ object TrimmingMethods {
     val line1 = findIntersectionOpen(trimLine, intIDs, trimSegmentInt, true, Some(p)) match {
       case Some((id1, int1)) => {
         // remove the trimmed vertices, but add the intersection vertex:
-        Some(trimVertices.drop(id1 + 1).+:(int1))
+        // Unless the trim point (rounded) equals the intersection point, in which case nothing should be trimmed:
+        val t = trimVertices.drop(id1 + 1).head
+        if(Vector2D(round(t.x),round(t.y)) != int1) Some(trimVertices.drop(id1 + 1).+:(int1))
+        else None
       }
       case _ => None
     }
@@ -403,11 +409,14 @@ object TrimmingMethods {
     val line2 = findIntersectionOpen(trimLine, intIDs, trimSegmentInt, false, Some(p)) match {
       case Some((id2, int2)) => {
         // remove the trimmed vertices, but add the intersection vertex:
-        Some(trimVertices.take(id2 + 1) :+ int2)
+        // Unless the trim point (rounded) equals the intersection point, in which case nothing should be trimmed:
+        val t = trimVertices.take(id2 + 1).head
+        if(Vector2D(round(t.x),round(t.y)) != int2) Some(trimVertices.take(id2 + 1) :+ int2)
+        else None
       }
       case _ => None
     }
-    //return
+    //return the trimmed lines --
     (line1,line2)
   }
 
