@@ -41,7 +41,7 @@ class Rotate extends Module {
 
   val vector2DGuideMouseUp = Vector2DGuide((v : Vector2D) => {
     Drawing.selection.transformation = origin
-    val rotateAngle = -((centerPoint.get - centerPoint.get).angle - (v - centerPoint.get).angle)
+    val rotateAngle = -((mouseDownPoint.get - centerPoint.get).angle - (v - centerPoint.get).angle)
     val t : TransformationMatrix =
       TransformationMatrix( ).rotate(rotateAngle, centerPoint.get)
     Drawing.selection.transform(t).shapes.values
