@@ -140,7 +140,7 @@ class Rotate extends Module {
       case (End(KeyDown(Key.enter,_)) | End(KeyDown(Key.backspace,_))) :: tail => //Does nothing
 
       //Request input
-      case _ => Start('cad, "create.Input", InputRequest(9,None))
+      case _ => Start('cad, "create.Input", InputRequest(6,None))
     }
   )
 }
