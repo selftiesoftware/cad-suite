@@ -48,8 +48,10 @@ case object StartCategory extends MenuCategory{
     EventWSW -> MenuModule(Module('cad,"properties.Colors"), MenuIcons.colorWheel),
     EventSSW -> MenuModule(Module('cad,"modify.Rotate"), MenuIcons.rotate),
     EventSSE -> MenuModule(Module('cad,"modify.Move"), MenuIcons.move),
-    EventESE -> MenuModule(Module('cad,"helpers.TrackToggle"), MenuIcons.guides),
-    EventENE -> MenuModule(Module('cad,"helpers.SnapToggle"), MenuIcons.snap)
+    //EventESE -> MenuModule(Module('cad,"helpers.TrackToggle"), MenuIcons.guides),
+    EventESE -> MenuModule(Module('cad,"helpers.ZoomExtends"), MenuIcons.zoomExtends),
+    //EventENE -> MenuModule(Module('cad,"helpers.SnapToggle"), MenuIcons.snap)
+    EventENE -> MenuModule(Module('cad,"helpers.Distance"), MenuIcons.distance)
   )
 
   val color = MenuIcons.fileColor
