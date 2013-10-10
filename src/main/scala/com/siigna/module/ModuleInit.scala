@@ -137,13 +137,11 @@ class ModuleInit extends Module {
       //Modified keys: Control:
       if (modifier.ctrl) {
         if (shortcutKey == 'a') Drawing.selectAll()
-        if (shortcutKey == 'c') shortcutProcess("q", "create.Copy", 'cad)
-        if (shortcutKey == 'z') Drawing.undo()
-        if (shortcutKey == 'y') Drawing.redo()
-      }
-
+        else if (shortcutKey == 'c') shortcutProcess("q", "create.Copy", 'cad)
+        else if (shortcutKey == 'z') Drawing.undo()
+        else if (shortcutKey == 'y') Drawing.redo()
+      } else if (shortcut == "") {
       //MENU SHORTCUTS - LETTERS:
-      if (shortcut == "") {
         if (shortcutKey == 'c' || shortcutKey == 'h' || shortcutKey == 'm' || shortcutKey == 'p') {
           shortcut = shortcutKey.toString
           toolSuggestions = textFeedback.inputFeedback(shortcut)
@@ -196,6 +194,7 @@ class ModuleInit extends Module {
       case MouseDown(p, MouseButtonRight, modifier) :: tail
         if (ModuleLoader.modulesLoaded == true) => {
         Tooltip.updateTooltip("Select tool")
+        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         startMenu
       }
       case End(MouseDown(p, MouseButtonRight, modifier)) :: tail => {

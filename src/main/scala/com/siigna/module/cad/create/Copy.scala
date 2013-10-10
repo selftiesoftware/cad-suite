@@ -129,10 +129,16 @@ class Copy extends Module {
             Start('cad,"create.Input",InputRequest(6,None))
           }
         } else {
-          Tooltip.updateTooltip("Copy tool active")
-          Siigna display "Select objects to copy"
-          Tooltip.blockUpdate(3500)
-          Start('cad, "Selection")
+          if (Drawing.size > 0) {
+            Tooltip.updateTooltip("Copy tool active")
+            Siigna display "Select objects to copy"
+            Tooltip.blockUpdate(3500)
+            Start('cad, "Selection")
+          } else {
+            Siigna display "No shapes to copy"
+            Tooltip.blockUpdate(3500)
+            End
+          }
         }
       }
     }
