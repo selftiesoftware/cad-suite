@@ -26,8 +26,10 @@ class Copy extends Module {
 
   var endPoint : Option[Vector2D] = None
   var multiActive = false
+  var multiFirst = true
   var startPoint : Option[Vector2D] = None
   var transformation = TransformationMatrix()
+  val shapes = Drawing.selection.shapes
 
   /**
    * Transform the shapes with the given transformation
@@ -35,7 +37,7 @@ class Copy extends Module {
    * @return The shapes transformed
    */
   def transform(t : TransformationMatrix) = {
-    Drawing.selection.shapes.map(_._2.transform(t))
+    shapes.map(_._2.transform(t))
   }
 
   val stateMap: StateMap = Map(
@@ -43,9 +45,15 @@ class Copy extends Module {
     'Start -> {
 
       //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
-      case MouseDown(p, MouseButtonRight, _) :: tail => End
-      case End(KeyDown(Key.Esc, _)) :: tail => End
+      case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => {
+        if (multiFirst == true) {
+          transformation = TransformationMatrix(endPoint.get - startPoint.get, 1)
+          Create(transform(transformation))
+        }
+        End
+      }
+
+
 
       case End(p : Vector2D) :: tail => {
 
@@ -59,17 +67,31 @@ class Copy extends Module {
 
           val inputRequest = InputRequest(5,startPoint,vector2DGuide)
           Start('cad, "create.Input", inputRequest)
-        } else if (startPoint.isDefined){
+        } else if (startPoint.isDefined & multiActive == false){
           endPoint = Some(p)
-          transformation = TransformationMatrix(p - startPoint.get, 1)
-          Siigna display "type number of copies or click for one"
+          Siigna display "click to set a copy or type number of copies. Escape or right mouse to end."
           Tooltip.blockUpdate(3500)
           multiActive = true
-
-          val doubleGuide = DoubleGuide((r: Double) => transform(transformation))
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => transform(transformation))
-          val inputRequest = InputRequest(13, None,vector2DGuide,doubleGuide)
+          var t: Traversable[Shape] = Traversable()
+          val doubleGuide = DoubleGuide((r: Double) => transform(TransformationMatrix(endPoint.get-startPoint.get)))
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => transform(TransformationMatrix(endPoint.get - startPoint.get,1)) ++ transform(TransformationMatrix(v-startPoint.get,1)))
+          val inputRequest = InputRequest(9, None,vector2DGuide,doubleGuide)
           Start('cad, "create.Input", inputRequest)
+        } else if (multiActive == true) {
+          if (multiFirst == true) {
+            transformation = TransformationMatrix(endPoint.get - startPoint.get, 1)
+            Create(transform(transformation))
+          }
+          multiFirst = false
+          //First copy set with click. user might want to set more...
+          transformation = TransformationMatrix(p - startPoint.get, 1)
+          Create(transform(transformation))
+          Siigna display "click to set a copy. Escape or right mouse to end."
+          Tooltip.blockUpdate(3500)
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => transform(TransformationMatrix(v-startPoint.get,1)))
+          val inputRequest = InputRequest(1 , None,vector2DGuide)
+          Start('cad, "create.Input", inputRequest)
+
         }
       }
 
@@ -94,40 +116,14 @@ class Copy extends Module {
         End
       }
 
-      case End(MouseDown(p,MouseButtonRight,modifier)) :: tail => {
-        if (multiActive) {
-          transformation = TransformationMatrix(endPoint.get - startPoint.get, 1)
-          Create(transform(transformation))
-          val module = Module('base, "Menu")
-          End(module)
-        } else End
-      }
-
-      case End(KeyDown(key,modifier)) :: tail => {
-        if (key == Key.escape) {
-          if (multiActive) {
-
-            transformation = TransformationMatrix(endPoint.get - startPoint.get, 1)
-            Create(transform(transformation))
-          }
-          End('base, "Menu")
-        }
-      }
-
       case _ => {
         if (Drawing.selection.isDefined) {
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)
-
-          if (multiActive) {
-            Create(transform(transformation))
-            End
-          } else {
             Tooltip.updateTooltip("Copy tool active")
             Siigna display "set origin of copy"
             Tooltip.blockUpdate(3500)
             Start('cad,"create.Input",InputRequest(6,None))
-          }
         } else {
           if (Drawing.size > 0) {
             Tooltip.updateTooltip("Copy tool active")
