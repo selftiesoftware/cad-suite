@@ -46,8 +46,13 @@ class InputTextByKey extends Module {
     'Start -> {
       //exit mechanisms
       case MouseDown(p,MouseButtonRight,modifier) :: tail => {
-        Tooltip.updateTooltip(tooltipAtStart)
-        End
+        if (text.length > 0) {
+          Tooltip.updateTooltip(tooltipAtStart)
+          End(text)
+        } else {
+          Tooltip.updateTooltip(tooltipAtStart)
+          End
+        }
       }
       case KeyDown(Key.escape,modifier) :: tail => {
         Tooltip.updateTooltip(tooltipAtStart)
