@@ -35,6 +35,7 @@ class Line extends Module {
   }
 
   private var firstPoint: Option[Vector2D] = None
+  private var firstPointSet : Boolean = false
 
   private val vector2DGuide = Vector2DGuide((v : Vector2D) => {
     Traversable(LineShape(firstPoint.get, v).addAttributes(attributes))
@@ -60,8 +61,28 @@ class Line extends Module {
 
       //Handle values returned from input
       case End(v : Vector2D) :: tail => {
-        firstPoint = Some(v)
-        'ReceiveSecondPoint
+        if (firstPoint.isEmpty) {
+          firstPoint = Some(v)
+          //Get input: Mouse up.
+          Start('cad, "create.Input", InputRequest(8,None,vector2DGuide))
+          //If mouse up is a different point: A drag occured, and a line was drawn. End.
+        } else if (v != firstPoint.get & firstPointSet == false) {
+          val line = LineShape(firstPoint.get,v).addAttributes(attributes)
+          Create(line)
+          firstPoint = None
+          End
+          //Otherwise the mouse was not moved, and first point was set by a click. Request input for second point.
+        } else if (v == firstPoint.get) {
+          firstPointSet = true
+          Start('cad,"create.Input", InputRequest(7,firstPoint,vector2DGuide))
+        } else {
+          //A second point was set. Create the line.
+          val line = LineShape(firstPoint.get,v).addAttributes(attributes)
+          Create(line)
+          firstPoint = None
+          End
+        }
+
       }
 
       //Handle enter, backspace and unexpected events
@@ -70,31 +91,6 @@ class Line extends Module {
       //Request input
       case _ => {
         Start('cad, "create.Input", InputRequest(6,None))
-      }
-    },
-
-    'ReceiveSecondPoint -> {
-      //Exit strategy
-      case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
-
-      //Handle values returned from input
-      case End(v : Vector2D) :: tail => {
-        val line = LineShape(firstPoint.get,v).addAttributes(attributes)
-        Create(line)
-        firstPoint = None
-        End
-      }
-
-      //Handle enter, backspace and unexpected events
-      case End(KeyDown(Key.enter,modifier)) :: tail => //Do nothing
-      case End(KeyDown(Key.backspace,modifier)) :: tail => {
-        firstPoint = None
-        'ReceiveFirstPoint
-      }
-
-      //Request input
-      case _ => {
-        Start('cad,"create.Input", InputRequest(7,firstPoint,vector2DGuide))
       }
     }
   )
