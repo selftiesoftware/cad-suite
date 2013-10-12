@@ -64,8 +64,8 @@ class Polyline extends Module {
       //Exit strategy - right click finishes polyline, if it has 2 or more points.
       case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _))) :: tail => End
       case (MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _))) :: tail => {
-        if (finalisePolyline) End
-        else Start('cad,"create.Input", InputRequest(7,Some(points.last),vector2DGuide))
+        finalisePolyline
+        End
       }
 
       //Handle values returned from input
@@ -86,7 +86,7 @@ class Polyline extends Module {
           points = points.dropRight(1)
         }
         if (points.length > 0 ) Start('cad,"create.Input", InputRequest(7,Some(points.last),vector2DGuide))
-        else Start('cad, "create.Input", InputRequest(6,None))
+        else End
       }
       case x => {
         println("Polyline module can't interpret this: " + x)
