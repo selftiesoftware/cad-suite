@@ -33,6 +33,8 @@ class Input extends Module {
   var guides: Seq[Guide] = Seq()
   var referencePoint: Option[Vector2D] = None
   var trackDoubleRequest: Boolean = false
+  var movedAwayFromEntryPoint: Boolean = false
+  var entryPoint: Option[Vector2D] = None
 
   def interpretMouseInput(p : Vector2D) : Option[ModuleEvent] = {
     if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)
@@ -145,7 +147,8 @@ class Input extends Module {
         End(KeyDown(key,modifier))
       }
       //Input types where track-offset is activated: Vector2D-guides are transformed to DoubleGuides:
-      else if ((inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(9)
+      //Guides only start when the mouse has been moved away from the point where it entered into input - so entry og x,y isn't interpreted as a distance on a guide...
+      else if (movedAwayFromEntryPoint == true && (inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(9)
         || inputType == Some(16) || inputType == Some(18)) && Track.isTracking) {
         val guidesNew = guides.collect({
           case Vector2DGuide(guide) => {
@@ -160,11 +163,12 @@ class Input extends Module {
           }
         })
         val newInputRequest = InputRequest(7,referencePoint,guidesNew:_*)
+        println("DER")
         trackDoubleRequest = true
         Start('cad,"create.InputSingleValueByKey",newInputRequest)
       // Input types accepting Vector2D by keys:
       } else if(inputType == Some(3) || inputType == Some(5)
-        || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7) || inputType == Some(16)) && !Track.isTracking)) {
+        || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7) || inputType == Some(16)) && (!Track.isTracking || movedAwayFromEntryPoint == false))) {
         Start('cad,"create.InputDualValuesByKey",inputRequest.get)
       }
        else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13) || inputType == Some(15)) {
@@ -183,6 +187,7 @@ class Input extends Module {
 
     //Vector2D: (Standard: The received Vector2D is returned, un-transformed)
     case End(p : Vector2D) :: tail => {
+      println("HER")
       //if (drawGuideInInputModule == false) drawGuideInInputModule = true
       if (inputType == Some(5) || inputType == Some(7) && !referencePoint.isEmpty) {
         Siigna("track") = true
@@ -222,7 +227,22 @@ class Input extends Module {
       End(KeyDown(code: Int,modifier: ModifierKeys))
     }
 
-    case _ => {
+    case MouseMove(p,_,_) :: tail => {
+      if (movedAwayFromEntryPoint == false) {
+        if (entryPoint.isEmpty) entryPoint = Some(p)
+        else if (p.distanceTo(entryPoint.get) > Siigna.selectionDistance) movedAwayFromEntryPoint = true
+      }
+    }
+
+    case MouseDrag(p,_,_) :: tail => {
+      if (movedAwayFromEntryPoint == false) {
+        if (entryPoint.isEmpty) entryPoint = Some(p)
+        else if (p.distanceTo(entryPoint.get) > Siigna.selectionDistance) movedAwayFromEntryPoint = true
+      }
+    }
+
+    case x => {
+      println(x)
       Tooltip.refresh()
     }
   })
