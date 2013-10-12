@@ -33,6 +33,8 @@ class Polyline extends Module {
   }
 
   private var points   = List[Vector2D]()
+  private var firstPoint: Option[Vector2D] = None
+  private var firstPointSet : Boolean = false
 
   private val vector2DGuide = Vector2DGuide((v : Vector2D) => {
     Traversable(PolylineShape(points :+ v).addAttributes(attributes))
@@ -48,19 +50,6 @@ class Polyline extends Module {
 
   val stateMap: StateMap = Map(
     'Start -> {
-      case _ => {
-        //change cursor to crosshair
-        Siigna.setCursor(Cursors.crosshair)
-        //Update tooltip
-        Tooltip.updateTooltip("Polyline tool active. Right click to finish polyline.")
-        //Request input
-        Start('cad, "create.Input", InputRequest(6,None))
-        //Goto next shape
-        'ReceivePoints
-      }
-    },
-
-    'ReceivePoints -> {
       //Exit strategy - right click finishes polyline, if it has 2 or more points.
       case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _))) :: tail => End
       case (MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _))) :: tail => {
@@ -70,8 +59,20 @@ class Polyline extends Module {
 
       //Handle values returned from input
       case End(v : Vector2D) :: tail => {
-        points = points :+ v
-        Start('cad,"create.Input", InputRequest(7,Some(points.last),vector2DGuide))
+        if (firstPoint.isEmpty) {
+          firstPoint = Some(v)
+          points = points :+ v
+          Start('cad, "create.Input", InputRequest(8,None,Vector2DGuide((v : Vector2D) => Traversable(LineShape(firstPoint.get, v).addAttributes(attributes)))))
+        } else if (firstPointSet == false) {
+          firstPointSet = true
+          if (v != firstPoint.get) {
+            points = points :+ v
+          }
+          Start('cad,"create.Input", InputRequest(7,Some(points.last),vector2DGuide))
+        } else {
+          points = points :+ v
+          Start('cad,"create.Input", InputRequest(7,Some(points.last),vector2DGuide))
+        }
       }
 
       //Handle enter, backspace and unexpected events
@@ -89,9 +90,18 @@ class Polyline extends Module {
         else End
       }
       case x => {
+        if (points.length == 0) {
+          //change cursor to crosshair
+          Siigna.setCursor(Cursors.crosshair)
+          //Update tooltip
+          Tooltip.updateTooltip("Polyline tool active. Right click to finish polyline.")
+          //Request input
+          Start('cad, "create.Input", InputRequest(6,None))
+        } else {
         println("Polyline module can't interpret this: " + x)
         if (points.length > 0 ) Start('cad,"create.Input", InputRequest(7,Some(points.last),vector2DGuide))
         else Start('cad, "create.Input", InputRequest(6,None))
+        }
       }
     }
   )
