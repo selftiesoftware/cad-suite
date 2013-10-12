@@ -187,7 +187,6 @@ class Input extends Module {
 
     //Vector2D: (Standard: The received Vector2D is returned, un-transformed)
     case End(p : Vector2D) :: tail => {
-      println("HER")
       //if (drawGuideInInputModule == false) drawGuideInInputModule = true
       if (inputType == Some(5) || inputType == Some(7) && !referencePoint.isEmpty) {
         Siigna("track") = true
@@ -241,8 +240,7 @@ class Input extends Module {
       }
     }
 
-    case x => {
-      println(x)
+    case _ => {
       Tooltip.refresh()
     }
   })
