@@ -20,8 +20,8 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
-import app.Siigna
-import module.Tooltip
+import com.siigna.module.Tooltip
+import scala.Some
 
 /**
  * A module that collect a pair of digits on the basis of key inputs.
@@ -37,6 +37,9 @@ class InputTextByKey extends Module {
   var inputType: Option[Int] = None
   var guides: Seq[Guide] = Seq()
   var referencePoint: Option[Vector2D] = None
+  var n: Int = 0
+  var oldShape: Option[TextShape] = None
+  var oldShapeId: Option[Int] = None
 
   var tooltipAtStart : String = ""
 
@@ -56,7 +59,13 @@ class InputTextByKey extends Module {
       }
       case KeyDown(Key.escape,modifier) :: tail => {
         Tooltip.updateTooltip(tooltipAtStart)
-        End
+        if (oldShape.isDefined) {
+          //There is something with spaces being added...
+          if (oldShape.get.text.length > 0)
+            End(oldShape.get.text.substring(0, oldShape.get.text.length-1))
+          else End(oldShape.get.text)
+        }
+        else End
       }
 
       case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
@@ -64,10 +73,29 @@ class InputTextByKey extends Module {
         Tooltip.updateTooltip("Input text")
         inputRequest = Some(i)
         inputType = Some(i.inputType)
+        //Inputtype 17 reads text from textshape, which it then deletes, if there is selected excatly one text-shape:
+        Drawing.selection.shapes.foreach(m => {
+          m._2 match {
+            case t: TextShape => {
+              n= n + 1
+              oldShape = Some(t)
+              oldShapeId = Some(m._1)
+            }
+            case _ =>
+          }
+        })
+        if (n == 1) {
+          text = oldShape.get.text
+          //There is added a space to the text when it's created - remove that.
+          text = text.substring(0, text.length-1)
+          Delete(oldShapeId.get)
+        }
         guides = i.guides
         referencePoint = i.referencePoint
         //save the already typed key:
-        if (code.toChar.isValidChar) text += code.toChar
+        if (code == Key.Backspace) {
+          if (text.length > 0) text = text.substring(0, text.length-1)
+        } else if (code.toChar.isValidChar) text += code.toChar
       }
 
       //Read numbers and minus, "," and enter as first entry if no guide is provided:

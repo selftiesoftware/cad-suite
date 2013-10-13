@@ -21,6 +21,8 @@ package com.siigna.module.cad.create
 
 import com.siigna._
 import module.Tooltip
+import scala.Some
+import scala.Some
 
 /**
  * An input request module.
@@ -114,7 +116,7 @@ class Input extends Module {
     case KeyDown(Key.shift, _) :: tail => {
       if (inputType == Some(1) || inputType == Some(2) || inputType == Some(3) || inputType == Some(4) || inputType == Some(5)
         || inputType == Some(6) || inputType == Some(7) || inputType == Some(8) || inputType == Some(9) || inputType == Some(10)
-        || inputType == Some(11) || inputType == Some(12) || inputType == Some(16) || inputType == Some(18)) {
+        || inputType == Some(11) || inputType == Some(12) || inputType == Some(16) || inputType == Some(17) || inputType == Some(18)) {
         //Angle gizmo based on track point (Track point is sent to Angle Gizmo - not referencePoint (if there is one)
         if (Track.isTracking && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Siigna.selectionDistance) {
           Start('cad,"create.AngleGizmo",InputRequest(inputType.get,Track.pointOne,guides:_*))
@@ -141,10 +143,14 @@ class Input extends Module {
         Siigna("track") = true
         End(KeyDown(key,modifier))
       }
-      //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event:
+      //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event,
+      // Except input type 17 (for text editing) where it's forwarded to inputText:
       else if (key == Key.backspace) {
-        Siigna("track") = true
-        End(KeyDown(key,modifier))
+        if (inputType == Some(17)) Start('cad,"create.InputTextByKey",inputRequest.get)
+        else {
+          Siigna("track") = true
+          End(KeyDown(key,modifier))
+        }
       }
       //Input types where track-offset is activated: Vector2D-guides are transformed to DoubleGuides:
       //Guides only start when the mouse has been moved away from the point where it entered into input - so entry og x,y isn't interpreted as a distance on a guide...
@@ -163,7 +169,6 @@ class Input extends Module {
           }
         })
         val newInputRequest = InputRequest(7,referencePoint,guidesNew:_*)
-        println("DER")
         trackDoubleRequest = true
         Start('cad,"create.InputSingleValueByKey",newInputRequest)
       // Input types accepting Vector2D by keys:
@@ -174,7 +179,7 @@ class Input extends Module {
        else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13) || inputType == Some(15)) {
       // Input types accepting a double as input:
         Start('cad,"create.InputSingleValueByKey",inputRequest.get)
-      } else if(inputType == Some(12)) {
+      } else if(inputType == Some(12) || inputType == Some(17)) {
       // Input types accepting a string as input:
         Start('cad,"create.InputTextByKey",inputRequest.get)
       } else if(inputType == Some(14)) {

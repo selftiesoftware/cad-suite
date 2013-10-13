@@ -41,6 +41,8 @@ class Selection extends Module {
   // The selection at start, if any:
   private var originalSelector : Option[SiignaSelection]= None
 
+  private var textShapes: Int = 0
+
   /**
    * Examines whether the selection is currently enclosed (selects the entire shapes) or not (only selects parts).
    */
@@ -78,12 +80,19 @@ class Selection extends Module {
         //If control is not down, and clicking away from shape: Deselect any selections.
         if (!shapeWithinSelectionDistance) Deselect()
         //If clicking near shapes, and on the same point as last mouse up: Select whole shape (Doubleclick)
+
         //TOTO: Insert time factor
         else {
           val (id, shape) = nearestShape.get
           Deselect()
           Select(id)
-          End
+          //If it's a text-shape: Edit the text-shape.
+          shape match {
+            case t: TextShape => textShapes = textShapes + 1
+            case _ =>
+          }
+          if ( textShapes == 1) End(Module('cad, "modify.EditText"))
+          else End
         }
       } else {
         //If control is down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
