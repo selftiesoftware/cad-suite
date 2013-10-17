@@ -72,7 +72,14 @@ class AngleGizmo extends Module {
     'Start -> {
 
       // Exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
+      case KeyDown(Key.Esc, _) :: tail => {
+        if (referencePoint.isDefined) {
+          if(referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation)) > Siigna.selectionDistance) {
+            Siigna.navigation = true
+            End(MouseDown(mousePosition,MouseButtonLeft,ModifierKeys(false,false,false)))
+          } else End
+        } else End
+      }
 
       //Check for input request:
       case Start(_ , i: InputRequest) :: tail => {

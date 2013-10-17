@@ -51,8 +51,10 @@ class Polyline extends Module {
   val stateMap: StateMap = Map(
     'Start -> {
       //Exit strategy - right click finishes polyline, if it has 2 or more points.
-      case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _))) :: tail => End
-      case (MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _))) :: tail => {
+      case (End ) :: tail => End
+      case (MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _))
+            |KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _))
+            |KeyDown(Key.space, _) | End(KeyDown(Key.space, _))) :: tail => {
         finalisePolyline
         End
       }

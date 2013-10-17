@@ -143,14 +143,18 @@ class Input extends Module {
         Siigna("track") = true
         End(KeyDown(key,modifier))
       }
-      //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event,
-      // Except input type 17 (for text editing) where it's forwarded to inputText:
+      //BACKSPACE with no modifiers: Is returned to the asking module as a key-down event
       else if (key == Key.backspace) {
         if (inputType == Some(17)) Start('cad,"create.InputTextByKey",inputRequest.get)
         else {
           Siigna("track") = true
           End(KeyDown(key,modifier))
         }
+      }
+      //SPACE: Is returned to the asking module as a key-down event:
+      else if (key == Key.space) {
+        Siigna("track") = true
+        End(KeyDown(key,modifier))
       }
       //Input types where track-offset is activated: Vector2D-guides are transformed to DoubleGuides:
       //Guides only start when the mouse has been moved away from the point where it entered into input - so entry og x,y isn't interpreted as a distance on a guide...
