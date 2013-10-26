@@ -53,7 +53,6 @@ object TrimmingMethods {
     //make a list of tuples: the segment nr at which the intersection takes place, and the coordinate.
     val intersections = t.shapes.map(_.geometry).zipWithIndex.map(t => t._2 -> shapes.map(_.intersections(t._1)).flatten)
     val i = intersections.toMap //return
-    println("I: "+i)
     i
   }
 
@@ -313,9 +312,8 @@ object TrimmingMethods {
     }
   }
 
-
   /*
-  a function to trim a LineShape
+  a function to trim a LineShape with specified shapes
 
   input:
   gs = the trimGuideShape(s)
@@ -440,7 +438,6 @@ object TrimmingMethods {
     //calculate the number of intersections
     val ints = intIDs.values.flatten
     //val ints = intIDs.values.filter(a => !a.isEmpty)
-    println("INTS: "+ints)
 
     //if there are less than two intersections, the polyline should not be trimmed.
     if(ints.size > 1) {
