@@ -138,7 +138,8 @@ class Scale extends Module {
             // Return the shape, transformed
             transformSelection(t)
           })
-          Start('cad, "create.Input", InputRequest(9,None,vector2DGuide,doubleGuide))
+          //two points are selected, request click or double to define scale factor:
+          Start('cad, "create.Input", InputRequest(19,None,vector2DGuide,doubleGuide))
         } else if (firstPointEntered == true && !endPoint.isEmpty && endPoint.get != p) {
           //Step 4b: A drag has occured (the point from mouse up is not the same as from mouse down).
           // or the mouse has been clicked after the end point has been set, defining a scale factor. Do the scaling:

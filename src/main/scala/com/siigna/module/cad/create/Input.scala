@@ -40,7 +40,7 @@ class Input extends Module {
 
   def interpretMouseInput(p : Vector2D) : Option[ModuleEvent] = {
     if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)
-      || inputType == Some(9) || inputType == Some(14) || inputType == Some(15) || inputType == Some(16))  {
+      || inputType == Some(9) || inputType == Some(14) || inputType == Some(15) || inputType == Some(16) || inputType == Some(19))  {
       //Absolute values returned
       Some(End(p.transform(View.deviceTransformation)))
     } else if (inputType == Some(10)) {
@@ -49,7 +49,7 @@ class Input extends Module {
       val startPointY = referencePoint.get.y
       val distanceFromStartToMouse: Double = math.sqrt(( (startPointX-p.transform(View.deviceTransformation).x) * (startPointX-p.transform(View.deviceTransformation).x)) + ( (startPointY-p.transform(View.deviceTransformation).y) * (startPointY-p.transform(View.deviceTransformation).y)) )
       if (distanceFromStartToMouse != 0) {
-        Some(End(distanceFromStartToMouse))
+        Some(End(distanceFromStartToMouse * 2))
       } else None
     } else if (inputType == Some(999)) {
       //Relative values returned
@@ -70,7 +70,7 @@ class Input extends Module {
         var snapGuide: Boolean = false
         guides.foreach(_ match {
           case Vector2DGuide(guide) => {
-            if (snapGuide == false && inputType != Some(5) && inputType != Some(8) && inputType != Some(15) && inputType != Some(16) && inputType != Some(18)) {
+            if (snapGuide == false && inputType != Some(5) && inputType != Some(8) && inputType != Some(15) && inputType != Some(16) && inputType != Some(18) && inputType != Some(19)) {
               val snapFunction = () => guide(mousePosition)
               eventParser.snapTo(snapFunction)
             }
@@ -180,7 +180,7 @@ class Input extends Module {
         || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7) || inputType == Some(16)) && (!Track.isTracking || movedAwayFromEntryPoint == false))) {
         Start('cad,"create.InputDualValuesByKey",inputRequest.get)
       }
-       else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13) || inputType == Some(15)) {
+       else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13) || inputType == Some(15) || inputType == Some(19)) {
       // Input types accepting a double as input:
         Start('cad,"create.InputSingleValueByKey",inputRequest.get)
       } else if(inputType == Some(12) || inputType == Some(17)) {
@@ -218,7 +218,7 @@ class Input extends Module {
         trackDoubleRequest = false
         Siigna("track") = true
         End(MouseDown(Track.getPointFromDistance(s).get - Track.pointOne.get,MouseButtonNone,ModifierKeys(false,false,false)))
-      } else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13) || inputType == Some(15)) {
+      } else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13) || inputType == Some(15)|| inputType == Some(19)) {
         Siigna("track") = true
         End(s)
       }
