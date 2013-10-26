@@ -382,8 +382,9 @@ class Selection extends Module {
       box = Some(rectangle)
       val transformedRectangle = rectangle.transform(View.deviceTransformation)
       val selection = Drawing(transformedRectangle).map(t =>
-        t._1 -> (t._2 -> (if (isEnclosed) FullShapeSelector else t._2.getSelector(transformedRectangle))))
+        t._1 -> (t._2 -> (if (!isEnclosed) FullShapeSelector else t._2.getSelector(transformedRectangle))))
       activeSelection = Selection(selection)
+      //println("active selection: "+ activeSelection.par)
     }
 
 

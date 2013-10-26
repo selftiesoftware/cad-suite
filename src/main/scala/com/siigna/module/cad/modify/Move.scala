@@ -83,9 +83,11 @@ class Move extends Module {
           Start('cad, "Selection")
           //If there is a selection, go to next state
         } else {
+          //change cursor to crosshair
+          Siigna.setCursor(Cursors.crosshair)
+
           //Update tooltip
           Tooltip.updateTooltip("Move tool active")
-          println("Move started, no start point received. Looking for points... Event stream: " + x)
           //Goto next state
           'StateOne
         }

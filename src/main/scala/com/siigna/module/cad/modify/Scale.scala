@@ -65,6 +65,9 @@ class Scale extends Module {
           //if the base point for scaling is set, goto point with a shape guide
           Start('cad, "create.Input", inputRequest)
         } else if(p != startPoint.get && firstPointEntered == false) {
+          //change cursor to crosshair
+          Siigna.setCursor(Cursors.crosshair)
+
           //STEP 2a: There is a start, but no endpoint, and a new point is recieved (from mouseUp):
           //If it the coords are the same as mouse up, it is the startpoint, and the mouse has ben clicked, not dragged.
           //If not, it is the end of a drag, defining a scale operation, which is then done:
@@ -77,6 +80,9 @@ class Scale extends Module {
           Drawing.deselect()
           End
         } else if (p == startPoint.get && firstPointEntered == false) {
+          //change cursor to crosshair
+          Siigna.setCursor(Cursors.crosshair)
+
           Drawing.selection.transformation = origin
           Siigna display "set second reference point for scaling, type scale factor or drag to scale"
           Tooltip.blockUpdate(3500)
@@ -95,6 +101,9 @@ class Scale extends Module {
           )
           Start('cad, "create.Input", InputRequest(15,None,doubleGuide))
         } else if (firstPointEntered == true && endPoint.isEmpty) {
+          //change cursor to crosshair
+          Siigna.setCursor(Cursors.crosshair)
+
           //STEP 3: A point is returned (from mouse down). To find out what to do with it, a mouse-up is required:
           endPoint = Some(p)
           val vector2DGuide = Vector2DGuide((v: Vector2D) => {
@@ -129,7 +138,7 @@ class Scale extends Module {
             // Return the shape, transformed
             transformSelection(t)
           })
-          Start('cad, "create.Input", InputRequest(15,None,vector2DGuide,doubleGuide))
+          Start('cad, "create.Input", InputRequest(9,None,vector2DGuide,doubleGuide))
         } else if (firstPointEntered == true && !endPoint.isEmpty && endPoint.get != p) {
           //Step 4b: A drag has occured (the point from mouse up is not the same as from mouse down).
           // or the mouse has been clicked after the end point has been set, defining a scale factor. Do the scaling:
@@ -173,6 +182,9 @@ class Scale extends Module {
       case _ => {
         Tooltip.updateTooltip("Scale tool active")
         if (Drawing.selection.isDefined) {
+          //change cursor to crosshair
+          Siigna.setCursor(Cursors.crosshair)
+
           Siigna display "set fix-point for scaling, drag to scale or type a scaling factor"
           Tooltip.blockUpdate(3500)
           val doubleGuide = DoubleGuide((s : Double) => {
