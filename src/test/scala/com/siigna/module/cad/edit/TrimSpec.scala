@@ -9,7 +9,7 @@
  * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
  */
 
-package com.siigna.module.cad.modify
+package com.siigna.module.cad.edit
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
@@ -19,7 +19,7 @@ import com.siigna.util.collection.Attributes
 import com.siigna.app.model.shape.PolylineShape.{PolylineShapeClosed, PolylineShapeOpen}
 
 /**
- * Tests the [[com.siigna.module.cad.modify.Trim]] class.
+ * Tests the [[com.siigna.module.cad.edit.Trim]] class.
  */
 
 class TrimSpec extends FunSpec with ShouldMatchers {

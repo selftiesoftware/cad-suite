@@ -62,41 +62,40 @@ class inputFeedback {
     s match {
       //MENUS
       case "c" => {
+
         if (category == Some("create")) command = Some("circle")
         else {
           category = Some("create")
-          suggestions = List ("A - arc", "C - circle", "D - linear dimension","L - line","P - polyline","O - offset","R - rectangle", "T - text")
+          suggestions = List ("CREATE:", " ", "A - arc", "C - circle", "D - linear dimension","L - line","P - polyline","O - offset","R - rectangle", "T - text")
         }
       }
       case "h" => {
         category = Some("helpers")
-        suggestions = List ("D - distance", "S - snap on/off", "T - track on/off", "Z - zoom extends")
+        suggestions = List ("HELPERS"," ", "D - distance", "S - snap on/off", "T - track on/off", "Z - zoom extends")
 
       }
-      case "m" => {
-        if (category == Some("modify")) command = Some("move")
+      case "e" => {
+        if (category == Some("edit")) command = Some("explode")
         else {
-          category = Some("modify")
-          suggestions = List ("E - explode", "M - move", "R - rotate", "S - scale", "T - trim")
+          category = Some("edit")
+          suggestions = List ("EDIT"," ","C - colors", "E - explode", "M - move", "R - rotate", "S - scale", "T - trim", "W - line  width")
         }
       }
-      case "p" => {
+      case "f" => {
         if (category == Some("create"))  command = Some("polyline")
           else {
-          category = Some("properties")
-          suggestions = List ("C - colors", "S - stroke")
+          category = Some("file")
+          suggestions = List ("E - export", "I - import")
         }
       }
 
       //COMMANDS  //TODO: tie these to the module names in moduleInit?
       case "a" => if (category == Some("create")) command = Some("arc")
       case "d" => if (category == Some("create")) command = Some("linear dimension")
-      case "e" => if (category == Some("create")) command = Some("explode")
       case "l" => if (category == Some("create")) command = Some("line")
       case "o" => if (category == Some("create")) command = Some("offset")
       case "r" => if (category == Some("create")) command = Some("rectangle")
       case "t" => if (category == Some("create")) command = Some("text")
-      case "q" => if (category == Some("create")) command = Some("copy")
 
 
       case "GETPREVIOUS" => {
@@ -105,11 +104,13 @@ class inputFeedback {
       case "EMPTY" => {
         category = None
       }
-      //case "t" => if (category == Some("modify")) command = Some("trim")
+      //case "t" => if (category == Some("edit")) command = Some("trim")
       case e => println("received unknown shortcut in inputFeedback: "+e)
     }
     //if one shortcut is typed, display the category
-    if (category.isDefined && !command.isDefined) Siigna display (category.get)
+    if (category.isDefined && !command.isDefined) {
+      //Siigna display (category.get)
+    }
     //if two letters are typed, display both the category and the command.
     else if (category.isDefined && command.isDefined) {
       Siigna display (category.get + " " + command.get)
@@ -124,12 +125,12 @@ class inputFeedback {
     else None//display ("type shortcut for tools by category: C, H, M, or P")
     suggestions //return the suggested tools
   }
-  //TODO: draw background fill
+
   def paintSuggestions(s : List[String]) : List[TextShape] = {
     var list = List[TextShape]()
     for (i <- 0 to s.size -1) {
       // Define the text shape, draw the frame and draw the text
-      val text = TextShape(s(i), (View.center - Vector2D(0,-16 - (16 * i+1))), 9)
+      val text = TextShape(s(i), (View.center - Vector2D(0,0 - (16 * i+1))), 14)
       list = list :+ text
     }
     list

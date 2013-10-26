@@ -120,13 +120,13 @@ class Copy extends Module {
         if (Drawing.selection.isDefined) {
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)
-            Tooltip.updateTooltip("Copy tool active")
+            Tooltip.updateTooltip(List("Copy tool active","",""))
             Siigna display "set origin of copy"
             Tooltip.blockUpdate(3500)
             Start('cad,"create.Input",InputRequest(6,None))
         } else {
           if (Drawing.size > 0) {
-            Tooltip.updateTooltip("Copy tool active")
+            Tooltip.updateTooltip(List("Copy tool active","",""))
             Siigna display "Select objects to copy"
             Tooltip.blockUpdate(3500)
             Start('cad, "Selection")

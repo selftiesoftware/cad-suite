@@ -214,7 +214,7 @@ class AngleGizmo extends Module {
     if (referencePoint.isDefined && !anglePointIsSet && drawGizmo) {
       val m = mousePosition.transform(View.deviceTransformation)
 
-      //modify the TransformationMatrix to preserve AngleGizmo scaling.
+      //edit the TransformationMatrix to preserve AngleGizmo scaling.
       def scaling(a : Double) = scala.math.pow(a,-1)
 
       val transformation : TransformationMatrix = t.scale((scaling(View.zoom)*gizmoScale), referencePoint.get)

@@ -97,7 +97,7 @@ class Polyline extends Module {
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)
           //Update tooltip
-          Tooltip.updateTooltip("Polyline tool active. Right click to finish polyline.")
+          Tooltip.updateTooltip(List("Polyline tool active. Right click to finish polyline."))
           //Request input
           Start('cad, "create.Input", InputRequest(6,None))
         } else {

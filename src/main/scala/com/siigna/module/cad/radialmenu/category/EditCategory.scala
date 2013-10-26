@@ -22,17 +22,21 @@ package com.siigna.module.cad.radialmenu.category
 import com.siigna.module.base.radialmenu._
 import com.siigna._
 
-case object ModifyCategory extends MenuCategory{
+case object EditCategory extends MenuCategory{
   val graph = Map[MenuEvent,MenuElement](
-    EventSSE -> MenuModule(Module('cad,"modify.Move"), MenuIcons.move),
-    EventSSW -> MenuModule(Module('cad,"modify.Rotate"), MenuIcons.rotate),
-    EventWSW -> MenuModule(Module('cad,"modify.Scale"), MenuIcons.scale),
-    EventNNE -> MenuModule(Module('cad,"modify.Trim"), MenuIcons.trim),
-    EventNNW -> MenuModule(Module('cad,"modify.Explode"), MenuIcons.explode),
+    EventNNW -> MenuModule(Module('cad,"edit.Rotate"), MenuIcons.rotate),
+    EventNNE -> MenuModule(Module('cad,"edit.Scale"), MenuIcons.scale),
 
-    EventENE -> MenuModule(Module('cad,"modify.Join"), MenuIcons.connect)
-    //EventENE -> MenuModule(Module('cad,"modify.Mirror"), MenuIcons.mirror)
+    EventENE -> MenuModule(Module('cad,"edit.Trim"), MenuIcons.trim),
+    EventESE -> MenuModule(Module('cad,"edit.Explode"), MenuIcons.explode),
+
+    EventSSE -> MenuModule(Module('cad,"edit.Move"), MenuIcons.move),
+    EventSSW -> MenuModule(Module('cad,"edit.Stroke"), MenuIcons.stroke),
+
+    EventWSW -> MenuModule(Module('cad,"edit.Colors"), MenuIcons.colorWheel)
+    //EventENE -> MenuModule(Module('cad,"edit.Join"), MenuIcons.connect)
+    //EventENE -> MenuModule(Module('cad,"edit.Mirror"), MenuIcons.mirror)
   )
-  val color = MenuIcons.modifyColor
+  val color = MenuIcons.editColor
   val parent = Some(StartCategory)
 }

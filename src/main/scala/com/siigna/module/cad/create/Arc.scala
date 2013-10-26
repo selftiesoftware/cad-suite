@@ -64,7 +64,7 @@ class Arc extends Module {
         //change cursor to crosshair
         Siigna.setCursor(Cursors.crosshair)
         //Update tooltip
-        Tooltip.updateTooltip("Arc tool active")
+        Tooltip.updateTooltip(List("Arc tool active","",""))
         //Goto next state
         'ReceiveFirstPoint
       }

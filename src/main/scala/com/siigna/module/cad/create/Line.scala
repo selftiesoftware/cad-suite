@@ -49,7 +49,7 @@ class Line extends Module {
         //change cursor to crosshair
         Siigna.setCursor(Cursors.crosshair)
         //Update tooltip
-        Tooltip.updateTooltip("Line tool active")
+        Tooltip.updateTooltip(List("Line tool active"))
         //Goto next state
         'ReceiveFirstPoint
       }

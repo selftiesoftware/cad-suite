@@ -40,7 +40,7 @@ class InputSingleValueByKey extends Module {
   var guides: Seq[Guide] = Seq()
   var referencePoint: Option[Vector2D] = None
 
-  var tooltipAtStart : String = ""
+  var tooltipAtStart : List[String] = List()
 
   var startPoint : Option[Vector2D] = None
 
@@ -82,7 +82,7 @@ class InputSingleValueByKey extends Module {
           Siigna display coordinateValue
         }
         tooltipAtStart = Tooltip.tooltip
-        Tooltip.updateTooltip("Type number")
+        Tooltip.updateTooltip(List("Type number"))
         inputRequest = Some(i)
         inputType = Some(i.inputType)
         guides = i.guides

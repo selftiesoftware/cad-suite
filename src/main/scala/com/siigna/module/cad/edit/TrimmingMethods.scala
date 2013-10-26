@@ -17,7 +17,7 @@
 * Read more at http://siigna.com and https://github.com/siigna/main
 */
 
-package com.siigna.module.cad.modify
+package com.siigna.module.cad.edit
 
 import com.siigna.util.geom._
 import com.siigna.app.model.shape._

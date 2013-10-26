@@ -13,7 +13,7 @@
 * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
 */
 
-package com.siigna.module.cad.modify
+package com.siigna.module.cad.edit
 
 import com.siigna._
 import app.Siigna
@@ -73,7 +73,7 @@ class Rotate extends Module {
           Start('cad, "Selection")
         } else {
           //Update tooltip
-          Tooltip.updateTooltip("Rotate tool active")
+          Tooltip.updateTooltip(List("Rotate tool active"))
           Siigna display "set centre point for rotation"
           Tooltip.blockUpdate(3500)
           //Go to next state

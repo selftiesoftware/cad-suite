@@ -34,20 +34,23 @@ case object StartCategory extends MenuCategory{
 
   val graph = Map[MenuEvent,MenuElement](
     //main cetegories in the start menu:
-    EventC -> FileCategory,
     EventE -> HelpersCategory,
     EventN -> CreateCategory,
-    EventW -> PropertiesCategory,
-    EventS -> ModifyCategory,
+    EventW -> FileCategory,
+    EventS -> EditCategory,
 
     //drawing tools in the default menu:
     //EventENE -> MenuModule(Module('SnapToggle,"com.siigna.module.base.helpers"), MenuIcons.snap),
     EventNNE -> MenuModule(Module('cad,"create.Polyline"), MenuIcons.polyline),
     EventNNW -> MenuModule(Module('cad,"create.Copy"), MenuIcons.copy),
-    EventWNW -> MenuModule(Module('cad,"properties.Stroke"), MenuIcons.weight),
-    EventWSW -> MenuModule(Module('cad,"properties.Colors"), MenuIcons.colorWheel),
-    EventSSW -> MenuModule(Module('cad,"modify.Rotate"), MenuIcons.rotate),
-    EventSSE -> MenuModule(Module('cad,"modify.Move"), MenuIcons.move),
+
+    //I/O
+    EventWNW -> MenuModule(Module('porter,"Export"), Iterable(TextShape("export", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))))),
+    EventWSW -> MenuModule(Module('porter,"Import"), Iterable(TextShape("import", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))))),
+
+    //EventSSW -> MenuModule(Module('cad,"edit.Rotate"), MenuIcons.rotate),
+    EventSSW -> MenuModule(Module('cad,"edit.Stroke"), MenuIcons.stroke),
+    EventSSE -> MenuModule(Module('cad,"edit.Move"), MenuIcons.move),
     //EventESE -> MenuModule(Module('cad,"helpers.TrackToggle"), MenuIcons.guides),
     EventESE -> MenuModule(Module('cad,"helpers.ZoomExtends"), MenuIcons.zoomExtends),
     //EventENE -> MenuModule(Module('cad,"helpers.SnapToggle"), MenuIcons.snap)

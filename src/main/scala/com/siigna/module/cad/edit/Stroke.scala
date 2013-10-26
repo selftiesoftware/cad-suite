@@ -17,7 +17,7 @@
  * Read more at http://siigna.com and https://github.com/siigna/main
  */
 
-package com.siigna.module.cad.properties
+package com.siigna.module.cad.edit
 
 import com.siigna.app.view.Graphics
 import com.siigna._

@@ -9,7 +9,7 @@
 * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
 */
 
-package com.siigna.module.cad.modify
+package com.siigna.module.cad.edit
 
 import com.siigna._
 import app.Siigna
@@ -55,7 +55,7 @@ class Move extends Module {
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)
           //Update tooltip
-          Tooltip.updateTooltip("Move tool active")
+          Tooltip.updateTooltip(List("Move tool active"))
           //Handle input
           firstPoint = Some(v.transform(View.deviceTransformation))
           //Goto next state
@@ -87,7 +87,7 @@ class Move extends Module {
           Siigna.setCursor(Cursors.crosshair)
 
           //Update tooltip
-          Tooltip.updateTooltip("Move tool active")
+          Tooltip.updateTooltip(List("Move tool active"))
           //Goto next state
           'StateOne
         }

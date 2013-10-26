@@ -180,7 +180,7 @@ class Lineardim extends Module {
 
       //get the current paperScale
       scale = Siigna.paperScale
-        Tooltip.updateTooltip("Linear Dimension tool active")
+        Tooltip.updateTooltip(List("Linear Dimension tool active"))
         Start('cad, "create.Input", InputRequest(6,None))
       }
       

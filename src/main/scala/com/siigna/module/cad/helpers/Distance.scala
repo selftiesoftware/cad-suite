@@ -58,7 +58,7 @@ class Distance extends Module {
         }
       }
       case _ => {
-        Tooltip.updateTooltip("Distance measure tool active")
+        Tooltip.updateTooltip(List("Distance measure tool active"))
         Siigna display "set two points to measure the distance between them."
         Tooltip.blockUpdate(3500)
         Start('cad, "create.Input", InputRequest(6,None))

@@ -41,7 +41,7 @@ class InputTextByKey extends Module {
   var oldShape: Option[TextShape] = None
   var oldShapeId: Option[Int] = None
 
-  var tooltipAtStart : String = ""
+  var tooltipAtStart : List[String] = List()
 
 
   val stateMap: StateMap = Map(
@@ -70,7 +70,7 @@ class InputTextByKey extends Module {
 
       case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
         tooltipAtStart = Tooltip.tooltip
-        Tooltip.updateTooltip("Input text")
+        Tooltip.updateTooltip(List("Input text"))
         inputRequest = Some(i)
         inputType = Some(i.inputType)
         //Inputtype 17 reads text from textshape, which it then deletes, if there is selected excatly one text-shape:

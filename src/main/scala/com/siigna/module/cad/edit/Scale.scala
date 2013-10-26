@@ -17,7 +17,7 @@
  * Read more at http://siigna.com and https://github.com/siigna/main
  */
 
-package com.siigna.module.cad.modify
+package com.siigna.module.cad.edit
 
 import com.siigna._
 import app.Siigna
@@ -180,7 +180,7 @@ class Scale extends Module {
       }
 
       case _ => {
-        Tooltip.updateTooltip("Scale tool active")
+        Tooltip.updateTooltip(List("Scale tool active"))
         if (Drawing.selection.isDefined) {
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)

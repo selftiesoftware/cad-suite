@@ -98,7 +98,7 @@ class InputDualValuesByKey extends Module {
   var textGuide: Option[TextGuide] = None
   var referenceDouble: Option[Double] = None
 
-  var tooltipAtStart : String = ""
+  var tooltipAtStart : List[String] = List()
 
   var startPoint : Option[Vector2D] = None
 
@@ -130,7 +130,7 @@ class InputDualValuesByKey extends Module {
       //Read numbers, minus, and "," as first entry.
       case Start(_ ,i: InputRequest) :: KeyDown(code, _) :: tail => {
         tooltipAtStart = Tooltip.tooltip
-        Tooltip.updateTooltip("Insert x- any y-coordinates")
+        Tooltip.updateTooltip(List("Insert x- any y-coordinates"))
         inputRequest = Some(i)
         inputType = Some(i.inputType)
         guides = i.guides

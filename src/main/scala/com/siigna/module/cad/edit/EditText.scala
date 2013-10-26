@@ -17,7 +17,7 @@
  * Read more at http://siigna.com and https://github.com/siigna/main
  */
 
-package com.siigna.module.cad.modify
+package com.siigna.module.cad.edit
 
 import com.siigna._
 import module.cad.create.{InputRequest, TextGuide}
@@ -67,7 +67,7 @@ class EditText extends Module {
       }
 
       case _ => {
-        Tooltip.updateTooltip("Edit text tool active")
+        Tooltip.updateTooltip(List("Edit text tool active"))
         var n : Int = 0
         Drawing.selection.shapes.foreach(m => {
           m._2 match {

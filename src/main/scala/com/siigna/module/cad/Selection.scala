@@ -91,7 +91,7 @@ class Selection extends Module {
             case t: TextShape => textShapes = textShapes + 1
             case _ =>
           }
-          if ( textShapes == 1) End(Module('cad, "modify.EditText"))
+          if ( textShapes == 1) End(Module('cad, "edit.EditText"))
           else End
         }
       } else {
@@ -206,7 +206,7 @@ class Selection extends Module {
             Select(idShapeSelector._1,idShapeSelector._2._1,idShapeSelector._2._2)
           })
         }
-        End(Module('cad, "modify.Move"))
+        End(Module('cad, "edit.Move"))
       }
       else {
         if (nearestShape.isDefined) {
@@ -333,7 +333,7 @@ class Selection extends Module {
 
       // If one or more shapes have been selected and the cursor is close to a shape, assume we want to drag-move
       if (!Drawing.selection.isEmpty && !Drawing(mouse).isEmpty) {
-        End(Module('cad, "modify.Move"))
+        End(Module('cad, "edit.Move"))
       // If no shape are selected or close, assume the user wants a box-selection
       } else {
         startPoint = Some(p)

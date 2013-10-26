@@ -70,7 +70,7 @@ class Circle extends Module {
             //change cursor to crosshair
             Siigna.setCursor(Cursors.crosshair)
 
-            Tooltip.updateTooltip("Circle tool active")
+            Tooltip.updateTooltip(List("Circle tool active","",""))
             Start('cad, "create.Input", InputRequest(6,None))
           }
         }

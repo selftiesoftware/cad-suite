@@ -1,4 +1,4 @@
-package com.siigna.module.cad.modify
+package com.siigna.module.cad.edit
 
 /*
  * Copyright (c) 2008-2013. Siigna is released under the creative common license by-nc-sa. You are free

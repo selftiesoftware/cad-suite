@@ -20,7 +20,7 @@
 package com.siigna.module
 
 import base.{PaperHeader, Menu}
-import com.siigna.module.cad.radialmenu.category.{ModifyCategory, StartCategory}
+import com.siigna.module.cad.radialmenu.category.{EditCategory, StartCategory}
 import com.siigna._
 import com.siigna.app.model.selection.EmptySelection
 import module.cad.create.InputRequest
@@ -57,9 +57,9 @@ class ModuleInit extends Module {
 
   val header = com.siigna.module.base.PaperHeader
 
-  var tooltip: String = "Loading drawing might take time, especially large drawings. Please have patience"
 
-  Siigna tooltip(tooltip)
+
+  Siigna tooltip(List("Loading drawing might take time","- especially large drawings", "Please have patience"))
 
   protected var lastModule: Option[Module] = None
 
@@ -101,7 +101,7 @@ class ModuleInit extends Module {
     textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
     // If any selections are defined we start in the Modify category
     if (Drawing.selection.isDefined) {
-      Start('base, "Menu", ModifyCategory)
+      Start('base, "Menu", EditCategory)
     } else Start('base, "Menu")
   }
 
@@ -137,12 +137,11 @@ class ModuleInit extends Module {
       //Modified keys: Control:
       if (modifier.ctrl) {
         if (shortcutKey == 'a') Drawing.selectAll()
-        else if (shortcutKey == 'c') shortcutProcess("q", "create.Copy", 'cad)
         else if (shortcutKey == 'z') Drawing.undo()
         else if (shortcutKey == 'y') Drawing.redo()
       } else if (shortcut == "") {
       //MENU SHORTCUTS - LETTERS:
-        if (shortcutKey == 'c' || shortcutKey == 'h' || shortcutKey == 'm' || shortcutKey == 'p') {
+        if (shortcutKey == 'c' || shortcutKey == 'h' || shortcutKey == 'e' || shortcutKey == 'f') {
           shortcut = shortcutKey.toString
           toolSuggestions = textFeedback.inputFeedback(shortcut)
         }
@@ -160,18 +159,20 @@ class ModuleInit extends Module {
         else if (shortcutKey == 's') shortcutProcess("s", "helpers.SnapToggle", 'cad)
         else if (shortcutKey == 't') shortcutProcess("t", "helpers.TrackToggle", 'cad)
         else if (shortcutKey == 'z') shortcutProcess("z", "helpers.ZoomExtends", 'cad)
-      } else if (shortcut == "m") {
-        if (shortcutKey == 'm') shortcutProcess("m", "modify.Move", 'cad)
-        else if (shortcutKey == 'r') shortcutProcess("r", "modify.Rotate", 'cad)
-        else if (shortcutKey == 's') shortcutProcess("s", "modify.Scale", 'cad)
-        else if (shortcutKey == 't') shortcutProcess("t", "modify.Trim", 'cad)
-        else if (shortcutKey == 'e') shortcutProcess("e", "modify.Explode", 'cad)
-      } else if (shortcut == "p") {
-        if (shortcutKey == 'c') shortcutProcess("c", "properties.Colors", 'cad)
-        else if (shortcutKey == 's') shortcutProcess("s", "properties.Stroke", 'cad)
+      } else if (shortcut == "e") {
+        if (shortcutKey == 'c') shortcutProcess("c", "edit.Colors", 'cad)
+        else if (shortcutKey == 'e') shortcutProcess("e", "edit.Explode", 'cad)
+        else if (shortcutKey == 'm') shortcutProcess("m", "edit.Move", 'cad)
+        else if (shortcutKey == 'r') shortcutProcess("r", "edit.Rotate", 'cad)
+        else if (shortcutKey == 's') shortcutProcess("s", "edit.Scale", 'cad)
+        else if (shortcutKey == 't') shortcutProcess("t", "edit.Trim", 'cad)
+        else if (shortcutKey == 'w') shortcutProcess("w", "edit.Stroke", 'cad)
+
+      } else if (shortcut == "f") {
+        if (shortcutKey == 'e') shortcutProcess("e", "file.Export", 'cad)
+        else if (shortcutKey == 'i') shortcutProcess("i", "file.Import", 'cad)
       }
     }
-
   }
 
   def stateMap = Map(
@@ -193,12 +194,12 @@ class ModuleInit extends Module {
       // Menu
       case MouseDown(p, MouseButtonRight, modifier) :: tail
         if (ModuleLoader.modulesLoaded == true) => {
-        Tooltip.updateTooltip("Select tool")
+        Tooltip.updateTooltip(List("Select tool", "",""))
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         startMenu
       }
       case End(MouseDown(p, MouseButtonRight, modifier)) :: tail => {
-        Tooltip.updateTooltip("Select tool")
+        Tooltip.updateTooltip(List("Select tool", "",""))
         startMenu
       }
 
@@ -234,7 +235,7 @@ class ModuleInit extends Module {
         if (ModuleLoader.modulesLoaded == true) {
           //revert to the arrow-type cursor
           Siigna.setCursor(defaultCursor)
-          Tooltip.updateTooltip("Right click to open menu, select with mouse or use keyboard shortcuts. Alt to pan.")
+          Tooltip.updateTooltip(List("Right click = open tools menu", "Keyboard shortcuts: C = Create, H = Helpers, E = Edit, F = File.","SPACE = last tool, ALT = pan."))
           Start('cad, "create.Input", InputRequest(14, None))
         }
       }
@@ -262,13 +263,13 @@ class ModuleInit extends Module {
 }
 
 object Tooltip {
-  var tooltip: String = "Welcome to Siigna"
+  var tooltip : List[String] = List("welcome to Siigna.","Right click to open the menu")
   private var baseTime: Long = System.currentTimeMillis()
   private var delay : Int = 0
   private var block : Int = 0
   var lastUpdate: Long = System.currentTimeMillis()
 
-  Siigna tooltip(tooltip)
+  Siigna tooltip(List("Welcome to Siigna. Right click to access drawing tools."))
 
   def blockUpdate(milliseconds: Int) {
     block = milliseconds
@@ -277,18 +278,17 @@ object Tooltip {
 
   def refresh() {
     if (System.currentTimeMillis() > baseTime + block) {
-      Siigna tooltip(tooltip)
+      Siigna tooltip(List("Welcome to Siigna. Right click to access drawing tools."))
     }
   }
 
-  def updateTooltip(string: String) {
-    tooltip = string
+  def updateTooltip(strings : List[String]) {
     while (System.currentTimeMillis() < baseTime + delay) {
-      println("Waiting for message to be displayed before updating tooltip")
+      println(List("Waiting for message to be displayed before updating tooltip"))
     }
     if (System.currentTimeMillis() > baseTime + block) {
       lastUpdate = System.currentTimeMillis()
-      Siigna tooltip(tooltip)
+      Siigna tooltip(strings) //show state feedback
     }
   }
 }
