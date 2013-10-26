@@ -20,6 +20,7 @@
 package com.siigna.module.cad.modify
 
 import com.siigna._
+import app.model.action.{SequenceAction, CreateShape, DeleteShape}
 import app.model.shape.PolylineLineShape
 import app.model.shape.PolylineShape.PolylineShapeClosed
 import app.model.shape.PolylineShape.PolylineShapeOpen
@@ -34,6 +35,11 @@ class Trim extends Module {
 
   private var attr = Attributes()
   private var selection : Option[Selection] = None
+
+  private var sequenceOfActions : Seq[Action] = Seq()
+  private var idsCreatedShapes : Seq[Int] = Seq()
+  private var idsDeletedShapes : Seq[Int] = Seq()
+  private var selectionOnStart : Boolean = false
 
   def m = mousePosition.transform(View.deviceTransformation)
 
@@ -75,16 +81,16 @@ class Trim extends Module {
             Select(Drawing(m,maxDistance).keys)
             selection = Some(Drawing.selection)
           } else if (selection.isEmpty) {
+            selectionOnStart = true
             selection = Some(Drawing.selection)
           }
-          println("Point received")
+
           val point = p
           val nearest = nearestShape.get
           val trimLine: Option[Shape] = if (nearest._2.distanceTo(point) < Siigna.selectionDistance) Some(nearest._2) else None
           val trimlineId: Option[Int] = if (nearest._2.distanceTo(point) < Siigna.selectionDistance) Some(nearest._1) else None
-          println(trimLine)
+
           if(trimLine.isDefined) {
-            println("trimline defined")
             attr = trimLine.get.attributes
             //remove the trimline from the selection to prevent false intersections.
             //TODO: enable trimming of shapes with themselves.
@@ -105,21 +111,21 @@ class Trim extends Module {
 
                 //if at least one trimmedShapes is defined, delete the original shape:
                 if(trimmedShapes._1.isDefined || trimmedShapes._2.isDefined) {
-                  Delete(nearest._1)
+                  idsDeletedShapes = idsDeletedShapes :+ nearest._1
+                  sequenceOfActions = sequenceOfActions :+ DeleteShape(nearest._1,nearest._2)
 
                   //construct new shapes
                   if(trimmedShapes._1.isDefined) {
                     val line1 = LineShape(trimmedShapes._1.get).addAttributes(attr)
-                    Create(line1)
-                    //add the line to the selection
-                    val shapeInModel  = Drawing.get(com.siigna.app.Siigna.latestID.get).get
-                    selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(shapeInModel,FullShapeSelector)))
+                    val id = Drawing.getId
+                    idsCreatedShapes = idsCreatedShapes :+ id
+                    sequenceOfActions = sequenceOfActions :+ CreateShape(id,line1)
                   }
                   if(trimmedShapes._2.isDefined) {
                     val line2 = LineShape(trimmedShapes._2.get).addAttributes(attr)
-                    Create(line2)
-                    val shapeInModel  = Drawing.get(com.siigna.app.Siigna.latestID.get).get
-                    selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(shapeInModel,FullShapeSelector)))
+                    val id = Drawing.getId
+                    idsCreatedShapes = idsCreatedShapes :+ id
+                    sequenceOfActions = sequenceOfActions :+ CreateShape(id,line2)
                   }
                 }
               }
@@ -130,13 +136,13 @@ class Trim extends Module {
 
                 //if at least one trimmedShapes is defined, delete the original shape:
                 if(trimmedShapes.isDefined) {
-                  Delete(nearest._1)
+                  idsDeletedShapes = idsDeletedShapes :+ nearest._1
+                  sequenceOfActions = sequenceOfActions :+ DeleteShape(nearest._1,nearest._2)
                   //construct new shape
-
                   val line = PolylineShape(trimmedShapes.get.map(_._2)).addAttributes(attr)
-                  Create(line)
-                  val shapeInModel  = Drawing.get(com.siigna.app.Siigna.latestID.get).get
-                  selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(shapeInModel,FullShapeSelector)))
+                  val id = Drawing.getId
+                  idsCreatedShapes = idsCreatedShapes :+ id
+                  sequenceOfActions = sequenceOfActions :+ CreateShape(id,line)
                 }
               }
 
@@ -146,20 +152,21 @@ class Trim extends Module {
 
                 //if at least one trimmedShapes is defined, delete the original shape:
                 if(trimmedShapes._1.isDefined || trimmedShapes._2.isDefined) {
-                  Delete(nearest._1)
+                  idsDeletedShapes = idsDeletedShapes :+ nearest._1
+                  sequenceOfActions = sequenceOfActions :+ DeleteShape(nearest._1,nearest._2)
 
                   //construct new shapes
                   if(trimmedShapes._1.isDefined) {
                     val line1 = PolylineShape(trimmedShapes._1.get).addAttributes(attr)
-                    Create(line1)
-                    val shapeInModel  = Drawing.get(com.siigna.app.Siigna.latestID.get).get
-                    selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(shapeInModel,FullShapeSelector)))
+                    val id = Drawing.getId
+                    idsCreatedShapes = idsCreatedShapes :+ id
+                    sequenceOfActions = sequenceOfActions :+ CreateShape(id,line1)
                   }
                   if(trimmedShapes._2.isDefined) {
                     val line2 = PolylineShape(trimmedShapes._2.get).addAttributes(attr)
-                    Create(line2)
-                    val shapeInModel  = Drawing.get(com.siigna.app.Siigna.latestID.get).get
-                    selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(shapeInModel,FullShapeSelector)))
+                    val id = Drawing.getId
+                    idsCreatedShapes = idsCreatedShapes :+ id
+                    sequenceOfActions = sequenceOfActions :+ CreateShape(id,line2)
                   }
                 }
               }
@@ -174,14 +181,15 @@ class Trim extends Module {
 
                 //if at least one trimmedShapes is defined, delete the original shape:
                 if(trimmedShapes.isDefined) {
-                  Delete(nearest._1)
+                  idsDeletedShapes = idsDeletedShapes :+ nearest._1
+                  sequenceOfActions = sequenceOfActions :+ DeleteShape(nearest._1,nearest._2)
 
                   //construct new shape
                   if(trimmedShapes.isDefined) {
-                    //Siigna display ("trimming of rectangles is right around the corner!!")
-                    Create(PolylineShape(trimmedShapes.get.map(_._2)).addAttributes(attr))
-                    val shapeInModel  = Drawing.get(com.siigna.app.Siigna.latestID.get).get
-                    selection = Some(selection.get.add(com.siigna.app.Siigna.latestID.get,(shapeInModel,FullShapeSelector)))
+                    val line = PolylineShape(trimmedShapes.get.map(_._2)).addAttributes(attr)
+                    val id = Drawing.getId
+                    idsCreatedShapes = idsCreatedShapes :+ id
+                    sequenceOfActions = sequenceOfActions :+ CreateShape(id,line)
                   }
                 }
               }
@@ -191,10 +199,31 @@ class Trim extends Module {
               Tooltip.blockUpdate(3500)
             }
 
-            //remove the original trimline from the selection
-            selection = Some(Selection(selection.get - trimlineId.get))
-            //and select the new selection
-            Drawing.select(selection.get)
+            //Deselect any deleted shapes:
+            if (idsDeletedShapes.length > 0) {
+              idsDeletedShapes.foreach(id => {
+                selection = Some(Selection(selection.get - id))
+              })
+            }
+
+            //Execute the actions:
+            if (sequenceOfActions.length > 0) {
+              Drawing.execute(SequenceAction(sequenceOfActions))
+              sequenceOfActions = Seq()
+            }
+
+            //Select any newly created shapes
+            if (idsCreatedShapes.length > 0) {
+              idsCreatedShapes.foreach(id => {
+                selection = Some(selection.get.add(id,(Drawing.get(id).get,FullShapeSelector)))
+              })
+              idsCreatedShapes = Seq()
+            }
+
+            if (selectionOnStart == true) {
+              //and select the new selection
+              Drawing.select(selection.get)
+            } else Drawing.deselect()
           }
 
         }
