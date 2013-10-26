@@ -19,17 +19,6 @@
 
 package com.siigna.module
 
-/*
- * Copyright (c) 2012. Siigna is released under the creative common license by-nc-sa. You are free
- * to Share — to copy, distribute and transmit the work,
- * to Remix — to adapt the work
- *
- * Under the following conditions:
- * Attribution —  You must attribute the work to http://siigna.com in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work).
- * Noncommercial — You may not use this work for commercial purposes.
- * Share Alike — If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
- */
-
 import java.awt.Color
 import com.siigna.app.view._
 import com.siigna.app.model.shape.TextShape
@@ -48,11 +37,11 @@ class inputFeedback {
   var getPrevious = false
   var previous = ""
 
-  def paintFrame(graphics : Graphics, width : Int, height : Int, color : Color = backgroundColor) {
-    val center = View.center
-    graphics setColor color
-    graphics.AWTGraphics.fillRoundRect(center.x.toInt - width / 2, center.y.toInt - height / 2, width, height, 20, 20)
-  }
+  //def paintFrame(graphics : Graphics, width : Int, height : Int, color : Color = backgroundColor) {
+  //  val center = View.center
+  //  graphics setColor color
+  //  graphics.AWTGraphics.fillRoundRect(center.x.toInt - width / 2, center.y.toInt - height / 2, width, height, 20, 20)
+  //}
 
 
   //a function to parse input chars and provide a textShape with visual aid showing possible commands / tools

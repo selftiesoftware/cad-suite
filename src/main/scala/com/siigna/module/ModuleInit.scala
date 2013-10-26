@@ -137,6 +137,7 @@ class ModuleInit extends Module {
       //Modified keys: Control:
       if (modifier.ctrl) {
         if (shortcutKey == 'a') Drawing.selectAll()
+        else if (shortcutKey == 'c') shortcutProcess("c", "create.Copy", 'cad)
         else if (shortcutKey == 'z') Drawing.undo()
         else if (shortcutKey == 'y') Drawing.redo()
       } else if (shortcut == "") {
@@ -154,11 +155,13 @@ class ModuleInit extends Module {
         else if (shortcutKey == 'p') shortcutProcess("p", "create.Polyline", 'cad)
         else if (shortcutKey == 'r') shortcutProcess("r", "create.Rectangle", 'cad)
         else if (shortcutKey == 't') shortcutProcess("t", "create.Text", 'cad)
+
       } else if (shortcut == "h") {
         if (shortcutKey == 'd') shortcutProcess("d", "helpers.Distance", 'cad)
         else if (shortcutKey == 's') shortcutProcess("s", "helpers.SnapToggle", 'cad)
         else if (shortcutKey == 't') shortcutProcess("t", "helpers.TrackToggle", 'cad)
         else if (shortcutKey == 'z') shortcutProcess("z", "helpers.ZoomExtends", 'cad)
+
       } else if (shortcut == "e") {
         if (shortcutKey == 'c') shortcutProcess("c", "edit.Colors", 'cad)
         else if (shortcutKey == 'e') shortcutProcess("e", "edit.Explode", 'cad)
@@ -169,8 +172,8 @@ class ModuleInit extends Module {
         else if (shortcutKey == 'w') shortcutProcess("w", "edit.Stroke", 'cad)
 
       } else if (shortcut == "f") {
-        if (shortcutKey == 'e') shortcutProcess("e", "file.Export", 'cad)
-        else if (shortcutKey == 'i') shortcutProcess("i", "file.Import", 'cad)
+        if (shortcutKey == 'e') shortcutProcess("e", "Export", 'porter)
+        else if (shortcutKey == 'i') shortcutProcess("i", "Import", 'porter)
       }
     }
   }
@@ -195,6 +198,7 @@ class ModuleInit extends Module {
       case MouseDown(p, MouseButtonRight, modifier) :: tail
         if (ModuleLoader.modulesLoaded == true) => {
         Tooltip.updateTooltip(List("Select tool", "",""))
+        shortcut = ""
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         startMenu
       }
@@ -206,15 +210,18 @@ class ModuleInit extends Module {
       // Selection
       case End(p: Vector2D) :: tail => {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
+        shortcut = ""
         Start('cad, "Selection", p)
       }
       case MouseDown(p: Vector2D, _, _) :: tail
         if (ModuleLoader.modulesLoaded == true) => {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
+        shortcut = ""
         Start('cad, "Selection", p)
       }
       case MouseDrag(p: Vector2D, MouseButtonLeft, m1) :: tail
         if (ModuleLoader.modulesLoaded == true) => {
+        shortcut = ""
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         Start('cad, "Selection", MouseDrag(p,MouseButtonLeft,m1))
       }
@@ -249,8 +256,8 @@ class ModuleInit extends Module {
     g draw PaperHeader.headerFrame.transform(t) //frame around drawing info
     g draw PaperHeader.scaleText.transform(t) //frame around drawing info
 
-    //draw tool shourcut suggestions
-    if (!shortcut.isEmpty) {
+    //draw tool shoutcut suggestions
+    if (!shortcut.isEmpty && textFeedback.category.isDefined) {
       val s = textFeedback.paintSuggestions(toolSuggestions)
       for (i <- 0 to s.size - 1) {
         g draw s(i)
