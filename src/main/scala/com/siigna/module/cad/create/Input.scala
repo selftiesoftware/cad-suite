@@ -49,7 +49,7 @@ class Input extends Module {
       val startPointY = referencePoint.get.y
       val distanceFromStartToMouse: Double = math.sqrt(( (startPointX-p.transform(View.deviceTransformation).x) * (startPointX-p.transform(View.deviceTransformation).x)) + ( (startPointY-p.transform(View.deviceTransformation).y) * (startPointY-p.transform(View.deviceTransformation).y)) )
       if (distanceFromStartToMouse != 0) {
-        Some(End(distanceFromStartToMouse))
+        Some(End(distanceFromStartToMouse * 2))
       } else None
     } else if (inputType == Some(999)) {
       //Relative values returned
