@@ -28,6 +28,7 @@ class TrimSpec extends FunSpec with ShouldMatchers {
   describe("lineShapes... ") {
     it("can be trimmed with one or two intersection(s)") {
       val trimLine = LineShape(Vector2D(-20,0),Vector2D(20,0))
+
       val gs = Map(-1 -> PolylineShapeOpen(Vector2D(0,-10),List(PolylineLineShape(Vector2D(0,10))),Attributes()),-2 -> PolylineShapeOpen(Vector2D(-10,-10),List(PolylineLineShape(Vector2D(-10,10))),Attributes()))
       val tp = Vector2D(10,0)
       val tp2 = Vector2D(-8,0)
@@ -36,6 +37,16 @@ class TrimSpec extends FunSpec with ShouldMatchers {
       TrimmingMethods.trimLine(gs,trimLine,tp2)._1 should equal(Some(Segment2D(Vector2D(-20.0,0.0),Vector2D(-10.0,0.0))))
       TrimmingMethods.trimLine(gs,trimLine,tp2)._2 should equal(Some(Segment2D(Vector2D(20.0,0.0),Vector2D(0.0,0.0))))
     }
+
+    it("can trim when there is no selection") {
+      val line1 = LineShape(Vector2D(-20,0),Vector2D(20,0))
+      val line2 = LineShape(Vector2D(-10,-5),Vector2D(-10,5))
+      val line3 = LineShape(Vector2D(10,-5),Vector2D(10,5))
+      val point1 = Vector2D(0,0)
+
+
+    }
+
   }
 
   describe("polylines... ") {

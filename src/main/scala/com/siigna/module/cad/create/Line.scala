@@ -66,13 +66,13 @@ class Line extends Module {
           //Get input: Mouse up.
           Start('cad, "create.Input", InputRequest(8,None,vector2DGuide))
           //If mouse up is a different point: A drag occured, and a line was drawn. End.
-        } else if (v != firstPoint.get & firstPointSet == false) {
+        } else if (v != firstPoint.get & v.distanceTo(firstPoint.get) > Siigna.selectionDistance & firstPointSet == false) {
           val line = LineShape(firstPoint.get,v).addAttributes(attributes)
           Create(line)
           firstPoint = None
           End
           //Otherwise the mouse was not moved, and first point was set by a click. Request input for second point.
-        } else if (v == firstPoint.get) {
+        } else if (firstPointSet == false) {
           firstPointSet = true
           Start('cad,"create.Input", InputRequest(7,firstPoint,vector2DGuide))
         } else {
