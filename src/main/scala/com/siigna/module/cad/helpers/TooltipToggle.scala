@@ -17,25 +17,29 @@
  * Read more at http://siigna.com and https://github.com/siigna/main
  */
 
-package com.siigna.module.cad.radialmenu.category
+package com.siigna.module.cad.helpers
 
-import com.siigna.module.base.radialmenu._
 import com.siigna._
+import module.Tooltip
 
-case object HelpersCategory extends MenuCategory {
-  val graph = Map[MenuEvent,MenuElement](
-    EventNNE -> MenuModule(Module('cad,"helpers.SnapToggle"), MenuIcons.snap),
-    EventNNW -> MenuModule(Module('cad,"helpers.TrackToggle"), MenuIcons.guides),
+/**
+ * Toggles toolTips on-off
+ */
 
-    EventENE -> MenuModule(Module('cad,"helpers.Distance"), MenuIcons.distance),
-    EventESE -> MenuModule(Module('cad,"helpers.ZoomExtends"), MenuIcons.zoomExtends),
+class TooltipToggle extends Module {
 
-    //EventWNW -> MenuModule(Module('cad,"helpers.Grid"), MenuIcons.grid),
+  val stateMap : StateMap = Map(
 
-    EventSSE -> MenuModule(Module('cad,"helpers.Area"), MenuIcons.area),
-    EventSSW -> MenuModule(Module('cad,"helpers.TooltipToggle"), Iterable(TextShape("tooltips", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
-)
-
-  val color = MenuIcons.helpersColor
-  val parent = Some(StartCategory)
+    'Start-> {
+      case _ => {
+        val value = Siigna.tooltipToggle match {
+          case true => "on"
+          case _ => "off"
+        }
+        Siigna display "Tooltips are " + value
+        Tooltip.blockUpdate(3500)
+        End
+      }
+    }
+  )
 }
