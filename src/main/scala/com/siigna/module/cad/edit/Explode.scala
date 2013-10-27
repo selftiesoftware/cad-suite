@@ -23,6 +23,7 @@ package com.siigna.module.cad.edit
 
 
 import com.siigna._
+import app.model.action.{SequenceAction, DeleteShape, CreateShape}
 import app.model.shape.PolylineShape.{PolylineShapeOpen, PolylineShapeClosed}
 import app.model.shape.{PolylineLineShape, InnerPolylineShape, RectangleShape}
 import java.util
@@ -39,8 +40,10 @@ import module.Tooltip
 class Explode extends Module{
 
   var explodedPolylines : Int = 0
-  var idsForShapesToExplode: List[Int] = List()
   var polylinesToExplode: List[PolylineShape] = List()
+  private var sequenceOfActions : Seq[Action] = Seq()
+  private var idsCreatedShapes : Seq[Int] = Seq()
+  private var idsDeletedShapes : Seq[Int] = Seq()
 
   val stateMap: StateMap = Map(
 
@@ -64,10 +67,11 @@ class Explode extends Module{
                   selector match {
                     case FullShapeSelector => {
                       //If the whole shape has been selected, explode it!
-                      idsForShapesToExplode = idsForShapesToExplode :+ id
+                      sequenceOfActions = sequenceOfActions :+ DeleteShape(id,shape)
                       somethingExploded = true
                       s.shapes.foreach((shape) => {
-                        Create(shape.addAttributes(s.attributes))
+                        val newId = Drawing.getId
+                        sequenceOfActions = sequenceOfActions :+ CreateShape(newId,shape.addAttributes(s.attributes))
                       })
                     }
                     //If only part of the shape has been selected:
@@ -101,7 +105,8 @@ class Explode extends Module{
                               leftover.splitAt((bitset + 1) - lastBitSet)._1.foreach(innerShape => firstPart = firstPart :+ innerShape.point)
                               leftover = s.innerShapes.splitAt(bitset-1)._2 ++ partOfShapeBeforeFirstBit
                               lastBitSet = bitset
-                              Create(PolylineShape(firstPart).addAttributes(s.attributes))
+                              val newId = Drawing.getId
+                              sequenceOfActions = sequenceOfActions :+ CreateShape(newId,PolylineShape(firstPart).addAttributes(s.attributes))
                             } //else { //Otherwise connect it to the first bitset - with a line or polyline as required...
 
                              // Create(LineShape(s.innerShapes(bitset-1).point, s.innerShapes(bitset).point).addAttributes(s.attributes))
@@ -111,11 +116,13 @@ class Explode extends Module{
                       })
                       if (exploded == true) {
                         if(leftover.length > 2) { //If there's enough left, make a polyline,
-                          Create(PolylineShapeOpen(leftover.head.point,leftover.tail,s.attributes))
+                          val newId = Drawing.getId
+                          sequenceOfActions = sequenceOfActions :+ CreateShape(newId,PolylineShapeOpen(leftover.head.point,leftover.tail,s.attributes))
                         } else if (leftover.length == 2) { //Otherwise make it into a line...
-                          Create(LineShape(leftover(0).point, leftover(1).point).addAttributes(s.attributes))
+                          val newId = Drawing.getId
+                          sequenceOfActions = sequenceOfActions :+ CreateShape(newId,LineShape(leftover(0).point, leftover(1).point).addAttributes(s.attributes))
                         }
-                        idsForShapesToExplode = idsForShapesToExplode :+ id
+                        sequenceOfActions = sequenceOfActions :+ DeleteShape(id,shape)
                         somethingExploded = true
                       }
                     }
@@ -126,10 +133,11 @@ class Explode extends Module{
                   selector match {
                     case FullShapeSelector => {
                       //If the whole shape has been selected, explode it!
-                      idsForShapesToExplode = idsForShapesToExplode :+ id
+                      sequenceOfActions = sequenceOfActions :+ DeleteShape(id,shape)
                       somethingExploded = true
                       p.shapes.foreach((shape) => {
-                        Create(shape.addAttributes(p.attributes))
+                        val newId = Drawing.getId
+                        sequenceOfActions = sequenceOfActions :+ CreateShape(newId,shape.addAttributes(p.attributes))
                       })
                     }
                     //If only part of the shape has been selected:
@@ -147,7 +155,8 @@ class Explode extends Module{
                             lastBitSet = bitset
                           } else {
                             if (bitset - lastBitSet == 1) { //The neighbouring point is selected - make a line and a leftover...
-                              Create(LineShape(p.innerShapes(bitset-2).point,p.innerShapes(bitset-1).point).addAttributes(p.attributes))
+                              val newId = Drawing.getId
+                              sequenceOfActions = sequenceOfActions :+ CreateShape(newId,LineShape(p.innerShapes(bitset-2).point,p.innerShapes(bitset-1).point).addAttributes(p.attributes))
                               leftover = p.innerShapes.splitAt(bitset-1)._2
                               lastBitSet = bitset
                             } else { //The neighbour isn't selected - make a polyline and if there is enough left, a leftover, else a line...
@@ -159,9 +168,11 @@ class Explode extends Module{
                                 } else leftover.splitAt((bitset + 1) - lastBitSet)._1.foreach(innerShape => firstPart = firstPart :+ innerShape.point)
                                 leftover = p.innerShapes.splitAt(bitset-1)._2
                                 lastBitSet = bitset
-                                Create(PolylineShape(firstPart).addAttributes(p.attributes))
+                                val newId = Drawing.getId
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(newId,PolylineShape(firstPart).addAttributes(p.attributes))
                               } else { //Otherwise make it into a line...
-                                Create(LineShape(p.innerShapes(bitset-1).point, p.innerShapes(bitset).point).addAttributes(p.attributes))
+                                val newId = Drawing.getId
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(newId,LineShape(p.innerShapes(bitset-1).point, p.innerShapes(bitset).point).addAttributes(p.attributes))
                               }
                             }
                           }
@@ -171,11 +182,13 @@ class Explode extends Module{
                         var firstPart: Seq[Vector2D] = Seq()
                         if(leftover.length > 2) { //If there's enough left, make a new leftower,
                           leftover.foreach(innerShape => firstPart = firstPart :+ innerShape.point)
-                          Create(PolylineShape(firstPart).addAttributes(p.attributes))
+                          val newId = Drawing.getId
+                          sequenceOfActions = sequenceOfActions :+ CreateShape(newId,PolylineShape(firstPart).addAttributes(p.attributes))
                         } else if (leftover.length == 2) { //Otherwise make it into a line...
-                          Create(LineShape(p.innerShapes(p.innerShapes.length - 2).point, p.innerShapes(p.innerShapes.length-1).point).addAttributes(p.attributes))
+                          val newId = Drawing.getId
+                          sequenceOfActions = sequenceOfActions :+ CreateShape(newId,LineShape(p.innerShapes(p.innerShapes.length - 2).point, p.innerShapes(p.innerShapes.length-1).point).addAttributes(p.attributes))
                         }
-                        idsForShapesToExplode = idsForShapesToExplode :+ id
+                        sequenceOfActions = sequenceOfActions :+ DeleteShape(id,shape)
                         somethingExploded = true
                       }
                     }
@@ -185,21 +198,21 @@ class Explode extends Module{
                 case p : RectangleShape => {
                   selector match {
                     case FullShapeSelector => {
-                      Create(LineShape(p.p0,p.p1).addAttributes(p.attributes))
-                      Create(LineShape(p.p1,p.p2).addAttributes(p.attributes))
-                      Create(LineShape(p.p2,p.p3).addAttributes(p.attributes))
-                      Create(LineShape(p.p3,p.p0).addAttributes(p.attributes))
-                      idsForShapesToExplode = idsForShapesToExplode :+ id
+                      sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p0,p.p1).addAttributes(p.attributes))
+                      sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p1,p.p2).addAttributes(p.attributes))
+                      sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p2,p.p3).addAttributes(p.attributes))
+                      sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p3,p.p0).addAttributes(p.attributes))
+                      sequenceOfActions = sequenceOfActions :+ DeleteShape(id,shape)
                       somethingExploded = true
                     }
                     case BitSetShapeSelector(x) => {
                       var firstBitSet: Option[Int] = None
                       if (x.size == 1) {
-                        if (x(0) == true) Create(PolylineShape.createOpen(p.p0,p.p1,p.p2,p.p3,p.p0).addAttributes(p.attributes))
-                        if (x(1) == true) Create(PolylineShape.createOpen(p.p1,p.p2,p.p3,p.p0,p.p1).addAttributes(p.attributes))
-                        if (x(2) == true) Create(PolylineShape.createOpen(p.p2,p.p3,p.p0,p.p1,p.p2).addAttributes(p.attributes))
-                        if (x(3) == true) Create(PolylineShape.createOpen(p.p3,p.p0,p.p1,p.p2,p.p3).addAttributes(p.attributes))
-                        idsForShapesToExplode = idsForShapesToExplode :+ id
+                        if (x(0) == true) sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,PolylineShape.createOpen(p.p0,p.p1,p.p2,p.p3,p.p0).addAttributes(p.attributes))
+                        if (x(1) == true) sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,PolylineShape.createOpen(p.p1,p.p2,p.p3,p.p0,p.p1).addAttributes(p.attributes))
+                        if (x(2) == true) sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,PolylineShape.createOpen(p.p2,p.p3,p.p0,p.p1,p.p2).addAttributes(p.attributes))
+                        if (x(3) == true) sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,PolylineShape.createOpen(p.p3,p.p0,p.p1,p.p2,p.p3).addAttributes(p.attributes))
+                        sequenceOfActions = sequenceOfActions :+ DeleteShape(id,shape)
                       } else if (x.size == 2) {
                         x.foreach(bitSet => {
                           if (firstBitSet.isEmpty) firstBitSet = Some(bitSet)
@@ -207,64 +220,64 @@ class Explode extends Module{
                             //Next to each other: A line and a polyline.
                             if (bitSet - firstBitSet.get == 1 || bitSet - firstBitSet.get == 3 ) {
                               if (firstBitSet.get == 0) {
-                                Create(LineShape(p.p3,p.p0).addAttributes(p.attributes))
-                                Create(PolylineShape(p.p0,p.p1,p.p2,p.p3).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p3,p.p0).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,PolylineShape(p.p0,p.p1,p.p2,p.p3).addAttributes(p.attributes))
                               } else if (firstBitSet.get == 1) {
-                                Create(LineShape(p.p0,p.p1).addAttributes(p.attributes))
-                                Create(PolylineShape(p.p1,p.p2,p.p3,p.p0).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p0,p.p1).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,PolylineShape(p.p1,p.p2,p.p3,p.p0).addAttributes(p.attributes))
                               } else if (firstBitSet.get == 2) {
-                                Create(LineShape(p.p1,p.p2).addAttributes(p.attributes))
-                                Create(PolylineShape(p.p2,p.p3,p.p0,p.p1).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p1,p.p2).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,PolylineShape(p.p2,p.p3,p.p0,p.p1).addAttributes(p.attributes))
                               } else if (firstBitSet.get == 3) {
-                                Create(LineShape(p.p2,p.p3).addAttributes(p.attributes))
-                                Create(PolylineShape(p.p3,p.p0,p.p1,p.p2).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p2,p.p3).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,PolylineShape(p.p3,p.p0,p.p1,p.p2).addAttributes(p.attributes))
                               }
                             } else { //Not next to each others: Two polylines.
                               if (firstBitSet.get == 0) {
-                                Create(PolylineShape(p.p0,p.p1,p.p2).addAttributes(p.attributes))
-                                Create(PolylineShape(p.p2,p.p3,p.p0).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,PolylineShape(p.p0,p.p1,p.p2).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,PolylineShape(p.p2,p.p3,p.p0).addAttributes(p.attributes))
                               } else if (firstBitSet.get == 1) {
-                                Create(PolylineShape(p.p1,p.p2,p.p3).addAttributes(p.attributes))
-                                Create(PolylineShape(p.p3,p.p0,p.p1).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,PolylineShape(p.p1,p.p2,p.p3).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,PolylineShape(p.p3,p.p0,p.p1).addAttributes(p.attributes))
                               }
                             }
                           }
                         })
-                        idsForShapesToExplode = idsForShapesToExplode :+ id
+                        sequenceOfActions = sequenceOfActions :+ DeleteShape(id,shape)
                       } else if (x.size == 3) { //Two lines and a polyline.
                         x.foreach(bitSet => {
                           if (firstBitSet.isEmpty) {
                             firstBitSet = Some(bitSet)
                             if (bitSet == 1) { //bitSet 0 is not selected
-                              Create(LineShape(p.p1,p.p2).addAttributes(p.attributes))
-                              Create(LineShape(p.p2,p.p3).addAttributes(p.attributes))
-                              Create(PolylineShape(p.p3,p.p0,p.p1).addAttributes(p.attributes))
+                              sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p1,p.p2).addAttributes(p.attributes))
+                              sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p2,p.p3).addAttributes(p.attributes))
+                              sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,PolylineShape(p.p3,p.p0,p.p1).addAttributes(p.attributes))
                             }
                           } else if (firstBitSet.get == 0) {
                             if (bitSet - firstBitSet.get == 2) { //bitset 1 or 2 is not selected
                               if (bitSet == 2 ) {
-                                Create(LineShape(p.p2,p.p3).addAttributes(p.attributes))
-                                Create(LineShape(p.p3,p.p0).addAttributes(p.attributes))
-                                Create(PolylineShape(p.p0,p.p1,p.p2).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p2,p.p3).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p3,p.p0).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,PolylineShape(p.p0,p.p1,p.p2).addAttributes(p.attributes))
                               } else {
-                                Create(LineShape(p.p3,p.p0).addAttributes(p.attributes))
-                                Create(LineShape(p.p0,p.p1).addAttributes(p.attributes))
-                                Create(PolylineShape(p.p1,p.p2,p.p3).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p3,p.p0).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p0,p.p1).addAttributes(p.attributes))
+                                sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,PolylineShape(p.p1,p.p2,p.p3).addAttributes(p.attributes))
                               }
                             } else if (bitSet == 3){ //bitset 3 is not selected
-                              Create(LineShape(p.p0,p.p1).addAttributes(p.attributes))
-                              Create(LineShape(p.p1,p.p2).addAttributes(p.attributes))
-                              Create(PolylineShape(p.p2,p.p3,p.p0).addAttributes(p.attributes))
+                              sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p0,p.p1).addAttributes(p.attributes))
+                              sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p1,p.p2).addAttributes(p.attributes))
+                              sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,PolylineShape(p.p2,p.p3,p.p0).addAttributes(p.attributes))
                             }
                           }
                         })
-                        idsForShapesToExplode = idsForShapesToExplode :+ id
+                        sequenceOfActions = sequenceOfActions :+ DeleteShape(id,shape)
                       } else  if (x.size == 4) { //Four lines.
-                        Create(LineShape(p.p0,p.p1).addAttributes(p.attributes))
-                        Create(LineShape(p.p1,p.p2).addAttributes(p.attributes))
-                        Create(LineShape(p.p2,p.p3).addAttributes(p.attributes))
-                        Create(LineShape(p.p3,p.p0).addAttributes(p.attributes))
-                        idsForShapesToExplode = idsForShapesToExplode :+ id
+                        sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p0,p.p1).addAttributes(p.attributes))
+                        sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p1,p.p2).addAttributes(p.attributes))
+                        sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p2,p.p3).addAttributes(p.attributes))
+                        sequenceOfActions = sequenceOfActions :+ CreateShape(Drawing.getId,LineShape(p.p3,p.p0).addAttributes(p.attributes))
+                        sequenceOfActions = sequenceOfActions :+ DeleteShape(id,shape)
                       } else println("BitSetShapeSelector has 0 bit-sets. This is currently believed not to happen, so explode has not been made able to handle that. Nothing exploded.")
                       somethingExploded = true
                     }
@@ -275,10 +288,10 @@ class Explode extends Module{
               }
             })
           if (somethingExploded == true) {
-            //Delete the exploded shapes now - when we're finished manipulating them...
-            idsForShapesToExplode.foreach((id) => {
-              Delete(id)
-            })
+            //Deselect any selected shapes
+            Drawing.deselect()
+            //Execute the actions:
+            if (sequenceOfActions.length > 0) Drawing.execute(SequenceAction(sequenceOfActions))
             
             Siigna display "explodable shapes in selection exploded"
             Tooltip.blockUpdate(3500)
