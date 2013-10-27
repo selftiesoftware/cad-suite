@@ -131,10 +131,13 @@ class Input extends Module {
 
     //Most key-inputs are not handled directly in Input, but sorted and forwarded to key-input modules.
     //Some are, however - eg. enter, escape and backspace.
+
     case KeyDown(key,modifier) :: tail => {
       if (trackDoubleRequest) trackDoubleRequest = false
+      //Alt  and AltGR: Is used for panning - do nothing with those...
+      if (key == Key.alt || key == Key.altgr) {}
       //ENTER: Is returned to the asking module as a key-down event:
-      if (key == Key.enter) {
+      else if (key == Key.enter) {
         Siigna("track") = true
         End(KeyDown(key,modifier))
       }
