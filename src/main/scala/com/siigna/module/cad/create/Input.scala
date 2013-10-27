@@ -160,9 +160,11 @@ class Input extends Module {
         End(KeyDown(key,modifier))
       }
       //Input types where track-offset is activated: Vector2D-guides are transformed to DoubleGuides:
-      //Guides only start when the mouse has been moved away from the point where it entered into input - so entry og x,y isn't interpreted as a distance on a guide...
-      else if (movedAwayFromEntryPoint == true && (inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(9)
-        || inputType == Some(16) || inputType == Some(18)) && Track.isTracking) {
+      //Guides only start when the mouse has been moved away from the point where it entered into input,
+      //and when selection distance away from the tracked point - so entry og x,y isn't interpreted as a distance on a guide...
+      else if (movedAwayFromEntryPoint == true && mousePosition.distanceTo(Track.pointOne.get) < Siigna.selectionDistance &&
+        (inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(9) ||
+          inputType == Some(16) || inputType == Some(18)) && Track.isTracking) {
         val guidesNew = guides.collect({
           case Vector2DGuide(guide) => {
             DoubleGuide((d : Double) => {
