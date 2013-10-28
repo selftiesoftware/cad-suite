@@ -198,24 +198,24 @@ class Selection extends Module {
     case MouseDrag(p1,MouseButtonLeft,m1) :: tail
       //Control up: Drag move if near shape, box select if not near shape:
       if (!m1.ctrl) => {
-      if (shapeWithinSelectionDistance) {
-        if (originalSelector.isDefined) {
-          Deselect()
-          originalSelector.get.self.foreach(idShapeSelector => {
-            Select(idShapeSelector._1,idShapeSelector._2._1,idShapeSelector._2._2)
-          })
+        if (shapeWithinSelectionDistance) {
+          if (originalSelector.isDefined) {
+            Deselect()
+            originalSelector.get.self.foreach(idShapeSelector => {
+              Select(idShapeSelector._1,idShapeSelector._2._1,idShapeSelector._2._2)
+            })
+          }
+          End(Module('cad, "edit.Move"))
         }
-        End(Module('cad, "edit.Move"))
-      }
-      else {
-        if (nearestShape.isDefined) {
-          val (id, shape) = nearestShape.get
-          val selector = shape.getSelector(m)
-          SelectToggle(id,selector)
+        else {
+          if (nearestShape.isDefined) {
+            val (id, shape) = nearestShape.get
+            val selector = shape.getSelector(m)
+            SelectToggle(id,selector)
+          }
+          startPoint = Some(p1)
+          'Box
         }
-        startPoint = Some(p1)
-        'Box
-      }
       }
 
 
@@ -381,9 +381,9 @@ class Selection extends Module {
       box = Some(rectangle)
       val transformedRectangle = rectangle.transform(View.deviceTransformation)
       val selection = Drawing(transformedRectangle).map(t =>
-        t._1 -> (t._2 -> (if (!isEnclosed) FullShapeSelector else t._2.getSelector(transformedRectangle))))
+        t._1 -> (t._2 -> (if (isEnclosed) FullShapeSelector else t._2.getSelector(transformedRectangle))))
       activeSelection = Selection(selection)
-      //println("active selection: "+ activeSelection.par)
+      println("active selection: "+ activeSelection.par)
     }
 
 
@@ -421,7 +421,7 @@ class Selection extends Module {
 
     if (box.isDefined) {
       val p = PolylineShape(box.get).setAttribute("Color" -> (if (isEnclosed) enclosed else focused))
-      val r = p.setAttributes("Raster" -> (if (isEnclosed) rasterEnclosed else rasterFocused))
+      val r = p.setAttributes("Raster" -> (if (isEnclosed) rasterEnclosed))
       g draw p
       g draw r
     }
