@@ -383,7 +383,6 @@ class Selection extends Module {
       val selection = Drawing(transformedRectangle).map(t =>
         t._1 -> (t._2 -> (if (isEnclosed) FullShapeSelector else t._2.getSelector(transformedRectangle))))
       activeSelection = Selection(selection)
-      println("active selection: "+ activeSelection.par)
     }
 
 

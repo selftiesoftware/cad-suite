@@ -158,6 +158,7 @@ class ModuleInit extends Module {
 
       } else if (shortcut == "h") {
         if (shortcutKey == 'd') shortcutProcess("d", "helpers.Distance", 'cad)
+        else if (shortcutKey == 'h') shortcutProcess("h", "helpers.TooltipToggle", 'cad)
         else if (shortcutKey == 's') shortcutProcess("s", "helpers.SnapToggle", 'cad)
         else if (shortcutKey == 't') shortcutProcess("t", "helpers.TrackToggle", 'cad)
         else if (shortcutKey == 'z') shortcutProcess("z", "helpers.ZoomExtends", 'cad)
@@ -242,7 +243,7 @@ class ModuleInit extends Module {
         if (ModuleLoader.modulesLoaded == true) {
           //revert to the arrow-type cursor
           Siigna.setCursor(defaultCursor)
-          Tooltip.updateTooltip(List("Right click = open tools menu", "Keyboard shortcuts: C = Create, H = Helpers, E = Edit, F = File.","SPACE = last tool, ALT = pan."))
+          Tooltip.updateTooltip(List("Keyboard shortcuts: C = Create, H = Helpers, E = Edit, F = File.","RIGHT CLICK = open menu, SPACE = last tool, ALT = pan.","Disable this help from the Helpers menu (press H-H)"))
           Start('cad, "create.Input", InputRequest(14, None))
         }
       }
@@ -273,7 +274,7 @@ object Tooltip {
   var tooltip : List[String] = List("welcome to Siigna.","Right click to open the menu")
   private var baseTime: Long = System.currentTimeMillis()
   private var delay : Int = 0
-  private var block : Int = 0
+  private var block : Int = 1000
   var lastUpdate: Long = System.currentTimeMillis()
 
   Siigna tooltip(List("Welcome to Siigna. Right click to access drawing tools."))
@@ -285,7 +286,7 @@ object Tooltip {
 
   def refresh() {
     if (System.currentTimeMillis() > baseTime + block) {
-      Siigna tooltip(List("Welcome to Siigna. Right click to access drawing tools."))
+      //Siigna tooltip(List("Welcome to Siigna. Right click to access drawing tools."))
     }
   }
 

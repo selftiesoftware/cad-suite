@@ -240,7 +240,7 @@ class Input extends Module {
     }
 
     case _ => {
-      Tooltip.refresh()
+      //Tooltip.refresh()
     }
   })
 
