@@ -68,40 +68,39 @@ class Selection extends Module {
 
   def stateMap = Map(
   'Start -> {
+    //Exit strategy
+    case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
 
-    //exit strategy
-    case KeyDown(Key.Esc,m) :: tail => End(KeyDown(Key.Escape,m))
-    case MouseDown(p, MouseButtonRight,m) :: tail => End(MouseDown(p,MouseButtonRight,m))
+
 
     //Mouse up, after mouse down - possible double click:
     case MouseUp(p1, _, m1) :: Start(_ , p2: Vector2D) :: MouseDown(p3,MouseButtonLeft,m3) :: MouseUp(p4, _, m4) :: MouseDown(p5,MouseButtonLeft,m5) :: tail
       if (p1 == p5) => {
-      if(!m1.ctrl) {
-        //If control is not down, and clicking away from shape: Deselect any selections.
-        if (!shapeWithinSelectionDistance) Deselect()
-        //If clicking near shapes, and on the same point as last mouse up: Select whole shape (Doubleclick)
+        if(!m1.ctrl) {
+          //If control is not down, and clicking away from shape: Deselect any selections.
+          if (!shapeWithinSelectionDistance) Deselect()
+          //If clicking near shapes, and on the same point as last mouse up: Select whole shape (Doubleclick)
 
-        //TOTO: Insert time factor
-        else {
-          val (id, shape) = nearestShape.get
-          Deselect()
-          Select(id)
-          //If it's a text-shape: Edit the text-shape.
-          shape match {
-            case t: TextShape => textShapes = textShapes + 1
-            case _ =>
+          //TOTO: Insert time factor
+          else {
+            val (id, shape) = nearestShape.get
+            Deselect()
+            Select(id)
+            //If it's a text-shape: Edit the text-shape.
+            shape match {
+              case t: TextShape => textShapes = textShapes + 1
+              case _ =>
+            }
+            if ( textShapes == 1) End(Module('cad, "edit.EditText"))
+            else End
           }
-          if ( textShapes == 1) End(Module('cad, "edit.EditText"))
-          else End
+        } else {
+          //If control is down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
+          val (id, shape) = nearestShape.get
+          SelectToggle(id)
+          End
         }
-      } else {
-        //If control is down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
-        val (id, shape) = nearestShape.get
-        SelectToggle(id)
-        End
       }
-
-    }
 
     //If started with a Vector2D: It's a MouseDown  .
     //If no event has been received since last mouse up, there is no End in the eventstream
@@ -123,7 +122,7 @@ class Selection extends Module {
         else {
           //If the nearest shape is fully selected, or a click would select the same shape-part,
           // a later drag is intented to move the current selection:
-          if (Drawing.selection.isDefined) {
+          if (Drawing.selection.get(id).isDefined) {
             Drawing.selection.get(id).get._2 match {
               case FullShapeSelector => originalSelector = Some(Drawing.selection)
               case x if (x == selector) => originalSelector = Some(Drawing.selection)
@@ -152,7 +151,7 @@ class Selection extends Module {
           else {
             //If the nearest shape is fully selected, or a click would select the same shape-part,
             // a later drag is intented to move the current selection:
-            if (Drawing.selection.isDefined) {
+            if (Drawing.selection.get(id).isDefined) {
               Drawing.selection.get(id).get._2 match {
                 case FullShapeSelector => originalSelector = Some(Drawing.selection)
                 case x if (x == selector) => originalSelector = Some(Drawing.selection)
@@ -199,24 +198,24 @@ class Selection extends Module {
     case MouseDrag(p1,MouseButtonLeft,m1) :: tail
       //Control up: Drag move if near shape, box select if not near shape:
       if (!m1.ctrl) => {
-      if (shapeWithinSelectionDistance) {
-        if (originalSelector.isDefined) {
-          Deselect()
-          originalSelector.get.self.foreach(idShapeSelector => {
-            Select(idShapeSelector._1,idShapeSelector._2._1,idShapeSelector._2._2)
-          })
+        if (shapeWithinSelectionDistance) {
+          if (originalSelector.isDefined) {
+            Deselect()
+            originalSelector.get.self.foreach(idShapeSelector => {
+              Select(idShapeSelector._1,idShapeSelector._2._1,idShapeSelector._2._2)
+            })
+          }
+          End(Module('cad, "edit.Move"))
         }
-        End(Module('cad, "edit.Move"))
-      }
-      else {
-        if (nearestShape.isDefined) {
-          val (id, shape) = nearestShape.get
-          val selector = shape.getSelector(m)
-          SelectToggle(id,selector)
+        else {
+          if (nearestShape.isDefined) {
+            val (id, shape) = nearestShape.get
+            val selector = shape.getSelector(m)
+            SelectToggle(id,selector)
+          }
+          startPoint = Some(p1)
+          'Box
         }
-        startPoint = Some(p1)
-        'Box
-      }
       }
 
 
@@ -382,9 +381,8 @@ class Selection extends Module {
       box = Some(rectangle)
       val transformedRectangle = rectangle.transform(View.deviceTransformation)
       val selection = Drawing(transformedRectangle).map(t =>
-        t._1 -> (t._2 -> (if (!isEnclosed) FullShapeSelector else t._2.getSelector(transformedRectangle))))
+        t._1 -> (t._2 -> (if (isEnclosed) FullShapeSelector else t._2.getSelector(transformedRectangle))))
       activeSelection = Selection(selection)
-      //println("active selection: "+ activeSelection.par)
     }
 
 
@@ -422,7 +420,7 @@ class Selection extends Module {
 
     if (box.isDefined) {
       val p = PolylineShape(box.get).setAttribute("Color" -> (if (isEnclosed) enclosed else focused))
-      val r = p.setAttributes("Raster" -> (if (isEnclosed) rasterEnclosed else rasterFocused))
+      val r = p.setAttributes("Raster" -> (if (isEnclosed) rasterEnclosed))
       g draw p
       g draw r
     }
