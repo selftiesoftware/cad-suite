@@ -242,7 +242,7 @@ class ModuleInit extends Module {
         if (ModuleLoader.modulesLoaded == true) {
           //revert to the arrow-type cursor
           Siigna.setCursor(defaultCursor)
-          Tooltip.updateTooltip(List("Right click = open tools menu", "Keyboard shortcuts: C = Create, H = Helpers, E = Edit, F = File.","SPACE = last tool, ALT = pan."))
+          Tooltip.updateTooltip(List("Keyboard shortcuts: C = Create, H = Helpers, E = Edit, F = File.","SPACE = last tool, ALT = pan."))
           Start('cad, "create.Input", InputRequest(14, None))
         }
       }
@@ -270,13 +270,13 @@ class ModuleInit extends Module {
 }
 
 object Tooltip {
-  var tooltip : List[String] = List("welcome to Siigna.","Right click to open the menu")
+  var tooltip : List[String] = List("Welcome to Siigna.","Right click to open the menu.","These tips may be disabled in the Helpers category")
   private var baseTime: Long = System.currentTimeMillis()
   private var delay : Int = 0
   private var block : Int = 0
   var lastUpdate: Long = System.currentTimeMillis()
 
-  Siigna tooltip(List("Welcome to Siigna. Right click to access drawing tools."))
+  Siigna tooltip(tooltip)
 
   def blockUpdate(milliseconds: Int) {
     block = milliseconds
@@ -285,7 +285,7 @@ object Tooltip {
 
   def refresh() {
     if (System.currentTimeMillis() > baseTime + block) {
-      Siigna tooltip(List("Welcome to Siigna. Right click to access drawing tools."))
+      Siigna tooltip(List("Welcome to Siigna.","Right click to open the menu.","These tips may be disabled in the Helpers category"))
     }
   }
 
