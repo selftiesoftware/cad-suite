@@ -35,7 +35,6 @@ case object FileCategory extends MenuCategory{
     EventWNW -> MenuModule(Module('porter,"Export"), Iterable(TextShape("export", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5))))),
     EventWSW -> MenuModule(Module('porter,"Import"), Iterable(TextShape("import", Vector2D(0, 0), 9, Attributes("TextAlignment" -> Vector2D(0.5, 0.5)))))
 
-    //EventSSE -> MenuModule(Module('Print,"com.siigna.module.base.file"), MenuIcons.print),
     //EventESE -> MenuModule(Module('Export,"com.siigna.module.io"), MenuIcons.exportDXF),
     //EventENE -> MenuModule(Module('Import,"com.siigna.module.io"), MenuIcons.importDXF)
   )

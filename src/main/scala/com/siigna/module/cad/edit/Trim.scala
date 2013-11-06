@@ -21,9 +21,6 @@ package com.siigna.module.cad.edit
 
 import com.siigna._
 import app.model.action.{SequenceAction, CreateShape, DeleteShape}
-import app.model.shape.PolylineLineShape
-import app.model.shape.PolylineShape.PolylineShapeClosed
-import app.model.shape.PolylineShape.PolylineShapeOpen
 import com.siigna.app.model.shape.PolylineShape.{PolylineShapeClosed, PolylineShapeOpen}
 import com.siigna.app.model.shape.{PolylineLineShape, PolylineShape, RectangleShape}
 import com.siigna.module.cad.create.InputRequest
