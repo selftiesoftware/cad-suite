@@ -54,15 +54,15 @@ class Area extends Module {
     }
     val r = scala.math.round(area*100)
     val f = (r / 100.0) *0.5
-    f.toInt
+    f
   }
 
   //change display different units based on area size
-  def units(a : Int) = {
+  def units(a : Double) = {
     val positive = if(a < 0) (a - 2*a) else a
     if( positive < 100)  positive+ " mm2"
     else if( positive >= 100 &&  positive < 500000) "%.2f".format( positive/100.toDouble)+" cm2"
-    else "%.2f".format( positive/1000000.toDouble) +" m2"
+    else "%.1f".format( positive/1000000.toDouble) +" m2"
   }
 
 
