@@ -103,7 +103,6 @@ class ImageBackground extends Module {
       //get the first point
       case _ => {
         if(Siigna.imageBackground._1.isDefined) {
-          Select(Siigna.imageBackID)
           Siigna.imageBackground = (None,None,None) //clear background
           End
         }
