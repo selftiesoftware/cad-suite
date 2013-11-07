@@ -24,18 +24,23 @@ import com.siigna._
 
 case object EditCategory extends MenuCategory{
   val graph = Map[MenuEvent,MenuElement](
+
+    //Translations
     EventNNW -> MenuModule(Module('cad,"edit.Rotate"), MenuIcons.rotate),
     EventNNE -> MenuModule(Module('cad,"edit.Scale"), MenuIcons.scale),
-
-    EventENE -> MenuModule(Module('cad,"edit.Trim"), MenuIcons.trim),
-    EventESE -> MenuModule(Module('cad,"edit.Explode"), MenuIcons.explode),
-
-    EventSSE -> MenuModule(Module('cad,"edit.Move"), MenuIcons.move),
-    EventSSW -> MenuModule(Module('cad,"edit.Stroke"), MenuIcons.stroke),
-
-    EventWSW -> MenuModule(Module('cad,"edit.Colors"), MenuIcons.colorWheel)
-    //EventENE -> MenuModule(Module('cad,"edit.Join"), MenuIcons.connect)
     //EventENE -> MenuModule(Module('cad,"edit.Mirror"), MenuIcons.mirror)
+
+    //Intersections
+    EventENE -> MenuModule(Module('cad,"edit.Trim"), MenuIcons.trim),
+
+    //Properties
+    EventWNW -> MenuModule(Module('cad,"edit.Stroke"), MenuIcons.stroke),
+    EventWSW -> MenuModule(Module('cad,"edit.Colors"), MenuIcons.colorWheel),
+
+    //Segments
+    EventSSW -> MenuModule(Module('cad,"edit.Explode"), MenuIcons.explode),
+    EventSSE -> MenuModule(Module('cad,"edit.Join"), MenuIcons.connect)
+
   )
   val color = MenuIcons.editColor
   val parent = Some(StartCategory)

@@ -36,7 +36,7 @@ class TooltipToggle extends Module {
           case true => "on"
           case _ => "off"
         }
-        Siigna display "Helping messages is turned " + value
+        Siigna display "Helping messages are " + value
         Tooltip.blockUpdate(3500)
         End
       }

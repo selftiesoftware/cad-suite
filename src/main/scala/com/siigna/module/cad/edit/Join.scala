@@ -31,38 +31,35 @@ class Join extends Module{
    * old shapes are deleted.
    */
 
-  def joinLines(s : Map[Int, Shape]) : Map[Int, Shape] = {
-    //an optimised list of ids and shape start,end to evaluate for coinsiding points.
-    var idsAndEndPoints : Map[Int, List[Vector2D]] = Map()
+  //strategy: evaluate the shapes two by two recursively.
+  //If two shapes have coinsiding endpoints, join them into a polyline shape.
+  //update the selection, adding the new shape and deleting the two old ones
+  //run the evaluation again
+  //end if no shapes have coinciding ends.
 
-    //TODO: a recursive function to join all (poly)lines with coinsiding endpoints.
+  //a function to merge two shapes if an end coinside.
+  //returns None if this is not the case
+  def endsCheck(s1 : Shape, s2 : Shape) = {
+    val start1 = s1.geometry.vertices.head
+    val end1 = s1.geometry.vertices.last
+    val start2 = s1.geometry.vertices.head
+    val end2 = s1.geometry.vertices.last
 
-
-    //shorten long polylines so that the join evaluation uses the first and last point only.
-    def shorten(i : Int, s : PolylineShapeOpen) : (Int,List[Vector2D]) = (i,List(s.startPoint,s.last.geometry.vertices.last.vertices.last))
-
-    s.foreach(s => s._2 match {
-        //filter out irrelevant shapes
-        case p : PolylineShapeOpen => idsAndEndPoints = idsAndEndPoints + shorten(s._1,p)
-        println("ids and endpoints: "+idsAndEndPoints)
-
-
-
-        //TODO: can not add these (i,List(a,b)) to the Map??!?
-        //case l : LineShape => idsAndEndPoints = idsAndEndPoints + (s._1,List(l.start,l.end))
-        case _ => println("dismissing shape; "+s)
-      }
-    )
-
-    //evaluate the start and end points of the shapes.
-    println("optimised list to evaluate; "+idsAndEndPoints)
-
-    //TODO: write a join algorithm which joins the shapes with coinsiding endpoints...
-
-
-    //return
-    s
+    //check for coinsiding ends and join shapes if such are found
+    if(start1 == start2 || end1 == start1 || end1 == end2 || end1 == start2) joinedShapes = List(s1)
   }
+
+  //run the endsCheck function
+  def evaluateShapes(shapes : List[Shape]) = {
+    //evaluate if the first shape in the list is connected to any of the other shapes
+    if(shapes.length > 0) shapes.foreach(s => endsCheck(shapes.head,s))
+
+    //remove the shape from the original list
+    //evalShapes = shapes.tail
+  }
+
+  var evalShapes : List[Shape] = List()
+  var joinedShapes : List[Shape] = List()
 
   val stateMap: StateMap = Map(
 
@@ -80,9 +77,10 @@ class Join extends Module{
         } else {
           Siigna display "joining shapes"
 
-          val shapes = Drawing.selection.shapes
-          //run the joinLines function
-          joinLines(shapes)
+          //evalShapes = Drawing.selection.shapes.toList
+          //loop until the original shapes list is empty
+          //while(evalShapes.length > 0) evalShapes.map(e => e.evaluateShapes(evalShapes)
+
         }
         //End the module
         End

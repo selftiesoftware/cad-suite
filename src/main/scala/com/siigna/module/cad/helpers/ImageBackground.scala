@@ -1,13 +1,3 @@
-package com.siigna.module.cad.helpers
-
-import com.siigna._
-import app.model.shape.ImageShape
-import util.event.End
-import java.awt.Toolkit
-import reflect.io.File
-import javax.imageio.ImageIO
-import java.awt.image.BufferedImage
-
 /*
  * Copyright (c) 2008-2013, Selftie Software. Siigna is released under the
  * creative common license by-nc-sa. You are free
@@ -27,6 +17,17 @@ import java.awt.image.BufferedImage
  * Read more at http://siigna.com and https://github.com/siigna/main
  */
 
+package com.siigna.module.cad.helpers
+
+import com.siigna._
+import app.model.shape.{RectangleShape, ImageShape}
+import com.siigna.util.event.End
+import java.awt.{MediaTracker, Toolkit}
+import module.cad.create.{InputRequest, Vector2DGuide}
+import module.Tooltip
+import scala.Some
+import javax.swing.filechooser.FileNameExtensionFilter
+
 /**
  * A module to
  * a) import a background image and place it on a drawing
@@ -35,38 +36,103 @@ import java.awt.image.BufferedImage
 
 class ImageBackground extends Module {
 
-  var draw = false
+  //file filter for the import dialog
+  lazy val JPGFileFilter = new FileNameExtensionFilter("JPG files", "jpg")
 
-  //get the image from HDD
-  val image = Toolkit.getDefaultToolkit.createImage("c:/test.jpg")
-  //var imageLength = image.getGraphics.toString.length
-  def imageShape(m : Vector2D) = ImageShape.fromImage(image, mousePosition-Vector2D(100,100),mousePosition+Vector2D(100,100),2200,2200, Attributes())
+  var image : Option[java.awt.Image] = None
 
+  //TODO: tie the image to a rectangleShape so that manipulating that shape also alters the image
+
+  //the points specifying the location of the background image
+  var points = List[Vector2D]()
+
+  //a tracker to check when the image is loaded (the image height and width can not be read before then)
+  //TODO: is it cool to instantiate a new applet ?!  - anyway it was a way to get the tracker working.
+  var tracker : MediaTracker = new MediaTracker(new com.siigna.app.SiignaApplet)
+
+  //on the basis of two points, update the Y-coordinate of the last point "v" to match a given proportion.
+  def parse(ratio : Double, p : Vector2D, v : Vector2D) : Vector2D = {
+    val width = v.x - p.x
+    val vY = width / ratio
+    Vector2D(v.x,p.y + vY)
+  }
+
+  var proportions = 1.0
 
   val stateMap: StateMap = Map(
 
     'Start -> {
+      //exit mechanisms
+      case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
 
-      //exit strategy
-      case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => {
-        draw = false
-        End
+      case End(v : Vector2D) :: tail => {
+
+        //use the first point
+        if (points.length == 0){
+
+          points = points :+ v
+          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), parse(proportions,points(0),v)))))
+          val inputRequest = InputRequest(7,Some(v),vector2DGuide)
+
+          Start('cad, "create.Input", inputRequest)
+        }
+        //use second point
+        else if (points.length == 1) {
+
+          points = points :+ parse(proportions,points.head,v)
+
+          val p1 =  Some(Vector2D(points.head.x,points.last.y))
+          val p2 =  Some(Vector2D(points.last.x,points.head.y))
+
+          //update the image so that it is placed correctly
+          if(Siigna.imageBackground._1.isDefined) Siigna.imageBackground = (Some(Siigna.imageBackground._1.get),p1,p2)
+
+          //TODO: send ID of this along to Siigna.imagebackground in order to be able to select it / delete it again
+          //Create a rectangle to act as a bound ing box
+          //Create(PolylineShape(Rectangle2D(p1.get,p2.get)))
+
+          points = List()
+          End
+        }
       }
 
+      //If End with no point: End module without drawing anything.
+      case End :: tail => End
+      //get the first point
       case _ => {
-        //if(imageLength.toString.length > 1) {
-        println("image: "+image)
-        draw = true
-        //}
+        if(Siigna.imageBackground._1.isDefined) {
+          Siigna.imageBackground = (None,None,None) //clear background
+          End
+        }
+        else {
+          Siigna display ("Choose a background image")
+          //get a background image and save (the info is stored in siigna/app(Siigna)
+          image = Some(Dialogue.readImage(JPGFileFilter)).get
+          Siigna.imageBackground = (image,Some(Vector2D(0,0)),Some(Vector2D(0,0)))
 
+          //track when the image is loaded. Necessary since width and height parameters are unavailable before then.
+          tracker.addImage(image.get, 0)
+          tracker.waitForID(0)
+
+          val h = Siigna.imageBackground._1.get.getHeight(null)
+          val w = Siigna.imageBackground._1.get.getWidth(null)
+
+          proportions = (w.toDouble/h.toDouble)
+
+          //change cursor to crosshair
+          Siigna.setCursor(Cursors.crosshair)
+
+          if (points.length == 0) {
+            Tooltip.updateTooltip(List("place background image"))
+            Start('cad, "create.Input", InputRequest(6,None))
+          } else {
+
+            val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), (parse(proportions,points(0),v))))))
+            val inputRequest = InputRequest(7,Some(points.head),vector2DGuide)
+            Start('cad, "create.Input", inputRequest)
+          }
+        }
       }
-    })
-
-  override def paint(g : Graphics, t : TransformationMatrix) {
-    if(draw) {
-      g draw PolylineShape(Rectangle2D(mousePosition-Vector2D(100,100),mousePosition+Vector2D(100,100)))
-      g draw imageShape(mousePosition)
     }
-  }
-
+  )
 }

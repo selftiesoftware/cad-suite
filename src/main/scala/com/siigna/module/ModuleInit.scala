@@ -253,6 +253,15 @@ class ModuleInit extends Module {
   private val selectionAttributes = Attributes("StrokeWidth" -> 0.7, "Color" -> Siigna.color("colorSelected").getOrElse("#AAAAAA"))
 
   override def paint(g: Graphics, t: TransformationMatrix) {
+    //paint the background image if there is one
+    if(Siigna.imageBackground._1.isDefined) {
+      val p1 = Siigna.imageBackground._2.get.transform(t)
+      val p2 = Siigna.imageBackground._3.get.transform(t)
+      val width = p2.x-p1.x
+      val height = p2.y-p1.y
+      g.AWTGraphics.drawImage(Siigna.imageBackground._1.get,p1.x.toInt,p1.y.toInt,width.toInt,height.toInt,null)
+    }
+
     g draw PaperHeader.openness.transform(t) //color to show level of openness
     g draw PaperHeader.headerFrame.transform(t) //frame around drawing info
     g draw PaperHeader.scaleText.transform(t) //frame around drawing info
