@@ -20,7 +20,7 @@
 package com.siigna.module.cad.helpers
 
 import com.siigna._
-import com.siigna.module.Module
+import module.{Tooltip, Module}
 import com.siigna.module.cad.create._
 
 import java.awt.Color
@@ -59,14 +59,15 @@ class Area extends Module {
 
   //change display different units based on area size
   def units(a : Int) = {
-    if(a < 100) a+ " mm2"
-    else if(a >= 100 && a < 500000) "%.2f".format(a/100.toDouble)+" cm2"
-    else "%.2f".format(a/1000000.toDouble) +" m2"
+    val positive = if(a < 0) (a - 2*a) else a
+    if( positive < 100)  positive+ " mm2"
+    else if( positive >= 100 &&  positive < 500000) "%.2f".format( positive/100.toDouble)+" cm2"
+    else "%.2f".format( positive/1000000.toDouble) +" m2"
   }
 
 
   var color = new Color(1.00f, 0.75f, 0.30f, 0.60f)
-  val lineWidth = 2.0
+  val lineWidth = 0.6
   private var points   = List[Vector2D]()
   var startPoint: Option[Vector2D] = None
 
@@ -80,6 +81,8 @@ class Area extends Module {
         if (points.length > 2) {
           val pts = points :+ points(0)
           Siigna.display("Area: "+units(area(pts)))
+          Tooltip.updateTooltip(List("Area: "+units(area(pts))))
+
           //TODO: calculate the weighted center of the polygon and place a TextShape with the area there.
           //Create(TextShape(units(area(points :+ points(0))),position(points) ,3 * Siigna.paperScale))
           points = List()
