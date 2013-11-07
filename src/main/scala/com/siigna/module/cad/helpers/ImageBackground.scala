@@ -89,7 +89,9 @@ class ImageBackground extends Module {
 
           //TODO: send ID of this along to Siigna.imagebackground in order to be able to select it / delete it again
           //Create a rectangle to act as a bound ing box
-          //Create(PolylineShape(Rectangle2D(p1.get,p2.get)))
+          Create(PolylineShape(Rectangle2D(p1.get,p2.get)))
+
+          //Siigna.imageBackID = com.siigna.app.Siigna.latestID
 
           points = List()
           End
@@ -101,6 +103,7 @@ class ImageBackground extends Module {
       //get the first point
       case _ => {
         if(Siigna.imageBackground._1.isDefined) {
+          Select(Siigna.imageBackID)
           Siigna.imageBackground = (None,None,None) //clear background
           End
         }
