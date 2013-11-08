@@ -64,7 +64,7 @@ class Scale extends Module {
           //8: Input type: Coordinates at mouseUp
           //if the base point for scaling is set, goto point with a shape guide
           Start('cad, "create.Input", inputRequest)
-        } else if(p != startPoint.get && firstPointEntered == false) {
+        } else if(p.distanceTo(startPoint.get) > Siigna.selectionDistance && firstPointEntered == false) {
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)
 
@@ -79,7 +79,7 @@ class Scale extends Module {
           Drawing.selection.transform(transformation)
           Drawing.deselect()
           End
-        } else if (p == startPoint.get && firstPointEntered == false) {
+        } else if (p.distanceTo(startPoint.get) <= Siigna.selectionDistance && firstPointEntered == false) {
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)
 
@@ -116,7 +116,7 @@ class Scale extends Module {
           })
           //8: Input type: Coordinates at mouseUp
           Start('cad, "create.Input", InputRequest(8,None,vector2DGuide))
-        } else if (firstPointEntered == true && !endPoint.isEmpty && endPoint.get == p) {
+        } else if (firstPointEntered == true && !endPoint.isEmpty && p.distanceTo(endPoint.get ) <= Siigna.selectionDistance) {
           //STEP 4a: A point is returned (from mouse up). If it is the same as the point in step 3, it is
           //the end-point, and the user should:
           // 1) enter the desired distance between the two points to finish the scale, or
@@ -140,7 +140,7 @@ class Scale extends Module {
           })
           //two points are selected, request click or double to define scale factor:
           Start('cad, "create.Input", InputRequest(19,None,vector2DGuide,doubleGuide))
-        } else if (firstPointEntered == true && !endPoint.isEmpty && endPoint.get != p) {
+        } else if (firstPointEntered == true && !endPoint.isEmpty && p.distanceTo(endPoint.get) > Siigna.selectionDistance) {
           //Step 4b: A drag has occured (the point from mouse up is not the same as from mouse down).
           // or the mouse has been clicked after the end point has been set, defining a scale factor. Do the scaling:
           val scaleFactor = (startPoint.get.distanceTo(p)/startPoint.get.distanceTo(endPoint.get))
