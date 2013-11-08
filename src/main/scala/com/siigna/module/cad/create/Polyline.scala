@@ -67,7 +67,6 @@ class Polyline extends Module {
           Start('cad, "create.Input", InputRequest(8,None,Vector2DGuide((v : Vector2D) => Traversable(LineShape(firstPoint.get, v).addAttributes(attributes)))))
         } else if (firstPointSet == false) {
           firstPointSet = true
-          println("Distance: " + v.distanceTo(firstPoint.get))
           if (v != firstPoint.get & v.distanceTo(firstPoint.get) > Siigna.selectionDistance) {
             points = points :+ v
           }
