@@ -45,7 +45,8 @@ class Copy extends Module {
     'Start -> {
 
       //exit strategy
-      case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => {
+      case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | KeyDown(Key.Enter, _) | End(KeyDown(Key.enter, _)) |
+            MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => {
         if (multiFirst == true && startPoint.isDefined && endPoint.isDefined) {
           transformation = TransformationMatrix(endPoint.get - startPoint.get, 1)
           Create(transform(transformation))
@@ -70,7 +71,7 @@ class Copy extends Module {
           Start('cad, "create.Input", inputRequest)
         } else if (startPoint.isDefined & multiActive == false){
           endPoint = Some(p)
-          Siigna display "click to set a copy or type number of copies. Escape or right mouse to end."
+          Siigna display "click to set another copy or type number of copies. Enter, escape or right mouse to end."
           Tooltip.blockUpdate(3500)
           multiActive = true
           var t: Traversable[Shape] = Traversable()
@@ -87,7 +88,7 @@ class Copy extends Module {
           //First copy set with click. user might want to set more...
           transformation = TransformationMatrix(p - startPoint.get, 1)
           Create(transform(transformation))
-          Siigna display "click to set a copy. Escape or right mouse to end."
+          Siigna display "click to set another copy. Enter, escape or right mouse to end."
           Tooltip.blockUpdate(3500)
           val vector2DGuide = Vector2DGuide((v: Vector2D) => transform(TransformationMatrix(v-startPoint.get,1)))
           val inputRequest = InputRequest(1 , None,vector2DGuide)
