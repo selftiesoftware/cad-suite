@@ -29,7 +29,7 @@ class Offset extends Module {
   private var attr = Attributes()
   private var done = false
   private var isClosed = false
-  private val shape: Option[Shape] = if (Drawing.selection.isDefined) Some(Drawing.selection.shapes.head._2) else None
+  private var shape: Option[Shape] = None
   private val isRect = if(shape.isDefined) shape.get.isInstanceOf[RectangleShape] else false
 
 
@@ -46,67 +46,75 @@ class Offset extends Module {
   }
   //a function to generate a Shape from the result of the offsetLines function
   def generateOffsetLine(s: Any) : Option[Shape] = {
+    if (Drawing.selection.isDefined) {
+      shape = Some(Drawing.selection.shapes.head._2)
+      //Select the whole shape, in case only a part is selected (so the whole shape is highlighted)
+      Drawing.select(Drawing.selection.shapes.head._1)
+    } else shape =  None
+    if(shape.isDefined) {
+      shape.get match {
+        case pso: PolylineShapeOpen => {
+          //Select the whole shape, if only a part is selected (so the whole shape is highlighted)
 
-    shape.get match {
-      case pso: PolylineShapeOpen => {
-        offsetLinesForLineAndPolylineShapes (s)
-      }
-      case psc: PolylineShapeClosed => {
-        offsetLinesForLineAndPolylineShapes (s)
-      }
-      case ls: LineShape => {
-        offsetLinesForLineAndPolylineShapes (s)
-      }
-      case rs: RectangleShape => {
-        offsetLinesForLineAndPolylineShapes (s)
-      }
+          offsetLinesForLineAndPolylineShapes (s)
+        }
+        case psc: PolylineShapeClosed => {
+          offsetLinesForLineAndPolylineShapes (s)
+        }
+        case ls: LineShape => {
+          offsetLinesForLineAndPolylineShapes (s)
+        }
+        case rs: RectangleShape => {
+          offsetLinesForLineAndPolylineShapes (s)
+        }
 
-      case cs: CircleShape => {
-        s match {
-          case v: Vector2D => {
-            if (cs.center.distanceTo(mousePosition.transform(View.deviceTransformation)) == cs.radius || cs.center.distanceTo(mousePosition.transform(View.deviceTransformation)) == 0) None
-            else Some(CircleShape(cs.center,v))
-          }
-          case d: Double => {
-            if (cs.center.distanceTo(mousePosition.transform(View.deviceTransformation)) > cs.radius) Some(CircleShape(cs.center,cs.radius + d))
-            else if (cs.center.distanceTo(mousePosition.transform(View.deviceTransformation)) < cs.radius && d < cs.radius) Some(CircleShape(cs.center,cs.radius - d))
-            else {
-              Siigna display ("Offset distance inside circle must be less than circle radius")
+        case cs: CircleShape => {
+          s match {
+            case v: Vector2D => {
+              if (cs.center.distanceTo(mousePosition.transform(View.deviceTransformation)) == cs.radius || cs.center.distanceTo(mousePosition.transform(View.deviceTransformation)) == 0) None
+              else Some(CircleShape(cs.center,v))
+            }
+            case d: Double => {
+              if (cs.center.distanceTo(mousePosition.transform(View.deviceTransformation)) > cs.radius) Some(CircleShape(cs.center,cs.radius + d))
+              else if (cs.center.distanceTo(mousePosition.transform(View.deviceTransformation)) < cs.radius && d < cs.radius) Some(CircleShape(cs.center,cs.radius - d))
+              else {
+                Siigna display ("Offset distance inside circle must be less than circle radius")
+                None
+              }
+            }
+            case x => {
+              println("Ununderstandable circle shape: " + x)
               None
             }
           }
-          case x => {
-            println("Ununderstandable circle shape: " + x)
-            None
-          }
         }
-      }
-      case as: ArcShape => {
-        s match {
-          case v: Vector2D => {
-            if (as.center.distanceTo(mousePosition.transform(View.deviceTransformation)) == as.radius || as.center.distanceTo(mousePosition.transform(View.deviceTransformation)) == 0) None
-            else Some(ArcShape(as.center,as.center.distanceTo(mousePosition.transform(View.deviceTransformation)),as.startAngle,as.angle))
-          }
-          case d: Double => {
-            if (as.center.distanceTo(mousePosition.transform(View.deviceTransformation)) > as.radius) Some(ArcShape(as.center,as.radius + d,as.startAngle,as.angle))
-            else if (as.center.distanceTo(mousePosition.transform(View.deviceTransformation)) < as.radius && d < as.radius) Some(ArcShape(as.center,as.radius - d,as.startAngle,as.angle))
-            else {
-              Siigna display ("Offset distance inside arc must be less than arc radius")
+        case as: ArcShape => {
+          s match {
+            case v: Vector2D => {
+              if (as.center.distanceTo(mousePosition.transform(View.deviceTransformation)) == as.radius || as.center.distanceTo(mousePosition.transform(View.deviceTransformation)) == 0) None
+              else Some(ArcShape(as.center,as.center.distanceTo(mousePosition.transform(View.deviceTransformation)),as.startAngle,as.angle))
+            }
+            case d: Double => {
+              if (as.center.distanceTo(mousePosition.transform(View.deviceTransformation)) > as.radius) Some(ArcShape(as.center,as.radius + d,as.startAngle,as.angle))
+              else if (as.center.distanceTo(mousePosition.transform(View.deviceTransformation)) < as.radius && d < as.radius) Some(ArcShape(as.center,as.radius - d,as.startAngle,as.angle))
+              else {
+                Siigna display ("Offset distance inside arc must be less than arc radius")
+                None
+              }
+            }
+            case x => {
+              println("Ununderstandable arc shape: " + x)
               None
             }
           }
-          case x => {
-            println("Ununderstandable arc shape: " + x)
-            None
-          }
+        }
+
+        case x => {
+          println("Shape not caught: " + x)
+          None
         }
       }
-
-      case x => {
-        println("Shape not caught: " + x)
-        None
-      }
-    }
+    } else None
   }
 
 
@@ -258,11 +266,13 @@ class Offset extends Module {
   //guides to get Point to draw the shape(s) dynamically
   val doubleGuide: DoubleGuide = DoubleGuide((s : Double) => {
     if (generateOffsetLine(s).isDefined) Traversable(generateOffsetLine(s).get.addAttributes(attr))//run a function to generate the offset shape dynamically
-    else Drawing.selection.shapes.values
+    else if (Drawing.selection.isDefined) Drawing.selection.shapes.values
+    else Traversable()
   })
   val vector2DGuide: Vector2DGuide = Vector2DGuide((v : Vector2D) => {
     if (generateOffsetLine(v).isDefined)Traversable(generateOffsetLine(v).get.addAttributes(attr))//run a function to generate the offset shape dynamically
-    else Drawing.selection.shapes.values
+    else if (Drawing.selection.isDefined) Drawing.selection.shapes.values
+    else Traversable()
   })
 
   //Select shapes
