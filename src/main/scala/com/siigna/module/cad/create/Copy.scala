@@ -46,10 +46,11 @@ class Copy extends Module {
 
       //exit strategy
       case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => {
-        if (multiFirst == true) {
+        if (multiFirst == true && startPoint.isDefined && endPoint.isDefined) {
           transformation = TransformationMatrix(endPoint.get - startPoint.get, 1)
           Create(transform(transformation))
         }
+        Siigna display ""
         End
       }
 
