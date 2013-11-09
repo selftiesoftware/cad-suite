@@ -83,7 +83,9 @@ class ModuleInit extends Module {
   //start module and process graphic feedback when a tool shortcut is received
   //input : shortcut, module name, module category
   def shortcutProcess(s: String, modText: String, m: Symbol) = {
+
     shortcut = s
+    println("S; "+s)
     toolSuggestions = List[String]() //reset tool suggestions
     textFeedback.inputFeedback(shortcut) //display feedback telling the module is active
 
@@ -94,6 +96,7 @@ class ModuleInit extends Module {
       } //enable module recall with space
     }
     shortcut = ""
+    println("m; "+m)
     Start(m, modText)
   }
 
@@ -146,6 +149,12 @@ class ModuleInit extends Module {
           shortcut = shortcutKey.toString
           toolSuggestions = textFeedback.inputFeedback(shortcut)
         }
+        //SHORTCUTS KNOWN FROM COMMON CAD PROGRAMS
+        else if (shortcutKey == 'l')shortcutProcess("l", "create.Polyline", 'cad) //polyline
+        else if (shortcutKey == 'm') shortcutProcess("m", "edit.Move", 'cad) //move
+        else if (shortcutKey == 't') shortcutProcess("t", "edit.Trim", 'cad) //trim
+
+        //CREATE shortcuts
       } else if (shortcut == "c") {
         if (shortcutKey == 'a') shortcutProcess("a", "create.Arc", 'cad)
         else if (shortcutKey == 'c') shortcutProcess("c", "create.Circle", 'cad)
@@ -155,14 +164,14 @@ class ModuleInit extends Module {
         else if (shortcutKey == 'p') shortcutProcess("p", "create.Polyline", 'cad)
         else if (shortcutKey == 'r') shortcutProcess("r", "create.Rectangle", 'cad)
         else if (shortcutKey == 't') shortcutProcess("t", "create.Text", 'cad)
-
+        //HELPERS shortcuts
       } else if (shortcut == "h") {
         if (shortcutKey == 'd') shortcutProcess("d", "helpers.Distance", 'cad)
         else if (shortcutKey == 'h') shortcutProcess("h", "helpers.TooltipToggle", 'cad)
         else if (shortcutKey == 's') shortcutProcess("s", "helpers.SnapToggle", 'cad)
         else if (shortcutKey == 't') shortcutProcess("t", "helpers.TrackToggle", 'cad)
         else if (shortcutKey == 'z') shortcutProcess("z", "helpers.ZoomExtends", 'cad)
-
+        //EDIT shortcuts
       } else if (shortcut == "e") {
         if (shortcutKey == 'c') shortcutProcess("c", "edit.Colors", 'cad)
         else if (shortcutKey == 'e') shortcutProcess("e", "edit.Explode", 'cad)
@@ -239,7 +248,6 @@ class ModuleInit extends Module {
   private val selectionAttributes = Attributes("StrokeWidth" -> 0.7, "Color" -> Siigna.color("colorSelected").getOrElse("#AAAAAA"))
 
   override def paint(g: Graphics, t: TransformationMatrix) {
-
 
     g draw PaperHeader.openness.transform(t) //color to show level of openness
     g draw PaperHeader.headerFrame.transform(t) //frame around drawing info
