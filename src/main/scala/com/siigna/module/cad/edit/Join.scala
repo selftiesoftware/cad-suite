@@ -31,35 +31,48 @@ class Join extends Module{
    * old shapes are deleted.
    */
 
-  //strategy: evaluate the shapes two by two recursively.
-  //If two shapes have coinsiding endpoints, join them into a polyline shape.
-  //update the selection, adding the new shape and deleting the two old ones
-  //run the evaluation again
-  //end if no shapes have coinciding ends.
+  //STRATEGY:
+  //1) if sel.size == 2
+  //2) get endPoints
+  //3) if coinsiding ends: Create(newS = s1+s2)
+  //4)del s1 and s2
+  //5) select newS
+  //6) Start(Select)
 
   //a function to merge two shapes if an end coinside.
   //returns None if this is not the case
-  def endsCheck(s1 : Shape, s2 : Shape) = {
+  def endsCheck(s1 : Shape, s2 : Shape) : Boolean = {
     val start1 = s1.geometry.vertices.head
     val end1 = s1.geometry.vertices.last
     val start2 = s1.geometry.vertices.head
     val end2 = s1.geometry.vertices.last
 
     //check for coinsiding ends and join shapes if such are found
-    if(start1 == start2 || end1 == start1 || end1 == end2 || end1 == start2) joinedShapes = List(s1)
+    if(start1 == start2 || end1 == start1 || end1 == end2 || end1 == start2) true else false
   }
 
-  //run the endsCheck function
-  def evaluateShapes(shapes : List[Shape]) = {
-    //evaluate if the first shape in the list is connected to any of the other shapes
-    if(shapes.length > 0) shapes.foreach(s => endsCheck(shapes.head,s))
+  def addTwoVerticeLists(l1 : List[Vector2D], l2 : List[Vector2D]) : List[Vector2D] = {
+    //println("l1: "+l1)
+    //println("l2: "+l2)
 
-    //remove the shape from the original list
-    //evalShapes = shapes.tail
+    //align list1
+    val newL1 = if(l1.head == l2.head) {
+      l1.reverse
+    } else l1
+
+    //align list2
+    val newL2 = if(l1.last == l2.last) {
+      l2.reverse
+    } else l2
+
+    newL1 ++ newL2
+    if(l1.head == l2.last) newL1.reverse ++ newL2.reverse else newL1 ++ newL2 //prevent false construction of closed PLs
   }
 
-  var evalShapes : List[Shape] = List()
-  var joinedShapes : List[Shape] = List()
+  var selection = Selection()
+
+  var s1vertices : List[Vector2D] = List()
+  var s2vertices : List[Vector2D] = List()
 
   val stateMap: StateMap = Map(
 
@@ -71,16 +84,61 @@ class Join extends Module{
       case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
 
       case _ => {
-        if (Drawing.selection.isEmpty) {
-          Siigna display "Select objects to join"
+
+        val selectionShapes = Drawing.selection.shapes.map(s => s._2)
+        //1) if sel.size == 2
+        if (selectionShapes.size != 2) {
+          Siigna display "Select two objects to join"
           Start('cad, "Selection")
         } else {
+          selection = Drawing.selection //save the selection so that the original shapes can be deleted
+
           Siigna display "joining shapes"
 
-          //evalShapes = Drawing.selection.shapes.toList
-          //loop until the original shapes list is empty
-          //while(evalShapes.length > 0) evalShapes.map(e => e.evaluateShapes(evalShapes)
+          //2) get endPoints
+          val s1 = selectionShapes.head
+          val s2 = selectionShapes.last
 
+          //check that the shapes are line or polyline shapes
+          if(s1.isInstanceOf[LineShape] || s1.isInstanceOf[PolylineShapeOpen]) {
+            if(s2.isInstanceOf[LineShape] || s2.isInstanceOf[PolylineShapeOpen]) {
+
+              //if ends coinside, join the shapes
+              if(endsCheck(s1,s2)) {
+                //get the vertices of line one
+                s1 match {
+                  case l : LineShape => s1vertices = List(l.p1,l.p2)
+                  case p : PolylineShapeOpen => s1vertices = p.geometry.vertices.toList
+                  case _ => {
+                    Siigna display "Oooops, something wrong in join with shape 1"
+                    End
+                  }
+                }
+
+                //get the vertices of line two
+                s2 match {
+                  case l : LineShape => s2vertices = List(l.p1,l.p2)
+                  case p : PolylineShapeOpen => s2vertices = p.geometry.vertices.toList
+                  case _ => {
+                    Siigna display "Oooops, something wrong in join with shape 2"
+                    End
+                  }
+                }
+                //join (poly)lines
+                val s = addTwoVerticeLists(s1vertices,s2vertices)
+                Create(PolylineShape(s))
+                //5)del s1 and s2
+                if(!selection.isEmpty) Delete(selection)
+                //6) select newS
+                val id = if(Siigna.latestID.isDefined) Siigna.latestID else None
+                if(id.isDefined) Select(id)
+
+                //7) Start(Select) to look for new shapes to join
+                Start('cad, "Selection")
+
+              }
+            } else Siigna display "joining works for lines only"
+          }
         }
         //End the module
         End

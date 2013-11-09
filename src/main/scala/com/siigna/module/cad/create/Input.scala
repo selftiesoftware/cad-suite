@@ -132,7 +132,6 @@ class Input extends Module {
     //Some are, however - eg. enter, escape and backspace.
 
     case KeyDown(key,modifier) :: tail => {
-      println(Track.pointOne)
       if (trackDoubleRequest) trackDoubleRequest = false
       //Alt  and AltGR: Is used for panning - do nothing with those...
       if (key == Key.alt || key == Key.altgr) {}
