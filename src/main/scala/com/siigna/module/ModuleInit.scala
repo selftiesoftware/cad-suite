@@ -183,21 +183,13 @@ class ModuleInit extends Module {
     'Start -> {
 
       // Match for modules to forward to
-      case End(module: Module) :: tail
-        if (ModuleLoader.modulesLoaded == true) => {
+      case End(module: Module) :: tail => {
         lastModule = Some(module) // Store it as a last module
         Start(module) // Forward
       }
-      case End(module: Module) :: tail
-        if (ModuleLoader.modulesLoaded == true) => {
-        lastModule = Some(module) // Store it as a last module
-        Start(module) // Forward
-      }
-
 
       // Menu
-      case MouseDown(p, MouseButtonRight, modifier) :: tail
-        if (ModuleLoader.modulesLoaded == true) => {
+      case MouseDown(p, MouseButtonRight, modifier) :: tail => {
         Tooltip.updateTooltip(List("Select tool", "",""))
         shortcut = ""
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
@@ -214,38 +206,32 @@ class ModuleInit extends Module {
         shortcut = ""
         Start('cad, "Selection", p)
       }
-      case MouseDown(p: Vector2D, _, _) :: tail
-        if (ModuleLoader.modulesLoaded == true) => {
+      case MouseDown(p: Vector2D, _, _) :: tail => {
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         shortcut = ""
         Start('cad, "Selection", p)
       }
-      case MouseDrag(p: Vector2D, MouseButtonLeft, m1) :: tail
-        if (ModuleLoader.modulesLoaded == true) => {
+      case MouseDrag(p: Vector2D, MouseButtonLeft, m1) :: tail => {
         shortcut = ""
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         Start('cad, "Selection", MouseDrag(p,MouseButtonLeft,m1))
       }
 
       // Start previous
-      case KeyDown(Key.Space, _) :: tail
-        if (ModuleLoader.modulesLoaded == true) => startPrevious
+      case KeyDown(Key.Space, _) :: tail => startPrevious
       case End(KeyDown(Key.Space, _)) :: tail => startPrevious
 
-      case KeyDown(code: Int, modifier: ModifierKeys) :: tail
-        if (ModuleLoader.modulesLoaded == true) => handleKeyDown(code, modifier)
+      case KeyDown(code: Int, modifier: ModifierKeys) :: tail => handleKeyDown(code, modifier)
       case End(KeyDown(code: Int, modifier: ModifierKeys)) :: tail => handleKeyDown(code, modifier)
 
         //If the ending module sent a message (fx. measure distance; lines exploded, of whatever, don't overwrite it...
       case End :: tail => if(Tooltip.lastUpdate +500 > System.currentTimeMillis()) Tooltip.blockUpdate(3500)
 
       case y => {
-        if (ModuleLoader.modulesLoaded == true) {
-          //revert to the arrow-type cursor
-          Siigna.setCursor(defaultCursor)
-          Tooltip.updateTooltip(List("Keyboard shortcuts: C = Create, H = Helpers, E = Edit, F = File.","RIGHT CLICK = open menu, SPACE = last tool, ALT = pan.","Disable this help from the Helpers menu (press H-H)"))
-          Start('cad, "create.Input", InputRequest(14, None))
-        }
+        //revert to the arrow-type cursor
+        Siigna.setCursor(defaultCursor)
+        Tooltip.updateTooltip(List("Keyboard shortcuts: C = Create, H = Helpers, E = Edit, F = File.","RIGHT CLICK = open menu, SPACE = last tool, ALT = pan.","Disable this help from the Helpers menu (press H-H)"))
+        Start('cad, "create.Input", InputRequest(14, None))
       }
     }
   )
