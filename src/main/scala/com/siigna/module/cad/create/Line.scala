@@ -60,7 +60,12 @@ class Line extends Module {
       case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
 
       //Handle values returned from input
-      case End(v : Vector2D) :: tail => {
+        case End(MouseDown(v : Vector2D, _, _)) :: tail => {
+          firstPoint = Some(v)
+          firstPointSet = true
+          Start('cad,"create.Input", InputRequest(7,firstPoint,vector2DGuide))
+        }
+        case End(v : Vector2D) :: tail => {
         if (firstPoint.isEmpty) {
           firstPoint = Some(v)
           //Get input: Mouse up.
@@ -90,7 +95,7 @@ class Line extends Module {
 
       //Request input
       case _ => {
-        Start('cad, "create.Input", InputRequest(6,None))
+        Start('cad, "create.Input", InputRequest(16,None))
       }
     }
   )
