@@ -52,21 +52,30 @@ class Join extends Module{
   }
 
   def addTwoVerticeLists(l1 : List[Vector2D], l2 : List[Vector2D]) : List[Vector2D] = {
-    //println("l1: "+l1)
-    //println("l2: "+l2)
+    val s1 = l1.head
+    val e1 = l1.last
+    val s2 = l2.head
+    val e2 = l2.last
 
-    //align list1
-    val newL1 = if(l1.head == l2.head) {
-      l1.reverse
-    } else l1
+    //catch lists which will result in closed polylines
+    if((s1 == e2 && s2 == e1) || (s1 == s2 && e2 == e1)) {
+      if(e1 == s2) l1 ++ l2 else l1.reverse ++ l2
+    }
+    //catch lists which will result in open polylines
+    else {
+      //align list1
+      val newL1 = if(s1 == s2) {
+        l1.reverse
+      } else l1
 
-    //align list2
-    val newL2 = if(l1.last == l2.last) {
-      l2.reverse
-    } else l2
+      //align list2
+      val newL2 = if(e1 == e2) {
+        l2.reverse
+      } else l2
 
-    newL1 ++ newL2
-    if(l1.head == l2.last) newL1.reverse ++ newL2.reverse else newL1 ++ newL2 //prevent false construction of closed PLs
+      newL1 ++ newL2
+      if(s1 == e2) newL1.reverse ++ newL2.reverse else newL1 ++ newL2 //prevent false construction of closed PLs
+    }
   }
 
   var selection = Selection()
@@ -126,7 +135,7 @@ class Join extends Module{
                 }
                 //join (poly)lines
                 val s = addTwoVerticeLists(s1vertices,s2vertices)
-                Create(PolylineShape(s))
+                if(!s.isEmpty) Create(PolylineShape(s))
                 //5)del s1 and s2
                 if(!selection.isEmpty) Delete(selection)
                 //6) select newS
