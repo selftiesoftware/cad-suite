@@ -85,7 +85,6 @@ class ModuleInit extends Module {
   def shortcutProcess(s: String, modText: String, m: Symbol) = {
 
     shortcut = s
-    println("S; "+s)
     toolSuggestions = List[String]() //reset tool suggestions
     textFeedback.inputFeedback(shortcut) //display feedback telling the module is active
 
@@ -96,7 +95,6 @@ class ModuleInit extends Module {
       } //enable module recall with space
     }
     shortcut = ""
-    println("m; "+m)
     Start(m, modText)
   }
 
