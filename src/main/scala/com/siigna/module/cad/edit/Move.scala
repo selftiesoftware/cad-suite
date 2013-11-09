@@ -66,7 +66,7 @@ class Move extends Module {
       //Handle the situation, where Module Init upon click forwards to select, and
       //Select forwards to move, if the user then drags, and the click was near a shape.
       case Start (_,_) :: End(_) :: MouseDrag(_, _, mod) :: MouseDown(p, _, _) :: tail => {
-        println("DragMove begins in move")
+        //println("DragMove begins in move")
         firstPoint = Some(p.transform(View.deviceTransformation))
         'StateTwo
       }
