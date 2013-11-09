@@ -267,6 +267,8 @@ class ModuleInit extends Module {
       }
     }
 
+    //println("active selection in mod init: "+activeSelection)
+
     activeSelection.parts.foreach(s => g draw s.setAttributes(selectionAttributes).transform(t))
     activeSelectionVertices.foreach(v => g draw v.transform(t))
   }
