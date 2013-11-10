@@ -30,7 +30,8 @@ class Offset extends Module {
   private var done = false
   private var isClosed = false
   private var shape: Option[Shape] = None
-  private val isRect = if(shape.isDefined) shape.get.isInstanceOf[RectangleShape] else false
+  private var isRect: Boolean = false
+
 
 
   //a function to offset a line segment
@@ -52,6 +53,7 @@ class Offset extends Module {
       Drawing.select(Drawing.selection.shapes.head._1)
     } else shape =  None
     if(shape.isDefined) {
+      isRect = shape.get.isInstanceOf[RectangleShape]
       shape.get match {
         case pso: PolylineShapeOpen => {
           //Select the whole shape, if only a part is selected (so the whole shape is highlighted)
