@@ -236,6 +236,7 @@ class Input extends Module {
 
     //Character or special key:
     case End(KeyDown(code: Int,modifier: ModifierKeys)) :: tail => {
+      Siigna("track") = true
       End(KeyDown(code: Int,modifier: ModifierKeys))
     }
 

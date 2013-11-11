@@ -59,6 +59,11 @@ class Polyline extends Module {
         End
       }
 
+      case End(MouseDown(v : Vector2D, _, _)) :: tail => {
+        firstPoint = Some(v)
+        points = points :+ v
+        Start('cad, "create.Input", InputRequest(7,None,Vector2DGuide((v : Vector2D) => Traversable(LineShape(firstPoint.get, v).addAttributes(attributes)))))
+      }
       //Handle values returned from input
       case End(v : Vector2D) :: tail => {
         if (firstPoint.isEmpty) {
@@ -98,11 +103,11 @@ class Polyline extends Module {
           //Update tooltip
           Tooltip.updateTooltip(List("Polyline tool active. Right click to finish polyline."))
           //Request input
-          Start('cad, "create.Input", InputRequest(6,None))
+          Start('cad, "create.Input", InputRequest(16,None))
         } else {
         println("Polyline module can't interpret this: " + x)
         if (points.length > 0 ) Start('cad,"create.Input", InputRequest(7,Some(points.last),vector2DGuide))
-        else Start('cad, "create.Input", InputRequest(6,None))
+        else Start('cad, "create.Input", InputRequest(16,None))
         }
       }
     }
