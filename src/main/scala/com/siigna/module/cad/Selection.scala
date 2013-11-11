@@ -424,7 +424,6 @@ class Selection extends Module {
       g draw p
       g draw r
     }
-    println("active selection in Selection paint: "+activeSelection)
     activeSelection.parts.foreach(p => {
       g draw p.setAttributes("Color" -> highlighted).transform(t)
     })

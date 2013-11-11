@@ -66,7 +66,7 @@ class Line extends Module {
           Start('cad,"create.Input", InputRequest(7,firstPoint,vector2DGuide))
         }
         case End(v : Vector2D) :: tail => {
-        if (firstPoint.isEmpty) {
+          if (firstPoint.isEmpty) {
           firstPoint = Some(v)
           //Get input: Mouse up.
           Start('cad, "create.Input", InputRequest(8,None,vector2DGuide))
@@ -95,7 +95,7 @@ class Line extends Module {
 
       //Request input
       case _ => {
-        Start('cad, "create.Input", InputRequest(16,None))
+        Start('cad, "create.Input", InputRequest(6,None))
       }
     }
   )

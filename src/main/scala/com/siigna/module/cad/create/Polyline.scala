@@ -103,11 +103,11 @@ class Polyline extends Module {
           //Update tooltip
           Tooltip.updateTooltip(List("Polyline tool active. Right click to finish polyline."))
           //Request input
-          Start('cad, "create.Input", InputRequest(16,None))
+          Start('cad, "create.Input", InputRequest(6,None))
         } else {
         println("Polyline module can't interpret this: " + x)
         if (points.length > 0 ) Start('cad,"create.Input", InputRequest(7,Some(points.last),vector2DGuide))
-        else Start('cad, "create.Input", InputRequest(16,None))
+        else Start('cad, "create.Input", InputRequest(6,None))
         }
       }
     }

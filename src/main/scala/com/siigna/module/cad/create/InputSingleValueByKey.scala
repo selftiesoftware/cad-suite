@@ -58,11 +58,6 @@ class InputSingleValueByKey extends Module {
         End
       }
 
-      case MouseDown(p,MouseButtonRight,modifier) :: tail => {
-        Tooltip.updateTooltip(tooltipAtStart)
-        End(MouseDown(p,MouseButtonRight,modifier))
-      }
-
       //If left mouse is clicked, the module ends - if there is useful double input, it is returned, if not, the module just ends.
       case MouseDown(p,MouseButtonLeft,modifier) :: tail => {
         Tooltip.updateTooltip(tooltipAtStart)
@@ -104,8 +99,8 @@ class InputSingleValueByKey extends Module {
       case KeyDown(Key.Enter | Key.Tab , _) :: tail => {
         Tooltip.updateTooltip(tooltipAtStart)
         if (coordinateValue.length > 0) {
-            var value = Some(java.lang.Double.parseDouble(coordinateValue))
-            End(value.get)
+          val value = Some(java.lang.Double.parseDouble(coordinateValue))
+          End(value.get)
           } else End(0.0)
         }
 
