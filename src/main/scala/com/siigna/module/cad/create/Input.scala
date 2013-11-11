@@ -69,7 +69,8 @@ class Input extends Module {
         var snapGuide: Boolean = false
         guides.foreach(_ match {
           case Vector2DGuide(guide) => {
-            if (snapGuide == false && inputType != Some(5) && inputType != Some(8) && inputType != Some(15) && inputType != Some(16) && inputType != Some(18) && inputType != Some(19)) {
+            if (snapGuide == false && inputType != Some(5) && inputType != Some(8) && inputType != Some(15)
+              && inputType != Some(16) && inputType != Some(18) && inputType != Some(19) && inputType != Some(20)) {
               val snapFunction = () => guide(mousePosition)
               eventParser.snapTo(snapFunction)
             }
@@ -115,7 +116,8 @@ class Input extends Module {
     case KeyDown(Key.shift, _) :: tail => {
       if (inputType == Some(1) || inputType == Some(2) || inputType == Some(3) || inputType == Some(4) || inputType == Some(5)
         || inputType == Some(6) || inputType == Some(7) || inputType == Some(8) || inputType == Some(9) || inputType == Some(10)
-        || inputType == Some(11) || inputType == Some(12) || inputType == Some(16) || inputType == Some(17) || inputType == Some(18)) {
+        || inputType == Some(11) || inputType == Some(12) || inputType == Some(16) || inputType == Some(17)
+        || inputType == Some(18) || inputType == Some(20)) {
         //Angle gizmo based on track point (Track point is sent to Angle Gizmo - not referencePoint (if there is one)
         if (Track.isTracking && Track.pointOne.get.distanceTo(mousePosition.transform(View.deviceTransformation)) < Siigna.selectionDistance) {
           Start('cad,"create.AngleGizmo",InputRequest(inputType.get,Track.pointOne,guides:_*))
@@ -163,7 +165,7 @@ class Input extends Module {
       //and when selection distance away from the tracked point - so entry og x,y isn't interpreted as a distance on a guide...
       else if (Track.pointOne.isDefined && (mousePosition.transform(View.deviceTransformation).distanceTo(Track.pointOne.get) >= Siigna.selectionDistance &&
         (inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(9) ||
-          inputType == Some(16) || inputType == Some(18)) && Track.isTracking)) {
+          inputType == Some(16) || inputType == Some(18) || inputType == Some(20)) && Track.isTracking)) {
         val guidesNew = guides.collect({
           case Vector2DGuide(guide) => {
             DoubleGuide((d : Double) => {
@@ -181,7 +183,8 @@ class Input extends Module {
         Start('cad,"create.InputSingleValueByKey",newInputRequest)
       // Input types accepting Vector2D by keys:
       } else if(inputType == Some(3) || inputType == Some(5)
-        || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7) || inputType == Some(16)) && (!Track.isTracking || mousePosition.transform(View.deviceTransformation).distanceTo(Track.pointOne.get) < Siigna.selectionDistance))) {
+        || ((inputType == Some(4) || inputType == Some(6) || inputType == Some(7)
+        || inputType == Some(16) || inputType == Some(20)) && (!Track.isTracking || mousePosition.transform(View.deviceTransformation).distanceTo(Track.pointOne.get) < Siigna.selectionDistance))) {
         Start('cad,"create.InputDualValuesByKey",inputRequest.get)
       }
        else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13) || inputType == Some(15) || inputType == Some(19)) {
@@ -204,7 +207,7 @@ class Input extends Module {
       if (inputType == Some(5) || inputType == Some(7) && !referencePoint.isEmpty) {
         Siigna("track") = true
         End(referencePoint.get + p)
-      } else if (inputType == Some(16)){
+      } else if (inputType == Some(16) || inputType == Some(20)){
         End(MouseDown(p,MouseButtonLeft,ModifierKeys(false,false,false)))
       } else {
         Siigna("track") = true
@@ -214,7 +217,8 @@ class Input extends Module {
 
     //Double:
     case End(s : Double) :: tail => {
-      if (trackDoubleRequest && (inputType == Some(4) || inputType == Some(5) || inputType == Some(6)|| inputType == Some(7) || inputType == Some(9))) {
+      if (trackDoubleRequest && (inputType == Some(4) || inputType == Some(5) || inputType == Some(6)|| inputType == Some(7)
+        || inputType == Some(9))) {
         trackDoubleRequest = false
         Siigna("track") = true
         End(Track.getPointFromDistance(s).get)
@@ -222,6 +226,10 @@ class Input extends Module {
         trackDoubleRequest = false
         Siigna("track") = true
         End(MouseDown(Track.getPointFromDistance(s).get - Track.pointOne.get,MouseButtonNone,ModifierKeys(false,false,false)))
+      } else if (inputType == Some(20)) {
+        trackDoubleRequest = false
+        Siigna("track") = true
+        End(MouseDown(Track.getPointFromDistance(s).get,MouseButtonNone,ModifierKeys(false,false,false)))
       } else if (inputType == Some(9) || inputType == Some(10) || inputType == Some(11) || inputType == Some(13) || inputType == Some(15)|| inputType == Some(19)) {
         Siigna("track") = true
         End(s)

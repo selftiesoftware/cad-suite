@@ -51,11 +51,11 @@ class InputSingleValueByKey extends Module {
       //exit mechanisms
       case MouseDown(p,MouseButtonRight,modifier) :: tail => {
         Tooltip.updateTooltip(tooltipAtStart)
-        End
+        End(MouseDown(p,MouseButtonRight,modifier))
       }
       case KeyDown(Key.escape,modifier) :: tail => {
         Tooltip.updateTooltip(tooltipAtStart)
-        End
+        End(KeyDown(Key.escape,modifier))
       }
 
       //If left mouse is clicked, the module ends - if there is useful double input, it is returned, if not, the module just ends.
