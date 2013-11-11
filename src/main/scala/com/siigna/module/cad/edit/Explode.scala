@@ -58,7 +58,6 @@ class Explode extends Module{
         if (Drawing.selection.isDefined) {
             //Match on shapes in the selection to check for polylines:
             Drawing.selection.foreach((t) => {
-              println("Explode begins")
               val id = t._1
               val shape = t._2._1
               val selector = t._2._2
