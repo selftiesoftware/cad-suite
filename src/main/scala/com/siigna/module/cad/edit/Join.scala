@@ -19,8 +19,10 @@
 package com.siigna.module.cad.edit
 
 import com.siigna._
-import app.model.shape.PolylineShape.PolylineShapeOpen
 import app.Siigna
+import app.model.shape.PolylineShape.PolylineShapeOpen
+import module.cad.create.InputRequest
+import module.Tooltip
 
 class Join extends Module{
 
@@ -31,6 +33,8 @@ class Join extends Module{
    * old shapes are deleted.
    */
 
+
+
   //STRATEGY:
   //1) if sel.size == 2
   //2) get endPoints
@@ -39,18 +43,26 @@ class Join extends Module{
   //5) select newS
   //6) Start(Select)
 
-  //a function to merge two shapes if an end coinside.
-  //returns None if this is not the case
+  //check if two shapes have coinsiding ends
   def endsCheck(s1 : Shape, s2 : Shape) : Boolean = {
-    val start1 = s1.geometry.vertices.head
-    val end1 = s1.geometry.vertices.last
-    val start2 = s1.geometry.vertices.head
-    val end2 = s1.geometry.vertices.last
+    val start1 = epsilon(s1.geometry.vertices.head)
+    val end1 = epsilon(s1.geometry.vertices.last)
+    val start2 = epsilon(s2.geometry.vertices.head)
+    val end2 = epsilon(s2.geometry.vertices.last)
 
     //check for coinsiding ends and join shapes if such are found
-    if(start1 == start2 || end1 == start1 || end1 == end2 || end1 == start2) true else false
+    if(start1 == start2 || start1 == end2 || end1 == start2 || end2 == start2) {
+      true
+    } else {
+      false
+    }
   }
 
+  //a function to round a vector2D to a tolerance
+  def epsilon (v : Vector2D) : Vector2D = Vector2D(math.round(v.x * 100000)/100000.toDouble,math.round(v.y * 100000)/100000.toDouble)
+
+  //a function to merge two shapes if an end coinside.
+  //returns None if this is not the case
   def addTwoVerticeLists(l1 : List[Vector2D], l2 : List[Vector2D]) : List[Vector2D] = {
     val s1 = l1.head
     val e1 = l1.last
@@ -78,7 +90,28 @@ class Join extends Module{
     }
   }
 
+  def m = mousePosition.transform(View.deviceTransformation)
+
+
+  def nearestShape : Option[(Int, Shape)] = {
+    val drawing = Drawing(m)
+    if (!drawing.isEmpty) {
+      Some(drawing.reduceLeft((a, b) => if (a._2.distanceTo(m) < b._2.distanceTo(m)) a else b))
+    } else None
+  }
+
+  def shapeWithinSelectionDistance: Boolean = {
+    if (nearestShape.isDefined) {
+      if (nearestShape.get._2.distanceTo(m) < Siigna.selectionDistance) true
+      else false
+    } else {
+      false
+    }
+  }
+
   var selection = Selection()
+
+  var selectIDs : List[Int] = List()
 
   var s1vertices : List[Vector2D] = List()
   var s2vertices : List[Vector2D] = List()
@@ -87,6 +120,47 @@ class Join extends Module{
 
     'Start -> {
       //exit strategy
+      case KeyDown(Key.Esc, _) :: tail => {
+        Deselect()
+        End
+      }
+      case MouseDown(p, MouseButtonRight, _) :: tail => {
+        Deselect()
+        End
+      }
+      case End(KeyDown(Key.Esc, _)) :: tail => {
+        Deselect()
+        End
+      }
+      case End(MouseDown(p, MouseButtonRight, _)) :: tail => {
+        Deselect()
+        End
+      }
+
+      //look for a mouse point indicating that another shape is chosen for join evaluation
+      case MouseDown(p, MouseButtonLeft, _) :: tail => {
+        if (!shapeWithinSelectionDistance) Deselect()
+        else {
+          val (id, shape) = nearestShape.get
+          selectIDs = selectIDs :+ id
+          //Deselect()
+          Select(selectIDs)
+        }
+        if(Drawing.selection.size >= 2) 'Join else 'Start
+      }
+
+      //else do nothing
+      case _ => {
+        Tooltip.updateTooltip(List("click to join shapes. Right click or ESC to exit"))
+
+        if(Drawing.selection.size >= 2) {
+          'Join
+        }
+      }
+    },
+
+    'Join -> {
+      //exit strategy
       case KeyDown(Key.Esc, _) :: tail => End
       case MouseDown(p, MouseButtonRight, _) :: tail => End
       case End(KeyDown(Key.Esc, _)) :: tail => End
@@ -94,12 +168,10 @@ class Join extends Module{
 
       case _ => {
 
+
         val selectionShapes = Drawing.selection.shapes.map(s => s._2)
-        //1) if sel.size == 2
-        if (selectionShapes.size != 2) {
-          Siigna display "Select two objects to join"
-          Start('cad, "Selection")
-        } else {
+
+        if(selectionShapes.size == 2) {
           selection = Drawing.selection //save the selection so that the original shapes can be deleted
 
           Siigna display "joining shapes"
@@ -138,19 +210,39 @@ class Join extends Module{
                 if(!s.isEmpty) Create(PolylineShape(s))
                 //5)del s1 and s2
                 if(!selection.isEmpty) Delete(selection)
+                Deselect()
                 //6) select newS
                 val id = if(Siigna.latestID.isDefined) Siigna.latestID else None
                 if(id.isDefined) Select(id)
 
                 //7) Start(Select) to look for new shapes to join
-                Start('cad, "Selection")
-
+                Siigna display("lines joined. Click to join more lines")
+                'Start
+              } else {
+              Siigna display "shapes cannot be joined"
+              selectIDs = List()
+              selection = Selection()
+              Deselect()
+              'Start
               }
-            } else Siigna display "joining works for lines only"
+            }
           }
         }
+        else if (selectionShapes.size > 2) {
+          Siigna display ("joining of more than two shapes not implemented yet!")
+          selectIDs = List()
+          selection = Selection()
+          Deselect()
+          End
+
+
+        // if sel.size == 2
+        } else {
+          Siigna display "Select two objects to join"
+          Start('cad, "Selection")
+        }
         //End the module
-        End
+        //End
       }
     }
   )
