@@ -39,7 +39,8 @@ class Input extends Module {
 
   def interpretMouseInput(p : Vector2D) : Option[ModuleEvent] = {
     if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)
-      || inputType == Some(9) || inputType == Some(14) || inputType == Some(15) || inputType == Some(16) || inputType == Some(19))  {
+      || inputType == Some(9) || inputType == Some(14) || inputType == Some(15) || inputType == Some(16) || inputType == Some(19)
+      || inputType == Some(20))  {
       //Absolute values returned
       Some(End(p.transform(View.deviceTransformation)))
     } else if (inputType == Some(10)) {
@@ -164,8 +165,9 @@ class Input extends Module {
       //Guides only start when the mouse has been moved away from the point where it entered into input,
       //and when selection distance away from the tracked point - so entry og x,y isn't interpreted as a distance on a guide...
       else if (Track.pointOne.isDefined && (mousePosition.transform(View.deviceTransformation).distanceTo(Track.pointOne.get) >= Siigna.selectionDistance &&
-        (inputType == Some(4) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7) || inputType == Some(9) ||
-          inputType == Some(16) || inputType == Some(18) || inputType == Some(20)) && Track.isTracking)) {
+        (inputType == Some(1)|| inputType == Some(4) || inputType == Some(5) || inputType == Some(6)
+          || inputType == Some(7) || inputType == Some(9) || inputType == Some(16) || inputType == Some(18)
+          || inputType == Some(19) || inputType == Some(20)) && Track.isTracking)) {
         val guidesNew = guides.collect({
           case Vector2DGuide(guide) => {
             DoubleGuide((d : Double) => {
@@ -203,8 +205,7 @@ class Input extends Module {
 
     //Vector2D: (Standard: The received Vector2D is returned, un-transformed)
     case End(p : Vector2D) :: tail => {
-      //if (drawGuideInInputModule == false) drawGuideInInputModule = true
-      if (inputType == Some(5) || inputType == Some(7) && !referencePoint.isEmpty) {
+      if ((inputType == Some(5) || inputType == Some(7)) && !referencePoint.isEmpty) {
         Siigna("track") = true
         End(referencePoint.get + p)
       } else if (inputType == Some(16) || inputType == Some(20)){

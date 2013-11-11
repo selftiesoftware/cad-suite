@@ -95,7 +95,7 @@ class Line extends Module {
 
       //Request input
       case _ => {
-        Start('cad, "create.Input", InputRequest(6,None))
+        Start('cad, "create.Input", InputRequest(20,None))
       }
     }
   )
