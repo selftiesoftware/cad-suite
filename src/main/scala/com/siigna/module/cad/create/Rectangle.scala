@@ -61,7 +61,6 @@ class Rectangle extends Module {
 
         if (points.length == 0) {
           Tooltip.updateTooltip(List("Rectangle tool active"))
-          println("goiung to input from RECT")
           Start('cad, "create.Input", InputRequest(6,None))
         } else {
           val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))

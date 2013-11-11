@@ -215,7 +215,6 @@ class Input extends Module {
     //Double:
     case End(s : Double) :: tail => {
       if (trackDoubleRequest && (inputType == Some(4) || inputType == Some(5) || inputType == Some(6)|| inputType == Some(7) || inputType == Some(9))) {
-        println("S; "+s)
         trackDoubleRequest = false
         Siigna("track") = true
         End(Track.getPointFromDistance(s).get)
