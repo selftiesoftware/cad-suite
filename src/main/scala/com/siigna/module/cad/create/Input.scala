@@ -39,7 +39,8 @@ class Input extends Module {
 
   def interpretMouseInput(p : Vector2D) : Option[ModuleEvent] = {
     if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)
-      || inputType == Some(9) || inputType == Some(14) || inputType == Some(15) || inputType == Some(16) || inputType == Some(19))  {
+      || inputType == Some(9) || inputType == Some(14) || inputType == Some(15) || inputType == Some(16) || inputType == Some(19)
+      || inputType == Some(20))  {
       //Absolute values returned
       Some(End(p.transform(View.deviceTransformation)))
     } else if (inputType == Some(10)) {
@@ -203,8 +204,7 @@ class Input extends Module {
 
     //Vector2D: (Standard: The received Vector2D is returned, un-transformed)
     case End(p : Vector2D) :: tail => {
-      //if (drawGuideInInputModule == false) drawGuideInInputModule = true
-      if (inputType == Some(5) || inputType == Some(7) && !referencePoint.isEmpty) {
+      if ((inputType == Some(5) || inputType == Some(7)) && !referencePoint.isEmpty) {
         Siigna("track") = true
         End(referencePoint.get + p)
       } else if (inputType == Some(16) || inputType == Some(20)){
