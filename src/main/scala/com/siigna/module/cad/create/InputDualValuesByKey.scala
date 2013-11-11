@@ -200,6 +200,23 @@ class InputDualValuesByKey extends Module {
           End(Vector2D(x,y))
         }
       }
+
+      //Left mouse button: Acts as enter if something has been entered for both x and y - otherwise it does nothing:
+      case MouseDown(p,MouseButtonLeft,_) :: tail => {
+        println(p)
+        if (coordinateX.isDefined) {
+          if (coordinateValue.length > 0) {
+            if (coordinateValue == "-") coordinateValue = "0"
+            coordinateY = Some(java.lang.Double.parseDouble(coordinateValue))
+            if (((coordinateY.get * 100) % 1) == 0) coordinateY = Some((math.floor(coordinateY.get * 100))/100)
+            else if (((coordinateY.get * 10) % 1) == 0) coordinateY = Some((math.floor(coordinateY.get * 10))/10)
+            coordinateValue = ""
+          } else coordinateY = Some(0.0)
+          Tooltip.updateTooltip(tooltipAtStart)
+          End(Vector2D(x,y))
+        }
+      }
+
       case KeyDown(Key.Backspace, _) :: tail => {
         //If there ia an active coordinate string, it is reduced by one and displayed:
         if (coordinateValue.length > 0) {
@@ -250,7 +267,11 @@ class InputDualValuesByKey extends Module {
 
     guides.foreach(_ match {
       case Vector2DGuide(guide) => {
-        guide(Vector2D(referencePoint.get.x + x,referencePoint.get.y + y)).foreach(s => g.draw(s.transform(t)))
+        //Handle input type where the Vector2D should be aded to tracked point, if close to the point:
+        if (Track.pointOne.isDefined &&
+          (mousePosition.transform(View.deviceTransformation).distanceTo(Track.pointOne.get) < Siigna.selectionDistance)) {
+          guide(Vector2D(Track.pointOne.get.x + x,Track.pointOne.get.y + y)).foreach(s => g.draw(s.transform(t)))
+        } else guide(Vector2D(referencePoint.get.x + x,referencePoint.get.y + y)).foreach(s => g.draw(s.transform(t)))
       }
       //An extra guide: A Hack, to be able to draw a guide when inputting Vector2D by keys, but not when inputting by mouse
       case Vector2DGuideKeys(guide) => {

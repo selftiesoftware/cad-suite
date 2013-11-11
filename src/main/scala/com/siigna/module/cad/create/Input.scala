@@ -203,16 +203,26 @@ class Input extends Module {
 
     //Input received from other modules (eg. InputSingleValue/DualValue/Text/CharacterByKey, AngleGizmo):
 
-    //Vector2D: (Standard: The received Vector2D is returned, un-transformed)
+    //Vector2D: (Standard: The received Vector2D is returned, un-transformed; if tracking and clost to tracked point, added to tracked point)
     case End(p : Vector2D) :: tail => {
       if ((inputType == Some(5) || inputType == Some(7)) && !referencePoint.isEmpty) {
         Siigna("track") = true
-        End(referencePoint.get + p)
+        //If tracking and less than selection distance away from the point, return Vector2D added to the tracked point:
+        if (Track.pointOne.isDefined && (mousePosition.transform(View.deviceTransformation).distanceTo(Track.pointOne.get) < Siigna.selectionDistance)) {
+          End(p + Track.pointOne.get)
+        } else End(referencePoint.get + p)
       } else if (inputType == Some(16) || inputType == Some(20)){
-        End(MouseDown(p,MouseButtonLeft,ModifierKeys(false,false,false)))
+        Siigna("track") = true
+        //If tracking and less than selection distance away from the point, return Vector2D added to the tracked point:
+        if (Track.pointOne.isDefined && (mousePosition.transform(View.deviceTransformation).distanceTo(Track.pointOne.get) < Siigna.selectionDistance)) {
+          End(MouseDown(p + Track.pointOne.get,MouseButtonLeft,ModifierKeys(false,false,false)))
+        } else End(MouseDown(p,MouseButtonLeft,ModifierKeys(false,false,false)))
       } else {
         Siigna("track") = true
-        End(p)
+        //If tracking and less than selection distance away from the point, return Vector2D added to the tracked point:
+        if (Track.pointOne.isDefined && (mousePosition.transform(View.deviceTransformation).distanceTo(Track.pointOne.get) < Siigna.selectionDistance)) {
+          End(p + Track.pointOne.get)
+        } else End(p)
       }
     }
 
