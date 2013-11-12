@@ -20,6 +20,7 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
+import module.porter.DXF.DXFExporter
 import module.Tooltip
 
 class Copy extends Module {
@@ -120,6 +121,10 @@ class Copy extends Module {
 
       case _ => {
         if (Drawing.selection.isDefined) {
+          //add selection to clipboard
+
+          DXFExporter.toDXFtoClipboard(shapes)
+
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)
             Tooltip.updateTooltip(List("Copy tool active","",""))

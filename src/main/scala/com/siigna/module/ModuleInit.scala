@@ -139,6 +139,7 @@ class ModuleInit extends Module {
       if (modifier.ctrl) {
         if (shortcutKey == 'a') Drawing.selectAll()
         else if (shortcutKey == 'c') shortcutProcess("c", "create.Copy", 'cad)
+        else if (shortcutKey == 'v') shortcutProcess("c", "create.Paste", 'cad)
         else if (shortcutKey == 'z') Drawing.undo()
         else if (shortcutKey == 'y') Drawing.redo()
       } else if (shortcut == "") {
