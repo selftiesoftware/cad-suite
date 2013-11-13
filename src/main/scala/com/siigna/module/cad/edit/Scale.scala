@@ -72,7 +72,7 @@ class Scale extends Module {
           //If it the coords are the same as mouse up, it is the startpoint, and the mouse has ben clicked, not dragged.
           //If not, it is the end of a drag, defining a scale operation, which is then done:
           val scaleFactor = ((p-startPoint.get).length/100 + 1)
-          Siigna display ("scale factor: " + scaleFactor)
+          Siigna display ("scale factor: " + "%.1f".format(scaleFactor))
           Tooltip.blockUpdate(3500)
           Drawing.selection.transformation = origin
           transformation = TransformationMatrix().scale(scaleFactor,startPoint.get)
@@ -144,7 +144,7 @@ class Scale extends Module {
           //Step 4b: A drag has occured (the point from mouse up is not the same as from mouse down).
           // or the mouse has been clicked after the end point has been set, defining a scale factor. Do the scaling:
           val scaleFactor = (startPoint.get.distanceTo(p)/startPoint.get.distanceTo(endPoint.get))
-          Siigna display ("scale factor: " + scaleFactor)
+          Siigna display ("scale factor: " + "%.1f".format(scaleFactor))
           Tooltip.blockUpdate(3500)
           Drawing.selection.transformation = origin
           transformation =  TransformationMatrix().scale(scaleFactor,startPoint.get)
@@ -157,7 +157,7 @@ class Scale extends Module {
       case End(l : Double) :: tail => {
         //if a reference length is not set, then scale the shapes by the scale factor.
         if (endPoint.isEmpty) {
-          Siigna display ("scale factor: "+l)
+          Siigna display ("scale factor: "+"%.1f".format(l))
           Tooltip.blockUpdate(3500)
           Drawing.selection.transformation = origin
           if (!startPoint.isEmpty) transformation = TransformationMatrix().scale(l,startPoint.get)
@@ -169,7 +169,7 @@ class Scale extends Module {
         } else if(!endPoint.isEmpty) {
           //This is the length between start and endpoints after the scale. Do the scale:          
           val scaleFactor = (l/(startPoint.get.distanceTo(endPoint.get)))
-          Siigna display ("scale factor:" + scaleFactor)
+          Siigna display ("scale factor:" + "%.1f".format(scaleFactor))
           Tooltip.blockUpdate(3500)
           Drawing.selection.transformation = origin
           transformation = TransformationMatrix().scale(scaleFactor,startPoint.get)

@@ -20,6 +20,7 @@
 package com.siigna.module
 
 import base.{PaperHeader, Menu}
+import cad.setPaperProperties
 import com.siigna.module.cad.radialmenu.category.{EditCategory, StartCategory}
 import com.siigna._
 import com.siigna.app.model.selection.EmptySelection
@@ -55,9 +56,8 @@ import java.awt.Cursor
 class ModuleInit extends Module {
   Menu.startCategory = StartCategory
 
+  //call the paper header object; it displays the drawing title and paper scale in the lower right corner of the paper.
   val header = com.siigna.module.base.PaperHeader
-
-
 
   Siigna tooltip(List("Loading drawing might take time","- especially large drawings", "Please have patience"))
 
@@ -215,9 +215,23 @@ class ModuleInit extends Module {
         Start('cad, "Selection", p)
       }
       case MouseDown(p: Vector2D, _, _) :: tail => {
-        textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
-        shortcut = ""
-        Start('cad, "Selection", p)
+        //paper header interaction check (for setting paper scale and size)
+        //val b = Drawing.boundaryScale
+        //val br = Drawing.boundary.bottomRight
+
+        //if(((br + Vector2D(-2.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1*b) setPaperProperties.changeScale(true)
+        //else if(((br + Vector2D(-2.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1*b) setPaperProperties.changeScale(false)
+        //else if(((br + Vector2D(-42.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1*b)  {
+        //  println("AA")
+        //  setPaperProperties.changeSize(true)
+        //}
+        //else if(((br + Vector2D(-42.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1*b) setPaperProperties.changeSize(false)
+
+        //else {
+          textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
+          shortcut = ""
+          Start('cad, "Selection", p)
+        //}
       }
       case MouseDrag(p: Vector2D, MouseButtonLeft, m1) :: tail => {
         shortcut = ""
@@ -251,6 +265,8 @@ class ModuleInit extends Module {
     g draw PaperHeader.openness.transform(t) //color to show level of openness
     g draw PaperHeader.headerFrame.transform(t) //frame around drawing info
     g draw PaperHeader.scaleText.transform(t) //frame around drawing info
+    g draw PaperHeader.scaleArrows.transform(t) //arrows showing click spots for changing drawing scale
+    g draw PaperHeader.sizeArrows.transform(t) //arrows showing click spots for changing paper size
 
     //draw tool shoutcut suggestions
     if (!shortcut.isEmpty && textFeedback.category.isDefined) {
