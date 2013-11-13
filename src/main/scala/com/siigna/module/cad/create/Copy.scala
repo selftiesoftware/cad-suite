@@ -20,6 +20,7 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
+import module.porter.DXF.DXFExporter
 import module.Tooltip
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
@@ -126,12 +127,8 @@ class Copy extends Module {
       case _ => {
         if (Drawing.selection.isDefined) {
 
-          //copy contents to clipboard
-
-          val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
-          val content = com.siigna.porter.DXF.DXFExporter.contentsToCopy(shapes) l
-          val stringSel : StringSelection = new StringSelection(content)
-          clipboard.setContents(stringSel,stringSel)
+          //add selection to clipboard
+          DXFExporter.toDXFtoClipboard(shapes)
 
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)
