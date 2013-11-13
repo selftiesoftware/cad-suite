@@ -34,7 +34,7 @@ class Paste extends Module {
 
   //read the clipboard
   val clip = Toolkit.getDefaultToolkit.getSystemClipboard
-  val clipString = clip.getData(DataFlavor.stringFlavor).toString
+  var clipString = clip.getData(DataFlavor.stringFlavor).toString
 
   val stateMap: StateMap = Map(
     'Start -> {
@@ -51,9 +51,8 @@ class Paste extends Module {
 
         //create the shapes
         if(!DXFImport.shapes.isEmpty) Create(DXFImport.shapes)
-
-        //exit.
-        End
+        DXFImport.shapes = List() //clean up
+        End //exit
       }
 
     }
