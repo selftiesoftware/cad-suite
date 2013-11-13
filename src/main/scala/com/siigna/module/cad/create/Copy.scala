@@ -21,6 +21,9 @@ package com.siigna.module.cad.create
 
 import com.siigna._
 import module.Tooltip
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
+import com.siigna.Drawing
 
 class Copy extends Module {
 
@@ -61,6 +64,7 @@ class Copy extends Module {
 
         if(!startPoint.isDefined && !Drawing.selection.isEmpty) {
           startPoint = Some(p)
+
           Siigna display "set destination"
           Tooltip.blockUpdate(3500)
           val vector2DGuide = Vector2DGuide((v : Vector2D) => {
@@ -113,6 +117,7 @@ class Copy extends Module {
                )
              )
           }
+
           Create(shapes.flatten)
         }
         End
@@ -120,6 +125,14 @@ class Copy extends Module {
 
       case _ => {
         if (Drawing.selection.isDefined) {
+
+          //copy contents to clipboard
+
+          val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
+          val content = com.siigna.porter.DXF.DXFExporter.contentsToCopy(shapes) l
+          val stringSel : StringSelection = new StringSelection(content)
+          clipboard.setContents(stringSel,stringSel)
+
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)
             Tooltip.updateTooltip(List("Copy tool active","",""))
