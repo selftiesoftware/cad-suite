@@ -216,22 +216,22 @@ class ModuleInit extends Module {
       }
       case MouseDown(p: Vector2D, _, _) :: tail => {
         //paper header interaction check (for setting paper scale and size)
-        //val b = Drawing.boundaryScale
-        //val br = Drawing.boundary.bottomRight
+        val b = Drawing.boundaryScale
+        val br = Drawing.boundary.bottomRight
 
-        //if(((br + Vector2D(-2.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1*b) setPaperProperties.changeScale(true)
-        //else if(((br + Vector2D(-2.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1*b) setPaperProperties.changeScale(false)
-        //else if(((br + Vector2D(-42.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1*b)  {
-        //  println("AA")
-        //  setPaperProperties.changeSize(true)
-        //}
-        //else if(((br + Vector2D(-42.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1*b) setPaperProperties.changeSize(false)
+        if(((br + Vector2D(-2.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) setPaperProperties.changeScale(true)
+        else if(((br + Vector2D(-2.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) setPaperProperties.changeScale(false)
+        else if(((br + Vector2D(-42.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b)  {
 
-        //else {
+          setPaperProperties.changeSize(true)
+        }
+        else if(((br + Vector2D(-42.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1*b) setPaperProperties.changeSize(false)
+
+        else {
           textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
           shortcut = ""
           Start('cad, "Selection", p)
-        //}
+        }
       }
       case MouseDrag(p: Vector2D, MouseButtonLeft, m1) :: tail => {
         shortcut = ""
