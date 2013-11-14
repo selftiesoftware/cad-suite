@@ -37,7 +37,7 @@ class Line extends Module {
   private var firstPoint: Option[Vector2D] = None
   private var firstPointSet : Boolean = false
 
-  private val vector2DGuide = Vector2DGuide((v : Vector2D) => {
+  private val vector2DGuide = DynamicDrawFromVector2D((v : Vector2D) => {
     Traversable(LineShape(firstPoint.get, v).addAttributes(attributes))
   })
 

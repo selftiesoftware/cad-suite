@@ -69,7 +69,7 @@ class Input extends Module {
         //Snap to a) shapes in the making, b) a snapGuide of c) nothing as required
         var snapGuide: Boolean = false
         guides.foreach(_ match {
-          case Vector2DGuide(guide) => {
+          case DynamicDrawFromVector2D(guide) => {
             if (snapGuide == false && inputType != Some(5) && inputType != Some(8) && inputType != Some(15)
               && inputType != Some(16) && inputType != Some(18) && inputType != Some(19) && inputType != Some(20)) {
               val snapFunction = () => guide(mousePosition)
@@ -169,13 +169,13 @@ class Input extends Module {
           || inputType == Some(7) || inputType == Some(9) || inputType == Some(16) || inputType == Some(18)
           || inputType == Some(19) || inputType == Some(20)) && Track.isTracking)) {
         val guidesNew = guides.collect({
-          case Vector2DGuide(guide) => {
-            DoubleGuide((d : Double) => {
+          case DynamicDrawFromVector2D(guide) => {
+            DynamicDrawFromDouble((d : Double) => {
               guide(Track.getPointFromDistance(d).get)
             })
           }
-          case Vector2DGuideKeys(guide) => {
-            DoubleGuide((d : Double) => {
+          case DynamicDrawFromVector2DKeys(guide) => {
+            DynamicDrawFromDouble((d : Double) => {
               guide(Track.getPointFromDistance(d).get - Track.pointOne.get)
             })
           }
@@ -269,7 +269,7 @@ class Input extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
     if (!isForwarding) {
       guides.foreach(_ match {
-        case Vector2DGuide(guide) => {
+        case DynamicDrawFromVector2D(guide) => {
           guide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
         }
         case _ =>
@@ -300,8 +300,8 @@ case class InputRequest(inputType: Int, referencePoint: Option[Vector2D], guides
 // 12        None                                   String                              Off                    None                On
 
 
-case class DoubleGuide(guide : Double => Traversable[Shape]) extends Guide
-case class Vector2DGuide(guide : Vector2D => Traversable[Shape]) extends Guide
-case class TextGuide(guide : String => Traversable[Shape]) extends Guide
+case class DynamicDrawFromDouble(guide : Double => Traversable[Shape]) extends Guide
+case class DynamicDrawFromVector2D(guide : Vector2D => Traversable[Shape]) extends Guide
+case class DynamicDrawFromText(guide : String => Traversable[Shape]) extends Guide
 //An extra guide: To be able to draw a guide when inputting Vector2D by keys, but not when inputting by mouse
-case class Vector2DGuideKeys(guide : Vector2D => Traversable[Shape]) extends Guide
+case class DynamicDrawFromVector2DKeys(guide : Vector2D => Traversable[Shape]) extends Guide

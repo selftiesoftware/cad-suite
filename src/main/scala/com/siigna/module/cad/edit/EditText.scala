@@ -20,7 +20,7 @@
 package com.siigna.module.cad.edit
 
 import com.siigna._
-import module.cad.create.{InputRequest, TextGuide}
+import module.cad.create.{InputRequest, DynamicDrawFromText}
 import module.Tooltip
 
 //import java.awt.{Font, Color, TextField}
@@ -84,7 +84,7 @@ class EditText extends Module {
           Siigna.display("Edit text")
           Tooltip.blockUpdate(3500)
           position = Some(oldShape.get.position)
-          val textGuide: TextGuide = TextGuide((s: String) => Traversable(TextShape(s + " ", position.get,  scale * (Siigna.paperScale + 1))))
+          val textGuide: DynamicDrawFromText = DynamicDrawFromText((s: String) => Traversable(TextShape(s + " ", position.get,  scale * (Siigna.paperScale + 1))))
           val inputRequest = InputRequest(17,None,textGuide)
           Start('cad,"create.Input", inputRequest)
         } else {

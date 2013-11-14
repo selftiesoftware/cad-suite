@@ -22,7 +22,7 @@ package com.siigna.module.cad.edit
 import com.siigna.module.{ModuleInit, Module}
 import com.siigna._
 import com.siigna.util.event.{End, MouseDown, KeyDown}
-import com.siigna.module.cad.create.{DoubleGuide, InputRequest, Vector2DGuide}
+import com.siigna.module.cad.create.{DynamicDrawFromDouble, InputRequest, DynamicDrawFromVector2D}
 
 class Mirror extends Module {
 

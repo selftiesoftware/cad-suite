@@ -159,7 +159,7 @@ class InputSingleValueByKey extends Module {
     //There will be issues with points typed as offsets on track-guides. This was solved in the old module here - look there for information/inspiration...
 
     guides.foreach(_ match {
-      case DoubleGuide(guide) => {
+      case DynamicDrawFromDouble(guide) => {
         if (usefulDoubleAsInput == true && input.get != 0) {
           guide(input.get).foreach(s => g.draw(s.transform(t)))
         }
