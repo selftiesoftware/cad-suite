@@ -219,14 +219,10 @@ class ModuleInit extends Module {
         val b = Drawing.boundaryScale
         val br = Drawing.boundary.bottomRight
 
-        if(((br + Vector2D(-2.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) setPaperProperties.changeScale(true)
-        else if(((br + Vector2D(-2.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) setPaperProperties.changeScale(false)
-        else if(((br + Vector2D(-42.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b)  {
-
-          setPaperProperties.changeSize(true)
-        }
+        //if(((br + Vector2D(-2.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) setPaperProperties.changeScale(true)
+        //else if(((br + Vector2D(-2.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) setPaperProperties.changeScale(false)
+        if(((br + Vector2D(-42.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) setPaperProperties.changeSize(true)
         else if(((br + Vector2D(-42.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1*b) setPaperProperties.changeSize(false)
-
         else {
           textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
           shortcut = ""
@@ -265,7 +261,7 @@ class ModuleInit extends Module {
     g draw PaperHeader.openness.transform(t) //color to show level of openness
     g draw PaperHeader.headerFrame.transform(t) //frame around drawing info
     g draw PaperHeader.scaleText.transform(t) //frame around drawing info
-    g draw PaperHeader.scaleArrows.transform(t) //arrows showing click spots for changing drawing scale
+    //g draw PaperHeader.scaleArrows.transform(t) //arrows showing click spots for changing drawing scale
     g draw PaperHeader.sizeArrows.transform(t) //arrows showing click spots for changing paper size
 
     //draw tool shoutcut suggestions

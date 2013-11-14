@@ -21,6 +21,7 @@ package com.siigna.module.cad
 
 import com.siigna.app.Siigna
 import com.siigna.app.model.Drawing
+import com.siigna.app.view.View
 
 /*
 paper properties changeable by the user
@@ -43,6 +44,8 @@ object setPaperProperties {
     }
     //recalulate the boundary
     Drawing.calculateBoundary()
+
+    View.zoomExtends
     //TODO: OUCH not good - a bad hack to update the model. How to otherwise register boundary changes??
     Drawing.undo()
     Drawing.redo()
