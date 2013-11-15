@@ -52,7 +52,7 @@ class Scale extends Module {
           //or a double, which will be the factor,
           //or an other point, which then will be the second reference point.
           //First, the mouse-up is awaited, to see if a drag has occured:
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
+          val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => {
             Drawing.selection.transformation = origin
             val scaleFactor = ((v-p).length/100 + 1)
             //Define a scaling matrix:
@@ -91,7 +91,7 @@ class Scale extends Module {
           //1: A scaling factor (Double),
           //2: A point to point out a desired distance to (Vector2D),
           //3: A dragged vector, "dragging" a point to scale the selection 
-          val doubleGuide = DoubleGuide((s : Double) => {
+          val doubleGuide = DynamicDrawFromDouble((s : Double) => {
             Drawing.selection.transformation = origin
             //Define a scaling matrix:
             val t : TransformationMatrix = TransformationMatrix().scale(s,startPoint.get)
@@ -106,7 +106,7 @@ class Scale extends Module {
 
           //STEP 3: A point is returned (from mouse down). To find out what to do with it, a mouse-up is required:
           endPoint = Some(p)
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
+          val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => {
             Drawing.selection.transformation = origin
             val scaleFactor = (startPoint.get.distanceTo(v)/startPoint.get.distanceTo(endPoint.get))
             //Define a scaling matrix:
@@ -123,14 +123,14 @@ class Scale extends Module {
           // 2) Leftclick to set scale factor:
           Siigna display "type the distance between the reference points, or move mouse and click to scale"
           Tooltip.blockUpdate(3500)
-          val doubleGuide = DoubleGuide((s : Double) => {
+          val doubleGuide = DynamicDrawFromDouble((s : Double) => {
             Drawing.selection.transformation = origin
             //Define a scaling matrix:
             val t : TransformationMatrix = TransformationMatrix().scale((s/(startPoint.get.distanceTo(endPoint.get))),startPoint.get)
             // Return the shape, transformed
             transformSelection(t)
           })
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
+          val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => {
             Drawing.selection.transformation = origin
             val scaleFactor = (startPoint.get.distanceTo(v)/startPoint.get.distanceTo(endPoint.get))
             //Define a scaling matrix:
@@ -188,7 +188,7 @@ class Scale extends Module {
 
           Siigna display "set fix-point for scaling, drag to scale or type a scaling factor"
           Tooltip.blockUpdate(3500)
-          val doubleGuide = DoubleGuide((s : Double) => {
+          val doubleGuide = DynamicDrawFromDouble((s : Double) => {
             Drawing.selection.transformation = origin
             //Define a scaling matrix:
             val t : TransformationMatrix = TransformationMatrix().scale(s)

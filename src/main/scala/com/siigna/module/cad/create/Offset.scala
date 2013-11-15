@@ -266,12 +266,12 @@ class Offset extends Module {
   }
 
   //guides to get Point to draw the shape(s) dynamically
-  val doubleGuide: DoubleGuide = DoubleGuide((s : Double) => {
+  val doubleGuide: DynamicDrawFromDouble = DynamicDrawFromDouble((s : Double) => {
     if (generateOffsetLine(s).isDefined) Traversable(generateOffsetLine(s).get.addAttributes(attr))//run a function to generate the offset shape dynamically
     else if (Drawing.selection.isDefined) Drawing.selection.shapes.values
     else Traversable()
   })
-  val vector2DGuide: Vector2DGuide = Vector2DGuide((v : Vector2D) => {
+  val vector2DGuide: DynamicDrawFromVector2D = DynamicDrawFromVector2D((v : Vector2D) => {
     if (generateOffsetLine(v).isDefined)Traversable(generateOffsetLine(v).get.addAttributes(attr))//run a function to generate the offset shape dynamically
     else if (Drawing.selection.isDefined) Drawing.selection.shapes.values
     else Traversable()

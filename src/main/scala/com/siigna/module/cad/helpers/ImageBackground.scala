@@ -23,7 +23,7 @@ import com.siigna._
 import app.model.shape.{RectangleShape, ImageShape}
 import com.siigna.util.event.End
 import java.awt.{MediaTracker, Toolkit}
-import module.cad.create.{InputRequest, Vector2DGuide}
+import module.cad.create.{InputRequest, DynamicDrawFromVector2D}
 import module.Tooltip
 import scala.Some
 import javax.swing.filechooser.FileNameExtensionFilter
@@ -71,7 +71,7 @@ class ImageBackground extends Module {
         if (points.length == 0){
 
           points = points :+ v
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), parse(proportions,points(0),v)))))
+          val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), parse(proportions,points(0),v)))))
           val inputRequest = InputRequest(7,Some(v),vector2DGuide)
 
           Start('cad, "create.Input", inputRequest)
@@ -129,7 +129,7 @@ class ImageBackground extends Module {
             Start('cad, "create.Input", InputRequest(6,None))
           } else {
 
-            val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), (parse(proportions,points(0),v))))))
+            val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), (parse(proportions,points(0),v))))))
             val inputRequest = InputRequest(7,Some(points.head),vector2DGuide)
             Start('cad, "create.Input", inputRequest)
           }

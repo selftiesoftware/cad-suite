@@ -51,8 +51,8 @@ class AngleGizmo extends Module {
   var guides: Seq[Guide] = Seq()
   var referencePoint: Option[Vector2D] = None
 
-  var vector2DGuide : Option[Vector2DGuide] = None
-  var doubleGuide : Option[DoubleGuide] = None
+  var vector2DGuide : Option[DynamicDrawFromVector2D] = None
+  var doubleGuide : Option[DynamicDrawFromDouble] = None
 
   //TODO: implement activation of Angle Gizmo if left mouse is pressed for 1-2 sec while in the Input module.
   //private var startTime : Option[Long] = None
@@ -82,7 +82,7 @@ class AngleGizmo extends Module {
         referencePoint = i.referencePoint
 
         //Adds a Vector2D line guide to the input request, so the line can be drawn,
-        val lineGuide : Vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(LineShape(referencePoint.get, v).addAttribute(cyan)))
+        val lineGuide : DynamicDrawFromVector2D = DynamicDrawFromVector2D((v: Vector2D) => Traversable(LineShape(referencePoint.get, v).addAttribute(cyan)))
         guides = inputRequest.get.guides.:+(lineGuide)
         //val newGuides : Seq[Guide] = inputRequest.get.guides.:+(lineGuide)
         inputRequest = Some(InputRequest(inputRequest.get.inputType, inputRequest.get.referencePoint, guides:_*))
@@ -148,11 +148,11 @@ class AngleGizmo extends Module {
         Siigna.navigation = false // Make sure the rest of the program doesn't move
         drawGuide = false
 
-        //A DoubleGuide for a line is sent to InputOneValue, to draw a guide for the segment being drawn:
+        //A DynamicDrawFromDouble for a line is sent to InputOneValue, to draw a guide for the segment being drawn:
 
-        var newGuides: Seq[DoubleGuide] = if (!anglePointIsSet) {
+        var newGuides: Seq[DynamicDrawFromDouble] = if (!anglePointIsSet) {
           //If it is the angle being set, first a cyan line from the centre of the angle gizmo:
-          Seq(DoubleGuide((d: Double) => {
+          Seq(DynamicDrawFromDouble((d: Double) => {
             //eventParser.snapTo(AngleSnap(referencePoint.get,d))
 
             //Traversable(LineShape(referencePoint.get, mousePosition.transform(View.deviceTransformation)))
@@ -168,11 +168,11 @@ class AngleGizmo extends Module {
         } else {
           //If it is the distance, use a supplied vector2D-guide, if one is provided:
           guides.collect ({
-            case Vector2DGuide(g) => DoubleGuide((d: Double) => g(lengthVector(d)))
+            case DynamicDrawFromVector2D(g) => DynamicDrawFromDouble((d: Double) => g(lengthVector(d)))
           })
         }
         //If there is no vector2D-guide, just use a line:
-        if(newGuides.length == 0) newGuides = Seq(DoubleGuide((d: Double) => Traversable(LineShape(referencePoint.get, referencePoint.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).addAttribute(cyan))))
+        if(newGuides.length == 0) newGuides = Seq(DynamicDrawFromDouble((d: Double) => Traversable(LineShape(referencePoint.get, referencePoint.get + (Vector2D(math.sin(d * math.Pi/180), math.cos(d * math.Pi/180)) * referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).addAttribute(cyan))))
 
         // Create the new guides and input request
         //val newGuides : Seq[Guide] = inputRequest.get.guides.:+guide)
@@ -259,13 +259,13 @@ class AngleGizmo extends Module {
       //If there is no ongoing key-input, draw the whole guide:
       if(!isForwarding) {
         guides.foreach {
-          case Vector2DGuide(guide) => guide(angleSnappedMousePosition.get).foreach(s => g.draw(s.transform( t )))
+          case DynamicDrawFromVector2D(guide) => guide(angleSnappedMousePosition.get).foreach(s => g.draw(s.transform( t )))
           case _ =>
         }
       } else {
       //If there is key-input, only draw the fixed part of the shape - the last part being created is drawn by InputOneValue
         guides.foreach {
-          case Vector2DGuide(guide) => guide(referencePoint.get).foreach(s => g.draw(s.transform(t)))
+          case DynamicDrawFromVector2D(guide) => guide(referencePoint.get).foreach(s => g.draw(s.transform(t)))
           case _ =>
         }
       }
@@ -277,18 +277,18 @@ class AngleGizmo extends Module {
       //as it is not on the correct radian. Use point based on lengthVector instead, until the mouse is moved:
       if (drawGuide && anglePointJustSet) {
         guides.foreach {
-          case Vector2DGuide(guide) => guide(lengthVector(referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).foreach(s => g.draw(s.transform( t )))
+          case DynamicDrawFromVector2D(guide) => guide(lengthVector(referencePoint.get.distanceTo(mousePosition.transform(View.deviceTransformation)))).foreach(s => g.draw(s.transform( t )))
           case _ =>
         }
       } else if (drawGuide) {
         guides.foreach {
-          case Vector2DGuide(guide) => guide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
+          case DynamicDrawFromVector2D(guide) => guide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
           case _ =>
         }
       } else if (!vector2DGuide.isEmpty && !drawGuide) {
         //If there is key-input, only draw the fixed part of the shape - the last part being created is drawn by InputOneValue
         guides.foreach {
-          case Vector2DGuide(guide) => guide(referencePoint.get).foreach(s => g.draw(s.transform(t)))
+          case DynamicDrawFromVector2D(guide) => guide(referencePoint.get).foreach(s => g.draw(s.transform(t)))
           case _ =>
         }
       }

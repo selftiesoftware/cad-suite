@@ -33,13 +33,13 @@ class Rotate extends Module {
   private var startVector : Option[Vector2D] = Some(Vector2D(0,0))
   var transformation : Option[TransformationMatrix] = None
 
-  val doubleGuide = DoubleGuide((d: Double) => {
+  val doubleGuide = DynamicDrawFromDouble((d: Double) => {
     Drawing.selection.transformation = origin
     val t : TransformationMatrix = TransformationMatrix( ).rotate(-d, centerPoint.get)
     Drawing.selection.transform(t).shapes.values
   })
 
-  val vector2DGuideMouseUp = Vector2DGuide((v : Vector2D) => {
+  val vector2DGuideMouseUp = DynamicDrawFromVector2D((v : Vector2D) => {
     Drawing.selection.transformation = origin
     val rotateAngle = -((mouseDownPoint.get - centerPoint.get).angle - (v - centerPoint.get).angle)
     val t : TransformationMatrix =
@@ -47,7 +47,7 @@ class Rotate extends Module {
     Drawing.selection.transform(t).shapes.values
   })
 
-  val vector2DGuideRotation = Vector2DGuide((v: Vector2D) => {
+  val vector2DGuideRotation = DynamicDrawFromVector2D((v: Vector2D) => {
     Drawing.selection.transformation = origin
     //Angle of line from reference point to mouse position:
     val d : Double = (-((mousePosition.transform(View.deviceTransformation) - centerPoint.get).angle - (startVector.get - centerPoint.get).angle))

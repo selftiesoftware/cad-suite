@@ -96,14 +96,14 @@ class Area extends Module {
         if (points.isEmpty){
           //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
           points = points :+ p
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(points(0),v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+          val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => Traversable(PolylineShape(points(0),v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
           val inputRequest = InputRequest(7,Some(p),vector2DGuide)
           Start('cad, "create.Input", inputRequest)
         } else {
           //If the start point is set, the first segment is made and points should be added.
           points = points :+ p
           //create a guide which adds the mouse position.
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
+          val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => {
             var closedPl = points :+ v
             closedPl = closedPl :+ points(0)
             var pts = points :+ v
@@ -134,11 +134,11 @@ class Area extends Module {
         if (points.length == 1){
           //If the start point is not yet set, then the first segment is being drawn, which means a guide can be made.
           startPoint = Some(points.last)
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+          val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => Traversable(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
           val inputRequest = InputRequest(7,startPoint,vector2DGuide)
           Start('cad, "create.Input", inputRequest)
         } else {
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => {
+          val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => {
             var pts = points :+ v.transform(View.deviceTransformation)
             pts = pts :+ points(0)
             Siigna.display("Area: "+units(area(pts)))
@@ -165,7 +165,7 @@ class Area extends Module {
           }
           //And if there is a start point, a new guide is returned
           if (startPoint.isDefined) {
-            val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
+            val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => Traversable(PolylineShape(points :+ v).addAttributes("Color" -> color, "StrokeWidth" -> lineWidth)))
             val inputRequest = InputRequest(7,Some(points.last),vector2DGuide)
             Start('cad, "create.Input", inputRequest)
           } else {

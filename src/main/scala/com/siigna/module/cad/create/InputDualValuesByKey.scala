@@ -93,9 +93,9 @@ class InputDualValuesByKey extends Module {
   var guides: Seq[Guide] = Seq()
   var referencePoint: Option[Vector2D] = None
 
-  var vector2DGuide: Option[Vector2DGuide] = None
-  var doubleGuide: Option[DoubleGuide] = None
-  var textGuide: Option[TextGuide] = None
+  var vector2DGuide: Option[DynamicDrawFromVector2D] = None
+  var doubleGuide: Option[DynamicDrawFromDouble] = None
+  var textGuide: Option[DynamicDrawFromText] = None
   var referenceDouble: Option[Double] = None
 
   var tooltipAtStart : List[String] = List()
@@ -266,7 +266,7 @@ class InputDualValuesByKey extends Module {
   override def paint(g : Graphics, t : TransformationMatrix) {
 
     guides.foreach(_ match {
-      case Vector2DGuide(guide) => {
+      case DynamicDrawFromVector2D(guide) => {
         //Handle input type where the Vector2D should be aded to tracked point, if close to the point:
         if (Track.pointOne.isDefined &&
           (mousePosition.transform(View.deviceTransformation).distanceTo(Track.pointOne.get) < Siigna.selectionDistance)) {
@@ -274,7 +274,7 @@ class InputDualValuesByKey extends Module {
         } else guide(Vector2D(referencePoint.get.x + x,referencePoint.get.y + y)).foreach(s => g.draw(s.transform(t)))
       }
       //An extra guide: A Hack, to be able to draw a guide when inputting Vector2D by keys, but not when inputting by mouse
-      case Vector2DGuideKeys(guide) => {
+      case DynamicDrawFromVector2DKeys(guide) => {
         guide(Vector2D(referencePoint.get.x + x,referencePoint.get.y + y)).foreach(s => g.draw(s.transform(t)))
       }
       case _ => // No known guide

@@ -1,7 +1,5 @@
 package com.siigna.module.cad
 
-import com.siigna.app.Siigna
-
 /*
  * Copyright (c) 2008-2013, Selftie Software. Siigna is released under the
  * creative common license by-nc-sa. You are free
@@ -21,26 +19,34 @@ import com.siigna.app.Siigna
  * Read more at http://siigna.com and https://github.com/siigna/main
  */
 
+import com.siigna.app.Siigna
+import com.siigna.app.model.Drawing
+
 /*
 paper properties changeable by the user
  */
 
-//change paper size
+//change paper properties
 object setPaperProperties {
+  //change paper size
   def changeSize(increase : Boolean) = {
-    val step = math.sqrt(2.0)
+    val step = math.sqrt(2.0) //step from one A-size to the next. Equals 1.41421356
     val min = Siigna.double("printFormatMin").get
     val max = Siigna.double("printFormatMax").get
     if(increase) {
       Siigna("printFormatMin") = min * step
       Siigna("printFormatMax") = max * step
-      println(Siigna.double("printFormatMin").get)
-      println(Siigna.double("printFormatMax").get)
     }
     else {
-      Siigna("printFormatMin") = min
-      Siigna("printFormatMax") = max
+      Siigna("printFormatMin") = min / step
+      Siigna("printFormatMax") = max / step
     }
+    //recalulate the boundary
+    Drawing.calculateBoundary()
+    //TODO: OUCH not good - a bad hack to update the model. How to otherwise register boundary changes??
+    Drawing.undo()
+    Drawing.redo()
+
   }
   //change paper scale
   def changeScale(increase : Boolean) = {

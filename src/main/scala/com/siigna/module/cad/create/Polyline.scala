@@ -36,7 +36,7 @@ class Polyline extends Module {
   private var firstPoint: Option[Vector2D] = None
   private var firstPointSet : Boolean = false
 
-  private val vector2DGuide = Vector2DGuide((v : Vector2D) => {
+  private val vector2DGuide = DynamicDrawFromVector2D((v : Vector2D) => {
     Traversable(PolylineShape(points :+ v).addAttributes(attributes))
   })
 
@@ -62,14 +62,14 @@ class Polyline extends Module {
       case End(MouseDown(v : Vector2D, _, _)) :: tail => {
         firstPoint = Some(v)
         points = points :+ v
-        Start('cad, "create.Input", InputRequest(7,None,Vector2DGuide((v : Vector2D) => Traversable(LineShape(firstPoint.get, v).addAttributes(attributes)))))
+        Start('cad, "create.Input", InputRequest(7,None,DynamicDrawFromVector2D((v : Vector2D) => Traversable(LineShape(firstPoint.get, v).addAttributes(attributes)))))
       }
       //Handle values returned from input
       case End(v : Vector2D) :: tail => {
         if (firstPoint.isEmpty) {
           firstPoint = Some(v)
           points = points :+ v
-          Start('cad, "create.Input", InputRequest(8,None,Vector2DGuide((v : Vector2D) => Traversable(LineShape(firstPoint.get, v).addAttributes(attributes)))))
+          Start('cad, "create.Input", InputRequest(8,None,DynamicDrawFromVector2D((v : Vector2D) => Traversable(LineShape(firstPoint.get, v).addAttributes(attributes)))))
         } else if (firstPointSet == false) {
           firstPointSet = true
           if (v != firstPoint.get & v.distanceTo(firstPoint.get) > Siigna.selectionDistance) {

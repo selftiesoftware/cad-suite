@@ -47,8 +47,8 @@ class Circle extends Module {
           case End(p : Vector2D) :: tail => {
             center = Some(p)
             //Send guides, and ask for one-coordinate input: Radius - from point by click, or by key-entry.
-            val doubleGuide = DoubleGuide((r: Double) => Traversable(CircleShape(p, math.abs(r/2)).addAttributes(attributes)))
-            val vector2DGuide = Vector2DGuide((p: Vector2D) => Traversable(CircleShape(center.get, math.sqrt(( (center.get.x-p.x) * (center.get.x-p.x)) + ( (center.get.y-p.y) * (center.get.y-p.y)) )).addAttributes(attributes)))
+            val doubleGuide = DynamicDrawFromDouble((r: Double) => Traversable(CircleShape(p, math.abs(r/2)).addAttributes(attributes)))
+            val vector2DGuide = DynamicDrawFromVector2D((p: Vector2D) => Traversable(CircleShape(center.get, math.sqrt(( (center.get.x-p.x) * (center.get.x-p.x)) + ( (center.get.y-p.y) * (center.get.y-p.y)) )).addAttributes(attributes)))
             val inputRequest = InputRequest(10,center,vector2DGuide, doubleGuide)
             Start('cad,"create.Input", inputRequest)
 

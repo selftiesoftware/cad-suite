@@ -39,16 +39,16 @@ class Arc extends Module {
     Attributes(Seq(color.map(c => "Color" -> color.getOrElse(None)), lineWidth.map(w => "StrokeWidth" -> lineWidth.getOrElse(None))).flatten)
   }
 
-  private val vector2DLineGuide = Vector2DGuide((v : Vector2D) => Traversable(LineShape(firstPoint.get,v).addAttributes(attributes)))
+  private val vector2DLineGuide = DynamicDrawFromVector2D((v : Vector2D) => Traversable(LineShape(firstPoint.get,v).addAttributes(attributes)))
 
-  private val vector2DArcGuide = Vector2DGuide((v : Vector2D) => {
+  private val vector2DArcGuide = DynamicDrawFromVector2D((v : Vector2D) => {
     try{Traversable(ArcShape(firstPoint.get,v,secondPoint.get).addAttributes(attributes))
     } catch {
       case _ : Throwable => Traversable.empty
     }
   })
 
-  val doubleGuide = DoubleGuide((d : Double) => Traversable(ArcShape(firstPoint.get,middlePointForDoubleGuide(d),secondPoint.get).addAttributes(attributes)))
+  val doubleGuide = DynamicDrawFromDouble((d : Double) => Traversable(ArcShape(firstPoint.get,middlePointForDoubleGuide(d),secondPoint.get).addAttributes(attributes)))
 
   def middlePointForDoubleGuide (d: Double) : Vector2D  = {
     val nv: Vector2D = Vector2D(-(secondPoint.get.y - firstPoint.get.y)/2,(secondPoint.get.x - firstPoint.get.x)/2)

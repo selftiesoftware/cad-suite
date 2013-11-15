@@ -140,7 +140,7 @@ class InputTextByKey extends Module {
     if (text.length > 0) {
     guides.foreach(_ match {
 
-      case TextGuide(guide) => {
+      case DynamicDrawFromText(guide) => {
         guide(text).foreach(s => g.draw(s.transform(t)))
       }
       case _ => // No known guide
