@@ -105,7 +105,6 @@ class Polyline extends Module {
           //Request input
           Start('cad, "create.Input", InputRequest(20,None))
         } else {
-        println("Polyline module can't interpret this: " + x)
         if (points.length > 0 ) Start('cad,"create.Input", InputRequest(7,Some(points.last),vector2DGuide))
         else Start('cad, "create.Input", InputRequest(20,None))
         }

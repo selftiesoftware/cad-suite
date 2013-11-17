@@ -21,13 +21,59 @@ package com.siigna.module.cad
 
 import com.siigna.app.Siigna
 import com.siigna.app.model.Drawing
+import com.siigna.util.geom.{TransformationMatrix, Vector2D}
+import com.siigna.app.view.{Graphics, View}
+import com.siigna.module.{Module, Tooltip}
+import com.siigna.app.model.shape.{PolylineShape, LineShape}
 
 /*
 paper properties changeable by the user
  */
 
 //change paper properties
-object setPaperProperties {
+object setPaperProperties{
+  def paperChangeCheck(p: Vector2D, click : Boolean) : (Boolean, Option[PolylineShape]) = {
+    //paper header interaction check (for setting paper scale and size)
+    val b = Drawing.boundaryScale
+    val br = Drawing.boundary.bottomRight
+    var returnShape : Option[PolylineShape] = None
+    //a shape to illustrate that a clickable area is active
+    def sUp(v : Vector2D) = PolylineShape(Vector2D(-1.6,-1)+v,Vector2D(0,1.2)+v,Vector2D(1.6,-1)+v,Vector2D(-1.6,-1)+v)
+    def sDown(v : Vector2D) = PolylineShape(Vector2D(-1.6,1)+v,Vector2D(0,-1.2)+v,Vector2D(1.6,1)+v,Vector2D(-1.6,1)+v)
+
+    var r = false
+    if(((br + Vector2D(-2.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) {
+      Tooltip.updateTooltip(List("Double click to increase the paper scale"))
+      if(click) changeScale(true)
+      returnShape = Some(sUp(br + Vector2D(-2.5*b,5*b)))
+      r = true
+    }
+    else if(((br + Vector2D(-2.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) {
+      Tooltip.updateTooltip(List("Double click to decrease the paper scale"))
+      if(click) changeScale(false)
+      returnShape = Some(sDown(br +Vector2D(-2.5*b,2*b)))
+      r = true
+    }
+    else if(((br + Vector2D(-42.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b)  {
+      Tooltip.updateTooltip(List("Double click to increase the paper size"))
+      if(click)changeSize(true)
+      returnShape = Some(sUp(br +Vector2D(-42.5*b,5*b)))
+      r = true
+    }
+    else if(((br + Vector2D(-42.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1*b) {
+      Tooltip.updateTooltip(List("Double click to decrease the paper size"))
+      if(click) changeSize(false)
+      returnShape = Some(sDown(br +Vector2D(-42.5*b,2*b)))
+      r = true
+    }
+    else {
+      if(!r) Tooltip.updateTooltip(List()) //clear tooltip display
+      r = false
+      returnShape = None
+    }
+    (r,returnShape)
+  }
+
   //change paper size
   def changeSize(increase : Boolean) = {
     val step = math.sqrt(2.0) //step from one A-size to the next. Equals 1.41421356

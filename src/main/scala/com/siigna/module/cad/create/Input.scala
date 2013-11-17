@@ -20,6 +20,7 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
+import module.cad.setPaperProperties
 import module.Tooltip
 import scala.Some
 import scala.Some
@@ -36,6 +37,10 @@ class Input extends Module {
   var referencePoint: Option[Vector2D] = None
   var trackDoubleRequest: Boolean = false
   var entryPoint: Option[Vector2D] = None
+
+  //paper properties visual feedback vars
+  var paperPropertiesMarker = false //paint feedback
+  var paperPropertiesShape : Option[PolylineShape] = None //icon highlight shape
 
   def interpretMouseInput(p : Vector2D) : Option[ModuleEvent] = {
     if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)
@@ -258,6 +263,15 @@ class Input extends Module {
       Siigna("track") = true
       End(KeyDown(code: Int,modifier: ModifierKeys))
     }
+    //check if the mouse is above paper settings icons
+    case MouseMove(p, _, _) :: tail => if(setPaperProperties.paperChangeCheck(p, false)._1) {
+      paperPropertiesMarker = true
+      paperPropertiesShape = Some(setPaperProperties.paperChangeCheck(p,false)._2.get)
+    } else {
+      paperPropertiesShape = None
+      paperPropertiesMarker = false
+    }
+
 
     case _ => {
       //Tooltip.refresh()
@@ -266,6 +280,7 @@ class Input extends Module {
 
 
   //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
+  //and draw feedback if the mouse is above changeable properties in the paper header
   override def paint(g : Graphics, t : TransformationMatrix) {
     if (!isForwarding) {
       guides.foreach(_ match {
@@ -275,6 +290,10 @@ class Input extends Module {
         case _ =>
       } )
     }
+    //paint paper properties adjustment highlighted arrows
+    if(paperPropertiesShape.isDefined) g draw(paperPropertiesShape.get).transform(t)
+
+
   }
 }
 
