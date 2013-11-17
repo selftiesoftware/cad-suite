@@ -39,7 +39,7 @@ class Text extends Module {
 
   var text     = ""
   var position : Option[Vector2D] = None
-  var scale : Int  = 5
+  var scale : Double  = 2.5
   var attributes = Attributes( "TextSize" -> 10)
   var shape : Option[TextShape] = None
 

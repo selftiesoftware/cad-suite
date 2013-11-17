@@ -31,7 +31,7 @@ class Lineardim extends Module {
 
   val color = "Color" -> new Color(0.25f, 0.25f, 0.25f, 1.00f)
   val colorBlack = "Color" -> new Color(0.00f, 0.00f, 0.00f, 1.00f)
-  var dimTextSize = 3
+  var dimTextSize = 2.2
   private var transformation = TransformationMatrix()
 
   def diaMark(point : Vector2D) = if (hasBothPoints)
