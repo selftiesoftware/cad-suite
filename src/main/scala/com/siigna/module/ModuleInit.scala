@@ -218,7 +218,7 @@ class ModuleInit extends Module {
         Start('cad, "Selection", p)
       }
       case MouseDown(p: Vector2D, _, _) :: tail => {
-        if (setPaperProperties.paperChangeCheck(p, true)._1) Siigna display("paper size changed")
+        if (setPaperProperties.paperChangeCheck(p, true)._1) null
         else {
           textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
           shortcut = ""

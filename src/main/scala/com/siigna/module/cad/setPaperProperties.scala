@@ -79,11 +79,14 @@ object setPaperProperties{
     val step = math.sqrt(2.0) //step from one A-size to the next. Equals 1.41421356
     val min = Siigna.double("printFormatMin").get
     val max = Siigna.double("printFormatMax").get
-    if(increase) {
+    val belowMinSize : Boolean = Siigna.double("printFormatMax").get < 298
+    val aboveMaxSize : Boolean = Siigna.double("printFormatMax").get > 1187
+
+    if(increase && !aboveMaxSize) {
       Siigna("printFormatMin") = min * step
       Siigna("printFormatMax") = max * step
     }
-    else {
+    else if(!increase && !belowMinSize){
       Siigna("printFormatMin") = min / step
       Siigna("printFormatMax") = max / step
     }
