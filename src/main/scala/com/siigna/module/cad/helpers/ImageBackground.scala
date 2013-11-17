@@ -20,9 +20,8 @@
 package com.siigna.module.cad.helpers
 
 import com.siigna._
-import app.model.shape.{RectangleShape, ImageShape}
 import com.siigna.util.event.End
-import java.awt.{MediaTracker, Toolkit}
+import java.awt.MediaTracker
 import module.cad.create.{InputRequest, DynamicDrawFromVector2D}
 import module.Tooltip
 import scala.Some
@@ -48,7 +47,9 @@ class ImageBackground extends Module {
 
   //a tracker to check when the image is loaded (the image height and width can not be read before then)
   //TODO: is it cool to instantiate a new applet ?!  - anyway it was a way to get the tracker working.
-  var tracker : MediaTracker = new MediaTracker(new com.siigna.app.SiignaApplet)
+  // - No it is not cool. In fact it is impossible since I've refactored the applet away from mainline.
+  //   I've changed it to null. If there are any issues this might be it :)
+  var tracker : MediaTracker = new MediaTracker(null)
 
   //on the basis of two points, update the Y-coordinate of the last point "v" to match a given proportion.
   def parse(ratio : Double, p : Vector2D, v : Vector2D) : Vector2D = {
