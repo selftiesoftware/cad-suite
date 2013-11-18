@@ -257,7 +257,7 @@ class ModuleInit extends Module {
     g draw PaperHeader.openness.transform(t) //color to show level of openness
     g draw PaperHeader.headerFrame.transform(t) //frame around drawing info
     g draw PaperHeader.scaleText.transform(t) //frame around drawing info
-    g draw PaperHeader.scaleArrows.transform(t) //arrows showing click spots for changing drawing scale
+    //g draw PaperHeader.scaleArrows.transform(t) //arrows showing click spots for changing drawing scale
     g draw PaperHeader.sizeArrows.transform(t) //arrows showing click spots for changing paper size
 
     //draw tool shoutcut suggestions

@@ -42,19 +42,22 @@ object setPaperProperties{
     def sDown(v : Vector2D) = PolylineShape(Vector2D(-1.6,1)+v,Vector2D(0,-1.2)+v,Vector2D(1.6,1)+v,Vector2D(-1.6,1)+v)
 
     var r = false
+    /*
     if(((br + Vector2D(-2.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) {
       Tooltip.updateTooltip(List("Double click to increase the paper scale"))
       if(click) changeScale(true)
       returnShape = Some(sUp(br + Vector2D(-2.5*b,5*b)))
       r = true
     }
+
     else if(((br + Vector2D(-2.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) {
       Tooltip.updateTooltip(List("Double click to decrease the paper scale"))
       if(click) changeScale(false)
       returnShape = Some(sDown(br +Vector2D(-2.5*b,2*b)))
       r = true
     }
-    else if(((br + Vector2D(-42.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b)  {
+    */
+    if(((br + Vector2D(-42.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b)  {
       Tooltip.updateTooltip(List("Double click to increase the paper size"))
       if(click)changeSize(true)
       returnShape = Some(sUp(br +Vector2D(-42.5*b,5*b)))

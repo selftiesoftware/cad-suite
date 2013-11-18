@@ -265,9 +265,11 @@ class Input extends Module {
     }
     //check if the mouse is above paper settings icons
     case MouseMove(p, _, _) :: tail => if(setPaperProperties.paperChangeCheck(p, false)._1) {
-      paperPropertiesMarker = true
+      paperPropertiesMarker = true //draw a hightlight showing that the area is clickable
+      //evaluate if the mouse is above the paper header icons
       paperPropertiesShape = Some(setPaperProperties.paperChangeCheck(p,false)._2.get)
     } else {
+      //reset
       paperPropertiesShape = None
       paperPropertiesMarker = false
     }
