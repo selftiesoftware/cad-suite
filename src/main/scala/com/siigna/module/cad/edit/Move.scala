@@ -11,6 +11,10 @@
 
 package com.siigna.module.cad.edit
 
+/*
+A module to allow users to move shapes.
+ */
+
 import com.siigna._
 import app.Siigna
 import com.siigna.module.cad.create._
