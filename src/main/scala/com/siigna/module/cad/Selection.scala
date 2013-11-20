@@ -46,7 +46,7 @@ class Selection extends Module {
   /**
    * Examines whether the selection is currently enclosed (selects the entire shapes) or not (only selects parts).
    */
-  def isEnclosed : Boolean = startPoint.isDefined && startPoint.get.x <= mousePosition.x
+  def isEnclosed : Boolean = startPoint.isDefined && startPoint.get.x >= mousePosition.x
 
   def m = mousePosition.transform(View.deviceTransformation)
 

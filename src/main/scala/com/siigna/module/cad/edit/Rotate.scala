@@ -66,6 +66,9 @@ class Rotate extends Module {
 
       //If none of the above happens, module should go on like this:
       case _ => {
+
+        Siigna.setCursor(Cursors.crosshair)
+
         //If nothing is selected, start select
         if (Drawing.selection.isEmpty) {
           Siigna display "Select objects to rotate"
