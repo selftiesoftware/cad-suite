@@ -31,7 +31,7 @@ class Lineardim extends Module {
 
   val color = "Color" -> new Color(0.25f, 0.25f, 0.25f, 1.00f)
   val colorBlack = "Color" -> new Color(0.00f, 0.00f, 0.00f, 1.00f)
-  var dimTextSize = 3
+  var dimTextSize = 2.2
   private var transformation = TransformationMatrix()
 
   def diaMark(point : Vector2D) = if (hasBothPoints)
@@ -128,7 +128,7 @@ class Lineardim extends Module {
       case End(p : Vector2D) :: tail => {
         points = points :+ p
         if (points.length == 1) {
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(LineShape(p, v)))
+          val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => Traversable(LineShape(p, v)))
           val inputRequest = InputRequest(6,None,vector2DGuide)
           Start('cad,"create.Input", inputRequest)
         } else if (points.length == 2) {
@@ -142,7 +142,7 @@ class Lineardim extends Module {
           Siigna display "click on the side away from the pointers"
           Tooltip.blockUpdate(3500)
 
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(LineShape(points(0), points(1))))
+          val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => Traversable(LineShape(points(0), points(1))))
 
           val inputRequest = InputRequest(2,None,vector2DGuide)
           Start('cad,"create.Input", inputRequest)

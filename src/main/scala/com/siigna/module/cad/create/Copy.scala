@@ -20,10 +20,8 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
-import module.porter.DXF.DXFExporter
+import com.siigna.module.porter.DXF.DXFExporter
 import module.Tooltip
-import java.awt.Toolkit
-import java.awt.datatransfer.StringSelection
 import com.siigna.Drawing
 
 class Copy extends Module {
@@ -68,7 +66,7 @@ class Copy extends Module {
 
           Siigna display "set destination"
           Tooltip.blockUpdate(3500)
-          val vector2DGuide = Vector2DGuide((v : Vector2D) => {
+          val vector2DGuide = DynamicDrawFromVector2D((v : Vector2D) => {
             transform(TransformationMatrix(v - startPoint.get, 1))
           })
 
@@ -80,8 +78,8 @@ class Copy extends Module {
           Tooltip.blockUpdate(3500)
           multiActive = true
           var t: Traversable[Shape] = Traversable()
-          val doubleGuide = DoubleGuide((r: Double) => transform(TransformationMatrix(endPoint.get-startPoint.get)))
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => transform(TransformationMatrix(endPoint.get - startPoint.get,1)) ++ transform(TransformationMatrix(v-startPoint.get,1)))
+          val doubleGuide = DynamicDrawFromDouble((r: Double) => transform(TransformationMatrix(endPoint.get-startPoint.get)))
+          val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => transform(TransformationMatrix(endPoint.get - startPoint.get,1)) ++ transform(TransformationMatrix(v-startPoint.get,1)))
           val inputRequest = InputRequest(9, None,vector2DGuide,doubleGuide)
           Start('cad, "create.Input", inputRequest)
         } else if (multiActive == true) {
@@ -95,7 +93,7 @@ class Copy extends Module {
           Create(transform(transformation))
           Siigna display "click to set another copy. Enter, escape or right mouse to end."
           Tooltip.blockUpdate(3500)
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => transform(TransformationMatrix(v-startPoint.get,1)))
+          val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => transform(TransformationMatrix(v-startPoint.get,1)))
           val inputRequest = InputRequest(1 , None,vector2DGuide)
           Start('cad, "create.Input", inputRequest)
 

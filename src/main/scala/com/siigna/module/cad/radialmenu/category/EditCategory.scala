@@ -32,6 +32,7 @@ case object EditCategory extends MenuCategory{
 
     //Intersections
     EventENE -> MenuModule(Module('cad,"edit.Trim"), MenuIcons.trim),
+    EventESE -> MenuModule(Module('cad,"edit.MatchProperties"), MenuIcons.sampleProperties),
 
     //Properties
     EventWNW -> MenuModule(Module('cad,"edit.Stroke"), MenuIcons.stroke),

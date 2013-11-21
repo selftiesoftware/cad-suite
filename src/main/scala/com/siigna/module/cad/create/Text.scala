@@ -39,7 +39,7 @@ class Text extends Module {
 
   var text     = ""
   var position : Option[Vector2D] = None
-  var scale : Int  = 5
+  var scale : Double  = 2.5
   var attributes = Attributes( "TextSize" -> 10)
   var shape : Option[TextShape] = None
 
@@ -54,7 +54,7 @@ class Text extends Module {
       case End(KeyDown(Key.escape,modifier)) :: tail => End
       case End(p : Vector2D) :: tail => {
         position = Some(p)
-        val textGuide: TextGuide = TextGuide((s: String) => Traversable(TextShape(s + " ", p,  scale * (Siigna.paperScale + 1))))
+        val textGuide: DynamicDrawFromText = DynamicDrawFromText((s: String) => Traversable(TextShape(s + " ", p,  scale * (Siigna.paperScale + 1))))
         //val inputRequest = InputRequest(None,None,Some(textGuide),None,None,None,position,None,None,Some(14))
         //Start('cad,"create.Input", inputRequest)
         val inputRequest = InputRequest(12,None,textGuide)

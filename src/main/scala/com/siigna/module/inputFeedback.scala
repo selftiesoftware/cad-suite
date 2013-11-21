@@ -67,7 +67,7 @@ class inputFeedback {
         if (category == Some("edit")) command = Some("explode")
         else {
           category = Some("edit")
-          suggestions = List ("EDIT"," ","C - colors", "E - explode", "M - move", "R - rotate", "S - scale", "T - trim", "W - line  width")
+          suggestions = List ("EDIT"," ","C - colors", "E - explode", "J - join", "M - move", "R - rotate", "S - scale", "T - trim", "W - line  width")
         }
       }
       case "f" => {

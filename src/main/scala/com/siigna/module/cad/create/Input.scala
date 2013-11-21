@@ -20,6 +20,7 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
+import module.cad.setPaperProperties
 import module.Tooltip
 import scala.Some
 import scala.Some
@@ -36,6 +37,10 @@ class Input extends Module {
   var referencePoint: Option[Vector2D] = None
   var trackDoubleRequest: Boolean = false
   var entryPoint: Option[Vector2D] = None
+
+  //paper properties visual feedback vars
+  var paperPropertiesMarker = false //paint feedback
+  var paperPropertiesShape : Option[PolylineShape] = None //icon highlight shape
 
   def interpretMouseInput(p : Vector2D) : Option[ModuleEvent] = {
     if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)
@@ -69,7 +74,7 @@ class Input extends Module {
         //Snap to a) shapes in the making, b) a snapGuide of c) nothing as required
         var snapGuide: Boolean = false
         guides.foreach(_ match {
-          case Vector2DGuide(guide) => {
+          case DynamicDrawFromVector2D(guide) => {
             if (snapGuide == false && inputType != Some(5) && inputType != Some(8) && inputType != Some(15)
               && inputType != Some(16) && inputType != Some(18) && inputType != Some(19) && inputType != Some(20)) {
               val snapFunction = () => guide(mousePosition)
@@ -169,13 +174,13 @@ class Input extends Module {
           || inputType == Some(7) || inputType == Some(9) || inputType == Some(16) || inputType == Some(18)
           || inputType == Some(19) || inputType == Some(20)) && Track.isTracking)) {
         val guidesNew = guides.collect({
-          case Vector2DGuide(guide) => {
-            DoubleGuide((d : Double) => {
+          case DynamicDrawFromVector2D(guide) => {
+            DynamicDrawFromDouble((d : Double) => {
               guide(Track.getPointFromDistance(d).get)
             })
           }
-          case Vector2DGuideKeys(guide) => {
-            DoubleGuide((d : Double) => {
+          case DynamicDrawFromVector2DKeys(guide) => {
+            DynamicDrawFromDouble((d : Double) => {
               guide(Track.getPointFromDistance(d).get - Track.pointOne.get)
             })
           }
@@ -258,6 +263,17 @@ class Input extends Module {
       Siigna("track") = true
       End(KeyDown(code: Int,modifier: ModifierKeys))
     }
+    //check if the mouse is above paper settings icons
+    case MouseMove(p, _, _) :: tail => if(setPaperProperties.paperChangeCheck(p, false)._1) {
+      paperPropertiesMarker = true //draw a hightlight showing that the area is clickable
+      //evaluate if the mouse is above the paper header icons
+      paperPropertiesShape = Some(setPaperProperties.paperChangeCheck(p,false)._2.get)
+    } else {
+      //reset
+      paperPropertiesShape = None
+      paperPropertiesMarker = false
+    }
+
 
     case _ => {
       //Tooltip.refresh()
@@ -266,15 +282,20 @@ class Input extends Module {
 
 
   //draw the guide - but only if no points are being entered with keys, in which case the input modules are drawing.
+  //and draw feedback if the mouse is above changeable properties in the paper header
   override def paint(g : Graphics, t : TransformationMatrix) {
     if (!isForwarding) {
       guides.foreach(_ match {
-        case Vector2DGuide(guide) => {
+        case DynamicDrawFromVector2D(guide) => {
           guide(mousePosition.transform(View.deviceTransformation)).foreach(s => g.draw(s.transform(t)))
         }
         case _ =>
       } )
     }
+    //paint paper properties adjustment highlighted arrows
+    if(paperPropertiesShape.isDefined) g draw(paperPropertiesShape.get).transform(t)
+
+
   }
 }
 
@@ -300,8 +321,8 @@ case class InputRequest(inputType: Int, referencePoint: Option[Vector2D], guides
 // 12        None                                   String                              Off                    None                On
 
 
-case class DoubleGuide(guide : Double => Traversable[Shape]) extends Guide
-case class Vector2DGuide(guide : Vector2D => Traversable[Shape]) extends Guide
-case class TextGuide(guide : String => Traversable[Shape]) extends Guide
+case class DynamicDrawFromDouble(guide : Double => Traversable[Shape]) extends Guide
+case class DynamicDrawFromVector2D(guide : Vector2D => Traversable[Shape]) extends Guide
+case class DynamicDrawFromText(guide : String => Traversable[Shape]) extends Guide
 //An extra guide: To be able to draw a guide when inputting Vector2D by keys, but not when inputting by mouse
-case class Vector2DGuideKeys(guide : Vector2D => Traversable[Shape]) extends Guide
+case class DynamicDrawFromVector2DKeys(guide : Vector2D => Traversable[Shape]) extends Guide

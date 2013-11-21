@@ -51,7 +51,10 @@ class Trim extends Module {
     //check if shapes are selected. If not, allow the user to do so.
     'Start -> {
       //Exit strategy
-      case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
+      case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => {
+        Siigna display ("ended trim")
+        End
+      }
 
       //create testshapes
       case KeyDown(Key.ArrowDown, _) :: tail => {
@@ -225,7 +228,7 @@ class Trim extends Module {
 
         }
       case e => {
-        Siigna display "Click shapes to trim"
+        Tooltip.updateTooltip(List("Click shapes to trim. Right click to exit."))
 
         Tooltip.blockUpdate(3500)
         //Requests mouse-down input

@@ -20,12 +20,14 @@
 package com.siigna.module
 
 import base.{PaperHeader, Menu}
+import cad.create.InputRequest
 import cad.setPaperProperties
 import com.siigna.module.cad.radialmenu.category.{EditCategory, StartCategory}
 import com.siigna._
 import com.siigna.app.model.selection.EmptySelection
-import module.cad.create.InputRequest
+import com.siigna.module.cad.create.InputRequest
 import java.awt.Cursor
+import scala.Some
 
 /**
  * An init module for the cad-suite.
@@ -143,7 +145,7 @@ class ModuleInit extends Module {
         else if (shortcutKey == 'z') Drawing.undo()
         else if (shortcutKey == 'y') Drawing.redo()
       } else if (shortcut == "") {
-      //MENU SHORTCUTS - LETTERS:
+        //MENU SHORTCUTS - LETTERS:
         if (shortcutKey == 'c' || shortcutKey == 'h' || shortcutKey == 'e' || shortcutKey == 'f') {
           shortcut = shortcutKey.toString
           toolSuggestions = textFeedback.inputFeedback(shortcut)
@@ -174,6 +176,7 @@ class ModuleInit extends Module {
       } else if (shortcut == "e") {
         if (shortcutKey == 'c') shortcutProcess("c", "edit.Colors", 'cad)
         else if (shortcutKey == 'e') shortcutProcess("e", "edit.Explode", 'cad)
+        else if (shortcutKey == 'j') shortcutProcess("j", "edit.Join", 'cad)
         else if (shortcutKey == 'm') shortcutProcess("m", "edit.Move", 'cad)
         else if (shortcutKey == 'r') shortcutProcess("r", "edit.Rotate", 'cad)
         else if (shortcutKey == 's') shortcutProcess("s", "edit.Scale", 'cad)
@@ -215,6 +218,7 @@ class ModuleInit extends Module {
         Start('cad, "Selection", p)
       }
       case MouseDown(p: Vector2D, _, _) :: tail => {
+<<<<<<< HEAD
         //paper header interaction check (for setting paper scale and size)
         val b = Drawing.boundaryScale
         val br = Drawing.boundary.bottomRight
@@ -223,6 +227,9 @@ class ModuleInit extends Module {
         //else if(((br + Vector2D(-2.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) setPaperProperties.changeScale(false)
         if(((br + Vector2D(-42.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) setPaperProperties.changeSize(true)
         else if(((br + Vector2D(-42.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1*b) setPaperProperties.changeSize(false)
+=======
+        if (setPaperProperties.paperChangeCheck(p, true)._1) null
+>>>>>>> 01ecccac660f2a88a96fb066c11f09d99d6fbdc5
         else {
           textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
           shortcut = ""
@@ -242,7 +249,7 @@ class ModuleInit extends Module {
       case KeyDown(code: Int, modifier: ModifierKeys) :: tail => handleKeyDown(code, modifier)
       case End(KeyDown(code: Int, modifier: ModifierKeys)) :: tail => handleKeyDown(code, modifier)
 
-        //If the ending module sent a message (fx. measure distance; lines exploded, of whatever, don't overwrite it...
+      //If the ending module sent a message (fx. measure distance; lines exploded, of whatever, don't overwrite it...
       case End :: tail => if(Tooltip.lastUpdate +500 > System.currentTimeMillis()) Tooltip.blockUpdate(3500)
 
       case y => {

@@ -37,7 +37,7 @@ class Rectangle extends Module {
         //use the first point
         if (points.length == 0){
           points = points :+ v
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))
+          val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))
           val inputRequest = InputRequest(7,Some(v),vector2DGuide)
           Start('cad, "create.Input", inputRequest)
         }
@@ -63,7 +63,7 @@ class Rectangle extends Module {
           Tooltip.updateTooltip(List("Rectangle tool active"))
           Start('cad, "create.Input", InputRequest(6,None))
         } else {
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))
+          val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))
           val inputRequest = InputRequest(7,Some(points.head),vector2DGuide)
           Start('cad, "create.Input", inputRequest)
         }

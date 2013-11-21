@@ -23,6 +23,7 @@ import com.siigna._
 import com.siigna.module.cad.create._
 import app.Siigna
 import module.Tooltip
+import java.awt.Color
 
 /**
  * A line module (draws one line-segment)
@@ -47,20 +48,20 @@ class Distance extends Module {
       case End(v : Vector2D) :: tail => {
         if (!startPoint.isDefined){
           startPoint = Some(v)
-          val vector2DGuide = Vector2DGuide((p: Vector2D) => Traversable(LineShape(startPoint.get, p)))
+          val vector2DGuide = DynamicDrawFromVector2D((p: Vector2D) => Traversable(LineShape(startPoint.get, p).addAttribute("Color" -> new Color(1.00f, 0.75f, 0.30f, 1.00f))))
           Start('cad, "create.Input", InputRequest(6,startPoint,vector2DGuide))
 
         } else if (startPoint.isDefined) {
           var length = ((startPoint.get - v).length).round
-          Siigna display "length: " + length
-          Tooltip.blockUpdate(3500)
+          //Siigna display "length: " + length
+          Tooltip.updateTooltip(List("length: " + length.toString,"distance, X: "+((Vector2D(v.x,0) - Vector2D(startPoint.get.x,0)).length.round).toString,"distance, Y: "+((Vector2D(0,v.y) -Vector2D(0,startPoint.get.y)).length.round).toString ))
+          Tooltip.blockUpdate(2000)
           End
         }
       }
       case _ => {
-        Tooltip.updateTooltip(List("Distance measure tool active"))
-        Siigna display "set two points to measure the distance between them."
-        Tooltip.blockUpdate(3500)
+        Siigna.setCursor(Cursors.crosshair)
+        Tooltip.blockUpdate(1000)
         Start('cad, "create.Input", InputRequest(6,None))
       }
       //if

@@ -11,6 +11,10 @@
 
 package com.siigna.module.cad.edit
 
+/*
+A module to allow users to move shapes.
+ */
+
 import com.siigna._
 import app.Siigna
 import com.siigna.module.cad.create._
@@ -24,7 +28,7 @@ class Move extends Module {
 
   var transformation : Option[TransformationMatrix] = None
 
-  val vector2DGuideStateOne = Vector2DGuideKeys((v: Vector2D) => {
+  val vector2DGuideStateOne = DynamicDrawFromVector2DKeys((v: Vector2D) => {
     transformation = Some(TransformationMatrix(v, 1))
     Drawing.selection.transform(transformation.get)
     val draw = Drawing.selection.shapes.values
@@ -32,7 +36,7 @@ class Move extends Module {
     draw
   })
 
-  val vector2DGuide = Vector2DGuide((v: Vector2D) => {
+  val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => {
     transformation = Some(TransformationMatrix((v - firstPoint.get), 1))
     Drawing.selection.transform(transformation.get)
     val draw = Drawing.selection.shapes.values

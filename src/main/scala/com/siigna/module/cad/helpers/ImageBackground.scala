@@ -20,10 +20,9 @@
 package com.siigna.module.cad.helpers
 
 import com.siigna._
-import app.model.shape.{RectangleShape, ImageShape}
 import com.siigna.util.event.End
-import java.awt.{MediaTracker, Toolkit}
-import module.cad.create.{InputRequest, Vector2DGuide}
+import java.awt.{Canvas, MediaTracker}
+import module.cad.create.{InputRequest, DynamicDrawFromVector2D}
 import module.Tooltip
 import scala.Some
 import javax.swing.filechooser.FileNameExtensionFilter
@@ -47,8 +46,7 @@ class ImageBackground extends Module {
   var points = List[Vector2D]()
 
   //a tracker to check when the image is loaded (the image height and width can not be read before then)
-  //TODO: is it cool to instantiate a new applet ?!  - anyway it was a way to get the tracker working.
-  var tracker : MediaTracker = new MediaTracker(new com.siigna.app.SiignaApplet)
+  var tracker : MediaTracker = new MediaTracker(new Canvas())
 
   //on the basis of two points, update the Y-coordinate of the last point "v" to match a given proportion.
   def parse(ratio : Double, p : Vector2D, v : Vector2D) : Vector2D = {
@@ -71,7 +69,7 @@ class ImageBackground extends Module {
         if (points.length == 0){
 
           points = points :+ v
-          val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), parse(proportions,points(0),v)))))
+          val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), parse(proportions,points(0),v)))))
           val inputRequest = InputRequest(7,Some(v),vector2DGuide)
 
           Start('cad, "create.Input", inputRequest)
@@ -112,6 +110,8 @@ class ImageBackground extends Module {
           image = Some(Dialogue.readImage(JPGFileFilter)).get
           Siigna.imageBackground = (image,Some(Vector2D(0,0)),Some(Vector2D(0,0)))
 
+
+
           //track when the image is loaded. Necessary since width and height parameters are unavailable before then.
           tracker.addImage(image.get, 0)
           tracker.waitForID(0)
@@ -129,7 +129,7 @@ class ImageBackground extends Module {
             Start('cad, "create.Input", InputRequest(6,None))
           } else {
 
-            val vector2DGuide = Vector2DGuide((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), (parse(proportions,points(0),v))))))
+            val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), (parse(proportions,points(0),v))))))
             val inputRequest = InputRequest(7,Some(points.head),vector2DGuide)
             Start('cad, "create.Input", inputRequest)
           }
