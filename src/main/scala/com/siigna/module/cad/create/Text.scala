@@ -22,19 +22,6 @@ package com.siigna.module.cad.create
 import com.siigna._
 import module.{Tooltip, ModuleInit}
 
-//import java.awt.{Font, Color, TextField}
-//import java.awt.font._
-//import java.awt.event.{KeyEvent => AWTKeyEvent}
-
-//import com.siigna.app.Siigna
-//import com.siigna.app.model.shape._
-//import com.siigna.app.view.Graphics
-//import com.siigna.module.Module
-//import com.siigna.util.action._
-//import com.siigna.util.collection.DirectedGraph
-//import com.siigna.util.event._
-//import com.siigna.util.geom._
-//
 class Text extends Module {
 
   var text     = ""

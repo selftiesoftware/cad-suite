@@ -218,18 +218,12 @@ class ModuleInit extends Module {
         Start('cad, "Selection", p)
       }
       case MouseDown(p: Vector2D, _, _) :: tail => {
-<<<<<<< HEAD
-        //paper header interaction check (for setting paper scale and size)
-        val b = Drawing.boundaryScale
-        val br = Drawing.boundary.bottomRight
-
-        //if(((br + Vector2D(-2.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) setPaperProperties.changeScale(true)
-        //else if(((br + Vector2D(-2.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) setPaperProperties.changeScale(false)
-        if(((br + Vector2D(-42.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) setPaperProperties.changeSize(true)
-        else if(((br + Vector2D(-42.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1*b) setPaperProperties.changeSize(false)
-=======
-        if (setPaperProperties.paperChangeCheck(p, true)._1) null
->>>>>>> 01ecccac660f2a88a96fb066c11f09d99d6fbdc5
+        //check if the setPaperProperties function should run.
+        if (setPaperProperties.paperChangeCheck(p, true)._1) {
+          //if the user has chosen to set the paper scale, goto the SetPaperScale module
+          if(setPaperProperties.paperChangeCheck(p, true)._3) Start('cad,"SetPaperScale") else null
+        }
+        //if not, the user is starting a selection:
         else {
           textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
           shortcut = ""
@@ -268,8 +262,8 @@ class ModuleInit extends Module {
     g draw PaperHeader.openness.transform(t) //color to show level of openness
     g draw PaperHeader.headerFrame.transform(t) //frame around drawing info
     g draw PaperHeader.scaleText.transform(t) //frame around drawing info
-    //g draw PaperHeader.scaleArrows.transform(t) //arrows showing click spots for changing drawing scale
     g draw PaperHeader.sizeArrows.transform(t) //arrows showing click spots for changing paper size
+    g draw PaperHeader.scaleAuto.transform(t) //arrows showing click spots for changing drawing scale
 
     //draw tool shoutcut suggestions
     if (!shortcut.isEmpty && textFeedback.category.isDefined) {

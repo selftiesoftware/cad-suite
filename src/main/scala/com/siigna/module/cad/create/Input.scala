@@ -40,7 +40,7 @@ class Input extends Module {
 
   //paper properties visual feedback vars
   var paperPropertiesMarker = false //paint feedback
-  var paperPropertiesShape : Option[PolylineShape] = None //icon highlight shape
+  var paperPropertiesShape : Option[Shape] = None //icon highlight shape
 
   def interpretMouseInput(p : Vector2D) : Option[ModuleEvent] = {
     if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)

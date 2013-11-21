@@ -1,5 +1,3 @@
-package com.siigna.module.cad
-
 /*
  * Copyright (c) 2008-2013, Selftie Software. Siigna is released under the
  * creative common license by-nc-sa. You are free
@@ -19,49 +17,72 @@ package com.siigna.module.cad
  * Read more at http://siigna.com and https://github.com/siigna/main
  */
 
+package com.siigna.module.cad
+
 import com.siigna.app.Siigna
 import com.siigna.app.model.Drawing
-<<<<<<< HEAD
-import com.siigna.app.view.View
-=======
-import com.siigna.util.geom.{TransformationMatrix, Vector2D}
+import com.siigna.util.geom.{Rectangle2D, TransformationMatrix, Vector2D}
 import com.siigna.app.view.{Graphics, View}
 import com.siigna.module.{Module, Tooltip}
-import com.siigna.app.model.shape.{PolylineShape, LineShape}
->>>>>>> 01ecccac660f2a88a96fb066c11f09d99d6fbdc5
+import com.siigna.app.model.shape.{Shape, TextShape, PolylineShape, LineShape}
+import com.siigna.util.event.Start
+import com.siigna.module.cad.helpers._
+import com.siigna._
+import scala.Some
+import com.siigna.module.cad.create.{InputRequest, DynamicDrawFromText}
 
 /*
 paper properties changeable by the user
  */
 
-//change paper properties
+
 object setPaperProperties{
-  def paperChangeCheck(p: Vector2D, click : Boolean) : (Boolean, Option[PolylineShape]) = {
+  /**
+   *
+   * @param p the location of the mouse
+   * @param click true if click, false if mouse move
+   * @return Boolean: true if a click was registered,
+   *         Option [Shape] the shape to draw,
+   *         Boolean: true if SetPaperScale module should be called.
+   */
+
+  def paperChangeCheck(p: Vector2D, click : Boolean) : (Boolean, Option[Shape], Boolean) = {
     //paper header interaction check (for setting paper scale and size)
     val b = Drawing.boundaryScale
     val br = Drawing.boundary.bottomRight
-    var returnShape : Option[PolylineShape] = None
+    var returnShape : Option[Shape] = None
+    var gotoScale = false
+
     //a shape to illustrate that a clickable area is active
     def sUp(v : Vector2D) = PolylineShape(Vector2D(-1.6,-1)+v,Vector2D(0,1.2)+v,Vector2D(1.6,-1)+v,Vector2D(-1.6,-1)+v)
     def sDown(v : Vector2D) = PolylineShape(Vector2D(-1.6,1)+v,Vector2D(0,-1.2)+v,Vector2D(1.6,1)+v,Vector2D(-1.6,1)+v)
 
-    var r = false
-    /*
+    //feedback to paper scale changing
+    def autoButton(v : Vector2D) = TextShape("A", v,3)
+
+    //feedback to typing paper scale
+    def setScaleFrame(v : Vector2D) = PolylineShape(Rectangle2D(v + Vector2D(-13,3),v + Vector2D(13,-3)))
+
+    var r = false // a boolean telling if the click was inside an active area
+
     if(((br + Vector2D(-2.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) {
-      Tooltip.updateTooltip(List("Double click to increase the paper scale"))
-      if(click) changeScale(true)
-      returnShape = Some(sUp(br + Vector2D(-2.5*b,5*b)))
+      Tooltip.updateTooltip(List("Double click to set the paper scale automatically"))
+      if(click) setAutoScale()
+      returnShape = Some(autoButton(br + Vector2D(-3*b,7*b)))
+      r = true
+    }
+    //initiate the SetPaperScale module
+    else if(((br + Vector2D(-18*b,4*b)) - p.transform(View.deviceTransformation)).length < 7*b) {
+      Tooltip.updateTooltip(List("Double click to type a paper scale"))
+      if(click) {
+        //Start('cad, "SetPaperScale", inputRequest)
+        gotoScale = true
+      }
+      returnShape = Some(setScaleFrame(br +Vector2D(-18*b,4*b)))
       r = true
     }
 
-    else if(((br + Vector2D(-2.5*b,2*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) {
-      Tooltip.updateTooltip(List("Double click to decrease the paper scale"))
-      if(click) changeScale(false)
-      returnShape = Some(sDown(br +Vector2D(-2.5*b,2*b)))
-      r = true
-    }
-    */
-    if(((br + Vector2D(-42.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b)  {
+    else if(((br + Vector2D(-42.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b)  {
       Tooltip.updateTooltip(List("Double click to increase the paper size"))
       if(click)changeSize(true)
       returnShape = Some(sUp(br +Vector2D(-42.5*b,5*b)))
@@ -77,8 +98,9 @@ object setPaperProperties{
       if(!r) Tooltip.updateTooltip(List()) //clear tooltip display
       r = false
       returnShape = None
+      gotoScale = false
     }
-    (r,returnShape)
+    (r,returnShape,gotoScale)
   }
 
   //change paper size
@@ -99,16 +121,14 @@ object setPaperProperties{
     }
     //recalulate the boundary
     Drawing.calculateBoundary()
-
-    View.zoomExtends
     //TODO: OUCH not good - a bad hack to update the model. How to otherwise register boundary changes??
     Drawing.undo()
     Drawing.redo()
 
   }
-  //change paper scale
-  def changeScale(increase : Boolean) = {
-    if(increase) println("increase")
-    else println("decrease")
+  //toggle automatic and manual paper scale setting
+  def setAutoScale() = {
+    println("set paper auto scale mode")
+
   }
 }
