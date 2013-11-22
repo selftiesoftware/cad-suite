@@ -67,7 +67,15 @@ object setPaperProperties{
 
     if(((br + Vector2D(-2.5*b,5*b)) - p.transform(View.deviceTransformation)).length < 1.5*b) {
       Tooltip.updateTooltip(List("Double click to set the paper scale automatically"))
-      if(click) setAutoScale()
+      if(click) {
+        Siigna("autoScaling") = true
+        //TODO: OUCH not good - a bad hack to update the model. How to otherwise register boundary changes??
+        Drawing.undo()
+        Drawing.redo()
+        Drawing.calculateBoundary()
+
+      }
+
       returnShape = Some(autoButton(br + Vector2D(-3*b,7*b)))
       r = true
     }
@@ -75,7 +83,6 @@ object setPaperProperties{
     else if(((br + Vector2D(-18*b,4*b)) - p.transform(View.deviceTransformation)).length < 7*b) {
       Tooltip.updateTooltip(List("Double click to type a paper scale"))
       if(click) {
-        //Start('cad, "SetPaperScale", inputRequest)
         gotoScale = true
       }
       returnShape = Some(setScaleFrame(br +Vector2D(-18*b,4*b)))
@@ -120,15 +127,10 @@ object setPaperProperties{
       Siigna("printFormatMax") = max / step
     }
     //recalulate the boundary
-    Drawing.calculateBoundary()
     //TODO: OUCH not good - a bad hack to update the model. How to otherwise register boundary changes??
     Drawing.undo()
     Drawing.redo()
-
-  }
-  //toggle automatic and manual paper scale setting
-  def setAutoScale() = {
-    println("set paper auto scale mode")
+    Drawing.calculateBoundary()
 
   }
 }

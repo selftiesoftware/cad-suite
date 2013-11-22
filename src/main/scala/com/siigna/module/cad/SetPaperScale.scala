@@ -43,8 +43,15 @@ class SetPaperScale extends Module{
         if (s.length > 0) {
           try {
             val scale = s.toInt
-            //CHANGE SCALE HERE
+            //change the scale and disable autoScaling
+            Siigna("autoScaling") = false
+            Siigna("scale") = scale.toDouble
             Siigna display("setting new scale: 1:"+scale)
+
+            //TODO: OUCH not good - a bad hack to update the model. How to otherwise register boundary changes??
+            Drawing.undo()
+            Drawing.redo()
+            Drawing.calculateBoundary()
             End
           } catch {
             case e : Exception  => {
@@ -56,7 +63,6 @@ class SetPaperScale extends Module{
       }
 
       case e => {
-        println("event; "+e)
         val p = Drawing.boundary.bottomRight
         val textGuide: DynamicDrawFromText = DynamicDrawFromText((s: String) => Traversable(TextShape("1:" + s + " ", p,  10)))
         //val inputRequest = InputRequest(None,None,Some(textGuide),None,None,None,position,None,None,Some(14))
