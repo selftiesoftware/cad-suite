@@ -23,6 +23,8 @@ import com.siigna._
 import com.siigna.module.porter.DXF.DXFExporter
 import module.Tooltip
 import com.siigna.Drawing
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 
 class Copy extends Module {
 
@@ -40,6 +42,14 @@ class Copy extends Module {
    */
   def transform(t : TransformationMatrix) = {
     shapes.map(_._2.transform(t))
+  }
+
+  //a function used to put a selection of shapes on the clipboard. Used for making icons and such.
+  def shapesToClipboard(shapes : Map[Int,Shape]) {
+    val clip = Toolkit.getDefaultToolkit.getSystemClipboard
+    val shapesList = List(shapes.map(_._2))
+    val s : StringSelection = new StringSelection(shapesList.toString())
+    clip.setContents(s,s)
   }
 
   val stateMap: StateMap = Map(
@@ -125,8 +135,11 @@ class Copy extends Module {
       case _ => {
         if (Drawing.selection.isDefined) {
 
-          //add selection to clipboard
-          DXFExporter.toDXFtoClipboard(shapes)
+          //DEFAULT: add selection to clipboard - use this to get DXF data on the clipboard.
+          //DXFExporter.toDXFtoClipboard(shapes)
+
+          //use this for saving shapes when drawing new / revised Siigna tool icons
+          shapesToClipboard(shapes)
 
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)

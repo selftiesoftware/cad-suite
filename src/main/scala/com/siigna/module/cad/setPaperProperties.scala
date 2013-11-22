@@ -48,20 +48,20 @@ object setPaperProperties{
 
   def paperChangeCheck(p: Vector2D, click : Boolean) : (Boolean, Option[Shape], Boolean) = {
     //paper header interaction check (for setting paper scale and size)
-    val b = Drawing.boundaryScale
+    val b = Siigna.paperScale
     val br = Drawing.boundary.bottomRight
     var returnShape : Option[Shape] = None
     var gotoScale = false
 
     //a shape to illustrate that a clickable area is active
-    def sUp(v : Vector2D) = PolylineShape(Vector2D(-1.6,-1)+v,Vector2D(0,1.2)+v,Vector2D(1.6,-1)+v,Vector2D(-1.6,-1)+v)
-    def sDown(v : Vector2D) = PolylineShape(Vector2D(-1.6,1)+v,Vector2D(0,-1.2)+v,Vector2D(1.6,1)+v,Vector2D(-1.6,1)+v)
+    def sUp(v : Vector2D) = PolylineShape(Vector2D(-1.6*b,-1*b)+v,Vector2D(0,1.2*b)+v,Vector2D(1.6*b,-1*b)+v,Vector2D(-1.6*b,-1*b)+v)
+    def sDown(v : Vector2D) = PolylineShape(Vector2D(-1.6*b,1*b)+v,Vector2D(0,-1.2*b)+v,Vector2D(1.6*b,1*b)+v,Vector2D(-1.6*b,1*b)+v)
 
     //feedback to paper scale changing
-    def autoButton(v : Vector2D) = TextShape("A", v,3)
+    def autoButton(v : Vector2D) = TextShape("A", v,3*b)
 
     //feedback to typing paper scale
-    def setScaleFrame(v : Vector2D) = PolylineShape(Rectangle2D(v + Vector2D(-13,3),v + Vector2D(13,-3)))
+    def setScaleFrame(v : Vector2D) = PolylineShape(Rectangle2D(v + Vector2D(-13*b,3*b),v + Vector2D(13*b,-3*b)))
 
     var r = false // a boolean telling if the click was inside an active area
 
