@@ -57,7 +57,7 @@ class Selection extends Module {
     } else None
   }
 
-  def shapeWithinSelectionDistance: Boolean = {
+  def shapeWithinSelectionDistance : Boolean = {
     if (nearestShape.isDefined) {
       if (nearestShape.get._2.distanceTo(m) < Siigna.selectionDistance) true
         else false

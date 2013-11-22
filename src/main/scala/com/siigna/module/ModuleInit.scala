@@ -124,7 +124,12 @@ class ModuleInit extends Module {
     if (code == Key.Delete) {
       shortcut = ""
       if (Drawing.selection.isDefined) {
-        Delete(Drawing.selection)
+        //if the bounding box of an imageBackground is deleted, clear the image:
+        if(Siigna.imageBackground._2.isDefined && Drawing.selection.contains(Siigna.imageBackground._2.get)) {
+          Siigna.imageBackground = (None,None,1.0)
+        }
+        //once it is tested that no image should be deleted, delete other shapes, if any:
+        if (Drawing.selection.isDefined) Delete(Drawing.selection)
       }
       //Escape:
     } else if (code == Key.Escape) {
@@ -150,7 +155,7 @@ class ModuleInit extends Module {
           shortcut = shortcutKey.toString
           toolSuggestions = textFeedback.inputFeedback(shortcut)
         }
-        //SHORTCUTS KNOWN FROM COMMON CAD PROGRAMS
+        //COMMONLY USED SHORTCUTS
         else if (shortcutKey == 'l')shortcutProcess("l", "create.Polyline", 'cad) //polyline
         else if (shortcutKey == 'm') shortcutProcess("m", "edit.Move", 'cad) //move
         else if (shortcutKey == 't') shortcutProcess("t", "edit.Trim", 'cad) //trim
