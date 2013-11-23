@@ -52,6 +52,7 @@ class SetPaperScale extends Module{
             Drawing.undo()
             Drawing.redo()
             Drawing.calculateBoundary()
+            View.zoomExtends
             End
           } catch {
             case e : Exception  => {
@@ -64,7 +65,10 @@ class SetPaperScale extends Module{
 
       case e => {
         val p = Drawing.boundary.bottomRight
-        val textGuide: DynamicDrawFromText = DynamicDrawFromText((s: String) => Traversable(TextShape("1:" + s + " ", p,  10)))
+        val s = Drawing.boundaryScale
+        val v = Vector2D(-38*s,18*s)
+        val h = 10*s
+        val textGuide: DynamicDrawFromText = DynamicDrawFromText((s: String) => Traversable(TextShape("1:" + s + " ", p+v, h)))
         //val inputRequest = InputRequest(None,None,Some(textGuide),None,None,None,position,None,None,Some(14))
         //Start('cad,"create.Input", inputRequest)
         val inputRequest = InputRequest(12,None,textGuide)

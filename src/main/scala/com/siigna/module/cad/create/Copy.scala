@@ -136,10 +136,10 @@ class Copy extends Module {
         if (Drawing.selection.isDefined) {
 
           //DEFAULT: add selection to clipboard - use this to get DXF data on the clipboard.
-          //DXFExporter.toDXFtoClipboard(shapes)
+          DXFExporter.toDXFtoClipboard(shapes)
 
           //use this for saving shapes when drawing new / revised Siigna tool icons
-          shapesToClipboard(shapes)
+          //shapesToClipboard(shapes)
 
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)

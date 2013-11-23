@@ -61,7 +61,7 @@ object setPaperProperties{
     def autoButton(v : Vector2D) = TextShape("A", v,3*b)
 
     //feedback to typing paper scale
-    def setScaleFrame(v : Vector2D) = PolylineShape(Rectangle2D(v + Vector2D(-13*b,3*b),v + Vector2D(13*b,-3*b)))
+    def setScaleFrame(v : Vector2D) = PolylineShape(Rectangle2D(v + Vector2D(-18*b,3*b),v + Vector2D(13*b,-3*b)))
 
     var r = false // a boolean telling if the click was inside an active area
 
