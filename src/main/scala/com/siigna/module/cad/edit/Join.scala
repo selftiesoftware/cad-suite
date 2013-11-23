@@ -33,6 +33,8 @@ class Join extends Module{
    * old shapes are deleted.
    */
 
+  //the attributes to give to the joined shape
+  private var attr = Attributes()
 
 
   //STRATEGY:
@@ -51,7 +53,7 @@ class Join extends Module{
     val end2 = epsilon(s2.geometry.vertices.last)
 
     //check for coinsiding ends and join shapes if such are found
-    if(start1 == start2 || start1 == end2 || end1 == start2 || end2 == start2) {
+    if(start1 == start2 || start1 == end2 || end1 == start2 || end2 == start2 || end1 == end2) {
       true
     } else {
       false
@@ -64,10 +66,10 @@ class Join extends Module{
   //a function to merge two shapes if an end coinside.
   //returns None if this is not the case
   def addTwoVerticeLists(l1 : List[Vector2D], l2 : List[Vector2D]) : List[Vector2D] = {
-    val s1 = l1.head
-    val e1 = l1.last
-    val s2 = l2.head
-    val e2 = l2.last
+    val s1 = epsilon(l1.head)
+    val e1 = epsilon(l1.last)
+    val s2 = epsilon(l2.head)
+    val e2 = epsilon(l2.last)
 
     //catch lists which will result in closed polylines
     if((s1 == e2 && s2 == e1) || (s1 == s2 && e2 == e1)) {
@@ -141,10 +143,12 @@ class Join extends Module{
       case MouseDown(p, MouseButtonLeft, _) :: tail => {
         if (!shapeWithinSelectionDistance) Deselect()
         else {
-          val (id, shape) = nearestShape.get
-          selectIDs = selectIDs :+ id
-          //Deselect()
-          Select(selectIDs)
+          if(nearestShape.isDefined) {
+            val (id, shape) = nearestShape.get
+            selectIDs = selectIDs :+ id
+            //Deselect()
+            Select(selectIDs)
+          }
         }
         if(Drawing.selection.size >= 2) 'Join else 'Start
       }
@@ -180,6 +184,8 @@ class Join extends Module{
           val s1 = selectionShapes.head
           val s2 = selectionShapes.last
 
+          attr = s1.attributes
+
           //check that the shapes are line or polyline shapes
           if(s1.isInstanceOf[LineShape] || s1.isInstanceOf[PolylineShapeOpen]) {
             if(s2.isInstanceOf[LineShape] || s2.isInstanceOf[PolylineShapeOpen]) {
@@ -207,7 +213,7 @@ class Join extends Module{
                 }
                 //join (poly)lines
                 val s = addTwoVerticeLists(s1vertices,s2vertices)
-                if(!s.isEmpty) Create(PolylineShape(s))
+                if(!s.isEmpty) Create(PolylineShape(s).addAttributes(attr))
                 //5)del s1 and s2
                 if(!selection.isEmpty) Delete(selection)
                 Deselect()
