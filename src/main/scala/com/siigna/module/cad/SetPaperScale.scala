@@ -38,6 +38,8 @@ class SetPaperScale extends Module{
   val stateMap: StateMap = Map(
 
     'Start -> {
+      //Exit strategy
+      case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
 
       case End(s : String) :: tail => {
         if (s.length > 0) {
