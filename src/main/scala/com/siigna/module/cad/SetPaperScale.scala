@@ -20,11 +20,10 @@
 package com.siigna.module.cad
 
 import com.siigna._
-import module.{Tooltip, ModuleInit}
+import module.Tooltip
 import com.siigna.module.cad.create.{InputRequest, DynamicDrawFromText}
 
 class SetPaperScale extends Module{
-
 
   var text     = ""
   var position : Option[Vector2D] = None
@@ -58,7 +57,7 @@ class SetPaperScale extends Module{
             End
           } catch {
             case e : Exception  => {
-              Siigna display("not a valid scale")
+              Siigna display (e + " is not a valid scale")
               End
             }
           }

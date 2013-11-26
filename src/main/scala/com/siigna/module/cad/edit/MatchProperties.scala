@@ -69,11 +69,19 @@ class MatchProperties extends Module {
         End
       }
 
+      case MouseDown(p, MouseButtonLeft, _) :: tail => {
+        //add the properties to the selected shape
+        if(Drawing.selection.isEmpty && nearestShape.isDefined && lessThanSelDist && !properties.isDefined) {
+          properties = Some(nearestShape.get._2.attributes)
+          if(properties.isDefined) 'Match
+        }
+      }
+
       case MouseUp(p, MouseButtonLeft, _) :: tail => {
         //add the properties to the selected shape
         if(Drawing.selection.isEmpty && nearestShape.isDefined && lessThanSelDist && !properties.isDefined) {
           properties = Some(nearestShape.get._2.attributes)
-          println("#prop in start; "+properties)
+          if(properties.isDefined) 'Match
         }
       }
 
@@ -81,16 +89,14 @@ class MatchProperties extends Module {
         Siigna.setCursor(Cursors.invisible)
 
         //if there is already a selection, goto the next state
-        if (!properties.isEmpty) {
-          println("goint to match with p: "+properties)
+        if (properties.isDefined) {
           'Match
         }
         else if(!Drawing.selection.isEmpty) {
             //properties = Some(selection.shapes.head._2.attributes)
-          println("settingh properties by seleciton: "+properties)
         }
         else {
-          Siigna display("click shape to sample from")
+          Siigna display "click shape to sample from"
           'Start
         }
       }
@@ -107,18 +113,19 @@ class MatchProperties extends Module {
       case MouseUp(p, _, _) :: tail => {
         if(nearestShape.isDefined && lessThanSelDist && properties.isDefined) {
           Drawing.select(nearestShape.get._1)
-          Drawing.selection.addAttributes(properties.get)
+          if(!properties.get.isEmpty) {
+            Drawing.selection.addAttributes(properties.get)
+          } else  Drawing.selection.setAttributes("StrokeWidth" -> 0.18)//TODO: clear all attributes instead
           Drawing.deselect()
         }
       }
       case e =>
-
     }
   )
   override def paint(g: Graphics, t: TransformationMatrix) {
     val m = mousePosition
     //draw a customised cursor showing the properties to transfer, if set. Show a pipette otherwise
-    if(!properties.isEmpty) g draw PolylineShape(Rectangle2D((m-Vector2D(3,3)),(m+Vector2D(3,3)))).addAttributes(properties.get)
-    else g draw PolylineShape(Rectangle2D((m-Vector2D(3,3)),(m+Vector2D(3,3))))
+    if(!properties.isEmpty) g draw PolylineShape(Rectangle2D(m-Vector2D(3,3),m+Vector2D(3,3))).addAttributes(properties.get)
+    else g draw PolylineShape(Rectangle2D(m-Vector2D(3,3),m+Vector2D(3,3)))
   }
 }
