@@ -101,7 +101,7 @@ class Rotate extends Module {
           firstPoint = false
           mouseDownPoint = Some(v)
           //Find out where the mousebutton is released - if it's a start point or an angle that's defined:
-          Start('cad, "create.Input", InputRequest(8,None,vector2DGuideMouseUp))
+          Start('cad, "create.Input", InputRequest(18,None,vector2DGuideMouseUp))
           //Where the mouse up is:
         } else if (mouseReleased == true) {
           mouseReleased = false

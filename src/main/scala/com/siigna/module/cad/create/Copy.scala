@@ -20,7 +20,7 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
-import com.siigna.module.porter.DXF.DXFExporter
+//import com.siigna.module.porter.DXF.DXFExporter
 import module.Tooltip
 import com.siigna.Drawing
 import java.awt.Toolkit
@@ -136,10 +136,10 @@ class Copy extends Module {
         if (Drawing.selection.isDefined) {
 
           //DEFAULT: add selection to clipboard - use this to get DXF data on the clipboard.
-          DXFExporter.toDXFtoClipboard(shapes)
+          //DXFExporter.toDXFtoClipboard(shapes)
 
           //use this for saving shapes when drawing new / revised Siigna tool icons
-          //shapesToClipboard(shapes)
+          shapesToClipboard(shapes)
 
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)

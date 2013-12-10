@@ -1,7 +1,7 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
-import module.porter.DXF.DXFImport
+//import module.porter.DXF.DXFImport
 import java.awt.Toolkit
 import java.awt.datatransfer.{DataFlavor, StringSelection}
 import java.io.{ByteArrayInputStream, InputStream}
@@ -45,13 +45,13 @@ class Paste extends Module {
         val stream : InputStream = new ByteArrayInputStream(clipString.getBytes("UTF-8"))
 
         //attempt to parse it to Siigna Shapes using the DXF import module in 'Porter
-        DXFImport.parse(stream)
+        //DXFImport.parse(stream)
 
         //TODO: give the user the choice to either position the shapes at a given point or use the default placement
 
-        //create the shapes
-        if(!DXFImport.shapes.isEmpty) Create(DXFImport.shapes)
-        DXFImport.shapes = List() //clean up
+        //create the shapes //TODO: commented out to prevent compile error in Jenkins.
+        //if(!DXFImport.shapes.isEmpty) Create(DXFImport.shapes)
+        //DXFImport.shapes = List() //clean up
         End //exit
       }
 
