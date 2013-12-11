@@ -20,7 +20,7 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
-//import com.siigna.module.porter.DXF.DXFExporter
+import com.siigna.module.porter.DXF.DXFExporter
 import module.Tooltip
 import com.siigna.Drawing
 import java.awt.Toolkit
@@ -51,6 +51,15 @@ class Copy extends Module {
     val s : StringSelection = new StringSelection(shapesList.toString())
     clip.setContents(s,s)
   }
+
+  //a function used to put a shape on the clipboard as a list of Vector2Ds. Used for icons and such.
+  def shapeToVectorList(shape : Shape)  {
+    val clip = Toolkit.getDefaultToolkit.getSystemClipboard
+    val vectorsList = shape.geometry.vertices.map(_.roundTwoDec).toList
+    val s : StringSelection = new StringSelection(vectorsList.toString())
+    clip.setContents(s,s)
+  }
+
 
   val stateMap: StateMap = Map(
 
@@ -139,7 +148,8 @@ class Copy extends Module {
           //DXFExporter.toDXFtoClipboard(shapes)
 
           //use this for saving shapes when drawing new / revised Siigna tool icons
-          shapesToClipboard(shapes)
+          //shapesToClipboard(shapes)
+          shapeToVectorList(shapes.head._2)
 
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)
