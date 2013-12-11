@@ -20,11 +20,8 @@
 package com.siigna.module.cad.create
 
 import com.siigna._
-import com.siigna.module.porter.DXF.DXFExporter
 import module.Tooltip
 import com.siigna.Drawing
-import java.awt.Toolkit
-import java.awt.datatransfer.StringSelection
 
 class Copy extends Module {
 
