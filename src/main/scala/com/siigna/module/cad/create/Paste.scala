@@ -33,8 +33,8 @@ import java.io.{ByteArrayInputStream, InputStream}
 class Paste extends Module {
 
   //read the clipboard
-  val clip = Toolkit.getDefaultToolkit.getSystemClipboard
-  var clipString = clip.getData(DataFlavor.stringFlavor).toString
+  //val clip = Toolkit.getDefaultToolkit.getSystemClipboard
+  //var clipString = clip.getData(DataFlavor.stringFlavor).toString
 
   val stateMap: StateMap = Map(
     'Start -> {
@@ -42,7 +42,7 @@ class Paste extends Module {
       case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
 
       case _ => {
-        val stream : InputStream = new ByteArrayInputStream(clipString.getBytes("UTF-8"))
+       // val stream : InputStream = new ByteArrayInputStream(clipString.getBytes("UTF-8"))
 
         //attempt to parse it to Siigna Shapes using the DXF import module in 'Porter
         //DXFImport.parse(stream)
