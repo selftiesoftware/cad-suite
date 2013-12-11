@@ -44,6 +44,7 @@ class Copy extends Module {
     shapes.map(_._2.transform(t))
   }
 
+  /*
   //a function used to put a selection of shapes on the clipboard. Used for making icons and such.
   def shapesToClipboard(shapes : Map[Int,Shape]) {
     val clip = Toolkit.getDefaultToolkit.getSystemClipboard
@@ -59,7 +60,7 @@ class Copy extends Module {
     val s : StringSelection = new StringSelection(vectorsList.toString())
     clip.setContents(s,s)
   }
-
+  */
 
   val stateMap: StateMap = Map(
 
@@ -149,7 +150,7 @@ class Copy extends Module {
 
           //use this for saving shapes when drawing new / revised Siigna tool icons
           //shapesToClipboard(shapes)
-          shapeToVectorList(shapes.head._2)
+          //shapeToVectorList(shapes.head._2)
 
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)
