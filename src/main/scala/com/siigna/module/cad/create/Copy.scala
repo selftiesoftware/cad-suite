@@ -44,24 +44,6 @@ class Copy extends Module {
     shapes.map(_._2.transform(t))
   }
 
-  /*
-  //a function used to put a selection of shapes on the clipboard. Used for making icons and such.
-  def shapesToClipboard(shapes : Map[Int,Shape]) {
-    val clip = Toolkit.getDefaultToolkit.getSystemClipboard
-    val shapesList = List(shapes.map(_._2))
-    val s : StringSelection = new StringSelection(shapesList.toString())
-    clip.setContents(s,s)
-  }
-
-  //a function used to put a shape on the clipboard as a list of Vector2Ds. Used for icons and such.
-  def shapeToVectorList(shape : Shape)  {
-    val clip = Toolkit.getDefaultToolkit.getSystemClipboard
-    val vectorsList = shape.geometry.vertices.map(_.roundTwoDec).toList
-    val s : StringSelection = new StringSelection(vectorsList.toString())
-    clip.setContents(s,s)
-  }
-  */
-
   val stateMap: StateMap = Map(
 
     'Start -> {
@@ -144,13 +126,6 @@ class Copy extends Module {
 
       case _ => {
         if (Drawing.selection.isDefined) {
-
-          //DEFAULT: add selection to clipboard - use this to get DXF data on the clipboard.
-          //DXFExporter.toDXFtoClipboard(shapes)
-
-          //use this for saving shapes when drawing new / revised Siigna tool icons
-          //shapesToClipboard(shapes)
-          //shapeToVectorList(shapes.head._2)
 
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)
