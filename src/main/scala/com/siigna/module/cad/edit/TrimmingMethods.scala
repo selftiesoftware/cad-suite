@@ -23,7 +23,6 @@ import com.siigna.util.geom._
 import com.siigna.app.model.shape._
 import com.siigna.app.Siigna
 import com.siigna.app.model.shape.PolylineShape.PolylineShapeClosed
-import com.siigna.app.view.View
 
 object TrimmingMethods {
 
