@@ -129,8 +129,50 @@ object joinMethods {
     } else None
   }
 
-  def joinMultiple(sMap : Map[Int,Shape]) {
-    println("multijoin here with; "+sMap)
+  def joinMultiple(sMap : Map[Int,Shape]) : List[Shape] = {
+
+    //make a var with shapes in sMap
+    var shapes = sMap.map(s => s._2).toList
+    var returnList : List[Shape] = List()
+    //for all the shapes in shapes:
+    for(i <- 1 to sMap.size) {
+      //try if the first shape in shapes can be joined with any one of the following shapes.
+      val evalShape = shapes.head
+      val rest = shapes.tail
+      //clear the shapes var
+      shapes = List()
+      //go through all the remaining shapes and see if the first shape joins with any:
+      rest.foreach(s => {
+        val res = joinTwoShapes(evalShape,s,s.attributes)
+        if(res != None){
+          if(i == sMap.size - 1) {
+            returnList = returnList :+ res.get
+            shapes = shapes :+ res.get
+          } else {
+          //println("joining: "+evalShape +" + "+s)
+          //if so, replace the shape with the joined shape
+          //println("res; "+ shapes :+ res.get)
+          shapes = shapes :+ res.get //add the joined shape to the shapes list for use in next evaluation
+
+          //evalShape does not join with s, then return s only.
+          // TODO: if evalShape does not join with any shapes, it is not returned?!
+          }
+        } else {
+          //if last iteration, return everything
+          if(i == sMap.size - 1) {
+            shapes = shapes :+ s
+            returnList = returnList :+ evalShape
+            returnList = returnList :+ s
+          }
+          //if not, save the shape for later evaulation.
+          else {
+            shapes = shapes :+ s
+          } //put s back in shapes
+        }
+      })
+    }
+    //return returnList
+    returnList
   }
 
 }

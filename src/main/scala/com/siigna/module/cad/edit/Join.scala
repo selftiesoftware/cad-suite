@@ -148,7 +148,9 @@ class Join extends Module{
 
         else if (selectionShapes.size > 2) {
           //join lines
-          joinMethods.joinMultiple(Drawing.selection.shapes)
+          val shapes =joinMethods.joinMultiple(Drawing.selection.shapes)
+
+          if(!shapes.isEmpty) Create(shapes)
 
           selectIDs = List()
           selection = Selection()
