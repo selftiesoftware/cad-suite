@@ -64,14 +64,13 @@ class JoinSpec extends FunSpec with ShouldMatchers  {
       val pl4 = PolylineShape(p7,p1)
 
       val selection1 = Map(1 -> pl1,2 -> pl2, 3 -> pl3)
-      val selection2 = Map(1 -> pl1,2 -> pl2, 3 -> pl4)
 
-      //TODO: implement this:
       joinMethods.joinMultiple(selection1) should equal (List(PolylineShapeOpen(Vector2D(0.0,10.0),List(PolylineLineShape(Vector2D(0.0,0.0)), PolylineLineShape(Vector2D(10.0,0.0)), PolylineLineShape(Vector2D(10.0,10.0)), PolylineLineShape(Vector2D(30.0,20.0)), PolylineLineShape(Vector2D(20.0,20.0))), Attributes()), PolylineShapeOpen(Vector2D(-10.0,20.0),List(PolylineLineShape(Vector2D(-10.0,30.0))), Attributes())))
-      //joinMethods.joinMultiple(selection2) should equal ()
-      //joinMethods.joinMultiple(selection1) should equal ()
-      //joinMethods.joinMultiple(selection2) should equal ()
-      //joinMethods.joinMultiple(selection3) should equal ()
+
+      val selection2 = Map(1 -> pl1,2 -> pl4, 3 -> pl2)
+      //TODO: yields two shapes, not one?
+      joinMethods.joinMultiple(selection2) should equal (List(PolylineShapeOpen(Vector2D(-10.0,20.0),List(PolylineLineShape(Vector2D(0.0,10.0)), PolylineLineShape(Vector2D(0.0,0.0)), PolylineLineShape(Vector2D(10.0,0.0)), PolylineLineShape(Vector2D(10.0,10.0)), PolylineLineShape(Vector2D(30.0,20.0)), PolylineLineShape(Vector2D(20.0,20.0))), Attributes())))
+
 
     }
   }

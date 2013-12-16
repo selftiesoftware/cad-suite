@@ -130,37 +130,40 @@ object joinMethods {
   }
 
   def joinMultiple(sMap : Map[Int,Shape]) : List[Shape] = {
+    //a flag to stop evaluating through the rest if a joinin was performed
+    var skip = false
 
     //make a var with shapes in sMap
     var shapes = sMap.map(s => s._2).toList
     var returnList : List[Shape] = List()
+
     //for all the shapes in shapes:
-    for(i <- 1 to sMap.size) {
+    for(i <- 1 to sMap.size -1) {
+      println("i: "+i)
       //try if the first shape in shapes can be joined with any one of the following shapes.
       val evalShape = shapes.head
       val rest = shapes.tail
-      //clear the shapes var
+
+      //clear the shapes and skip var
       shapes = List()
+      skip = false
+
       //go through all the remaining shapes and see if the first shape joins with any:
       rest.foreach(s => {
+        //save result of join operation
         val res = joinTwoShapes(evalShape,s,s.attributes)
-        if(res != None){
-          if(i == sMap.size - 1) {
-            returnList = returnList :+ res.get
-            shapes = shapes :+ res.get
-          } else {
-          //println("joining: "+evalShape +" + "+s)
-          //if so, replace the shape with the joined shape
-          //println("res; "+ shapes :+ res.get)
-          shapes = shapes :+ res.get //add the joined shape to the shapes list for use in next evaluation
 
+        //disallow multiple joinings per evaluation - this would give unexpected results
+        if(res != None && skip == false) {
+          shapes = shapes :+ res.get //add the joined shape to the shapes list for use in next evaluation
+          skip = true
+          //if it is the last evaluation, return the joined shapes
+          if(i == sMap.size - 1) returnList = returnList :+ res.get
           //evalShape does not join with s, then return s only.
-          // TODO: if evalShape does not join with any shapes, it is not returned?!
-          }
+
         } else {
           //if last iteration, return everything
           if(i == sMap.size - 1) {
-            shapes = shapes :+ s
             returnList = returnList :+ evalShape
             returnList = returnList :+ s
           }
@@ -174,5 +177,4 @@ object joinMethods {
     //return returnList
     returnList
   }
-
 }

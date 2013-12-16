@@ -147,10 +147,16 @@ class Join extends Module{
         }
 
         else if (selectionShapes.size > 2) {
+
+          selection = Drawing.selection //save the selection so that the original shapes can be deleted
+
           //join lines
           val shapes =joinMethods.joinMultiple(Drawing.selection.shapes)
 
-          if(!shapes.isEmpty) Create(shapes)
+          if(!shapes.isEmpty) {
+            Delete(selection)
+            Create(shapes)
+          }
 
           selectIDs = List()
           selection = Selection()
