@@ -22,30 +22,13 @@ package com.siigna.module.cad.radialmenu.category
 import com.siigna.module.base.radialmenu._
 import com.siigna._
 
-case object EditCategory extends MenuCategory{
-  val graph = Map[MenuEvent,MenuElement](
+object TranslateCategory extends MenuCategory{
+    val graph = Map[MenuEvent,MenuElement](
 
-    //subcategories
-    EventN -> TranslateCategory,
+      EventNNE -> MenuModule(Module('cad,"edit.Mirror"), MenuIcons.mirror)
 
-    //Translations
-    EventNNW -> MenuModule(Module('cad,"edit.Rotate"), MenuIcons.rotate),
-    EventNNE -> MenuModule(Module('cad,"edit.Scale"), MenuIcons.scale),
-    //EventNNE -> MenuModule(Module('cad,"edit.Mirror"), MenuIcons.mirror),
+    )
 
-    //Intersections
-    EventENE -> MenuModule(Module('cad,"edit.Trim"), MenuIcons.trim),
-    EventESE -> MenuModule(Module('cad,"edit.MatchProperties"), MenuIcons.sampleProperties),
-
-    //Properties
-    EventWNW -> MenuModule(Module('cad,"edit.Stroke"), MenuIcons.stroke),
-    EventWSW -> MenuModule(Module('cad,"edit.Colors"), MenuIcons.colorWheel),
-
-    //Segments
-    EventSSW -> MenuModule(Module('cad,"edit.Explode"), MenuIcons.explode),
-    EventSSE -> MenuModule(Module('cad,"edit.Join"), MenuIcons.connect)
-
-  )
   val color = MenuIcons.editColor
   val parent = Some(StartCategory)
 }

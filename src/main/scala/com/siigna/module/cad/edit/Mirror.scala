@@ -23,16 +23,40 @@ import com.siigna.module.{ModuleInit, Module}
 import com.siigna._
 import com.siigna.util.event.{End, MouseDown, KeyDown}
 import com.siigna.module.cad.create.{DynamicDrawFromDouble, InputRequest, DynamicDrawFromVector2D}
+import java.awt.geom.AffineTransform
 
 class Mirror extends Module {
 
   var endPoint : Option[Vector2D] = None
   var startPoint : Option[Vector2D] = None
-  var transformation : TransformationMatrix = TransformationMatrix()
+  var shapes : List[Shape] = List()
   def transformSelection(t : TransformationMatrix) = Drawing.selection.transform(t).shapes.values
   val origin = Drawing.selection.transformation
 
-  val stateMap: StateMap = Map(
+  /**
+   * mirror a list of shapes around an arbitrary line
+   * @param p1 first point on mirror line
+   * @param p2 second point on mirror line
+   * @return the transformed shapes
+   */
+  def mirror(p1 : Vector2D, p2 : Vector2D) : List[Shape] = {
+
+    //get the rotation angle from the two points set
+    val refLine = Segment2D(p1,p2).transform(TransformationMatrix(-p1,1))
+    val refAngle = refLine.p2.angle
+
+    Drawing.selection.transform(TransformationMatrix(-p1,1)) //Move to 0,0
+    Drawing.selection.transform(TransformationMatrix( ).rotate(-refAngle, p1)) //rotate to horizontal
+
+    //From here on transformations are done to a list, because I cound not get .flipY to work with the selection.
+    val mirrored = Drawing.selection.shapes.map(s =>  s._2.transform(TransformationMatrix( ).flipY)).toList //mirror
+    val mirrored2 = mirrored.map(s => s.transform(TransformationMatrix( ).rotate(refAngle))) //rotate back
+    //return:
+    mirrored2.map(s => s.transform(TransformationMatrix(p1,1))) //move back
+  }
+
+
+val stateMap: StateMap = Map(
 
     //find the first mirror point
     'Start -> {
@@ -43,13 +67,22 @@ class Mirror extends Module {
       case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
 
       case End(p : Vector2D) :: tail => {
+        startPoint = Some(p)
         println("got startPoint: "+p)
-
+        'Mirror
       }
       //look for the first point on the mirror line
-      case _ => Start('cad, "create.Input", InputRequest(6,None))
-
-
+      case _ => {
+        if(!Drawing.selection.isEmpty) {
+          shapes = Drawing.selection.shapes.map(s => s._2).toList
+          Siigna display "set start point of mirror line"
+          Start('cad, "create.Input", InputRequest(6,None))
+        }
+        else {
+          Siigna display "select shapes to mirror"
+          End
+        }
+      }
     },
      //find the second mirror point
     'Mirror -> {
@@ -60,11 +93,16 @@ class Mirror extends Module {
       case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
 
       case MouseMove(p, _, _) :: tail => {
-      println("in mirror state, draw dynamically")
+      Siigna display "set end point of mirror line"
+      Start('cad, "create.Input", InputRequest(6,None))
       }
       case End(p : Vector2D) :: tail => {
-        println("got endPoint - do mirror operation")
-
+        endPoint = Some(p)
+        Siigna display ("mirrored "+shapes.length+ " shape(s)")
+        val newShapes = mirror(startPoint.get,endPoint.get)
+        Delete(Drawing.selection)
+        Create(newShapes)
+        End
       }
       case _ => //wait for input
     },
@@ -72,4 +110,8 @@ class Mirror extends Module {
       case _ => End
     }
   )
+  override def paint(g: Graphics, t: TransformationMatrix) {
+    //draw mirror line dynamically
+    if(startPoint.isDefined && !endPoint.isDefined) g draw LineShape(startPoint.get.transform(t),mousePosition)
+  }
 }
