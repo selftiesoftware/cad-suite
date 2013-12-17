@@ -25,6 +25,7 @@ import com.siigna.util.collection.Attributes
 import com.siigna.app.model.shape.PolylineShape.PolylineShapeOpen
 import com.siigna.util.event.End
 import com.siigna.util.geom.Vector2D
+import com.siigna.app.Siigna
 
 
 /*
@@ -129,20 +130,29 @@ object joinMethods {
     } else None
   }
 
+  /**
+   * join multiple shapes into polylines if possible. If not, the original shapes are returned.
+   * @param sMap : A map of [Int, Shape] to evaluate
+   * @return a list of shapes where all joinable shapes are made into polylines.
+   */
   def joinMultiple(sMap : Map[Int,Shape]) : List[Shape] = {
+
+    //keep track of the join operation for text feedback
+    var couldBeJoined = 0
+    var joinedNumber = 0
+
     //a flag to stop evaluating through the rest if a joinin was performed
     var skip = false
 
     //make a var with shapes in sMap
-    var shapes = sMap.map(s => s._2).toList
+    var shapes : List[Shape] = sMap.map(s => s._2).toList
     var returnList : List[Shape] = List()
 
     //for all the shapes in shapes:
     for(i <- 1 to sMap.size -1) {
-      println("i: "+i)
       //try if the first shape in shapes can be joined with any one of the following shapes.
       val evalShape = shapes.head
-      val rest = shapes.tail
+      val rest = shapes.tail //save the list of shapes that have been evaluated so far...
 
       //clear the shapes and skip var
       shapes = List()
@@ -154,26 +164,30 @@ object joinMethods {
         val res = joinTwoShapes(evalShape,s,s.attributes)
 
         //disallow multiple joinings per evaluation - this would give unexpected results
-        if(res != None && skip == false) {
+        if(res != None && !skip) {
+          //couldBeJoined = couldBeJoined + 2
+          //joinedNumber = joinedNumber + 1
           shapes = shapes :+ res.get //add the joined shape to the shapes list for use in next evaluation
-          skip = true
+          skip = true //prevent more join operations in this iterations, as that would yield unexpected results
           //if it is the last evaluation, return the joined shapes
           if(i == sMap.size - 1) returnList = returnList :+ res.get
-          //evalShape does not join with s, then return s only.
 
+        //evalShape does not join with s, then return s only.
         } else {
           //if last iteration, return everything
           if(i == sMap.size - 1) {
-            returnList = returnList :+ evalShape
-            returnList = returnList :+ s
+            //returnList = returnList :+ evalShape //if the evalShape could not be joined, return it 'as is'
+            returnList = returnList :+ s //if s could not be joined, return it 'as is'
+            if(!shapes.isEmpty) shapes.foreach(s => returnList = returnList :+ s) //return the rest of the shapes
           }
           //if not, save the shape for later evaulation.
-          else {
-            shapes = shapes :+ s
-          } //put s back in shapes
+          else shapes = shapes :+ s //put s back in shapes
         }
       })
+      //if the loop is finished and evalShape could not be joined, add it to returnList
+      if(!skip) returnList = returnList :+ evalShape
     }
+    //Siigna display ("joined "+couldBeJoined+" lines into"+ joinedNumber+" polylines")
     //return returnList
     returnList
   }

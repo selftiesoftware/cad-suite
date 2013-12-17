@@ -64,13 +64,29 @@ class JoinSpec extends FunSpec with ShouldMatchers  {
       val pl4 = PolylineShape(p7,p1)
 
       val selection1 = Map(1 -> pl1,2 -> pl2, 3 -> pl3)
-
-      joinMethods.joinMultiple(selection1) should equal (List(PolylineShapeOpen(Vector2D(0.0,10.0),List(PolylineLineShape(Vector2D(0.0,0.0)), PolylineLineShape(Vector2D(10.0,0.0)), PolylineLineShape(Vector2D(10.0,10.0)), PolylineLineShape(Vector2D(30.0,20.0)), PolylineLineShape(Vector2D(20.0,20.0))), Attributes()), PolylineShapeOpen(Vector2D(-10.0,20.0),List(PolylineLineShape(Vector2D(-10.0,30.0))), Attributes())))
-
       val selection2 = Map(1 -> pl1,2 -> pl4, 3 -> pl2)
-      //TODO: yields two shapes, not one?
-      joinMethods.joinMultiple(selection2) should equal (List(PolylineShapeOpen(Vector2D(-10.0,20.0),List(PolylineLineShape(Vector2D(0.0,10.0)), PolylineLineShape(Vector2D(0.0,0.0)), PolylineLineShape(Vector2D(10.0,0.0)), PolylineLineShape(Vector2D(10.0,10.0)), PolylineLineShape(Vector2D(30.0,20.0)), PolylineLineShape(Vector2D(20.0,20.0))), Attributes())))
 
+      //joinMethods.joinMultiple(selection1) should equal (List(PolylineShapeOpen(Vector2D(0.0,10.0),List(PolylineLineShape(Vector2D(0.0,0.0)), PolylineLineShape(Vector2D(10.0,0.0)), PolylineLineShape(Vector2D(10.0,10.0)), PolylineLineShape(Vector2D(30.0,20.0)), PolylineLineShape(Vector2D(20.0,20.0))), Attributes()), PolylineShapeOpen(Vector2D(-10.0,20.0),List(PolylineLineShape(Vector2D(-10.0,30.0))), Attributes())))
+      //joinMethods.joinMultiple(selection2) should equal (List(PolylineShapeOpen(Vector2D(-10.0,20.0),List(PolylineLineShape(Vector2D(0.0,10.0)), PolylineLineShape(Vector2D(0.0,0.0)), PolylineLineShape(Vector2D(10.0,0.0)), PolylineLineShape(Vector2D(10.0,10.0)), PolylineLineShape(Vector2D(30.0,20.0)), PolylineLineShape(Vector2D(20.0,20.0))), Attributes())))
+
+
+
+      val p9 = Vector2D(0,-10)
+      val p10 = Vector2D(0,0)
+      val p11 = Vector2D(0,10)
+
+      val p12 = Vector2D(10,-10)
+      val p13 = Vector2D(10,0)
+      val p14 = Vector2D(10,10)
+
+      val pl5 = PolylineShape(p9,p10)
+      val pl6 = PolylineShape(p11,p10)
+
+      val pl7 = PolylineShape(p12,p13)
+      val pl8 = PolylineShape(p14,p13)
+
+      val selection3 = Map(1 -> pl5,2 -> pl6, 3 -> pl7, 4 -> pl8)
+      joinMethods.joinMultiple(selection3) should equal (List(PolylineShapeOpen(Vector2D(0.0,-10.0),List(PolylineLineShape(Vector2D(0.0,0.0)), PolylineLineShape(Vector2D(0.0,10.0))), Attributes()), PolylineShapeOpen(Vector2D(10.0,-10.0),List(PolylineLineShape(Vector2D(10.0,0.0)), PolylineLineShape(Vector2D(10.0,10.0))), Attributes())))
 
     }
   }
