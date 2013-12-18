@@ -24,9 +24,7 @@ import com.siigna._
 
 object TranslateCategory extends MenuCategory{
     val graph = Map[MenuEvent,MenuElement](
-
       EventNNE -> MenuModule(Module('cad,"edit.Mirror"), MenuIcons.mirror)
-
     )
 
   val color = MenuIcons.editColor
