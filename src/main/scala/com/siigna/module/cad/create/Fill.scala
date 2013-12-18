@@ -22,21 +22,30 @@ package com.siigna.module.cad.create
 import com.siigna._
 import app.Siigna
 import module.Tooltip
+import java.awt.Color
 
-class Polyline extends Module {
+class Fill extends Module {
 
-  private val attributes = {
-    val color = Siigna.color("activeColor")
-    val lineWidth = Siigna.double("activeLineWidth")
-    Attributes(Seq(color.map(c => "Color" -> color.getOrElse(None)), lineWidth.map(w => "StrokeWidth" -> lineWidth.getOrElse(None))).flatten)
+  private val attributesTemp = {
+    val color = Siigna.color("activeColor").getOrElse(new Color(0.00f, 0.00f, 0.00f, 0.50f))
+    //val lineWidth = Siigna.double("activeLineWidth")
+    //Attributes(Seq(color.map(c => "Color" -> color.getOrElse(None)), lineWidth.map(w => "StrokeWidth" -> lineWidth.getOrElse(None))).flatten)
+    Attributes("Raster" -> color)
   }
+  private val attributes = {
+    val color = Siigna.color("activeColor").getOrElse(new Color(0.00f, 0.00f, 0.00f, 1.00f))
+    //val lineWidth = Siigna.double("activeLineWidth")
+    //Attributes(Seq(color.map(c => "Color" -> color.getOrElse(None)), lineWidth.map(w => "StrokeWidth" -> lineWidth.getOrElse(None))).flatten)
+    Attributes("Raster" -> color)
+  }
+
 
   private var points   = List[Vector2D]()
   private var firstPoint: Option[Vector2D] = None
   private var firstPointSet : Boolean = false
 
   private val vector2DGuide = DynamicDrawFromVector2D((v : Vector2D) => {
-    Traversable(PolylineShape(points :+ v).addAttributes(attributes))
+    Traversable(PolylineShape(points :+ v).addAttributes(attributesTemp ))
   })
 
   private def finalisePolyline: Boolean = {
@@ -61,14 +70,14 @@ class Polyline extends Module {
       case End(MouseDown(v : Vector2D, _, _)) :: tail => {
         firstPoint = Some(v)
         points = points :+ v
-        Start('cad, "create.Input", InputRequest(7,None,DynamicDrawFromVector2D((v : Vector2D) => Traversable(LineShape(firstPoint.get, v).addAttributes(attributes)))))
+        Start('cad, "create.Input", InputRequest(7,None,DynamicDrawFromVector2D((v : Vector2D) => Traversable(LineShape(firstPoint.get, v).addAttributes(attributesTemp )))))
       }
       //Handle values returned from input
       case End(v : Vector2D) :: tail => {
         if (firstPoint.isEmpty) {
           firstPoint = Some(v)
           points = points :+ v
-          Start('cad, "create.Input", InputRequest(8,None,DynamicDrawFromVector2D((v : Vector2D) => Traversable(LineShape(firstPoint.get, v).addAttributes(attributes)))))
+          Start('cad, "create.Input", InputRequest(8,None,DynamicDrawFromVector2D((v : Vector2D) => Traversable(LineShape(firstPoint.get, v).addAttributes(attributesTemp )))))
         } else if (firstPointSet == false) {
           firstPointSet = true
           if (v != firstPoint.get & v.distanceTo(firstPoint.get) > Siigna.selectionDistance) {
@@ -104,8 +113,8 @@ class Polyline extends Module {
           //Request input
           Start('cad, "create.Input", InputRequest(20,None))
         } else {
-        if (points.length > 0 ) Start('cad,"create.Input", InputRequest(7,Some(points.last),vector2DGuide))
-        else Start('cad, "create.Input", InputRequest(20,None))
+          if (points.length > 0 ) Start('cad,"create.Input", InputRequest(7,Some(points.last),vector2DGuide))
+          else Start('cad, "create.Input", InputRequest(20,None))
         }
       }
     }
