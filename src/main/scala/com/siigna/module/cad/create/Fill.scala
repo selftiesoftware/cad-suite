@@ -27,7 +27,7 @@ import java.awt.Color
 class Fill extends Module {
 
   private val attributesTemp = {
-    val color = Siigna.color("activeColor").getOrElse(new Color(0.00f, 0.00f, 0.00f, 0.50f))
+    val color = Siigna.color("activeColor").getOrElse(new Color(0.00f, 0.00f, 0.00f, 0.20f))
     //val lineWidth = Siigna.double("activeLineWidth")
     //Attributes(Seq(color.map(c => "Color" -> color.getOrElse(None)), lineWidth.map(w => "StrokeWidth" -> lineWidth.getOrElse(None))).flatten)
     Attributes("Raster" -> color)

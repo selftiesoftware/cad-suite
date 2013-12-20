@@ -22,18 +22,20 @@ package com.siigna.module.cad.edit
 import com.siigna._
 import java.awt.Color
 /**
- * a wheel to select colors for lines, surfaces and text
+ * a wheel to select properties for surfaces:
+ * Fill color and raster (patterns).
  */
 
-class Colors extends Module {
+class Fill extends Module {
 
-  var activeColor: Option[Color] = None
+  var activeFill: Option[Color] = None
 
   var angle : Int = 0
   
   var centerPoint : Vector2D = View.center
 
   //colors, inspired by crayola crayons: http://en.wikipedia.org/wiki/List_of_Crayola_crayon_colors
+  lazy val noColor     = new Color(1.00f, 1.00f, 1.00f, transp)
   lazy val black       = new Color(0.00f, 0.00f, 0.00f, transp)
   lazy val anthracite  = new Color(0.25f, 0.25f, 0.25f, transp)
   lazy val dimGrey     = new Color(0.40f, 0.40f, 0.40f, transp)
@@ -109,38 +111,42 @@ class Colors extends Module {
       case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
 
       case MouseDown(p, MouseButtonLeft, _) :: tail => {
+        if (angle == 0 || angle == 360) {
+          println("delete fill here")
+          activeFill = None
+          Drawing.selection.removeAttribute("Raster")
+        }
+        else if (angle ==  15) activeFill = Some(yellowGreen)
+        else if (angle ==  30) activeFill = Some(lime)
+        else if (angle ==  45) activeFill = Some(green)
+        else if (angle ==  60) activeFill = Some(caribbean)
+        else if (angle ==  75) activeFill = Some(turquise)
+        else if (angle ==  90) activeFill = Some(cyan)
+        else if (angle == 105) activeFill = Some(pacificBlue)
+        else if (angle == 120) activeFill = Some(navyBlue)
+        else if (angle == 135) activeFill = Some(blue)
+        else if (angle == 150) activeFill = Some(purple)
+        else if (angle == 165) activeFill = Some(plum)
+        else if (angle == 180) activeFill = Some(magenta)
+        else if (angle == 195) activeFill = Some(violetRed)
+        else if (angle == 210) activeFill = Some(radicalRed)
+        else if (angle == 225) activeFill = Some(red)
+        else if (angle == 240) activeFill = Some(orangeRed)
+        else if (angle == 255) activeFill = Some(orange)
+        else if (angle == 270) activeFill = Some(yellow)
+        else if (angle == 385) activeFill = Some(brightGrey)
+        else if (angle == 300) activeFill = Some(lightGrey)
+        else if (angle == 315) activeFill = Some(grey)
+        else if (angle == 330) activeFill = Some(dimGrey)
+        //else if (angle == 345) activeColor = Some(anthracite)
+        else if (angle == 345) activeFill = Some(black)
 
-        if (angle == 0) {activeColor = Some(black)}
-        else if (angle ==  15) activeColor = Some(yellowGreen)
-        else if (angle ==  30) activeColor = Some(lime)
-        else if (angle ==  45) activeColor = Some(green)
-        else if (angle ==  60) activeColor = Some(caribbean)
-        else if (angle ==  75) activeColor = Some(turquise)
-        else if (angle ==  90) activeColor = Some(cyan)
-        else if (angle == 105) activeColor = Some(pacificBlue)
-        else if (angle == 120) activeColor = Some(navyBlue)
-        else if (angle == 135) activeColor = Some(blue)
-        else if (angle == 150) activeColor = Some(purple)
-        else if (angle == 165) activeColor = Some(plum)
-        else if (angle == 180) activeColor = Some(magenta)
-        else if (angle == 195) activeColor = Some(violetRed)
-        else if (angle == 210) activeColor = Some(radicalRed)
-        else if (angle == 225) activeColor = Some(red)
-        else if (angle == 240) activeColor = Some(orangeRed)
-        else if (angle == 255) activeColor = Some(orange)
-        else if (angle == 270) activeColor = Some(yellow)
-        else if (angle == 385) activeColor = Some(brightGrey)
-        else if (angle == 300) activeColor = Some(lightGrey)
-        else if (angle == 315) activeColor = Some(grey)
-        else if (angle == 330) activeColor = Some(dimGrey)
-        else if (angle == 345) activeColor = Some(anthracite)
-
-        if(activeColor.isDefined) {
-          Siigna("activeColor") = activeColor.get
+        if(activeFill.isDefined) {
+          Siigna("activeColor") = activeFill.get
         }
 
-        if(!Drawing.isEmpty && activeColor.isDefined) {
-          Drawing.selection.addAttribute("Color" -> activeColor.get)
+        if(!Drawing.isEmpty && activeFill.isDefined) {
+          Drawing.selection.addAttribute("Raster" -> activeFill.get)
           Drawing.deselect()
         }
         //clear values and reactivate navigation
@@ -181,8 +187,9 @@ class Colors extends Module {
     drawFill(lightGrey,120)
     drawFill(grey,135)
     drawFill(dimGrey,150)
-    drawFill(anthracite,165)
-    drawFill(black,180)
+    //drawFill(anthracite,165)
+    drawFill(black,165)
+    drawFill(noColor,180)
     drawFill(yellowGreen,195)
     drawFill(lime,210)
     drawFill(green,225)

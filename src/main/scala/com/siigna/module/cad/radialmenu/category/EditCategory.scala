@@ -37,13 +37,13 @@ case object EditCategory extends MenuCategory{
     EventENE -> MenuModule(Module('cad,"edit.Trim"), MenuIcons.trim),
     EventESE -> MenuModule(Module('cad,"edit.MatchProperties"), MenuIcons.sampleProperties),
 
-    //Properties
-    EventWNW -> MenuModule(Module('cad,"edit.Stroke"), MenuIcons.stroke),
-    EventWSW -> MenuModule(Module('cad,"edit.Colors"), MenuIcons.colorWheel),
-
     //Segments
-    EventSSW -> MenuModule(Module('cad,"edit.Explode"), MenuIcons.explode),
-    EventSSE -> MenuModule(Module('cad,"edit.Join"), MenuIcons.connect)
+    EventWNW -> MenuModule(Module('cad,"edit.Explode"), MenuIcons.explode),
+    EventWSW -> MenuModule(Module('cad,"edit.Join"), MenuIcons.connect),
+
+    //Properties
+    EventSSW -> MenuModule(Module('cad,"edit.Stroke"), MenuIcons.stroke),
+    EventSSE -> MenuModule(Module('cad,"edit.Fill"), MenuIcons.colorWheel)
 
   )
   val color = MenuIcons.editColor
