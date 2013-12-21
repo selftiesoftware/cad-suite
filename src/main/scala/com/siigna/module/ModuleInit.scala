@@ -206,13 +206,13 @@ class ModuleInit extends Module {
 
       // Menu
       case MouseDown(p, MouseButtonRight, modifier) :: tail => {
-        Tooltip.updateTooltip(List("Select tool", "Drawing tools are in the Create menu","That's the one at twelve o'clock"))
+        Tooltip.updateTooltip(List("Select tool. Drawing tools are in the Create menu at 12 o'clock","",""))
         shortcut = ""
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         startMenu
       }
       case End(MouseDown(p, MouseButtonRight, modifier)) :: tail => {
-        Tooltip.updateTooltip(List("Select tool", "Drawing tools are in the Create menu","That's the one at twelve o'clock"))
+        Tooltip.updateTooltip(List("Select tool. Drawing tools are in the Create menu at 12 o'clock","",""))
         startMenu
       }
 
