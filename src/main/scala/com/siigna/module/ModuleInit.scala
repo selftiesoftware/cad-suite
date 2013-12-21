@@ -61,7 +61,7 @@ class ModuleInit extends Module {
   //call the paper header object; it displays the drawing title and paper scale in the lower right corner of the paper.
   val header = com.siigna.module.base.PaperHeader
 
-  Siigna tooltip(List("Loading drawing might take time","- especially large drawings", "Please have patience"))
+  Siigna tooltip(List("Right click to open menu","Here you'll find the drawing tools", "Suggestions for improvements? Please use the comment box above"))
 
   protected var lastModule: Option[Module] = None
 
@@ -253,8 +253,9 @@ class ModuleInit extends Module {
 
       case y => {
         //revert to the arrow-type cursor
+
         Siigna.setCursor(defaultCursor)
-        Tooltip.updateTooltip(List("Keyboard shortcuts: C = Create, H = Helpers, E = Edit, F = File.","RIGHT CLICK = open menu, SPACE = last tool, ALT = pan.","Disable this help from the Helpers menu (press H-H)"))
+        Tooltip.updateTooltip(List("Click right key to access drawing tools","Keyboard shortcuts: C = Create, H = Helpers, E = Edit, F = File.","SPACE = last tool, ALT = pan."))
         Start('cad, "create.Input", InputRequest(14, None))
       }
     }
