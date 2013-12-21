@@ -223,6 +223,7 @@ class ModuleInit extends Module {
         Start('cad, "Selection", p)
       }
       case MouseDown(p: Vector2D, _, _) :: tail => {
+
         //check if the setPaperProperties function should run.
         if (setPaperProperties.paperChangeCheck(p, true)._1) {
           //if the user has chosen to set the paper scale, goto the SetPaperScale module
@@ -252,7 +253,6 @@ class ModuleInit extends Module {
       case End :: tail => if(Tooltip.lastUpdate +500 > System.currentTimeMillis()) Tooltip.blockUpdate(3500)
 
       case y => {
-
         //revert to the arrow-type cursor
         Siigna.setCursor(defaultCursor)
         Tooltip.updateTooltip(List("Click right key to access drawing tools","Keyboard shortcuts: C = Create, H = Helpers, E = Edit, F = File.","SPACE = last tool, ALT = pan."))
@@ -265,8 +265,14 @@ class ModuleInit extends Module {
   )
 
   private val selectionAttributes = Attributes("StrokeWidth" -> 0.7, "Color" -> Siigna.color("colorSelected").getOrElse("#AAAAAA"))
+  def menuIconHighlight(m : Vector2D) : Boolean = {
+    val in = m.x < 80 & m.y < 100
+    in
+  }
 
   override def paint(g: Graphics, t: TransformationMatrix) {
+
+    if(menuIconHighlight(mousePosition)) g draw CircleShape(Vector2D(50,70),24).addAttributes("StrokeWidth" -> 1.3)
 
     g draw PaperHeader.openness.transform(t) //color to show level of openness
     g draw PaperHeader.headerFrame.transform(t) //frame around drawing info
