@@ -256,9 +256,9 @@ class ModuleInit extends Module {
         //revert to the arrow-type cursor
         Siigna.setCursor(defaultCursor)
         Tooltip.updateTooltip(List("Click right key to access drawing tools","Keyboard shortcuts: C = Create, H = Helpers, E = Edit, F = File.","SPACE = last tool, ALT = pan."))
-        if (Drawing.size == 0) {
+        if (Drawing.size < 2) {
           Siigna tooltip(List("Right click to open menu","Here you'll find the drawing tools", "Suggestions for improvements? Please use the comment box above"))
-        }
+        } else Siigna tooltip(List("Suggestions for improvements? Please use the comment box above","",""))
         Start('cad, "create.Input", InputRequest(14, None))
       }
     }
