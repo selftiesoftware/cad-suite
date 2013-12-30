@@ -255,7 +255,7 @@ class ModuleInit extends Module {
         //revert to the arrow-type cursor
         Siigna.setCursor(defaultCursor)
         Tooltip.updateTooltip(List("Keyboard shortcuts: C = Create, H = Helpers, E = Edit, F = File.","RIGHT CLICK = open menu, SPACE = last tool, ALT = pan.","Disable this help from the Helpers menu (press H-H)"))
-        Start('cad, "create.Input", InputRequest(14, None))
+        Start('cad, "create.Input", InputRequest(21, None))
       }
     }
   )

@@ -45,7 +45,7 @@ class Input extends Module {
   def interpretMouseInput(p : Vector2D) : Option[ModuleEvent] = {
     if (inputType == Some(1) || inputType == Some(2) || inputType == Some(5) || inputType == Some(6) || inputType == Some(7)
       || inputType == Some(9) || inputType == Some(14) || inputType == Some(15) || inputType == Some(16) || inputType == Some(19)
-      || inputType == Some(20))  {
+      || inputType == Some(20) || inputType == Some(21)) {
       //Absolute values returned
       Some(End(p.transform(View.deviceTransformation)))
     } else if (inputType == Some(10)) {
@@ -75,8 +75,8 @@ class Input extends Module {
         var snapGuide: Boolean = false
         guides.foreach(_ match {
           case DynamicDrawFromVector2D(guide) => {
-            if (snapGuide == false && inputType != Some(5) && inputType != Some(8) && inputType != Some(15)
-              && inputType != Some(16) && inputType != Some(18) && inputType != Some(19) && inputType != Some(20)) {
+            if (!snapGuide && inputType != Some(5) && inputType != Some(8) && inputType != Some(15)
+              && inputType != Some(16) && inputType != Some(18) && inputType != Some(19) && inputType != Some(20) && inputType != Some(21)) {
               val snapFunction = () => guide(mousePosition)
               eventParser.snapTo(snapFunction)
             }
@@ -85,7 +85,7 @@ class Input extends Module {
         } )
 
         //Turn off track,if required
-        if(inputType == Some(2) || inputType == Some(8) || inputType == Some(15)) Siigna("track") = false
+        if(inputType == Some(2) || inputType == Some(8) || inputType == Some(15)  || inputType == Some(21)) Siigna("track") = false
         'ReceiveUserInput
       }
 
@@ -200,7 +200,7 @@ class Input extends Module {
       } else if(inputType == Some(12) || inputType == Some(17)) {
       // Input types accepting a string as input:
         Start('cad,"create.InputTextByKey",inputRequest.get)
-      } else if(inputType == Some(14)) {
+      } else if(inputType == Some(14) || inputType == Some(21)) {
         // Input types accepting a character as input:
         Start('cad,"create.InputCharacterByKey",inputRequest.get)
       }
