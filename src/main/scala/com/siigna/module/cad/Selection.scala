@@ -23,6 +23,7 @@ import com.siigna._
 import com.siigna.{Selection => SiignaSelection}
 import java.awt.Color
 import com.siigna.app.model.selection.EmptySelection
+import util.geom.Vector2D
 
 /**
  * A Module for selecting shapes and shape-parts.
@@ -75,36 +76,47 @@ class Selection extends Module {
 
     //Mouse up, after mouse down - possible double click:
     case MouseUp(p1, _, m1) :: Start(_ , p2: Vector2D) :: MouseDown(p3,MouseButtonLeft,m3) :: MouseUp(p4, _, m4) :: MouseDown(p5,MouseButtonLeft,m5) :: tail
-      if (p1 == p5) => {
-        if(!m1.ctrl) {
-          //If control is not down, and clicking away from shape: Deselect any selections.
-          if (!shapeWithinSelectionDistance) Deselect()
-          //If clicking near shapes, and on the same point as last mouse up: Select whole shape (Doubleclick)
 
-          //TOTO: Insert time factor
-          else {
-            val (id, shape) = nearestShape.get
-            Deselect()
-            Select(id)
-            //If it's a text-shape: Edit the text-shape.
-            shape match {
-              case t: TextShape => textShapes = textShapes + 1
-              case _ =>
-            }
-            if ( textShapes == 1) End(Module('cad, "edit.EditText"))
-            else End
-          }
-        } else {
-          //If control is down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
+    if (p1 == p5) => {
+      if(!m1.ctrl) {
+        //If control is not down, and clicking away from shape: Deselect any selections.
+        if (!shapeWithinSelectionDistance) Deselect()
+        //If clicking near shapes, and on the same point as last mouse up: Select whole shape (Doubleclick)
+
+        //TOTO: Insert time factor
+        else {
           val (id, shape) = nearestShape.get
-          SelectToggle(id)
-          End
+          Deselect()
+          Select(id)
+          //If it's a text-shape: Edit the text-shape.
+          shape match {
+            case t: TextShape => textShapes = textShapes + 1
+            case _ =>
+          }
+          if ( textShapes == 1) End(Module('cad, "edit.EditText"))
+          else End
         }
+      } else {
+        //If control is down, and clicking near shape, and it is the same place as before: Doubleclick = toggle selection:
+        val (id, shape) = nearestShape.get
+        SelectToggle(id)
+        End
       }
+    }
+
 
     //If started with a Vector2D: It's a MouseDown  .
     //If no event has been received since last mouse up, there is no End in the eventstream
     case Start(_ , p1: Vector2D) :: MouseDown(p2,MouseButtonLeft,m2) :: tail => {
+      println("AAA")
+      //open the radial menu if this module is activated when the mouse is at a certain part of the screen:
+      val in = {
+        val r = mousePosition.x < 80 & mousePosition.y < 100
+        println(r)
+        r
+      } //icon menu check
+      if(in) Start('base, "Menu")
+
       //If near shape part: Toggle, if control is down, select if control is not down
       //If not near shape part: Do nothing (before the mouse button is released again)
       if (shapeWithinSelectionDistance) {
@@ -138,7 +150,13 @@ class Selection extends Module {
     //If started with a Vector2D: It's a MouseDown
     //If last event was not a mouse up (on the same spot, otherwise there had been a move event), there is an extra "End"... Otherwise the same as above.
     case Start(_ , p1: Vector2D) :: End(_) :: MouseDown(p2,MouseButtonLeft,m2) :: tail => {
-      if (shapeWithinSelectionDistance) {
+
+      //open the radial menu if this module is activated when the mouse is at a certain part of the screen:
+      if(mousePosition.x < 80 & mousePosition.y < 100) {
+        End(MouseDown(Vector2D(0,0),MouseButtonRight,ModifierKeys(false,false,false)))
+      }
+
+      else if (shapeWithinSelectionDistance) {
         //If near shape part: Toggle, if control is down, select if control is not down
         //If not near shape part: Do nothing (before the mouse button is released again)
           val (id, shape) = nearestShape.get
@@ -190,12 +208,14 @@ class Selection extends Module {
 
     //Click, then drag:
     case MouseDrag(p1,MouseButtonLeft,m1) :: tail
+
       //contol down: Box selUect, toggle:
       if (m1.ctrl) => {
         startPoint = Some(p1)
         'Box
       }
     case MouseDrag(p1,MouseButtonLeft,m1) :: tail
+
       //Control up: Drag move if near shape, box select if not near shape:
       if (!m1.ctrl) => {
         if (shapeWithinSelectionDistance) {
@@ -358,9 +378,9 @@ class Selection extends Module {
     case MouseMove(_,_,_) :: tail =>
 
     case x => {
+      //open the radial menu if this module is activated when the mouse is at a certain part of the screen:
       End
     }
-
   },
 
   'Box -> {
@@ -417,7 +437,6 @@ class Selection extends Module {
   private val rasterFocused  = new Color(210, 100, 120, 20)
 
   override def paint(g : Graphics, t : TransformationMatrix) {
-
     if (box.isDefined) {
       val p = PolylineShape(box.get).setAttribute("Color" -> (if (isEnclosed) enclosed else focused))
       val r = p.setAttributes("Raster" -> (if (isEnclosed) rasterEnclosed))

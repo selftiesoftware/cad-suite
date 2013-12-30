@@ -39,10 +39,7 @@ class Scale extends Module {
 
     'Start -> {
       //exit strategy
-      case KeyDown(Key.Esc, _) :: tail => End
-      case MouseDown(p, MouseButtonRight, _) :: tail => End
-      case End(KeyDown(Key.Esc, _)) :: tail => End
-      case End(MouseDown(p, MouseButtonRight, _)) :: tail => End
+      case (End | KeyDown(Key.Esc, _) | End(KeyDown(Key.escape, _)) | MouseDown(_, MouseButtonRight, _) | End(MouseDown(_,MouseButtonRight, _)) ) :: tail => End
 
       case End(p : Vector2D) :: tail => {
         if(startPoint.isEmpty){

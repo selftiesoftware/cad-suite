@@ -61,7 +61,7 @@ class ModuleInit extends Module {
   //call the paper header object; it displays the drawing title and paper scale in the lower right corner of the paper.
   val header = com.siigna.module.base.PaperHeader
 
-  Siigna tooltip(List("Loading drawing might take time","- especially large drawings", "Please have patience"))
+  Siigna tooltip(List("Right click to open menu","Here you'll find the drawing tools", "Suggestions for improvements? Please use the comment box above"))
 
   protected var lastModule: Option[Module] = None
 
@@ -206,13 +206,13 @@ class ModuleInit extends Module {
 
       // Menu
       case MouseDown(p, MouseButtonRight, modifier) :: tail => {
-        Tooltip.updateTooltip(List("Select tool", "",""))
+        Siigna tooltip(List("Choose your tool. Drawing tools are in the Create menu at 12 o'clock","",""))
         shortcut = ""
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         startMenu
       }
       case End(MouseDown(p, MouseButtonRight, modifier)) :: tail => {
-        Tooltip.updateTooltip(List("Select tool", "",""))
+        Siigna tooltip(List("Choose your tool. Drawing tools are in the Create menu at 12 o'clock","",""))
         startMenu
       }
 
@@ -223,6 +223,7 @@ class ModuleInit extends Module {
         Start('cad, "Selection", p)
       }
       case MouseDown(p: Vector2D, _, _) :: tail => {
+
         //check if the setPaperProperties function should run.
         if (setPaperProperties.paperChangeCheck(p, true)._1) {
           //if the user has chosen to set the paper scale, goto the SetPaperScale module
@@ -254,15 +255,26 @@ class ModuleInit extends Module {
       case y => {
         //revert to the arrow-type cursor
         Siigna.setCursor(defaultCursor)
-        Tooltip.updateTooltip(List("Keyboard shortcuts: C = Create, H = Helpers, E = Edit, F = File.","RIGHT CLICK = open menu, SPACE = last tool, ALT = pan.","Disable this help from the Helpers menu (press H-H)"))
+
+        Tooltip.updateTooltip(List("Click right key to access drawing tools","Keyboard shortcuts: C = Create, H = Helpers, E = Edit, F = File.","SPACE = last tool, ALT = pan."))
+        if (Drawing.size < 2) {
+          Siigna tooltip(List("Right click to open menu","Here you'll find the drawing tools", "Suggestions for improvements? Please use the comment box above"))
+        } else Siigna tooltip(List("Suggestions for improvements? Please use the comment box above","",""))
         Start('cad, "create.Input", InputRequest(21, None))
+
       }
     }
   )
 
   private val selectionAttributes = Attributes("StrokeWidth" -> 0.7, "Color" -> Siigna.color("colorSelected").getOrElse("#AAAAAA"))
+  def menuIconHighlight(m : Vector2D) : Boolean = {
+    val in = m.x < 80 & m.y < 100
+    in
+  }
 
   override def paint(g: Graphics, t: TransformationMatrix) {
+
+    if(menuIconHighlight(mousePosition)) g draw CircleShape(Vector2D(50,70),24).addAttributes("StrokeWidth" -> 1.3)
 
     g draw PaperHeader.openness.transform(t) //color to show level of openness
     g draw PaperHeader.headerFrame.transform(t) //frame around drawing info
