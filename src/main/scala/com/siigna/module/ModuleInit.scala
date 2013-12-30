@@ -251,7 +251,7 @@ class ModuleInit extends Module {
 
       //If the ending module sent a message (fx. measure distance; lines exploded, of whatever, don't overwrite it...
       case End :: tail => if(Tooltip.lastUpdate +500 > System.currentTimeMillis()) Tooltip.blockUpdate(3500)
-
+                                                                                            s
       case y => {
         //revert to the arrow-type cursor
         Siigna.setCursor(defaultCursor)
