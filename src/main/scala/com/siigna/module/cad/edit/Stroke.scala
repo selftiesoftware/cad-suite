@@ -31,29 +31,6 @@ import java.awt.Color
 class Stroke extends Module {
 
   var activeLine : Option[Double] = None
-  var strokeColor : Color = new Color(0.0f, 0.0f, 0.0f, 1.00f)
-  val transp = 1.00f
-
-  def drawArc (dist : Int, span : Int, rotation : Int, color : Color, width : Double) : Shape = {
-    val p1 = (View.center + Vector2D(0,dist)).rotate(View.center,rotation)
-    val p2 = p1.rotate(View.center,-span)
-    val p3 = p1.rotate(View.center,span)
-    ArcShape(p2, p1, p3).addAttributes("StrokeWidth" -> width, "Color" -> color)
-    //arc.transform(t.rotate(rotation))
-    //draw the active weight
-    //g draw activeArc.transform(t.rotate(getActiveAngle(View.center,mousePosition)))
-  }
-
-  lazy val noColor     = new Color(1.00f, 1.00f, 1.00f, transp)
-  lazy val black       = new Color(0.00f, 0.00f, 0.00f, transp)
-  lazy val grey        = new Color(0.60f, 0.60f, 0.60f, transp)
-  lazy val yellow      = new Color(1.00f, 1.00f, 0.40f, transp)
-  lazy val orange      = new Color(1.00f, 0.75f, 0.30f, transp)
-  lazy val red         = new Color(0.95f, 0.12f, 0.30f, transp)
-  lazy val magenta     = new Color(0.95f, 0.15f, 0.80f, transp)
-  lazy val blue        = new Color(0.12f, 0.25f, 0.95f, transp)
-  lazy val cyan        = new Color(0.10f, 0.95f, 0.95f, transp)
-  lazy val green       = new Color(0.10f, 0.95f, 0.10f, transp)
 
   //TODO: make this dynamic so that each line is drawn by the same function, only changing the .
   //a list of the possible lines
@@ -82,13 +59,13 @@ class Stroke extends Module {
   def getActiveAngle(startPoint : Vector2D, mousePosition : Vector2D) : Int = {
     var activeAngle = 0
     val radian = (mousePosition - startPoint).angle.toInt
-    val calculatedAngle = radian + 450
+    var calculatedAngle = radian + 450
     if (calculatedAngle > 360)
       activeAngle = calculatedAngle - 360
     else activeAngle = calculatedAngle
-    activeAngle = ((activeAngle+24) /45).toInt * 45
+    activeAngle = ((activeAngle+24) /30).toInt * 30
     //return the angle
-    activeAngle
+    activeAngle-180
   }
 
   def radians(rotation : Int) : List[Int] = {
@@ -122,77 +99,73 @@ class Stroke extends Module {
       //selects the color to use
       case MouseDown(point, MouseButtonLeft, _) :: tail => {
 
-        val activeAngle = getActiveAngle(View.center,mousePosition)
-        val activeDist = View.center.distanceTo(mousePosition)
+        var activeAngle = getActiveAngle(View.center,mousePosition)
 
-
-        if (activeAngle == 180)      {Siigna("activeLineWidth") = Some(0.1)}
-        else if (activeAngle == 225) {Siigna("activeLineWidth") = Some(4.0)}
-        else if (activeAngle == 270) {Siigna("activeLineWidth") = Some(2.0)}
-        else if (activeAngle == 315) {Siigna("activeLineWidth") = Some(1.0)}
-        else if (activeAngle == 360) {Siigna("activeLineWidth") = Some(0.6)}
-        else if (activeAngle ==  45) {Siigna("activeLineWidth") = Some(0.4)}
-        else if (activeAngle ==  90) {Siigna("activeLineWidth") = Some(0.3)}
-        else if (activeAngle == 135) {Siigna("activeLineWidth") = Some(0.2)}
-
+        if (activeAngle == 180) {activeLine = Some(line0)}
+        else if (activeAngle == 210) {activeLine = Some(line30)}
+        else if (activeAngle == 240) {activeLine = Some(line60)}
+        else if (activeAngle == 270) {activeLine = Some(line90)}
+        else if (activeAngle == -60) {activeLine = Some(line120)}
+        else if (activeAngle == -30) {activeLine = Some(line150)}
+        else if (activeAngle ==   0) {activeLine = Some(line180)}
+        else if (activeAngle ==  30) {activeLine = Some(line210)}
+        else if (activeAngle ==  60) {activeLine = Some(line240)}
+        else if (activeAngle ==  90) {activeLine = Some(line270)}
+        else if (activeAngle == 120) {activeLine = Some(line300)}
+        else if (activeAngle == 150) {activeLine = Some(line330)}
 
       }
-      //if a selection is defined, change lineweight of the selected shapes and deselect them.
-      if(!Drawing.selection.isEmpty) {
-        Drawing.selection.addAttribute("StrokeWidth" -> Siigna.double("activeLineWidth").get)
-        Drawing.deselect()
-      }
-      //clear values and reactivate navigation
-      eventParser.enable()
-      Siigna.navigation = true
-      End
+        if(activeLine.isDefined) Siigna("activeLineWidth") = activeLine.get
+        //if a selection is defined, change lineweight of the selected shapes and deselect them.
+        if(!Drawing.selection.isEmpty) {
+          Drawing.selection.addAttribute("StrokeWidth" -> activeLine.get)
+          Drawing.deselect()
+        }
+        //clear values and reactivate navigation
+        eventParser.enable()
+        Siigna.navigation = true
+        End
+
     }
   )
   override def paint(g : Graphics, transform : TransformationMatrix) {
-    val w = Siigna.double("activeLineWidth").getOrElse(0.2)
-    val dist = View.center.distanceTo(mousePosition)
 
-    //draw stroke width options
-    g draw drawArc(120,15,225,strokeColor,4.0)
-    g draw drawArc(120,15,270,strokeColor,2.0)
-    g draw drawArc(120,15,315,strokeColor,1.0)
-    g draw drawArc(120,15,0,strokeColor,0.6)
-    g draw drawArc(120,15,45,strokeColor,0.4)
-    g draw drawArc(120,15,90,strokeColor,0.3)
-    g draw drawArc(120,15,135,strokeColor,0.2)
-    g draw drawArc(120,15,180,strokeColor,0.1)
+    //template for lines
+    def line(width : Double) = LineShape(Vector2D(47,100), Vector2D(-15,83)).addAttribute("StrokeWidth" -> width)
 
-    //draw stroke color options
-    g draw drawArc(90,15,225,yellow,w)
-    g draw drawArc(90,15,270,green,w)
-    g draw drawArc(90,15,315,cyan,w)
-    g draw drawArc(90,15,0,blue,w)
-    g draw drawArc(90,15,45,magenta,w)
-    g draw drawArc(90,15,90,red,w)
-    g draw drawArc(90,15,135,grey,w)
-    g draw drawArc(90,15,180,black,w)
+    val t  = TransformationMatrix(startPoint,1.3)
+    var i : Int = 0
+    val weights : List[Double] = List(0.60,0.40,0.30,0.25,0.18,0.09,0.00,3.00,2.00,1.50,1.00,0.80,0.00)
+    //function to rotate the graphics
+    def drawLine (rotation : Int) {
+      val activeLine = LineShape(Vector2D(47,100), Vector2D(-15,83)).addAttributes("StrokeWidth" -> 4.0, "Color" -> new Color(0.75f, 0.75f, 0.75f, 0.80f))
+      //draw the active weight
+      g draw activeLine.transform(t.rotate(getActiveAngle(View.center,mousePosition)))
+    }
 
-    //draw stroke type options
-    g draw drawArc(60,30,180,strokeColor,w)
-    g draw drawArc(60,30,270,strokeColor,w)
-    g draw drawArc(60,30,0,strokeColor,w)
-    g draw drawArc(60,30,90,strokeColor,w)
-
-    //draw active option
-    val a = getActiveAngle(mousePosition,View.center)
-    if(dist > 100) g draw drawArc(120,18, -a,new Color(0.00f, 0.00f, 0.00f, 0.50f),6.0)
-    else if(dist < 70) g draw drawArc(60,18,-a,new Color(0.00f, 0.00f, 0.00f, 0.50f),3.0)
-    else g draw drawArc(90,18,-a,strokeColor,3.0)
+    //draw the lines
+    drawLine(0)
+    drawLine(3)
+    drawLine(60)
+    drawLine(90)
+    drawLine(120)
+    drawLine(150)
+    drawLine(180)
+    drawLine(210)
+    drawLine(240)
+    drawLine(270)
+    drawLine(300)
+    drawLine(330)
 
     //draw an outline of the menu
     //g draw CircleShape(View.center, Vector2D(View.center.x,80)).transform(t)
     //g draw CircleShape(View.center, Vector2D(View.center.x,118)).transform(t)
 
     //draw the lines
-    //radians(30).foreach(radian => {
-    //  i+=1
-      //g draw line(weights(i-1)).transform(t.rotate(radian))
-    //})
+    radians(30).foreach(radian => {
+      i+=1
+      g draw line(weights(i-1)).transform(t.rotate(radian))
+    })
 
     //draw a text description
     val text30 : TextShape = TextShape(line240.toString+" ", Vector2D(-89.48,66.83), scale, attributes)
@@ -208,17 +181,17 @@ class Stroke extends Module {
     val text330 : TextShape = TextShape(line180.toString+" ", Vector2D(10.01,104.2), scale, attributes)
     val text0 : TextShape = TextShape(line210.toString+" ", Vector2D(-44.74,98.85), scale, attributes)
 
-    //g draw text0.transform(t)
-    //g draw text30.transform(t)
-    //g draw text60.transform(t)
-    //g draw text90.transform(t)
-    //g draw text120.transform(t)
-    //g draw text150.transform(t)
-    //g draw text180.transform(t)
-    //g draw text210.transform(t)
-    //g draw text240.transform(t)
-    //g draw text270.transform(t)
-    //g draw text300.transform(t)
-    //g draw text330.transform(t)
+    g draw text0.transform(t)
+    g draw text30.transform(t)
+    g draw text60.transform(t)
+    g draw text90.transform(t)
+    g draw text120.transform(t)
+    g draw text150.transform(t)
+    g draw text180.transform(t)
+    g draw text210.transform(t)
+    g draw text240.transform(t)
+    g draw text270.transform(t)
+    g draw text300.transform(t)
+    g draw text330.transform(t)
   }
 }
