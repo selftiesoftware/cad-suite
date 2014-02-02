@@ -96,11 +96,12 @@ class Polyline extends Module {
         else End
       }
       case x => {
+        Tooltip.updateTooltip(List("- right click to finish"))
         if (points.length == 0) {
           //change cursor to crosshair
           Siigna.setCursor(Cursors.crosshair)
           //Update tooltip
-          Tooltip.updateTooltip(List("Polyline tool active. Right click to finish polyline."))
+
           //Request input
           Start('cad, "create.Input", InputRequest(20,None))
         } else {

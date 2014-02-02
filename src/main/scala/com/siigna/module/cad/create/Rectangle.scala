@@ -60,7 +60,7 @@ class Rectangle extends Module {
         Siigna.setCursor(Cursors.crosshair)
 
         if (points.length == 0) {
-          Tooltip.updateTooltip(List("Rectangle tool active"))
+          Tooltip.updateTooltip(List("Set corner points"))
           Start('cad, "create.Input", InputRequest(6,None))
         } else {
           val vector2DGuide = DynamicDrawFromVector2D((v: Vector2D) => Traversable(PolylineShape(Rectangle2D(points(0), v)).addAttributes(attributes)))

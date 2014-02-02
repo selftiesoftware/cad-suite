@@ -61,7 +61,7 @@ class ModuleInit extends Module {
   //call the paper header object; it displays the drawing title and paper scale in the lower right corner of the paper.
   val header = com.siigna.module.base.PaperHeader
 
-  Siigna tooltip(List("Right click to open menu","Here you'll find the drawing tools", "Suggestions for improvements? Please use the comment box above"))
+  //Siigna tooltip(List("Right click to open menu","Here you'll find the drawing tools", "Suggestions for improvements? Please use the comment box above"))
 
   protected var lastModule: Option[Module] = None
 
@@ -206,13 +206,13 @@ class ModuleInit extends Module {
 
       // Menu
       case MouseDown(p, MouseButtonRight, modifier) :: tail => {
-        Siigna tooltip(List("Choose your tool. Drawing tools are in the Create menu at 12 o'clock","",""))
+        //Siigna tooltip(List("Choose your tool. Drawing tools are in the Create menu at 12 o'clock","",""))
         shortcut = ""
         textFeedback.inputFeedback("EMPTY") //clear shortcut text guides
         startMenu
       }
       case End(MouseDown(p, MouseButtonRight, modifier)) :: tail => {
-        Siigna tooltip(List("Choose your tool. Drawing tools are in the Create menu at 12 o'clock","",""))
+        //Siigna tooltip(List("Choose your tool. Drawing tools are in the Create menu at 12 o'clock","",""))
         startMenu
       }
 
@@ -256,10 +256,10 @@ class ModuleInit extends Module {
         //revert to the arrow-type cursor
         Siigna.setCursor(defaultCursor)
 
-        Tooltip.updateTooltip(List("Click right key to access drawing tools","Keyboard shortcuts: C = Create, H = Helpers, E = Edit, F = File.","SPACE = last tool, ALT = pan."))
-        if (Drawing.size < 2) {
-          Siigna tooltip(List("Right click to open menu","Here you'll find the drawing tools", "Suggestions for improvements? Please use the comment box above"))
-        } else Siigna tooltip(List("Suggestions for improvements? Please use the comment box above","",""))
+        //Tooltip.updateTooltip(List("Click right key to access drawing tools","Keyboard shortcuts: C = Create, H = Helpers, E = Edit, F = File.","SPACE = last tool, ALT = pan."))
+
+        //Siigna tooltip(List("Right click to open menu","Here you will find CAD drawing tools", ""))
+
         Start('cad, "create.Input", InputRequest(21, None))
 
       }
@@ -274,7 +274,7 @@ class ModuleInit extends Module {
 
   override def paint(g: Graphics, t: TransformationMatrix) {
 
-    if(menuIconHighlight(mousePosition)) g draw CircleShape(Vector2D(50,70),24).addAttributes("StrokeWidth" -> 1.3)
+    if(menuIconHighlight(mousePosition)) g draw CircleShape(Vector2D(50,70),26).addAttributes("StrokeWidth" -> 1.3)
 
     g draw PaperHeader.openness.transform(t) //color to show level of openness
     g draw PaperHeader.headerFrame.transform(t) //frame around drawing info
@@ -298,7 +298,7 @@ class ModuleInit extends Module {
 }
 
 object Tooltip {
-  var tooltip : List[String] = List("Welcome to Siigna.","Right click to open the menu.","These tips may be disabled in the Helpers category")
+  var tooltip : List[String] = List("Right click to get drawing tools.","","")
   private var baseTime: Long = System.currentTimeMillis()
   private var delay : Int = 0
   private var block : Int = 1000
@@ -319,7 +319,7 @@ object Tooltip {
 
   def updateTooltip(strings : List[String]) {
     while (System.currentTimeMillis() < baseTime + delay) {
-      println(List("Waiting for message to be displayed before updating tooltip"))
+      //println(List("Waiting for message to be displayed before updating tooltip"))
     }
     if (System.currentTimeMillis() > baseTime + block) {
       lastUpdate = System.currentTimeMillis()

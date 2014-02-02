@@ -32,7 +32,6 @@ case object CreateCategory extends MenuCategory{
     EventENE -> MenuModule(Module('cad,"create.Offset"), MenuIcons.offset),
     EventESE -> MenuModule(Module('cad,"create.Copy"), MenuIcons.copy),
 
-    //TODO: ARC IS UNDER DEVELOPMENT
     EventWSW -> MenuModule(Module('cad,"create.Arc"), MenuIcons.arc),
     EventWNW -> MenuModule(Module('cad,"create.Circle"), MenuIcons.circle),
 
