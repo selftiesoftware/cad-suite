@@ -34,4 +34,4 @@
  
   COPYRIGHT
   The Siigna project is now developed under the name RepoCad including all functionality from the old Siigna project. RepoCad is released under the creative commons license, see
-  repocad_license.pdf for further info.
+  https://github.com/repocad/web/blob/master/repocad_license_agreement.pdf?raw=true for further info.
