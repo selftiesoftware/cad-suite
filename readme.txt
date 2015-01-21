@@ -33,6 +33,5 @@
   dynamically and viewed on other instances of Siigna in real time.
  
   COPYRIGHT
-  Siigna is released under the creative commons license, see
-  siigna_license.pdf for further info.
-  (c) siigna 2008 - 2012
+  The Siigna project is now developed under the name RepoCad including all functionality from the old Siigna project. RepoCad is released under the creative commons license, see
+  repocad_license.pdf for further info.
